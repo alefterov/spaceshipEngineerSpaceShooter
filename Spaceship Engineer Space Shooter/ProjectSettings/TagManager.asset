@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - PlayerShip
+  - EnemyShip
   layers:
   - Default
   - TransparentFX
