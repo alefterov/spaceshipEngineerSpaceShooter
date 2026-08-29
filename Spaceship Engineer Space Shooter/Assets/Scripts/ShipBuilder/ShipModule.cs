@@ -20,12 +20,17 @@ public class ShipModule : MonoBehaviour
     public float energyDelta = 0f;
 
     [Header("Grid placement (set by ShipGrid when placed)")]
-    [Tooltip("All grid cells (in ship-local coordinates) this module occupies. " +
-             "Supports arbitrary 1-4 cell shapes, not just rectangles.")]
+    [Tooltip("All grid cells (in absolute ship-grid coordinates) this module occupies. " +
+             "Computed purely from block shape + anchor + rotation — independent from any transform, " +
+             "so it never drifts out of sync after rotating or reloading a saved layout.")]
     public System.Collections.Generic.List<Vector2Int> occupiedCells = new() { Vector2Int.zero };
 
-    /// <summary>Bottom-left/first cell of the shape — used as the placement anchor.</summary>
-    public Vector2Int AnchorCell => occupiedCells.Count > 0 ? occupiedCells[0] : Vector2Int.zero;
+    [Tooltip("The pivot/root cell this block was placed at. The GameObject's own transform always " +
+             "sits exactly here and never rotates — only visualRoot (below) rotates/repositions.")]
+    public Vector2Int anchorCell;
+
+    [Tooltip("0-3, ×90° clockwise. Stored so a saved+reloaded ship reproduces the exact same footprint.")]
+    public int rotationSteps;
 
     [Tooltip("If true, destroying this module destroys the whole ship (e.g. the cockpit/core hull piece).")]
     public bool isCore = false;
@@ -36,7 +41,13 @@ public class ShipModule : MonoBehaviour
     [Tooltip("Shown in the ship builder — exposed internals so the grid/wiring reads clearly.")]
     public Sprite openSprite;
 
-    private SpriteRenderer spriteRenderer;
+    [Header("Visual (child object)")]
+    [Tooltip("Child object holding the sprite(s). ShipGrid repositions/rotates THIS around the root — " +
+             "the root itself never moves or rotates, so multi-cell shapes stay correctly anchored " +
+             "no matter how many times the block is rotated or reloaded from a save.")]
+    public Transform visualRoot;
+
+    private readonly System.Collections.Generic.List<SpriteRenderer> spriteRenderers = new();
 
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
@@ -49,16 +60,21 @@ public class ShipModule : MonoBehaviour
     protected virtual void Awake()
     {
         CurrentHP = maxHP;
-        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (visualRoot == null) visualRoot = transform; // fallback for old single-cell prefabs without a child
+
+        spriteRenderers.Clear();
+        spriteRenderers.AddRange(visualRoot.GetComponentsInChildren<SpriteRenderer>(true));
     }
 
-    /// <summary>Swaps the visible sprite. Called by ShipGrid.SetViewMode for every module at once.</summary>
+    /// <summary>Swaps the visible sprite on every cell's child renderer. Called by ShipGrid.SetViewMode.</summary>
     public void ApplyViewMode(ShipViewMode mode)
     {
-        if (spriteRenderer == null) return;
-
         Sprite target = mode == ShipViewMode.Preview ? closedSprite : openSprite;
-        if (target != null) spriteRenderer.sprite = target;
+        if (target == null) return;
+
+        foreach (var r in spriteRenderers)
+            if (r != null) r.sprite = target;
     }
 
     /// <summary>

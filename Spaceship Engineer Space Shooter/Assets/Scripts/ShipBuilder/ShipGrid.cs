@@ -41,14 +41,29 @@ public class ShipGrid : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    /// <summary>World-space center point of a (possibly multi-cell) shape anchored at `anchor`.</summary>
-    public Vector3 GridToWorld(Vector2Int anchor, List<Vector2Int> shapeCells)
+    /// <summary>
+    /// World position of a SINGLE grid cell's center — this is where a block's root transform
+    /// is placed (the anchor/pivot cell). The root never moves again after this, even on rotation.
+    /// </summary>
+    public Vector3 AnchorToWorld(Vector2Int anchor)
     {
-        var bounds = ShapeBounds(shapeCells);
-        Vector2 center = (Vector2)anchor + (Vector2)(bounds.min + bounds.max + Vector2Int.one) * 0.5f;
-        float x = (center.x - width * 0.5f) * cellSize;
-        float y = (center.y - height * 0.5f) * cellSize;
+        float x = (anchor.x - width * 0.5f + 0.5f) * cellSize;
+        float y = (anchor.y - height * 0.5f + 0.5f) * cellSize;
         return transform.TransformPoint(new Vector3(x, y, 0f));
+    }
+
+    /// <summary>
+    /// Centroid (in local cell units, relative to the anchor) and cell-count size of a shape.
+    /// Used to position/size the module's visual child and its collider — completely separate
+    /// from `occupiedCells`, which is pure grid-cell bookkeeping. Keeping these two calculations
+    /// independent is what prevents rotated/reloaded blocks from visually drifting or overlapping.
+    /// </summary>
+    public static (Vector2 centroidCells, Vector2Int sizeCells) ComputeLocalFootprint(List<Vector2Int> localShape)
+    {
+        var b = ShapeBounds(localShape);
+        Vector2 centroid = new(b.xMin + b.width * 0.5f, b.yMin + b.height * 0.5f);
+        Vector2Int size = new(b.width + 1, b.height + 1);
+        return (centroid, size);
     }
 
     private static RectInt ShapeBounds(List<Vector2Int> cells)
@@ -110,19 +125,20 @@ public class ShipGrid : MonoBehaviour
 
     // ---------- Placement ----------
 
-    public ShipModule PlaceHull(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape)
-        => Place(prefab, anchor, localShape, hullCells, registerWithIdentity: true);
+    public ShipModule PlaceHull(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps)
+        => Place(prefab, anchor, localShape, rotationSteps, hullCells, registerWithIdentity: true);
 
-    public ShipModule PlaceModule(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape)
-        => Place(prefab, anchor, localShape, moduleCells, registerWithIdentity: false);
+    public ShipModule PlaceModule(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps)
+        => Place(prefab, anchor, localShape, rotationSteps, moduleCells, registerWithIdentity: false);
 
-    private ShipModule Place(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape,
+    private ShipModule Place(GameObject prefab, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps,
                               Dictionary<Vector2Int, ShipModule> layer, bool registerWithIdentity)
     {
         var cells = Offset(anchor, localShape);
-        Vector3 worldPos = GridToWorld(anchor, localShape);
+        Vector3 rootWorldPos = AnchorToWorld(anchor);
 
-        var instance = Instantiate(prefab, worldPos, Quaternion.identity, transform);
+        // Root is instantiated at the anchor cell with IDENTITY rotation — it never moves or spins.
+        var instance = Instantiate(prefab, rootWorldPos, Quaternion.identity, transform);
         instance.tag = identity.faction == Faction.Player ? "PlayerShip" : "EnemyShip";
 
         var module = instance.GetComponent<ShipModule>();
@@ -133,8 +149,28 @@ public class ShipGrid : MonoBehaviour
             return null;
         }
 
-        module.occupiedCells = cells;
+        module.occupiedCells = cells;       // pure grid bookkeeping — independent of any transform
+        module.anchorCell = anchor;
+        module.rotationSteps = rotationSteps;
         module.ApplyViewMode(CurrentViewMode);
+
+        // Only the VISUAL child rotates/repositions — around its own point, computed fresh from
+        // the already-rotated local shape, so it always lines up with occupiedCells exactly.
+        var (centroidCells, sizeCells) = ComputeLocalFootprint(localShape);
+        if (module.visualRoot != null)
+        {
+            module.visualRoot.localPosition = new Vector3(centroidCells.x * cellSize, centroidCells.y * cellSize, 0f);
+            module.visualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
+        }
+
+        // Resize the (root) collider to cover the whole footprint's bounding box.
+        // 90°-multiple rotations keep the box axis-aligned, so no collider rotation is needed.
+        if (instance.TryGetComponent<BoxCollider2D>(out var box))
+        {
+            box.offset = new Vector2(centroidCells.x * cellSize, centroidCells.y * cellSize);
+            box.size = new Vector2(sizeCells.x * cellSize, sizeCells.y * cellSize);
+        }
+
         foreach (var cell in cells) layer[cell] = module;
 
         if (registerWithIdentity) identity.RegisterHull(module);
@@ -159,6 +195,40 @@ public class ShipGrid : MonoBehaviour
 
         foreach (var cell in hull.occupiedCells) hullCells.Remove(cell);
         Destroy(hull.gameObject);
+    }
+
+    /// <summary>
+    /// Removes a functional module cleanly (editor deletion, not combat destruction — no debris,
+    /// no TakeDamage/OnDestroyed event). Use RemoveHull for structural pieces instead.
+    /// </summary>
+    public void RemoveModule(ShipModule module)
+    {
+        foreach (var cell in module.occupiedCells) moduleCells.Remove(cell);
+        Destroy(module.gameObject);
+    }
+
+    /// <summary>
+    /// Finds whatever block sits at a world position and deletes it — dispatches to RemoveHull
+    /// or RemoveModule depending on which layer it belongs to. Used by the editor's Delete mode.
+    /// Returns true if something was actually removed.
+    /// </summary>
+    public bool TryDeleteAt(Vector3 worldPosition)
+    {
+        Vector2Int cell = WorldToGrid(worldPosition);
+
+        if (moduleCells.TryGetValue(cell, out var functionalModule))
+        {
+            RemoveModule(functionalModule);
+            return true;
+        }
+
+        if (hullCells.TryGetValue(cell, out var hullModule))
+        {
+            RemoveHull(hullModule);
+            return true;
+        }
+
+        return false;
     }
 
     // ---------- View mode (menu preview vs builder) ----------
@@ -186,9 +256,9 @@ public class ShipGrid : MonoBehaviour
     {
         var layout = new ShipLayout();
         foreach (var m in hullCells.Values.Distinct())
-            layout.hull.Add(new ShipLayout.Entry { blockId = m.moduleId, anchorX = m.AnchorCell.x, anchorY = m.AnchorCell.y });
+            layout.hull.Add(new ShipLayout.Entry { blockId = m.moduleId, anchorX = m.anchorCell.x, anchorY = m.anchorCell.y, rotationSteps = m.rotationSteps });
         foreach (var m in moduleCells.Values.Distinct())
-            layout.modules.Add(new ShipLayout.Entry { blockId = m.moduleId, anchorX = m.AnchorCell.x, anchorY = m.AnchorCell.y });
+            layout.modules.Add(new ShipLayout.Entry { blockId = m.moduleId, anchorX = m.anchorCell.x, anchorY = m.anchorCell.y, rotationSteps = m.rotationSteps });
         return layout;
     }
 
@@ -216,14 +286,16 @@ public class ShipGrid : MonoBehaviour
         {
             var def = db.GetById(entry.blockId);
             if (def == null) { Debug.LogWarning($"Unknown block id '{entry.blockId}'"); continue; }
-            PlaceHull(def.prefab, new Vector2Int(entry.anchorX, entry.anchorY), def.cells);
+            var rotatedShape = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
+            PlaceHull(def.prefab, new Vector2Int(entry.anchorX, entry.anchorY), rotatedShape, entry.rotationSteps);
         }
 
         foreach (var entry in layout.modules)
         {
             var def = db.GetById(entry.blockId);
             if (def == null) { Debug.LogWarning($"Unknown block id '{entry.blockId}'"); continue; }
-            PlaceModule(def.prefab, new Vector2Int(entry.anchorX, entry.anchorY), def.cells);
+            var rotatedShape = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
+            PlaceModule(def.prefab, new Vector2Int(entry.anchorX, entry.anchorY), rotatedShape, entry.rotationSteps);
         }
     }
 }
@@ -236,6 +308,7 @@ public class ShipLayout
     {
         public string blockId;
         public int anchorX, anchorY;
+        public int rotationSteps;
     }
 
     public List<Entry> hull = new();

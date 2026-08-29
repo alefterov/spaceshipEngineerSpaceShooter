@@ -39,6 +39,12 @@ public class MainMenuFlowController : MonoBehaviour
         mainMenuScreen.SetActive(false);
         builderScreen.SetActive(true);
 
+        // The input catcher (GhostBlockController's full-screen UI Image) may live outside the
+        // builderScreen hierarchy — explicitly (re)activate it and reset build state here rather
+        // than relying only on SetActive(builderScreen), or taps would keep working after exit.
+        buildModeController.ghost.gameObject.SetActive(true);
+        buildModeController.SetHullBuildMode(); // fresh, predictable state every time we enter
+
         playerShip.SetViewMode(ShipViewMode.Building); // strip the roof so the grid/internals read clearly
     }
 
@@ -46,6 +52,12 @@ public class MainMenuFlowController : MonoBehaviour
     public void OnExitBuilderPressed()
     {
         GameDataManager.Instance.SaveShip(playerShip);
+
+        // Bug fix: without this, the input catcher stayed active and taps in the main menu
+        // would still place/delete blocks. Clear all transient state AND disable the catcher.
+        buildModeController.ResetForExit();
+        buildModeController.ghost.gameObject.SetActive(false);
+
         ShowMainMenu();
     }
 
@@ -53,6 +65,7 @@ public class MainMenuFlowController : MonoBehaviour
     {
         builderScreen.SetActive(false);
         mainMenuScreen.SetActive(true);
+        buildModeController.ghost.gameObject.SetActive(false); // safety: never listen for taps outside the builder
 
         playerShip.SetViewMode(ShipViewMode.Preview); // put the roof back on for the menu preview
     }
