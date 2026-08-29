@@ -158,5 +158,7 @@ MonoBehaviour:
   mass: 1
   energyDelta: 0
   occupiedCells:
-  - {x: 0, y: 0}
+  - {x: 0, y: 1}
   isCore: 0
+  closedSprite: {fileID: -3943014933874807657, guid: 9ebf1e52d50597b4688667852600249d, type: 3}
+  openSprite: {fileID: -3569328485089474353, guid: a7e68e47017219945a812f81e5e9d4cb, type: 3}

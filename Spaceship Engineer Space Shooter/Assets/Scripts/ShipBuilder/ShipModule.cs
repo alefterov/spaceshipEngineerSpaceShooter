@@ -30,6 +30,14 @@ public class ShipModule : MonoBehaviour
     [Tooltip("If true, destroying this module destroys the whole ship (e.g. the cockpit/core hull piece).")]
     public bool isCore = false;
 
+    [Header("View sprites")]
+    [Tooltip("Shown in the main menu ship preview — the finished, closed-up look.")]
+    public Sprite closedSprite;
+    [Tooltip("Shown in the ship builder — exposed internals so the grid/wiring reads clearly.")]
+    public Sprite openSprite;
+
+    private SpriteRenderer spriteRenderer;
+
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
 
@@ -41,6 +49,16 @@ public class ShipModule : MonoBehaviour
     protected virtual void Awake()
     {
         CurrentHP = maxHP;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    /// <summary>Swaps the visible sprite. Called by ShipGrid.SetViewMode for every module at once.</summary>
+    public void ApplyViewMode(ShipViewMode mode)
+    {
+        if (spriteRenderer == null) return;
+
+        Sprite target = mode == ShipViewMode.Preview ? closedSprite : openSprite;
+        if (target != null) spriteRenderer.sprite = target;
     }
 
     /// <summary>
@@ -104,4 +122,11 @@ public enum ModuleType
     Engine,
     Shield,
     Generator
+}
+
+/// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>
+public enum ShipViewMode
+{
+    Preview,
+    Building
 }

@@ -22,6 +22,10 @@ public class ShipGrid : MonoBehaviour
     private readonly Dictionary<Vector2Int, ShipModule> hullCells = new();
     private readonly Dictionary<Vector2Int, ShipModule> moduleCells = new();
 
+    [Tooltip("Preview = closed look (main menu), Building = exposed internals (editor). " +
+             "Applied to every module immediately on placement.")]
+    public ShipViewMode CurrentViewMode { get; private set; } = ShipViewMode.Building;
+
     private ShipIdentity identity;
     private void Awake() => identity = GetComponent<ShipIdentity>();
 
@@ -130,6 +134,7 @@ public class ShipGrid : MonoBehaviour
         }
 
         module.occupiedCells = cells;
+        module.ApplyViewMode(CurrentViewMode);
         foreach (var cell in cells) layer[cell] = module;
 
         if (registerWithIdentity) identity.RegisterHull(module);
@@ -156,6 +161,17 @@ public class ShipGrid : MonoBehaviour
         Destroy(hull.gameObject);
     }
 
+    // ---------- View mode (menu preview vs builder) ----------
+
+    /// <summary>Switches every currently placed block between the closed preview look and the exposed builder look.</summary>
+    public void SetViewMode(ShipViewMode mode)
+    {
+        CurrentViewMode = mode;
+
+        foreach (var m in hullCells.Values.Distinct()) m.ApplyViewMode(mode);
+        foreach (var m in moduleCells.Values.Distinct()) m.ApplyViewMode(mode);
+    }
+
     // ---------- Aggregate stats ----------
 
     public float ComputeTotalMass()
@@ -176,9 +192,23 @@ public class ShipGrid : MonoBehaviour
         return layout;
     }
 
-    /// <summary>Builds a full ship (hull + modules) from a saved layout with no player input — used for enemy ships.</summary>
+    /// <summary>Destroys every placed block and resets the grid — call before loading a saved layout.</summary>
+    public void Clear()
+    {
+        foreach (var m in hullCells.Values.Distinct().ToList())
+            if (m != null) Destroy(m.gameObject);
+        foreach (var m in moduleCells.Values.Distinct().ToList())
+            if (m != null) Destroy(m.gameObject);
+
+        hullCells.Clear();
+        moduleCells.Clear();
+    }
+
+    /// <summary>Builds a full ship (hull + modules) from a saved layout with no player input — used for enemy ships and for restoring a saved player ship.</summary>
     public void BuildFromLayout(ShipLayout layout, BlockDatabase db, Faction faction)
     {
+        Clear();
+
         identity.faction = faction;
         identity.ApplyTagToRoot();
 

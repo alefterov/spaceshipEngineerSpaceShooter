@@ -160,3 +160,5 @@ MonoBehaviour:
   occupiedCells:
   - {x: 0, y: 0}
   isCore: 1
+  closedSprite: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  openSprite: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}

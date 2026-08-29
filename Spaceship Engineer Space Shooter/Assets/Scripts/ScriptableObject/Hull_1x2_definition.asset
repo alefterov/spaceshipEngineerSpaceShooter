@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: Hull_1x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: hull_1x2
+  displayName: Hull Block 2x
+  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  prefab: {fileID: 863857228286269480, guid: b37bdbf16df3cb04cb7302935f199b57, type: 3}
+  category: 0
+  cells:
+  - {x: 1, y: 0}

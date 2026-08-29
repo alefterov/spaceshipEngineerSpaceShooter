@@ -21,17 +21,27 @@ public class BuildModeController : MonoBehaviour
     private void Start()
     {
         rotateButton.onClick.AddListener(RotateSelected);
-        SetMode(BuildMode.Hull);
+        SetHullBildMode();
     }
 
     /// <summary>Call from the "Корпус" / "Модули" tab buttons.</summary>
-    public void SetMode(BuildMode mode)
+    public void SetHullBildMode()
     {
+        BuildMode mode = BuildMode.Hull;
         CurrentMode = mode;
         ghost.StopPlacing();
         rotateButton.interactable = false;
         palette.ShowForMode(mode);
     }
+    public void SetModuleBildMode()
+    {
+        BuildMode mode = BuildMode.Modules;
+        CurrentMode = mode;
+        ghost.StopPlacing();
+        rotateButton.interactable = false;
+        palette.ShowForMode(mode);
+    }
+
 
     /// <summary>Call from a palette button when the player taps a block to place.</summary>
     public void SelectBlock(BlockDefinition block)
