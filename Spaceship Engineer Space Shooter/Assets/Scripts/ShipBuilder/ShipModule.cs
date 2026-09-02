@@ -13,6 +13,11 @@ public class ShipModule : MonoBehaviour
     public ModuleType type = ModuleType.Hull;
     public string moduleId = "hull_basic";
 
+    [Tooltip("Credits this block cost to build — always set from BlockDefinition.buildCost at " +
+             "placement time (ShipGrid.Place), same as moduleId. Not meant to be hand-edited on the " +
+             "prefab; read by GhostBlockController to compute the dismantle refund.")]
+    public int buildCost;
+
     [Header("Stats")]
     public float maxHP = 20f;
     public float mass = 1f;
@@ -47,6 +52,13 @@ public class ShipModule : MonoBehaviour
              "no matter how many times the block is rotated or reloaded from a save.")]
     public Transform visualRoot;
 
+    [Header("Idle animation (optional)")]
+    [Tooltip("Animator for this block's idle/ambient animation (e.g. a weapon humming, a light " +
+             "blinking). Deliberately NOT tied to ShipViewMode — it plays during the main menu ship " +
+             "preview and, later, battle idle (a separate context ShipViewMode doesn't cover at all), " +
+             "but stays off while actively building. Leave unassigned for blocks with no animation.")]
+    public Animator idleAnimator;
+
     private readonly System.Collections.Generic.List<SpriteRenderer> spriteRenderers = new();
 
     public float CurrentHP { get; private set; }
@@ -65,16 +77,29 @@ public class ShipModule : MonoBehaviour
 
         spriteRenderers.Clear();
         spriteRenderers.AddRange(visualRoot.GetComponentsInChildren<SpriteRenderer>(true));
+
+        SetIdleAnimationPlaying(false); // safe default until something explicitly turns it on
     }
 
-    /// <summary>Swaps the visible sprite on every cell's child renderer. Called by ShipGrid.SetViewMode.</summary>
+    /// <summary>Swaps the visible sprite on every cell's child renderer, and — since the builder is
+    /// the one context idle animation should NEVER play in — turns it off in Building mode and on in
+    /// Preview. Called by ShipGrid.SetViewMode. (Battle idle, later, will call SetIdleAnimationPlaying
+    /// directly instead — it isn't a ShipViewMode at all.)</summary>
     public void ApplyViewMode(ShipViewMode mode)
     {
         Sprite target = mode == ShipViewMode.Preview ? closedSprite : openSprite;
-        if (target == null) return;
+        if (target != null)
+            foreach (var r in spriteRenderers)
+                if (r != null) r.sprite = target;
 
-        foreach (var r in spriteRenderers)
-            if (r != null) r.sprite = target;
+        SetIdleAnimationPlaying(mode == ShipViewMode.Preview);
+    }
+
+    /// <summary>Turns this block's idle/ambient animation on or off. Safe to call even when no
+    /// idleAnimator is assigned (most blocks won't have one) — a no-op in that case.</summary>
+    public void SetIdleAnimationPlaying(bool playing)
+    {
+        if (idleAnimator != null) idleAnimator.enabled = playing;
     }
 
     /// <summary>

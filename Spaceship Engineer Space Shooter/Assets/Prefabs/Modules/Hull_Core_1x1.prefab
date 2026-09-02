@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShipModule
   type: 0
-  moduleId: hull_core
+  moduleId: hullCore_1x1
   maxHP: 20
   mass: 1
   energyDelta: 0

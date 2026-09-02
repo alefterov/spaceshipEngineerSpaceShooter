@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Top-level state for the build screen: which mode is active (Hull or Modules),
+/// Top-level state for the build screen: which mode is active (Hull, Armor, or Modules),
 /// which block is currently selected. Wire the mode-toggle buttons and the
 /// bottom palette to this.
 /// </summary>
@@ -42,7 +42,7 @@ public class BuildModeController : MonoBehaviour
         rotateButton.interactable = blockSelected && !ghost.IsDragging;
     }
 
-    /// <summary>Call from the "Корпус" / "Модули" tab buttons.</summary>
+    /// <summary>Call from the "Корпус" tab button.</summary>
     public void SetHullBuildMode()
     {
         BuildMode mode = BuildMode.Hull;
@@ -51,9 +51,26 @@ public class BuildModeController : MonoBehaviour
         blockSelected = false;
         if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
         SetDeleteMode(false);
+        grid.ShowGeneralGrid();
+        grid.HideModuleGrid(); // the module-placement grid only makes sense in Module mode
         palette.ShowForMode(mode);
     }
 
+    /// <summary>Call from the "Броня" tab button.</summary>
+    public void SetArmorBuildMode()
+    {
+        BuildMode mode = BuildMode.Armor;
+        CurrentMode = mode;
+        ghost.StopPlacing();
+        blockSelected = false;
+        if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
+        SetDeleteMode(false);
+        grid.ShowGeneralGrid();
+        grid.HideModuleGrid();
+        palette.ShowForMode(mode);
+    }
+
+    /// <summary>Call from the "Модули" tab button.</summary>
     public void SetModuleBuildMode()
     {
         BuildMode mode = BuildMode.Modules;
@@ -62,17 +79,39 @@ public class BuildModeController : MonoBehaviour
         blockSelected = false;
         if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
         SetDeleteMode(false);
+        grid.HideGeneralGrid(); // modules can only sit on hull cells — replace the general grid, don't stack on it
+        grid.ShowModuleGrid();
         palette.ShowForMode(mode);
     }
 
-    /// <summary>Call from a palette button when the player taps a block to place.</summary>
+    /// <summary>Call from a palette button on a plain tap (BlockButtonDragHandle.OnTap) — selects the
+    /// block so it can be rotated, but doesn't create anything on the grid yet. The ghost only appears
+    /// once the player actually drags the block off the palette button (see BeginGridPlacement).</summary>
     public void SelectBlock(BlockDefinition block)
     {
-        SetDeleteMode(false); // placing a new block always cancels delete mode
-        ghost.BeginPlacing(block, CurrentMode);
+        SetDeleteMode(false); // selecting a new block always cancels delete mode
+        ghost.SelectBlock(block, CurrentMode);
         blockSelected = true;
-        if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
+        // Sync from ghost.RotationSteps rather than resetting to identity — re-selecting the
+        // same block (e.g. when a drag-off gesture starts) now keeps its rotation, and the icon
+        // needs to reflect that instead of snapping back to 0.
+        if (rotateButtonIcon != null)
+            rotateButtonIcon.localRotation = Quaternion.Euler(0f, 0f, 90f * ghost.RotationSteps);
     }
+
+    /// <summary>Current rotation of whatever block is selected — read by BuildPaletteUI to keep the palette icon in sync.</summary>
+    public int CurrentRotationSteps => ghost.RotationSteps;
+
+    /// <summary>Call from a palette button's BlockButtonDragHandle.OnDragStarted — the finger just left
+    /// the button's rect, so the ghost should spawn and start following it onto the grid.</summary>
+    public void BeginGridPlacement(Vector2 screenPos) => ghost.BeginGridDrag(screenPos);
+
+    /// <summary>Call from BlockButtonDragHandle.OnDragMoved while the finger keeps moving on the grid.</summary>
+    public void UpdateGridPlacement(Vector2 screenPos) => ghost.UpdateGridDrag(screenPos);
+
+    /// <summary>Call from BlockButtonDragHandle.OnDragReleased — shows the confirm popup (or discards
+    /// the ghost if the drop cell isn't valid).</summary>
+    public void EndGridPlacement(Vector2 screenPos) => ghost.EndGridDrag(screenPos);
 
     /// <summary>Wired to the rotate button (and the desktop R-key shortcut inside GhostBlockController).</summary>
     public void RotateSelected()

@@ -38,15 +38,6 @@ public class BlockDatabase : ScriptableObject
         return result;
     }
 
-    /// <summary>All blocks belonging to the "Hull build mode" (Hull + Armor).</summary>
-    public List<BlockDefinition> GetStructuralBlocks()
-    {
-        var result = new List<BlockDefinition>();
-        foreach (var b in allBlocks)
-            if (b != null && b.IsStructural) result.Add(b);
-        return result;
-    }
-
     /// <summary>All functional blocks belonging to the "Module build mode".</summary>
     public List<BlockDefinition> GetFunctionalBlocks()
     {

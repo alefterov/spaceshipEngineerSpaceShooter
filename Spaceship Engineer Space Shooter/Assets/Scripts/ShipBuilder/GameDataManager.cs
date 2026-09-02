@@ -16,7 +16,17 @@ public class GameDataManager : MonoBehaviour
 
     public event Action OnDataLoaded;
     public event Action OnCreditsChanged;
+    public event Action OnCoinsChanged;
     public event Action<string> OnResourceChanged;
+    // Fired on a failed spend attempt (not enough of that currency) — UI (CurrencyDisplay) uses
+    // these to trigger its "can't afford it" pulse; distinct from OnCreditsChanged/OnCoinsChanged,
+    // which fire on every successful change, not on rejections.
+    public event Action OnInsufficientCredits;
+    public event Action OnInsufficientCoins;
+
+    // Credits as they stood at the last save (or at BeginBuildSession, if nothing's been saved
+    // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
+    private int creditsAtSessionStart;
 
     private void Awake()
     {
@@ -45,11 +55,14 @@ public class GameDataManager : MonoBehaviour
 
     // ---------- Ship build ----------
 
-    /// <summary>Call from the ship editor's "Save" / "Confirm build" button.</summary>
+    /// <summary>Call from the ship editor's "Save" / "Confirm build" button. Also becomes the new
+    /// baseline RevertCredits() rolls back to — saving locks in whatever was spent/refunded so far
+    /// this session as the new "safe" point.</summary>
     public void SaveShip(ShipGrid grid)
     {
         Current.playerShip = grid.ExportLayout();
         Save();
+        creditsAtSessionStart = Current.credits;
     }
 
     /// <summary>
@@ -63,9 +76,40 @@ public class GameDataManager : MonoBehaviour
         grid.BuildFromLayout(Current.playerShip, database, Faction.Player);
     }
 
+    /// <summary>Call when entering the ship builder — remembers the current credits as the point
+    /// RevertCredits() rolls back to if the player leaves without saving. Also call once at game
+    /// start alongside LoadShip, so the very first build session has a correct baseline.</summary>
+    public void BeginBuildSession()
+    {
+        creditsAtSessionStart = Current.credits;
+    }
+
+    /// <summary>
+    /// Call from the builder's "Close"/"Exit" button — throws away whatever was placed/deleted
+    /// this session by rebuilding the grid from the last SAVED layout, discarding anything since.
+    /// Unlike LoadShip, this always rebuilds — including clearing the grid back to empty if the
+    /// player has never saved a ship yet, so a first-time, never-saved build gets fully discarded too.
+    /// </summary>
+    public void RevertShip(ShipGrid grid, BlockDatabase database)
+    {
+        grid.BuildFromLayout(Current.playerShip, database, Faction.Player);
+    }
+
+    /// <summary>Call alongside RevertShip when leaving the builder without saving — undoes any
+    /// credits spent on building or refunded from dismantling this session, back to whatever they
+    /// were at BeginBuildSession (or the last SaveShip, whichever is more recent).</summary>
+    public void RevertCredits()
+    {
+        Current.credits = creditsAtSessionStart;
+        OnCreditsChanged?.Invoke();
+    }
+
     public bool HasSavedShip => Current.playerShip != null && Current.playerShip.hull.Count > 0;
 
     // ---------- Credits ----------
+    // Soft currency spent on building/repairing. Deliberately NOT auto-saved on every change —
+    // building/dismantling happens continuously during a session and must stay revertible
+    // (RevertCredits) until the player explicitly saves (SaveShip persists it to disk).
 
     public int Credits => Current.credits;
 
@@ -73,18 +117,48 @@ public class GameDataManager : MonoBehaviour
     {
         Current.credits += amount;
         OnCreditsChanged?.Invoke();
-        Save();
     }
 
     /// <summary>Returns false (and spends nothing) if the player can't afford it.</summary>
     public bool SpendCredits(int amount)
     {
-        if (Current.credits < amount) return false;
+        if (Current.credits < amount) { NotifyInsufficientCredits(); return false; }
         Current.credits -= amount;
         OnCreditsChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>Fires OnInsufficientCredits — e.g. CurrencyDisplay's "can't afford it" pulse. C# events
+    /// can only be raised from inside their declaring class, so callers that detect an affordability
+    /// failure themselves (GhostBlockController, when a drag-drop is rejected on cost) go through this
+    /// instead of SpendCredits, which they never actually call in that case.</summary>
+    public void NotifyInsufficientCredits() => OnInsufficientCredits?.Invoke();
+
+    // ---------- Coins (premium currency, purchased with real money) ----------
+    // Unlike credits, these ARE saved immediately — a real-money purchase should never be lost by
+    // exiting the builder without saving, so they're not part of the build-session revert at all.
+
+    public int Coins => Current.coins;
+
+    public void AddCoins(int amount)
+    {
+        Current.coins += amount;
+        OnCoinsChanged?.Invoke();
+        Save();
+    }
+
+    /// <summary>Returns false (and spends nothing) if the player doesn't have enough coins.</summary>
+    public bool SpendCoins(int amount)
+    {
+        if (Current.coins < amount) { NotifyInsufficientCoins(); return false; }
+        Current.coins -= amount;
+        OnCoinsChanged?.Invoke();
         Save();
         return true;
     }
+
+    /// <summary>Fires OnInsufficientCoins — see NotifyInsufficientCredits for why this wrapper exists.</summary>
+    public void NotifyInsufficientCoins() => OnInsufficientCoins?.Invoke();
 
     // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------
 

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 1515191953777855223}
+  - component: {fileID: 8935889838259668942}
   m_Layer: 0
   m_Name: Generator_1x1
   m_TagString: Untagged
@@ -80,7 +80,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1515191953777855223
+--- !u!114 &8935889838259668942
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -89,11 +89,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d02167c25246364e830c9498e920fb4, type: 3}
+  m_Script: {fileID: 11500000, guid: 72630d21f977454459a18f6d70798652, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShipModule
-  type: 0
-  moduleId: hull_core
+  m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
+  type: 5
+  moduleId: generator_1x1
   maxHP: 20
   mass: 1
   energyDelta: 0
@@ -103,8 +103,9 @@ MonoBehaviour:
   rotationSteps: 0
   isCore: 0
   closedSprite: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
-  openSprite: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  openSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
   visualRoot: {fileID: 7616474015210035435}
+  powerOutput: 10
 --- !u!1 &9165489166209485565
 GameObject:
   m_ObjectHideFlags: 0

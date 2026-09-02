@@ -17,6 +17,11 @@ public class BlockDefinition : ScriptableObject
     [Header("Category — determines which build mode this block appears in")]
     public BlockCategory category = BlockCategory.Hull;
 
+    [Header("Economy")]
+    [Tooltip("Credits required to build one of this block. Dismantling refunds a fraction of this " +
+             "(see GhostBlockController.dismantleRefundFraction) — not the full amount.")]
+    public int buildCost = 10;
+
     [Header("Shape")]
     [Tooltip("Cell offsets relative to (0,0) — the anchor/pivot cell, which is always the root block. " +
              "Include (0,0) itself in the list. 1 entry = 1x1. Add more for 2/3/4-cell shapes.")]

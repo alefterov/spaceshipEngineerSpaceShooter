@@ -3,36 +3,46 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// Ghost preview shown while the player is placing a block. Driven entirely through
-/// EventSystem pointer callbacks (works identically for mouse AND touch, old or new
-/// Input System — no manual Input polling, so no InvalidOperationException either).
+/// Drives block placement on the build grid. Two distinct gestures on a palette block button
+/// map to two distinct states here:
+///  - Tap the button (finger never leaves the button's rect) -> SelectBlock(): the block becomes
+///    the "current" block (so the Rotate button can spin it) but nothing is created yet.
+///  - Press-and-drag the button, finger leaves its rect -> BeginGridDrag(): a translucent ghost
+///    is spawned at whatever rotation was chosen and follows the finger, snapped to the grid,
+///    until EndGridDrag() releases it.
+///
+/// BuildPaletteUI/BlockButtonDragHandle (on the button prefab) are what actually receive those
+/// pointer events and call into this class — see BlockButtonDragHandle.cs for why the drag has
+/// to start on the button itself rather than on this component.
+///
+/// Per-cell valid/invalid feedback is drawn by ShipGrid.ShowPlacementPreview (colored squares
+/// under the footprint), not by tinting the ghost — the ghost itself just stays translucent.
 ///
 /// SETUP: attach this to a full-screen, transparent UI Image inside your Canvas
 /// (Raycast Target = ON, Color alpha = 0), positioned BEHIND the palette/UI panels
-/// in the Hierarchy so taps on buttons never reach this catcher.
-/// The Canvas needs a GraphicRaycaster, and the scene needs an EventSystem
-/// (Unity creates one automatically with the Input System UI Input Module).
-///
-/// IMPORTANT: uGUI only calls IPointerMoveHandler while the pointer moves WITHOUT a button
-/// held (pure hover). The instant a button is held and the pointer moves past a small
-/// threshold, the EventSystem switches to IBeginDragHandler/IDragHandler instead — so both
-/// must be implemented, or movement while dragging silently stops being reported.
-///
-/// Flow: pointer down on the field -> ghost jumps under the finger and starts tracking
-/// -> drag -> ghost follows -> pointer up -> if the cell is valid, place the block.
+/// in the Hierarchy so taps on buttons never reach this catcher. It's only used for
+/// delete-mode taps now (OnPointerClick) — placement dragging is driven externally.
 /// </summary>
 [RequireComponent(typeof(UnityEngine.UI.Graphic))]
-public class GhostBlockController : MonoBehaviour,
-    IPointerDownHandler, IPointerUpHandler, IPointerClickHandler,
-    IBeginDragHandler, IDragHandler, IEndDragHandler
+public class GhostBlockController : MonoBehaviour, IPointerClickHandler
 {
     [Header("References")]
     public ShipGrid grid;
     public Camera worldCamera;
+    [Tooltip("Checkmark/cross confirmation popup shown when the player releases a drag over a valid cell. " +
+             "If left unassigned, placement is confirmed immediately on release instead (useful while the " +
+             "popup UI isn't built yet).")]
+    public PlacementConfirmPopup confirmPopup;
 
     [Header("Appearance")]
-    public Color validColor = new(0.3f, 0.65f, 1f, 0.5f);
-    public Color invalidColor = new(1f, 0.3f, 0.3f, 0.5f);
+    [Tooltip("Constant transparency of the dragged block itself — validity is shown by the grid cell highlight, not by tinting the ghost.")]
+    [Range(0f, 1f)] public float ghostAlpha = 0.6f;
+    public Color validColor = new(0.3f, 0.65f, 1f, 0.6f);
+    public Color invalidColor = new(1f, 0.3f, 0.3f, 0.6f);
+
+    [Header("Economy")]
+    [Tooltip("Fraction of a block's build cost refunded when it's dismantled (0.8 = 80%).")]
+    [Range(0f, 1f)] public float dismantleRefundFraction = 0.8f;
 
     private GameObject ghostInstance;
     private Transform ghostVisualRoot; // cached before ShipModule (and its visualRoot ref) gets stripped
@@ -40,10 +50,12 @@ public class GhostBlockController : MonoBehaviour,
     private BlockDefinition currentBlock;
     private BuildMode currentMode;
     private int rotationSteps;
-    private bool isPlacing;
 
-    private int activePointerId = -1; // ignores extra fingers while one is already dragging
+    private bool isSelected;      // a palette block is chosen (rotate is allowed), no ghost required
+    private bool draggingOnGrid;  // finger is outside the palette button and actively moving the ghost
+
     private bool lastValid;
+    private bool lastAffordable; // separate from lastValid so EndGridDrag can tell WHY it's invalid
     private Vector2Int lastAnchor;
     private List<Vector2Int> lastShape;
 
@@ -53,42 +65,191 @@ public class GhostBlockController : MonoBehaviour,
     /// <summary>Current rotation step (0-3, ×90°) — read by UI to spin the palette icon in sync.</summary>
     public int RotationSteps => rotationSteps;
 
-    /// <summary>True while a finger/mouse button is actively dragging the ghost on the field.</summary>
-    public bool IsDragging => activePointerId != -1;
+    /// <summary>True only while a ghost is actively being dragged on the grid (not just selected in the palette).</summary>
+    public bool IsDragging => draggingOnGrid;
+
+    /// <summary>True from the moment a block is selected (tap in the palette) all the way through
+    /// dragging and any pending confirm popup — i.e. whenever a placement is "in flight" and the
+    /// camera shouldn't move out from under the player. False again once confirmed, cancelled, or
+    /// deselected.</summary>
+    public bool IsPlacingBlock => isSelected;
 
     // ---------- Delete mode ----------
 
-    /// <summary>Wired to the Delete button. Turning it on cancels any pending placement (mutually exclusive).</summary>
+    /// <summary>Wired to the Delete button. Turning it on cancels any pending selection/placement (mutually
+    /// exclusive); toggling it either way also cancels a pending delete confirmation, so a stale popup
+    /// can't outlive delete mode being switched off.</summary>
     public void SetDeleteMode(bool active)
     {
         IsDeleteModeActive = active;
+        confirmPopup?.Hide();
         if (active) StopPlacing();
     }
 
+    /// <summary>
+    /// Tapping a cell in delete mode never deletes immediately — it finds whatever's there (a module
+    /// takes priority over the hull underneath it, same as ShipGrid.FindDeletableAt/TryDeleteAt) and
+    /// shows the same confirm/cancel popup used for placement. A cell with both only ever loses the
+    /// module on this tap; a second, separate tap (and its own confirmation) is needed to then delete
+    /// the hull piece once the module is gone.
+    /// </summary>
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!IsDeleteModeActive) return;
 
         Vector3 world = worldCamera.ScreenToWorldPoint(eventData.position);
         world.z = 0f;
-        grid.TryDeleteAt(world);
+
+        var target = grid.FindDeletableAt(world);
+        if (target == null) return;
+
+        if (confirmPopup != null)
+            confirmPopup.Show(eventData.position, () => ConfirmDelete(target), () => { });
+        else
+            ConfirmDelete(target); // no popup wired up yet — fall back to deleting immediately
     }
 
-    // ---------- Selection (called by BuildModeController / palette) ----------
-
-    /// <summary>Call when the player taps a block in the bottom UI list.</summary>
-    public void BeginPlacing(BlockDefinition block, BuildMode mode)
+    /// <summary>Refunds a fraction of the block's original build cost, then actually removes it.</summary>
+    private void ConfirmDelete(ShipModule target)
     {
+        int refund = Mathf.RoundToInt(target.buildCost * dismantleRefundFraction);
+        if (refund > 0) GameDataManager.Instance.AddCredits(refund);
+
+        grid.DeleteBlock(target);
+    }
+
+    // ---------- Selection (a tap on a palette button — see BlockButtonDragHandle.OnTap) ----------
+
+    /// <summary>
+    /// Call when the player taps a block in the bottom UI list without dragging it out. Also
+    /// called again the moment a drag-off gesture starts (see BuildPaletteUI.CreateButton /
+    /// OnDragStarted) to make sure the right button is highlighted — so re-selecting the SAME
+    /// block keeps whatever rotation was already dialed in; only picking a genuinely different
+    /// block resets it to 0.
+    /// </summary>
+    public void SelectBlock(BlockDefinition block, BuildMode mode)
+    {
+        bool sameBlock = isSelected && currentBlock == block && currentMode == mode;
+        int keepRotation = sameBlock ? rotationSteps : 0;
+
         StopPlacing();
-        IsDeleteModeActive = false; // starting a placement always cancels delete mode
+        IsDeleteModeActive = false; // selecting a block always cancels delete mode
 
         currentBlock = block;
         currentMode = mode;
-        rotationSteps = 0;
-        isPlacing = true;
+        rotationSteps = keepRotation;
+        isSelected = true;
+    }
 
-        ghostInstance = Instantiate(block.prefab);
-        ghostInstance.name = $"Ghost_{block.id}";
+    /// <summary>Cancels selection and/or an in-progress drag (palette closed, mode switched, delete mode entered, screen exited).</summary>
+    public void StopPlacing()
+    {
+        confirmPopup?.Hide();
+        DestroyGhost();
+        grid.ClearPlacementPreview();
+
+        currentBlock = null;
+        isSelected = false;
+        draggingOnGrid = false;
+    }
+
+    /// <summary>
+    /// Wired to the dedicated Rotate button in the UI. Only works while a block is selected but
+    /// NOT currently being dragged on the grid — once the ghost exists and is following the
+    /// finger, rotation locks until the drag ends, so the footprint can't change mid-drag.
+    /// </summary>
+    public void RotateGhost()
+    {
+        if (!isSelected || draggingOnGrid) return;
+        rotationSteps = (rotationSteps + 1) % 4;
+    }
+
+    // ---------- Drag-to-place (driven by BlockButtonDragHandle on the palette button) ----------
+
+    /// <summary>Finger left the palette button's rect while held down — spawn the ghost and start tracking it.</summary>
+    public void BeginGridDrag(Vector2 screenPos)
+    {
+        if (!isSelected || IsDeleteModeActive) return;
+
+        confirmPopup?.Hide();
+        DestroyGhost();
+        SpawnGhost();
+        draggingOnGrid = true;
+        UpdateGhost(screenPos);
+    }
+
+    /// <summary>Finger keeps moving with the ghost already spawned.</summary>
+    public void UpdateGridDrag(Vector2 screenPos)
+    {
+        if (!draggingOnGrid) return;
+        UpdateGhost(screenPos);
+    }
+
+    /// <summary>
+    /// Finger released. Over a valid cell: show the confirm/cancel popup and wait for the player's
+    /// decision. Over an invalid cell: there's nothing to confirm, so just discard the ghost.
+    /// </summary>
+    public void EndGridDrag(Vector2 screenPos)
+    {
+        if (!draggingOnGrid) return;
+
+        UpdateGhost(screenPos);
+        draggingOnGrid = false;
+
+        if (!lastValid)
+        {
+            // Specifically failed on cost (as opposed to geometry) — this is the moment the player
+            // actually "discovers" they can't afford it, so it's what drives the credits display's
+            // insufficient-funds pulse, not GameDataManager.SpendCredits (which never even runs here).
+            if (!lastAffordable) GameDataManager.Instance.NotifyInsufficientCredits();
+
+            DestroyGhost();
+            grid.ClearPlacementPreview();
+            return;
+        }
+
+        if (confirmPopup != null)
+            confirmPopup.Show(screenPos, ConfirmPlacement, CancelPlacement);
+        else
+            ConfirmPlacement(); // no popup wired up yet — fall back to placing immediately
+    }
+
+    private void ConfirmPlacement()
+    {
+        // Re-checked here rather than trusted from the drag-time validity check — credits could in
+        // principle have changed between then and now. Spending happens before placing: if it fails
+        // (shouldn't, given the drag already required affordability), treat it like an invalid drop.
+        if (!GameDataManager.Instance.SpendCredits(currentBlock.buildCost))
+        {
+            CancelPlacement();
+            return;
+        }
+
+        // Hull and Armor are both structural — same hullCells layer, same adjacency rule.
+        // Only Modules sits on the separate module layer.
+        if (currentMode == BuildMode.Modules)
+            grid.PlaceModule(currentBlock, lastAnchor, lastShape, rotationSteps);
+        else
+            grid.PlaceHull(currentBlock, lastAnchor, lastShape, rotationSteps);
+
+        DestroyGhost();
+        grid.ClearPlacementPreview();
+        // currentBlock/rotationSteps stay put — isSelected remains true so the same block can be
+        // dragged out again immediately for fast multi-placement.
+    }
+
+    private void CancelPlacement()
+    {
+        DestroyGhost();
+        grid.ClearPlacementPreview();
+    }
+
+    // ---------- Internals ----------
+
+    private void SpawnGhost()
+    {
+        ghostInstance = Instantiate(currentBlock.prefab);
+        ghostInstance.name = $"Ghost_{currentBlock.id}";
 
         // Cache the visual child BEFORE stripping scripts — ShipModule (which owns the
         // visualRoot reference) is about to be destroyed along with every other MonoBehaviour.
@@ -105,83 +266,15 @@ public class GhostBlockController : MonoBehaviour,
 
         ghostRenderers.Clear();
         ghostRenderers.AddRange(ghostInstance.GetComponentsInChildren<SpriteRenderer>());
-
-        // Hidden until the player actually touches/clicks the field — see requirement:
-        // "movement only while the screen is being touched".
-        ghostInstance.SetActive(false);
+        foreach (var r in ghostRenderers) r.color = new Color(1f, 1f, 1f, ghostAlpha);
     }
 
-    /// <summary>Cancels placement (e.g. player closes the palette, switches build mode, or enters delete mode).</summary>
-    public void StopPlacing()
+    private void DestroyGhost()
     {
         if (ghostInstance != null) Destroy(ghostInstance);
+        ghostInstance = null;
         ghostVisualRoot = null;
-        currentBlock = null;
-        isPlacing = false;
-        activePointerId = -1;
     }
-
-    /// <summary>
-    /// Wired to the dedicated Rotate button in the UI. Only works BEFORE the player starts
-    /// dragging the block on the field — once a finger/mouse button is down, rotation locks
-    /// until they release, so the shape can't change mid-drag.
-    /// </summary>
-    public void RotateGhost()
-    {
-        if (!isPlacing || IsDragging) return;
-        rotationSteps = (rotationSteps + 1) % 4;
-    }
-
-    // ---------- Pointer + drag events (mouse button held on desktop for testing, touch drag on mobile) ----------
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (!isPlacing || IsDeleteModeActive) return;
-        activePointerId = eventData.pointerId;
-        ghostInstance.SetActive(true);
-        UpdateGhost(eventData.position);
-    }
-
-    // uGUI treats "button held + moved" as a drag, not a plain pointer move — this is what
-    // actually fires while the mouse button (or finger) is held down and moving.
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (!isPlacing || IsDeleteModeActive) return;
-        if (activePointerId == -1 || eventData.pointerId != activePointerId) return;
-
-        UpdateGhost(eventData.position);
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!isPlacing || ghostInstance == null || IsDeleteModeActive) return;
-        if (activePointerId == -1 || eventData.pointerId != activePointerId) return;
-
-        UpdateGhost(eventData.position);
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (!isPlacing || IsDeleteModeActive) return;
-        if (activePointerId == -1 || eventData.pointerId != activePointerId) return;
-
-        UpdateGhost(eventData.position);
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (!isPlacing || IsDeleteModeActive) return;
-        if (activePointerId == -1 || eventData.pointerId != activePointerId) return;
-
-        UpdateGhost(eventData.position);
-
-        if (lastValid) Confirm();
-        else ghostInstance.SetActive(false); // invalid drop — discard the preview, wait for the next touch
-
-        activePointerId = -1;
-    }
-
-    // ---------- Internals ----------
 
     private void UpdateGhost(Vector2 screenPos)
     {
@@ -191,9 +284,15 @@ public class GhostBlockController : MonoBehaviour,
         Vector2Int anchor = grid.WorldToGrid(pointerWorld);
         var localShape = BlockDefinition.RotateCells(currentBlock.cells, rotationSteps);
 
-        bool valid = currentMode == BuildMode.Hull
-            ? grid.CanPlaceHull(anchor, localShape)
-            : grid.CanPlaceModule(anchor, localShape);
+        bool geometryValid = currentMode == BuildMode.Modules
+            ? grid.CanPlaceModule(anchor, localShape)
+            : grid.CanPlaceHull(anchor, localShape); // Hull and Armor share the same structural layer/rule
+
+        // Affordability is part of validity too — can't afford it reads the same as "can't place it
+        // here", cell goes red right along with any geometric reason. Tracked separately as well
+        // (lastAffordable) so EndGridDrag can tell specifically WHY a drop failed.
+        bool affordable = GameDataManager.Instance.Credits >= currentBlock.buildCost;
+        bool valid = geometryValid && affordable;
 
         // Root sits exactly on the anchor cell and never rotates — matches how ShipGrid.Place()
         // will actually instantiate the real block, so the preview is a true WYSIWYG match.
@@ -204,28 +303,13 @@ public class GhostBlockController : MonoBehaviour,
         ghostVisualRoot.localPosition = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
         ghostVisualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
 
-        Tint(valid ? validColor : invalidColor);
+        // Cell-by-cell blue/red validity feedback lives on the grid itself, not on the ghost.
+        var absoluteCells = grid.GetOccupiedCells(anchor, localShape);
+        grid.ShowPlacementPreview(absoluteCells, valid ? validColor : invalidColor);
 
         lastValid = valid;
+        lastAffordable = affordable;
         lastAnchor = anchor;
         lastShape = localShape;
-    }
-
-    private void Confirm()
-    {
-        var placed = currentMode == BuildMode.Hull
-            ? grid.PlaceHull(currentBlock.prefab, lastAnchor, lastShape, rotationSteps)
-            : grid.PlaceModule(currentBlock.prefab, lastAnchor, lastShape, rotationSteps);
-
-        if (placed == null) return;
-
-        // Stay in placement mode with the same block selected (fast multi-placement).
-        // Call StopPlacing() instead at the end here for one-shot-per-tap placement.
-        BeginPlacing(currentBlock, currentMode);
-    }
-
-    private void Tint(Color c)
-    {
-        foreach (var r in ghostRenderers) r.color = c;
     }
 }
