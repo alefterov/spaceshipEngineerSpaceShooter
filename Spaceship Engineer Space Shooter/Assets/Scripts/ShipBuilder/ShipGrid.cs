@@ -537,7 +537,7 @@ public class ShipGrid : MonoBehaviour
 
     /// <summary>Total damage-per-second across every non-destroyed weapon.</summary>
     public float ComputeFirepower()
-        => moduleCells.Values.Distinct().OfType<WeaponModule>().Where(w => !w.IsDestroyed).Sum(w => w.projectileDamage * w.fireRate);
+        => moduleCells.Values.Distinct().OfType<WeaponModule>().Where(w => !w.IsDestroyed).Sum(w => w.DamagePerSecond);
 
     /// <summary>Total thrust from every non-destroyed engine (EngineModule.GetThrust() already returns 0 when destroyed).</summary>
     public float ComputeEnginePower()
