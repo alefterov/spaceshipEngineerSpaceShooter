@@ -23,6 +23,14 @@ public class GameDataManager : MonoBehaviour
     // which fire on every successful change, not on rejections.
     public event Action OnInsufficientCredits;
     public event Action OnInsufficientCoins;
+    public event Action OnResearchPointsChanged;
+    public event Action OnInsufficientResearchPoints;
+    /// <summary>Fired with the researched tech's id right after TryResearch succeeds — e.g. so a
+    /// TechNodeView can refresh itself when a DIFFERENT node's research just unlocked it.</summary>
+    public event Action<string> OnTechResearched;
+    public event Action OnHangarLevelChanged;
+    public event Action OnCreditsMultiplierLevelChanged;
+    public event Action OnSurvivalStartLevelChanged;
 
     // Credits as they stood at the last save (or at BeginBuildSession, if nothing's been saved
     // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
@@ -159,6 +167,153 @@ public class GameDataManager : MonoBehaviour
 
     /// <summary>Fires OnInsufficientCoins — see NotifyInsufficientCredits for why this wrapper exists.</summary>
     public void NotifyInsufficientCoins() => OnInsufficientCoins?.Invoke();
+
+    // ---------- Research points & technologies ----------
+    // Research is meta-progression, not tied to any one build session — spending is saved
+    // immediately (like coins), never reverted by exiting the builder without saving.
+
+    public int ResearchPoints => Current.researchPoints;
+
+    public void AddResearchPoints(int amount)
+    {
+        Current.researchPoints += amount;
+        OnResearchPointsChanged?.Invoke();
+        Save();
+    }
+
+    public bool IsTechResearched(TechDefinition tech) => tech != null && Current.researchedTechIds.Contains(tech.id);
+
+    /// <summary>True if this tech isn't researched yet, its prerequisite (if any) is, and the player
+    /// currently has enough points — i.e. TryResearch would succeed right now.</summary>
+    public bool CanResearch(TechDefinition tech)
+    {
+        if (tech == null || IsTechResearched(tech)) return false;
+        if (tech.prerequisite != null && !IsTechResearched(tech.prerequisite)) return false;
+        return Current.researchPoints >= tech.researchCost;
+    }
+
+    /// <summary>Spends points and marks the tech researched. Returns false and changes nothing if
+    /// it's already researched, its prerequisite isn't met, or there aren't enough points (which
+    /// also fires OnInsufficientResearchPoints in that last case specifically).</summary>
+    public bool TryResearch(TechDefinition tech)
+    {
+        if (tech == null || IsTechResearched(tech)) return false;
+        if (tech.prerequisite != null && !IsTechResearched(tech.prerequisite)) return false;
+
+        if (Current.researchPoints < tech.researchCost)
+        {
+            OnInsufficientResearchPoints?.Invoke();
+            return false;
+        }
+
+        Current.researchPoints -= tech.researchCost;
+        Current.researchedTechIds.Add(tech.id);
+        OnResearchPointsChanged?.Invoke();
+        OnTechResearched?.Invoke(tech.id);
+        Save();
+        return true;
+    }
+
+    /// <summary>Whether a block can currently be built — true if no tech gates it, or that tech has
+    /// been researched. BuildPaletteUI uses this (via its optional TechDatabase field) to hide
+    /// blocks the player hasn't unlocked yet.</summary>
+    public bool IsBlockUnlocked(BlockDefinition block, TechDatabase techDatabase)
+    {
+        var tech = techDatabase != null ? techDatabase.GetTechForBlock(block) : null;
+        return tech == null || IsTechResearched(tech);
+    }
+
+    // ---------- Hangar (build grid) upgrades ----------
+    // Each level permanently adds one row and one column to the ship's buildable grid (see
+    // ShipGrid.SetHangarLevel). Paid with research points, same currency and immediate-persistence
+    // semantics as researching a technology — not part of the revertible build-session state.
+
+    [Header("Hangar upgrade cost")]
+    [Tooltip("Research-point cost of the first hangar upgrade (level 0 -> 1).")]
+    public int hangarUpgradeBaseCost = 200;
+    [Tooltip("Extra research-point cost added per hangar level already owned — makes each successive upgrade pricier.")]
+    public int hangarUpgradeCostPerLevel = 100;
+
+    public int HangarLevel => Current.hangarLevel;
+
+    public int GetHangarUpgradeCost() => hangarUpgradeBaseCost + Current.hangarLevel * hangarUpgradeCostPerLevel;
+
+    public bool CanUpgradeHangar() => Current.researchPoints >= GetHangarUpgradeCost();
+
+    /// <summary>Spends research points to add one row and one column to the given grid's buildable
+    /// area. Returns false (and changes nothing) if there aren't enough points, firing
+    /// OnInsufficientResearchPoints the same way TryResearch does.</summary>
+    public bool TryUpgradeHangar(ShipGrid grid)
+    {
+        int cost = GetHangarUpgradeCost();
+        if (Current.researchPoints < cost)
+        {
+            OnInsufficientResearchPoints?.Invoke();
+            return false;
+        }
+
+        Current.researchPoints -= cost;
+        Current.hangarLevel++;
+        if (grid != null) grid.SetHangarLevel(Current.hangarLevel);
+        OnResearchPointsChanged?.Invoke();
+        OnHangarLevelChanged?.Invoke();
+        Save();
+        return true;
+    }
+
+    // ---------- Battle credits-reward multiplier upgrade ----------
+    // Multiplies whatever credits a battle would award — the battle-reward code (not written yet)
+    // should call GetCreditsMultiplier() and scale its base reward by it.
+
+    [Header("Battle credits multiplier upgrade")]
+    public int creditsMultiplierUpgradeBaseCost = 200;
+    public int creditsMultiplierUpgradeCostPerLevel = 100;
+    [Tooltip("Multiplier bonus granted per level — 0.1 means +10% battle credits per level.")]
+    public float creditsMultiplierPerLevel = 0.1f;
+
+    public int CreditsMultiplierLevel => Current.creditsMultiplierLevel;
+    public float GetCreditsMultiplier() => 1f + Current.creditsMultiplierLevel * creditsMultiplierPerLevel;
+    public int GetCreditsMultiplierUpgradeCost() => creditsMultiplierUpgradeBaseCost + Current.creditsMultiplierLevel * creditsMultiplierUpgradeCostPerLevel;
+    public bool CanUpgradeCreditsMultiplier() => Current.researchPoints >= GetCreditsMultiplierUpgradeCost();
+
+    public bool TryUpgradeCreditsMultiplier()
+    {
+        int cost = GetCreditsMultiplierUpgradeCost();
+        if (Current.researchPoints < cost) { OnInsufficientResearchPoints?.Invoke(); return false; }
+
+        Current.researchPoints -= cost;
+        Current.creditsMultiplierLevel++;
+        OnResearchPointsChanged?.Invoke();
+        OnCreditsMultiplierLevelChanged?.Invoke();
+        Save();
+        return true;
+    }
+
+    // ---------- Survival-mode starting-level upgrade ----------
+    // Raises the level survival mode (not written yet) begins at — that mode's start-up code should
+    // call GetSurvivalStartLevel() for its initial difficulty level.
+
+    [Header("Survival start level upgrade")]
+    public int survivalStartLevelUpgradeBaseCost = 200;
+    public int survivalStartLevelUpgradeCostPerLevel = 100;
+
+    public int SurvivalStartLevelUpgrades => Current.survivalStartLevelUpgrades;
+    public int GetSurvivalStartLevel() => 1 + Current.survivalStartLevelUpgrades;
+    public int GetSurvivalStartLevelUpgradeCost() => survivalStartLevelUpgradeBaseCost + Current.survivalStartLevelUpgrades * survivalStartLevelUpgradeCostPerLevel;
+    public bool CanUpgradeSurvivalStartLevel() => Current.researchPoints >= GetSurvivalStartLevelUpgradeCost();
+
+    public bool TryUpgradeSurvivalStartLevel()
+    {
+        int cost = GetSurvivalStartLevelUpgradeCost();
+        if (Current.researchPoints < cost) { OnInsufficientResearchPoints?.Invoke(); return false; }
+
+        Current.researchPoints -= cost;
+        Current.survivalStartLevelUpgrades++;
+        OnResearchPointsChanged?.Invoke();
+        OnSurvivalStartLevelChanged?.Invoke();
+        Save();
+        return true;
+    }
 
     // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------
 

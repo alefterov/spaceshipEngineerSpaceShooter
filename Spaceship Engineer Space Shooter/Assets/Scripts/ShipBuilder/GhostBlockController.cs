@@ -226,7 +226,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         }
 
         // Hull and Armor are both structural — same hullCells layer, same adjacency rule.
-        // Only Modules sits on the separate module layer.
+        // Only Modules (which now includes Cockpit) sits on the separate module layer.
         if (currentMode == BuildMode.Modules)
             grid.PlaceModule(currentBlock, lastAnchor, lastShape, rotationSteps);
         else
@@ -285,7 +285,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         var localShape = BlockDefinition.RotateCells(currentBlock.cells, rotationSteps);
 
         bool geometryValid = currentMode == BuildMode.Modules
-            ? grid.CanPlaceModule(anchor, localShape)
+            ? grid.CanPlaceModule(anchor, localShape, currentBlock.category)
             : grid.CanPlaceHull(anchor, localShape); // Hull and Armor share the same structural layer/rule
 
         // Affordability is part of validity too — can't afford it reads the same as "can't place it

@@ -43,6 +43,10 @@ public class BuildCameraController : MonoBehaviour
     [Tooltip("Orthographic size change per pixel of pinch-distance change.")]
     public float pinchZoomSpeed = 0.01f;
 
+    [Header("Frame ship (menu preview)")]
+    [Tooltip("Empty space left around the ship, in cells, when FrameShip() fits it to the screen.")]
+    public float framePaddingCells = 1f;
+
     private RectTransform rectTransform;
 
     // Ground truth, rebuilt from scratch every frame: id (touchId, or -1 for mouse) -> current
@@ -156,28 +160,56 @@ public class BuildCameraController : MonoBehaviour
         targetCamera.transform.position = desired;
     }
 
-    /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's hull
-    /// bounding box, expanded by panMarginCells on every side. Falls back to a single-cell box at
-    /// the board's center if no hull has been placed yet (nothing to frame).</summary>
-    private (Vector3 min, Vector3 max) GetPanBounds()
+    /// <summary>Min/max hull-cell coordinates (corner space, max exclusive) — the ship's own footprint,
+    /// with no padding. Falls back to a single cell at the board's center if no hull exists yet.</summary>
+    private (Vector2Int min, Vector2Int maxExclusive) GetHullCellBounds()
     {
         var cells = grid.HullOnlyCellPositions.ToList();
-
-        Vector2Int minCell, maxCellExclusive;
         if (cells.Count == 0)
         {
-            minCell = new Vector2Int(grid.width / 2, grid.height / 2);
-            maxCellExclusive = minCell + Vector2Int.one;
+            var center = new Vector2Int(grid.GridWidth / 2, grid.GridHeight / 2);
+            return (center, center + Vector2Int.one);
         }
-        else
-        {
-            minCell = new Vector2Int(cells.Min(c => c.x), cells.Min(c => c.y));
-            maxCellExclusive = new Vector2Int(cells.Max(c => c.x) + 1, cells.Max(c => c.y) + 1);
-        }
+
+        var min = new Vector2Int(cells.Min(c => c.x), cells.Min(c => c.y));
+        var maxExclusive = new Vector2Int(cells.Max(c => c.x) + 1, cells.Max(c => c.y) + 1);
+        return (min, maxExclusive);
+    }
+
+    /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's hull
+    /// bounding box, expanded by panMarginCells on every side.</summary>
+    private (Vector3 min, Vector3 max) GetPanBounds()
+    {
+        var (minCell, maxCellExclusive) = GetHullCellBounds();
 
         Vector3 margin = new(panMarginCells * grid.cellSize, panMarginCells * grid.cellSize, 0f);
         Vector3 worldMin = grid.CornerToWorld(minCell) - margin;
         Vector3 worldMax = grid.CornerToWorld(maxCellExclusive) + margin;
         return (worldMin, worldMax);
+    }
+
+    /// <summary>Centers the camera on the ship's hull and zooms to fit the whole ship on screen (plus
+    /// framePaddingCells of breathing room). Call whenever entering the menu preview — including right
+    /// after leaving the builder, since exiting always routes through that same preview transition
+    /// (MainMenuFlowController.ShowMainMenu).</summary>
+    public void FrameShip()
+    {
+        var (minCell, maxCellExclusive) = GetHullCellBounds();
+        Vector3 worldMin = grid.CornerToWorld(minCell);
+        Vector3 worldMax = grid.CornerToWorld(maxCellExclusive);
+
+        Vector3 center = (worldMin + worldMax) * 0.5f;
+        center.z = targetCamera.transform.position.z; // never touch camera depth
+        targetCamera.transform.position = center;
+
+        float padding = framePaddingCells * 2f * grid.cellSize;
+        float width = (worldMax.x - worldMin.x) + padding;
+        float height = (worldMax.y - worldMin.y) + padding;
+
+        float sizeForHeight = height * 0.5f;
+        float sizeForWidth = width * 0.5f / Mathf.Max(0.01f, targetCamera.aspect);
+        float requiredSize = Mathf.Max(sizeForHeight, sizeForWidth);
+
+        targetCamera.orthographicSize = Mathf.Clamp(requiredSize, minOrthographicSize, maxOrthographicSize);
     }
 }

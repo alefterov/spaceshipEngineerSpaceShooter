@@ -23,6 +23,10 @@ public class BuildModeController : MonoBehaviour
     public Color deleteActiveColor = new(1f, 0.35f, 0.35f);
     private Color deleteDefaultColor;
 
+    [Tooltip("Row of Generator/Engine/Shield/Weapon/Cockpit sub-category buttons — only makes sense " +
+             "in Module mode, so it's shown/hidden automatically alongside it.")]
+    public GameObject moduleSubCategoryPanel;
+
     public BuildMode CurrentMode { get; private set; } = BuildMode.Hull;
 
     private bool blockSelected;
@@ -32,7 +36,14 @@ public class BuildModeController : MonoBehaviour
         rotateButton.onClick.AddListener(RotateSelected);
         deleteButton.onClick.AddListener(ToggleDeleteMode);
         deleteDefaultColor = deleteButton.image.color;
-        SetHullBuildMode();
+
+        // Deliberately NOT calling SetHullBuildMode() here. MainMenuFlowController.OnBuildShipPressed
+        // already calls it explicitly every time the builder opens (including the first time) — if
+        // this component lives under builderScreen (inactive at scene load), Start() is deferred by
+        // Unity until later in the SAME frame builderScreen.SetActive(true) runs, which made this
+        // fire a SECOND time back-to-back with that explicit call on the very first entry, tearing
+        // down and rebuilding the palette buttons twice in one frame right as the player could start
+        // interacting with them.
     }
 
     private void Update()
@@ -53,6 +64,7 @@ public class BuildModeController : MonoBehaviour
         SetDeleteMode(false);
         grid.ShowGeneralGrid();
         grid.HideModuleGrid(); // the module-placement grid only makes sense in Module mode
+        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(false);
         palette.ShowForMode(mode);
     }
 
@@ -67,6 +79,7 @@ public class BuildModeController : MonoBehaviour
         SetDeleteMode(false);
         grid.ShowGeneralGrid();
         grid.HideModuleGrid();
+        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(false);
         palette.ShowForMode(mode);
     }
 
@@ -81,7 +94,24 @@ public class BuildModeController : MonoBehaviour
         SetDeleteMode(false);
         grid.HideGeneralGrid(); // modules can only sit on hull cells — replace the general grid, don't stack on it
         grid.ShowModuleGrid();
+        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(true);
         palette.ShowForMode(mode);
+    }
+
+    // ---------- Module sub-categories (Generators / Engines / Shields / Weapons / Cockpit tabs) ----------
+    // Each ensures Module mode is active first (so clicking a sub-tab works even if the player
+    // hasn't pressed "Modules" yet), then narrows the palette to just that one BlockCategory.
+
+    public void ShowGeneratorModules() => ShowModuleCategory(BlockCategory.Generator);
+    public void ShowEngineModules() => ShowModuleCategory(BlockCategory.Engine);
+    public void ShowShieldModules() => ShowModuleCategory(BlockCategory.Shield);
+    public void ShowWeaponModules() => ShowModuleCategory(BlockCategory.Weapon);
+    public void ShowCockpitModules() => ShowModuleCategory(BlockCategory.Cockpit);
+
+    private void ShowModuleCategory(BlockCategory category)
+    {
+        if (CurrentMode != BuildMode.Modules) SetModuleBuildMode();
+        palette.ShowForCategory(category);
     }
 
     /// <summary>Call from a palette button on a plain tap (BlockButtonDragHandle.OnTap) — selects the

@@ -162,7 +162,8 @@ public enum ModuleType
     Weapon,
     Engine,
     Shield,
-    Generator
+    Generator,
+    Cockpit
 }
 
 /// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>

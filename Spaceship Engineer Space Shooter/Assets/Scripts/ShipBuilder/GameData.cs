@@ -19,6 +19,24 @@ public class GameData
     public int coins;
     public List<ResourceEntry> resources = new();
 
+    [Tooltip("Spent on researching technologies — earned separately from credits/coins. Starting grant for a fresh save.")]
+    public int researchPoints = 10;
+    [Tooltip("Ids of every TechDefinition researched so far. A List, not a Dictionary/HashSet — " +
+             "JsonUtility can't serialize either of those.")]
+    public List<string> researchedTechIds = new();
+
+    [Tooltip("Hangar (build grid) upgrade level — each level adds one row and one column to the " +
+             "ship's buildable area. Bought with research points, see GameDataManager.TryUpgradeHangar.")]
+    public int hangarLevel;
+
+    [Tooltip("Battle credits-reward multiplier upgrade level. Bought with research points, see " +
+             "GameDataManager.TryUpgradeCreditsMultiplier.")]
+    public int creditsMultiplierLevel;
+
+    [Tooltip("Survival-mode starting-level upgrade count. Bought with research points, see " +
+             "GameDataManager.TryUpgradeSurvivalStartLevel.")]
+    public int survivalStartLevelUpgrades;
+
     public ShipLayout playerShip = new();
 }
 

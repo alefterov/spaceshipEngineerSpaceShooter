@@ -4,13 +4,17 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Bottom scrollable list of available blocks, filtered by the active BuildMode
-/// (hull pieces in Hull mode, armor pieces in Armor mode, functional modules in Module mode).
+/// (hull pieces in Hull mode, armor pieces in Armor mode, functional modules — including the
+/// cockpit — in Module mode, optionally narrowed further to one sub-category via ShowForCategory).
 /// buttonPrefab must have a BlockButtonView component (icon + selection highlight).
 /// </summary>
 public class BuildPaletteUI : MonoBehaviour
 {
     public BuildModeController controller;
     public BlockDatabase database;
+    [Tooltip("Optional. If assigned, blocks gated behind an unresearched technology are hidden from " +
+             "the palette instead of always being shown.")]
+    public TechDatabase techDatabase;
 
     [Header("UI wiring")]
     public Transform buttonContainer;   // horizontal layout group, e.g. bottom scroll rect content
@@ -20,20 +24,38 @@ public class BuildPaletteUI : MonoBehaviour
 
     public void ShowForMode(BuildMode mode)
     {
+        List<BlockDefinition> blocks = mode switch
+        {
+            BuildMode.Hull => database.GetByCategory(BlockCategory.Hull),
+            BuildMode.Armor => database.GetByCategory(BlockCategory.Armor),
+            _ => database.GetFunctionalBlocks(), // Modules — includes Cockpit, see BlockDefinition.IsStructural
+        };
+
+        Populate(blocks);
+    }
+
+    /// <summary>Narrows the palette to one specific functional sub-category (Weapon/Engine/Generator/
+    /// Shield/Cockpit) — for the Module mode sub-tabs. Call ShowForMode(BuildMode.Modules) first (or
+    /// let BuildModeController.ShowWeaponModules() etc. do it for you) to actually switch build mode;
+    /// this only changes which blocks the palette lists.</summary>
+    public void ShowForCategory(BlockCategory category) => Populate(database.GetByCategory(category));
+
+    private void Populate(List<BlockDefinition> blocks)
+    {
         foreach (Transform child in buttonContainer)
             Destroy(child.gameObject);
 
         selectedButton = null;
 
-        List<BlockDefinition> blocks = mode switch
-        {
-            BuildMode.Hull => database.GetByCategory(BlockCategory.Hull),
-            BuildMode.Armor => database.GetByCategory(BlockCategory.Armor),
-            _ => database.GetFunctionalBlocks(),
-        };
-
         foreach (var block in blocks)
-            CreateButton(block);
+            if (IsUnlocked(block)) CreateButton(block);
+    }
+
+    private bool IsUnlocked(BlockDefinition block)
+    {
+        if (techDatabase == null) return true; // no tech-gating configured — show everything
+        var data = GameDataManager.Instance;
+        return data == null || data.IsBlockUnlocked(block, techDatabase);
     }
 
     /// <summary>Called by BuildModeController.RotateSelected() to spin the selected block's own icon in sync.</summary>

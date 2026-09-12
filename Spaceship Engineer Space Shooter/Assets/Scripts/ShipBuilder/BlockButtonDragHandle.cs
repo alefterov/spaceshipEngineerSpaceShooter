@@ -14,9 +14,18 @@ using UnityEngine.EventSystems;
 ///
 /// Knows nothing about ShipGrid/GhostBlockController — BuildPaletteUI subscribes to these events
 /// when it instantiates each button and wires them to the right BuildModeController calls.
+///
+/// BUG WORKAROUND: on rare occasions (observed specifically on the very first drag of a Play
+/// session, never after) Unity's Input System UI module fails to deliver OnEndDrag for a completed
+/// drag, leaving the gesture stuck "in flight" — nothing to confirm, nothing to cancel, no way out
+/// short of starting a whole new drag. IPointerUpHandler.OnPointerUp is tracked through a separate,
+/// more fundamental code path in uGUI than the Begin/Drag/EndDrag chain, so it's used here as a
+/// second way to detect the release. Both funnel through ReleaseDrag(), which clears leftButtonRect
+/// on the first call — so if both fire normally for the same release (the usual case), the second
+/// one is a harmless no-op instead of a double-fire.
 /// </summary>
 public class BlockButtonDragHandle : MonoBehaviour,
-    IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+    IPointerClickHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     /// <summary>Fired on a plain tap — finger never left this button's rect.</summary>
     public event Action OnTap;
@@ -54,8 +63,19 @@ public class BlockButtonDragHandle : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (leftButtonRect) OnDragReleased?.Invoke(eventData.position);
-        leftButtonRect = false;
+        if (leftButtonRect) ReleaseDrag(eventData.position);
+    }
+
+    // Backup path for OnEndDrag — see the class doc comment for why this exists.
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (leftButtonRect) ReleaseDrag(eventData.position);
+    }
+
+    private void ReleaseDrag(Vector2 screenPos)
+    {
+        leftButtonRect = false; // cleared first — whichever of OnEndDrag/OnPointerUp fires second sees this as false and no-ops
+        OnDragReleased?.Invoke(screenPos);
     }
 
     private void CheckLeftRect(PointerEventData eventData)

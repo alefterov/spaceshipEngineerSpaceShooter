@@ -8,9 +8,10 @@ public enum BuildMode { Hull, Armor, Modules }
 /// <summary>
 /// Grid the ship is built on. Two independent layers:
 ///  - hullCells: structural pieces (Hull/Armor) — must always be adjacent to another hull piece.
-///  - moduleCells: functional pieces (Weapon/Engine/Generator/Shield) — must sit entirely on top of
-///    already-placed HULL cells specifically (Armor doesn't count — it protects the hull, it isn't
-///    a mounting surface for modules).
+///  - moduleCells: functional pieces (Weapon/Engine/Generator/Shield/Cockpit) — must sit entirely on
+///    top of already-placed HULL cells specifically (Armor doesn't count — it protects the hull, it
+///    isn't a mounting surface for modules). Cockpit is a module like any other here — the only thing
+///    special about it is ShipGrid.HasCockpit, checked by MainMenuFlowController before allowing a save.
 /// Losing a hull cell destroys any module sitting on it (cascade).
 /// </summary>
 [RequireComponent(typeof(ShipIdentity))]
@@ -20,6 +21,19 @@ public class ShipGrid : MonoBehaviour
     public int width = 12;
     public int height = 12;
     public float cellSize = 1f;
+
+    [Header("Hangar upgrades")]
+    [Tooltip("Extra rows/columns granted by hangar upgrades — each level adds exactly one of each. " +
+             "Set via SetHangarLevel; GameDataManager owns the persisted value and the research-point " +
+             "cost (see GameDataManager.TryUpgradeHangar). AnchorToWorld/CornerToWorld always center on " +
+             "the CURRENT effective size, so the grid stays centered as it grows — SetHangarLevel " +
+             "repositions already-placed blocks to match instead of leaving them behind.")]
+    [SerializeField] private int hangarLevel;
+
+    public int HangarLevel => hangarLevel;
+    /// <summary>Actual buildable size including hangar upgrades — e.g. for a "5x5" UI label.</summary>
+    public int GridWidth => width + hangarLevel;
+    public int GridHeight => height + hangarLevel;
 
     [Header("Placement visuals")]
     [Tooltip("Small square sprite, one instance per grid cell — used for the general build grid and the " +
@@ -52,6 +66,11 @@ public class ShipGrid : MonoBehaviour
     /// e.g. HullOutlineRenderer listens to this to redraw the ship's outline.</summary>
     public event Action OnHullChanged;
 
+    /// <summary>Fires on ANY change to the ship — hull, armor, or modules; placement or removal —
+    /// broader than OnHullChanged (which is hull-cells-only, for the outline). ShipStatsPanel uses
+    /// this to stay live while building, since stats depend on modules too (weapons, engines, etc).</summary>
+    public event Action OnShipChanged;
+
     /// <summary>Read-only view of every structural cell (Hull AND Armor) — for systems that only need
     /// the footprint without depending on ShipGrid's placement API.</summary>
     public IEnumerable<Vector2Int> HullCellPositions => hullCells.Keys;
@@ -60,6 +79,11 @@ public class ShipGrid : MonoBehaviour
     /// this so the exterior contour only hugs the Hull, not armor plating bolted on top of it.</summary>
     public IEnumerable<Vector2Int> HullOnlyCellPositions
         => hullCells.Where(kv => kv.Value.type == ModuleType.Hull).Select(kv => kv.Key);
+
+    /// <summary>Whether the ship has at least one non-destroyed Cockpit MODULE placed (moduleCells —
+    /// a cockpit is a regular module like Engine/Generator, not a structural piece). A ship without
+    /// one is not allowed to be saved — see MainMenuFlowController.OnSaveShipPressed.</summary>
+    public bool HasCockpit => moduleCells.Values.Distinct().Any(m => m.type == ModuleType.Cockpit && !m.IsDestroyed);
 
     [Tooltip("Preview = closed look (main menu), Building = exposed internals (editor). " +
              "Applied to every module immediately on placement.")]
@@ -70,24 +94,45 @@ public class ShipGrid : MonoBehaviour
 
     // ---------- Coordinate helpers ----------
 
-    public bool InBounds(Vector2Int cell) => cell.x >= 0 && cell.x < width && cell.y >= 0 && cell.y < height;
+    public bool InBounds(Vector2Int cell) => cell.x >= 0 && cell.x < GridWidth && cell.y >= 0 && cell.y < GridHeight;
+
+    /// <summary>Applies a hangar level directly — call once on load/start (GameDataManager.HangarLevel)
+    /// and again whenever it changes via an upgrade. Since AnchorToWorld centers on the current
+    /// effective size, growing it shifts where every anchor cell maps to in world space by a uniform
+    /// amount — repositions every already-placed block to match, so the whole ship translates
+    /// together and stays centered on the (now bigger) grid instead of drifting to one corner of it.
+    /// Also redraws whichever grid overlay is currently shown.</summary>
+    public void SetHangarLevel(int level)
+    {
+        if (hangarLevel == level) return;
+        hangarLevel = level;
+
+        foreach (var m in hullCells.Values.Distinct())
+            if (m != null) m.transform.position = AnchorToWorld(m.anchorCell);
+        foreach (var m in moduleCells.Values.Distinct())
+            if (m != null) m.transform.position = AnchorToWorld(m.anchorCell);
+
+        if (generalGridRoot != null) ShowGeneralGrid();
+        if (moduleGridVisible) RedrawModuleGrid();
+    }
 
     public Vector2Int WorldToGrid(Vector3 world)
     {
         Vector3 local = transform.InverseTransformPoint(world);
-        int x = Mathf.FloorToInt(local.x / cellSize + width * 0.5f);
-        int y = Mathf.FloorToInt(local.y / cellSize + height * 0.5f);
+        int x = Mathf.FloorToInt(local.x / cellSize + GridWidth * 0.5f);
+        int y = Mathf.FloorToInt(local.y / cellSize + GridHeight * 0.5f);
         return new Vector2Int(x, y);
     }
 
     /// <summary>
     /// World position of a SINGLE grid cell's center — this is where a block's root transform
-    /// is placed (the anchor/pivot cell). The root never moves again after this, even on rotation.
+    /// is placed (the anchor/pivot cell). Centers on the CURRENT effective grid size (base size plus
+    /// any hangar upgrades), so the whole grid stays centered as it grows — see SetHangarLevel.
     /// </summary>
     public Vector3 AnchorToWorld(Vector2Int anchor)
     {
-        float x = (anchor.x - width * 0.5f + 0.5f) * cellSize;
-        float y = (anchor.y - height * 0.5f + 0.5f) * cellSize;
+        float x = (anchor.x - GridWidth * 0.5f + 0.5f) * cellSize;
+        float y = (anchor.y - GridHeight * 0.5f + 0.5f) * cellSize;
         return transform.TransformPoint(new Vector3(x, y, 0f));
     }
 
@@ -98,8 +143,8 @@ public class ShipGrid : MonoBehaviour
     /// </summary>
     public Vector3 CornerToWorld(Vector2Int corner)
     {
-        float x = (corner.x - width * 0.5f) * cellSize;
-        float y = (corner.y - height * 0.5f) * cellSize;
+        float x = (corner.x - GridWidth * 0.5f) * cellSize;
+        float y = (corner.y - GridHeight * 0.5f) * cellSize;
         return transform.TransformPoint(new Vector3(x, y, 0f));
     }
 
@@ -158,9 +203,12 @@ public class ShipGrid : MonoBehaviour
     }
 
     /// <summary>Module mode rule: every target cell must already be covered by Hull specifically
-    /// (Armor doesn't count — see HullOnlyCellPositions), and not already have a module.</summary>
-    public bool CanPlaceModule(Vector2Int anchor, List<Vector2Int> localShape)
+    /// (Armor doesn't count — see HullOnlyCellPositions), and not already have a module. A Cockpit
+    /// is additionally rejected outright once the ship already has one — see HasCockpit.</summary>
+    public bool CanPlaceModule(Vector2Int anchor, List<Vector2Int> localShape, BlockCategory category)
     {
+        if (category == BlockCategory.Cockpit && HasCockpit) return false; // only one cockpit per ship
+
         var cells = Offset(anchor, localShape);
 
         foreach (var cell in cells)
@@ -186,6 +234,7 @@ public class ShipGrid : MonoBehaviour
         var module = Place(definition, anchor, localShape, rotationSteps, hullCells, registerWithIdentity: true);
         if (moduleGridVisible) RedrawModuleGrid(); // keep the module grid in sync if hull changed while it's showing
         OnHullChanged?.Invoke();
+        OnShipChanged?.Invoke();
         return module;
     }
 
@@ -193,6 +242,7 @@ public class ShipGrid : MonoBehaviour
     {
         var module = Place(definition, anchor, localShape, rotationSteps, moduleCells, registerWithIdentity: false);
         if (moduleGridVisible) RedrawModuleGrid(); // the cell it just filled must stop showing as available
+        OnShipChanged?.Invoke();
         return module;
     }
 
@@ -248,6 +298,7 @@ public class ShipGrid : MonoBehaviour
         {
             moduleCells.Keys.Where(k => moduleCells[k] == module).ToList().ForEach(k => moduleCells.Remove(k));
             if (moduleGridVisible) RedrawModuleGrid(); // freed cell should be able to show as available again
+            OnShipChanged?.Invoke();
         };
 
         return module;
@@ -270,6 +321,7 @@ public class ShipGrid : MonoBehaviour
 
         if (moduleGridVisible) RedrawModuleGrid();
         OnHullChanged?.Invoke();
+        OnShipChanged?.Invoke();
     }
 
     /// <summary>
@@ -282,6 +334,7 @@ public class ShipGrid : MonoBehaviour
         Destroy(module.gameObject);
 
         if (moduleGridVisible) RedrawModuleGrid(); // freed cell should be able to show as available again
+        OnShipChanged?.Invoke();
     }
 
     /// <summary>
@@ -300,8 +353,8 @@ public class ShipGrid : MonoBehaviour
     }
 
     /// <summary>Deletes a specific block found via FindDeletableAt — dispatches to RemoveHull or
-    /// RemoveModule depending on its type (Hull/Armor share the structural layer, everything else
-    /// is a module).</summary>
+    /// RemoveModule depending on its type (Hull/Armor share the structural layer, everything else,
+    /// including Cockpit, is a module).</summary>
     public void DeleteBlock(ShipModule target)
     {
         if (target == null) return;
@@ -394,9 +447,9 @@ public class ShipGrid : MonoBehaviour
         rootObj.transform.SetParent(transform, false);
         generalGridRoot = rootObj.transform;
 
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < GridWidth; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < GridHeight; y++)
             {
                 var cellObj = Instantiate(cellVisualPrefab, generalGridRoot);
                 cellObj.transform.position = AnchorToWorld(new Vector2Int(x, y));
@@ -462,8 +515,42 @@ public class ShipGrid : MonoBehaviour
     public float ComputeTotalMass()
         => hullCells.Values.Distinct().Sum(m => m.mass) + moduleCells.Values.Distinct().Sum(m => m.mass);
 
+    /// <summary>Total HP capacity across every placed block — hull, armor, and every module combined
+    /// (unlike ComputeTotalArmor/ComputeShieldStrength, which are per-category).</summary>
+    public float ComputeTotalHP()
+        => hullCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.maxHP)
+         + moduleCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.maxHP);
+
+    /// <summary>Net energy — positive means surplus, negative means the ship is over budget.</summary>
     public float ComputeEnergyBalance()
         => moduleCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.energyDelta);
+
+    /// <summary>Total armor HP capacity — Armor-category structural blocks only (Hull itself excluded).</summary>
+    public float ComputeTotalArmor()
+        => hullCells.Values.Distinct().Where(m => m.type == ModuleType.Armor && !m.IsDestroyed).Sum(m => m.maxHP);
+
+    /// <summary>Total shield HP capacity. Reads any placed block with type==Shield generically (via
+    /// ShieldModule, which just tags itself with that type in Awake — same pattern as ArmorModule),
+    /// so this method itself never needs touching when new shield block variants are added.</summary>
+    public float ComputeShieldStrength()
+        => moduleCells.Values.Distinct().Where(m => m.type == ModuleType.Shield && !m.IsDestroyed).Sum(m => m.maxHP);
+
+    /// <summary>Total damage-per-second across every non-destroyed weapon.</summary>
+    public float ComputeFirepower()
+        => moduleCells.Values.Distinct().OfType<WeaponModule>().Where(w => !w.IsDestroyed).Sum(w => w.projectileDamage * w.fireRate);
+
+    /// <summary>Total thrust from every non-destroyed engine (EngineModule.GetThrust() already returns 0 when destroyed).</summary>
+    public float ComputeEnginePower()
+        => moduleCells.Values.Distinct().OfType<EngineModule>().Sum(e => e.GetThrust());
+
+    /// <summary>Total energy output from generators — the positive half of ComputeEnergyBalance, split out.</summary>
+    public float ComputeEnergyGeneration()
+        => moduleCells.Values.Distinct().Where(m => !m.IsDestroyed && m.energyDelta > 0f).Sum(m => m.energyDelta);
+
+    /// <summary>Total energy draw from weapons/engines/shields, as a positive number — the negative
+    /// half of ComputeEnergyBalance, split out and sign-flipped so it reads as a plain "cost".</summary>
+    public float ComputeEnergyConsumption()
+        => moduleCells.Values.Distinct().Where(m => !m.IsDestroyed && m.energyDelta < 0f).Sum(m => -m.energyDelta);
 
     // ---------- Save / load / procedural spawn (shared by player editor & enemy spawner) ----------
 
@@ -488,6 +575,7 @@ public class ShipGrid : MonoBehaviour
         hullCells.Clear();
         moduleCells.Clear();
         OnHullChanged?.Invoke();
+        OnShipChanged?.Invoke();
     }
 
     /// <summary>Builds a full ship (hull + modules) from a saved layout with no player input — used for enemy ships and for restoring a saved player ship.</summary>

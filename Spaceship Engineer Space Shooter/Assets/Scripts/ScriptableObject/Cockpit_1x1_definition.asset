@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
-  m_Name: HullCore_1x1_definition
+  m_Name: Cockpit_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
-  id: hullCore_1x1
-  displayName: Hull Block Core
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  id: Cockpit_1x1
+  displayName: Cockpit
+  icon: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
   prefab: {fileID: 729449600381729954, guid: 89c1946af1c4ce14494f116dcac56071, type: 3}
-  category: 0
+  category: 6
+  buildCost: 10
   cells:
   - {x: 0, y: 0}

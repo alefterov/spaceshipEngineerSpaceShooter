@@ -13,7 +13,7 @@ using UnityEngine;
 /// </summary>
 public class CurrencyDisplay : MonoBehaviour
 {
-    public enum Currency { Credits, Coins }
+    public enum Currency { Credits, Coins, ResearchPoints }
 
     [Header("Binding")]
     public Currency currency = Currency.Credits;
@@ -52,15 +52,20 @@ public class CurrencyDisplay : MonoBehaviour
         var data = GameDataManager.Instance;
         if (data == null) return;
 
-        if (currency == Currency.Credits)
+        switch (currency)
         {
-            data.OnCreditsChanged += Refresh;
-            data.OnInsufficientCredits += Pulse;
-        }
-        else
-        {
-            data.OnCoinsChanged += Refresh;
-            data.OnInsufficientCoins += Pulse;
+            case Currency.Credits:
+                data.OnCreditsChanged += Refresh;
+                data.OnInsufficientCredits += Pulse;
+                break;
+            case Currency.Coins:
+                data.OnCoinsChanged += Refresh;
+                data.OnInsufficientCoins += Pulse;
+                break;
+            case Currency.ResearchPoints:
+                data.OnResearchPointsChanged += Refresh;
+                data.OnInsufficientResearchPoints += Pulse;
+                break;
         }
 
         subscribed = true;
@@ -75,22 +80,32 @@ public class CurrencyDisplay : MonoBehaviour
         var data = GameDataManager.Instance;
         if (data == null) return;
 
-        if (currency == Currency.Credits)
+        switch (currency)
         {
-            data.OnCreditsChanged -= Refresh;
-            data.OnInsufficientCredits -= Pulse;
-        }
-        else
-        {
-            data.OnCoinsChanged -= Refresh;
-            data.OnInsufficientCoins -= Pulse;
+            case Currency.Credits:
+                data.OnCreditsChanged -= Refresh;
+                data.OnInsufficientCredits -= Pulse;
+                break;
+            case Currency.Coins:
+                data.OnCoinsChanged -= Refresh;
+                data.OnInsufficientCoins -= Pulse;
+                break;
+            case Currency.ResearchPoints:
+                data.OnResearchPointsChanged -= Refresh;
+                data.OnInsufficientResearchPoints -= Pulse;
+                break;
         }
     }
 
     private void Refresh()
     {
         if (label == null) return;
-        int amount = currency == Currency.Credits ? GameDataManager.Instance.Credits : GameDataManager.Instance.Coins;
+        int amount = currency switch
+        {
+            Currency.Credits => GameDataManager.Instance.Credits,
+            Currency.Coins => GameDataManager.Instance.Coins,
+            _ => GameDataManager.Instance.ResearchPoints,
+        };
         label.text = amount.ToString();
     }
 

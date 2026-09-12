@@ -18,10 +18,26 @@ public class MainMenuFlowController : MonoBehaviour
     [Header("Build screen internals")]
     public BuildModeController buildModeController;
 
+    [Header("Camera")]
+    [Tooltip("Centers and fits the ship on screen whenever the menu preview is shown.")]
+    public BuildCameraController cameraController;
+
+    [Header("Stats panel")]
+    [Tooltip("Slides open automatically when entering the builder, closed when leaving it. A separate " +
+             "button wired to SlideOutPanel.Toggle() lets the player open/close it manually at any time too.")]
+    public SlideOutPanel statsPanel;
+
+    [Header("Messages")]
+    [Tooltip("Optional — shown when the player tries to save a ship with no cockpit.")]
+    public MessageToast messageToast;
+    [Tooltip("Text shown by messageToast when a save is blocked for missing a cockpit.")]
+    public string cockpitRequiredMessage = "Кокпит обязателен для сохранения корабля";
+
     private void Start()
     {
         // GameDataManager already loaded the save file in its own Awake (runs before this Start,
         // as long as it lives in the same scene or a bootstrap scene loaded earlier).
+        playerShip.SetHangarLevel(GameDataManager.Instance.HangarLevel); // restore any hangar upgrades bought previously
         GameDataManager.Instance.LoadShip(playerShip, database);
         GameDataManager.Instance.BeginBuildSession(); // baseline for RevertCredits, in case Build is entered before any Save
         ShowMainMenu();
@@ -48,11 +64,22 @@ public class MainMenuFlowController : MonoBehaviour
 
         playerShip.SetViewMode(ShipViewMode.Building); // strip the roof so the grid/internals read clearly
         GameDataManager.Instance.BeginBuildSession(); // snapshot credits — rolled back by RevertCredits on an unsaved exit
+        if (statsPanel != null) statsPanel.Show();
     }
 
     /// <summary>Wire to a dedicated "Save" button inside the builder screen. Saving is a separate,
-    /// explicit action from exiting — leaving the builder no longer saves on its own.</summary>
-    public void OnSaveShipPressed() => GameDataManager.Instance.SaveShip(playerShip);
+    /// explicit action from exiting — leaving the builder no longer saves on its own. Refuses to
+    /// save (and shows a message instead) if the ship has no cockpit — a cockpit is mandatory.</summary>
+    public void OnSaveShipPressed()
+    {
+        if (!playerShip.HasCockpit)
+        {
+            if (messageToast != null) messageToast.Show(cockpitRequiredMessage);
+            return;
+        }
+
+        GameDataManager.Instance.SaveShip(playerShip);
+    }
 
     /// <summary>Wire to the "Exit" button inside the builder screen. Does NOT save — instead it
     /// discards everything placed/deleted this session by reverting to the last saved layout (see
@@ -77,5 +104,7 @@ public class MainMenuFlowController : MonoBehaviour
         buildModeController.ghost.gameObject.SetActive(false); // safety: never listen for taps outside the builder
 
         playerShip.SetViewMode(ShipViewMode.Preview); // put the roof back on for the menu preview
+        if (cameraController != null) cameraController.FrameShip(); // center + fit — whatever pan/zoom was left from building is discarded
+        if (statsPanel != null) statsPanel.Hide(); // back to its default hidden state — the manual toggle button can still reopen it here
     }
 }

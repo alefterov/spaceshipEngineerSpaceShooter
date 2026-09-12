@@ -27,6 +27,8 @@ public class BlockDefinition : ScriptableObject
              "Include (0,0) itself in the list. 1 entry = 1x1. Add more for 2/3/4-cell shapes.")]
     public List<Vector2Int> cells = new() { Vector2Int.zero };
 
+    // Cockpit deliberately excluded — it's a functional module (sits on hull, like Engine/Generator),
+    // not a structural piece. GetFunctionalBlocks() relies on that to include it in the Modules list.
     public bool IsStructural => category == BlockCategory.Hull || category == BlockCategory.Armor;
 
     /// <summary>
@@ -55,5 +57,6 @@ public enum BlockCategory
     Weapon,
     Engine,
     Generator,
-    Shield
+    Shield,
+    Cockpit
 }
