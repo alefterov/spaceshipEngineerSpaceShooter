@@ -94,6 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
   type: 5
   moduleId: generator_1x1
+  buildCost: 0
   maxHP: 20
   mass: 1
   energyDelta: 0
@@ -102,9 +103,10 @@ MonoBehaviour:
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
-  closedSprite: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
-  openSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  closedSprite: {fileID: 4427969112588347586, guid: 29660792a4b00454d97839e19614f07c, type: 3}
+  openSprite: {fileID: -269203348661926682, guid: e707b20ced67bdc46bcc23ebbc99ebe6, type: 3}
   visualRoot: {fileID: 7616474015210035435}
+  idleAnimator: {fileID: 0}
   powerOutput: 10
 --- !u!1 &9165489166209485565
 GameObject:

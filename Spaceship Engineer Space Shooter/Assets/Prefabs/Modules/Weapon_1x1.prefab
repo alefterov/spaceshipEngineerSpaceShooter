@@ -94,6 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: weapon_1x1
+  buildCost: 0
   maxHP: 20
   mass: 1
   energyDelta: 0
@@ -102,15 +103,22 @@ MonoBehaviour:
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
-  closedSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
-  openSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  closedSprite: {fileID: -5950248230806655143, guid: 3275b2ad565d18947b279af7bcf1e20f, type: 3}
+  openSprite: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
   visualRoot: {fileID: 8868587245406197017}
+  idleAnimator: {fileID: 0}
+  aiming: 0
+  fireControl: 0
+  role: 0
   projectilePrefab: {fileID: 0}
   muzzle: {fileID: 0}
-  fireRate: 3
+  cooldownSeconds: 0.35
   projectileDamage: 5
   projectileSpeed: 12
+  range: 12
   fireArcDegrees: 30
+  turretPivot: {fileID: 0}
+  turretRotationSpeed: 180
 --- !u!1 &6296295213716718776
 GameObject:
   m_ObjectHideFlags: 0

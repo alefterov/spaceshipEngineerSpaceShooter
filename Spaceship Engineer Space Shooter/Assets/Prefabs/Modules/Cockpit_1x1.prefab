@@ -195,7 +195,7 @@ MonoBehaviour:
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 1
-  closedSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
-  openSprite: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  closedSprite: {fileID: -2575721838940924683, guid: cc9c1495477c8ec4eb55fc7b7139671a, type: 3}
+  openSprite: {fileID: 928279348840330441, guid: b25343d52e1ebf34aab3c3358c007d73, type: 3}
   visualRoot: {fileID: 2620639036222649162}
   idleAnimator: {fileID: 0}
