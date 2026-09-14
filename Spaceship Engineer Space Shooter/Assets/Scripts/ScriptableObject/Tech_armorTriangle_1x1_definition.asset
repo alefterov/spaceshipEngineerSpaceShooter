@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
-  m_Name: Tech_generator_1x1_definition
+  m_Name: Tech_armorTriangle_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
-  id: generator_1x1
-  displayName: Generator1
+  id: light_triangle_armor_1x1
+  displayName: Armor2
   icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
-  category: 3
-  prerequisite: {fileID: 0}
+  category: 1
+  prerequisite: {fileID: 11400000, guid: 2052bcae44a683d4e965cb93121a894d, type: 2}
   researchCost: 5
   unlockedBlocks:
-  - {fileID: 11400000, guid: 49f039d11f70740498ebf41462a34bd0, type: 2}
+  - {fileID: 11400000, guid: 35b54902e8405a240a6cfd3ad359c369, type: 2}

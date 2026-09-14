@@ -10,13 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
-  m_Name: Hull_1x1_definition
+  m_Name: ArmorTriangle_1x2_left_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
-  id: hull_1x1
-  displayName: Hull Block
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
-  prefab: {fileID: 863857228286269480, guid: efc7de93b327f0a43b919913f21850ce, type: 3}
-  category: 0
+  id: light_triangle_armor_1x2_left
+  displayName: armor triangle 2
+  icon: {fileID: -8969765771252838727, guid: 1a3dcd66801308f4790237656fcdf8be, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 98fce909a64fcb641bab126275cd3175, type: 3}
+  category: 1
+  buildCost: 10
   cells:
   - offset: {x: 0, y: 0}
-    shape: 0
+    shape: 1
+  - offset: {x: 0, y: 1}
+    shape: 1

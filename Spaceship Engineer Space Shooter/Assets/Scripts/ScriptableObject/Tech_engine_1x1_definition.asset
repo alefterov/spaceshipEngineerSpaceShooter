@@ -18,4 +18,5 @@ MonoBehaviour:
   category: 4
   prerequisite: {fileID: 0}
   researchCost: 5
-  unlockedBlock: {fileID: 11400000, guid: 1f99b6e9bc5cba94ab5fc653e337f3b8, type: 2}
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 1f99b6e9bc5cba94ab5fc653e337f3b8, type: 2}

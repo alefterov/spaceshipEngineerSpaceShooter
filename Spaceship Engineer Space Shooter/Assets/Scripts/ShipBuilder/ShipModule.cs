@@ -30,6 +30,11 @@ public class ShipModule : MonoBehaviour
              "so it never drifts out of sync after rotating or reloading a saved layout.")]
     public System.Collections.Generic.List<Vector2Int> occupiedCells = new() { Vector2Int.zero };
 
+    [Tooltip("Per-cell shape, same order/index as occupiedCells — set alongside it by ShipGrid.Place " +
+             "from BlockDefinition.cellShapes (rotated to match). Used only by structural (Hull/Armor) " +
+             "adjacency checks (ShipGrid.CanPlaceHull) to keep new blocks off a triangle's hypotenuse.")]
+    public System.Collections.Generic.List<CellShape> cellShapes = new() { CellShape.Square };
+
     [Tooltip("The pivot/root cell this block was placed at. The GameObject's own transform always " +
              "sits exactly here and never rotates — only visualRoot (below) rotates/repositions.")]
     public Vector2Int anchorCell;
@@ -40,17 +45,25 @@ public class ShipModule : MonoBehaviour
     [Tooltip("If true, destroying this module destroys the whole ship (e.g. the cockpit/core hull piece).")]
     public bool isCore = false;
 
-    [Header("View sprites")]
-    [Tooltip("Shown in the main menu ship preview — the finished, closed-up look.")]
-    public Sprite closedSprite;
-    [Tooltip("Shown in the ship builder — exposed internals so the grid/wiring reads clearly.")]
-    public Sprite openSprite;
-
     [Header("Visual (child object)")]
-    [Tooltip("Child object holding the sprite(s). ShipGrid repositions/rotates THIS around the root — " +
+    [Tooltip("Child object holding every visual part. ShipGrid repositions/rotates THIS around the root — " +
              "the root itself never moves or rotates, so multi-cell shapes stay correctly anchored " +
              "no matter how many times the block is rotated or reloaded from a save.")]
     public Transform visualRoot;
+
+    [Header("Visual parts (separate child objects, toggled by view mode)")]
+    [Tooltip("Everything that sits INSIDE the hull — e.g. a generator's machinery, a turret's mounting " +
+             "base. ALWAYS active — never deactivated. Reads as hidden once the roof goes on purely " +
+             "because roofRoot sits at a higher sorting order and is opaque over it, not because this " +
+             "object is switched off.")]
+    public Transform interiorRoot;
+    [Tooltip("This module's own roof. Shown only while the ship is closed (menu preview and battle), " +
+             "and drawn ABOVE the hull's own roof — see ShipGrid's roof sorting orders.")]
+    public Transform roofRoot;
+    [Tooltip("The functional part itself protruding above the roof — e.g. a turret's barrel. Unlike " +
+             "interiorRoot/roofRoot this is ALWAYS visible (builder included), and always drawn above " +
+             "every roof — see ShipGrid's top sorting order.")]
+    public Transform topRoot;
 
     [Header("Idle animation (optional)")]
     [Tooltip("Animator for this block's idle/ambient animation (e.g. a weapon humming, a light " +
@@ -59,7 +72,12 @@ public class ShipModule : MonoBehaviour
              "but stays off while actively building. Leave unassigned for blocks with no animation.")]
     public Animator idleAnimator;
 
-    private readonly System.Collections.Generic.List<SpriteRenderer> spriteRenderers = new();
+    // Sorting orders authored in the prefab are kept as OFFSETS, so ApplySortingOrders can shift a
+    // whole group onto its layer while preserving the relative order inside it (e.g. a barrel
+    // authored one above its roof stays one above it). Cached so repeated calls can't compound.
+    private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> interiorRenderers = new();
+    private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> roofRenderers = new();
+    private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> topRenderers = new();
 
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
@@ -75,24 +93,59 @@ public class ShipModule : MonoBehaviour
 
         if (visualRoot == null) visualRoot = transform; // fallback for old single-cell prefabs without a child
 
-        spriteRenderers.Clear();
-        spriteRenderers.AddRange(visualRoot.GetComponentsInChildren<SpriteRenderer>(true));
+        CacheRenderers(interiorRoot, interiorRenderers);
+        CacheRenderers(roofRoot, roofRenderers);
+        CacheRenderers(topRoot, topRenderers);
 
         SetIdleAnimationPlaying(false); // safe default until something explicitly turns it on
     }
 
-    /// <summary>Swaps the visible sprite on every cell's child renderer, and — since the builder is
-    /// the one context idle animation should NEVER play in — turns it off in Building mode and on in
-    /// Preview. Called by ShipGrid.SetViewMode. (Battle idle, later, will call SetIdleAnimationPlaying
-    /// directly instead — it isn't a ShipViewMode at all.)</summary>
+    private static void CacheRenderers(
+        Transform root, System.Collections.Generic.List<(SpriteRenderer, int)> into)
+    {
+        into.Clear();
+        if (root == null) return;
+
+        foreach (var renderer in root.GetComponentsInChildren<SpriteRenderer>(true))
+            into.Add((renderer, renderer.sortingOrder));
+    }
+
+    /// <summary>
+    /// Toggles the roof: shown while the ship is closed (menu preview, battle), hidden in the builder.
+    /// interiorRoot is deliberately NEVER deactivated — it stays active always and is simply covered
+    /// by the (higher-sorted, opaque) roof when one is showing, the same way a real wall hides a room
+    /// instead of the room ceasing to exist. topRoot and anything parented directly under visualRoot
+    /// rather than under either root are left alone too, so they stay visible in both.
+    ///
+    /// Also turns idle animation off in Building mode — the builder is the one context it should never
+    /// play in. Called by ShipGrid.SetViewMode. (Battle idle, later, will call SetIdleAnimationPlaying
+    /// directly instead — it isn't a ShipViewMode at all.)
+    /// </summary>
     public void ApplyViewMode(ShipViewMode mode)
     {
-        Sprite target = mode == ShipViewMode.Preview ? closedSprite : openSprite;
-        if (target != null)
-            foreach (var r in spriteRenderers)
-                if (r != null) r.sprite = target;
+        bool closed = mode == ShipViewMode.Preview;
 
-        SetIdleAnimationPlaying(mode == ShipViewMode.Preview);
+        if (roofRoot != null) roofRoot.gameObject.SetActive(closed);
+
+        SetIdleAnimationPlaying(closed);
+    }
+
+    /// <summary>
+    /// Puts this module's parts on their render layers. Called by ShipGrid at placement time, which is
+    /// the only thing that knows whether this block went onto the structural or the module layer —
+    /// that distinction is what keeps a module's roof drawn above the hull's roof rather than under it.
+    /// Sorting orders authored in the prefab act as offsets within each group.
+    /// </summary>
+    public void ApplySortingOrders(int interiorBase, int roofBase, int topBase)
+    {
+        foreach (var (renderer, authoredOrder) in interiorRenderers)
+            if (renderer != null) renderer.sortingOrder = interiorBase + authoredOrder;
+
+        foreach (var (renderer, authoredOrder) in roofRenderers)
+            if (renderer != null) renderer.sortingOrder = roofBase + authoredOrder;
+
+        foreach (var (renderer, authoredOrder) in topRenderers)
+            if (renderer != null) renderer.sortingOrder = topBase + authoredOrder;
     }
 
     /// <summary>Turns this block's idle/ambient animation on or off. Safe to call even when no
@@ -100,6 +153,14 @@ public class ShipModule : MonoBehaviour
     public void SetIdleAnimationPlaying(bool playing)
     {
         if (idleAnimator != null) idleAnimator.enabled = playing;
+    }
+
+    /// <summary>Shape of a specific occupied cell — Square if this cell (or the whole block, for
+    /// anything placed before triangular shapes existed) has no explicit entry.</summary>
+    public CellShape GetCellShape(Vector2Int cell)
+    {
+        int index = occupiedCells.IndexOf(cell);
+        return index >= 0 && index < cellShapes.Count ? cellShapes[index] : CellShape.Square;
     }
 
     /// <summary>

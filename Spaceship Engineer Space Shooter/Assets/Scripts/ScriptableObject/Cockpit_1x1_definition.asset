@@ -19,4 +19,5 @@ MonoBehaviour:
   category: 6
   buildCost: 10
   cells:
-  - {x: 0, y: 0}
+  - offset: {x: 0, y: 0}
+    shape: 0

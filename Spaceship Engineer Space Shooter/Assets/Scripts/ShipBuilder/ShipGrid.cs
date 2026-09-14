@@ -53,6 +53,19 @@ public class ShipGrid : MonoBehaviour
              "instead of visibly on top of it.")]
     public int moduleGridSortingOrder = 10;
 
+    [Header("Module part render layers")]
+    [Tooltip("Applied to each block's interiorRoot / roofRoot / topRoot at placement time (ShipModule." +
+             "ApplySortingOrders). The order that actually matters: interiors at the bottom, then the " +
+             "hull's roof, then module roofs, then topRoot parts (e.g. a turret's barrel) above " +
+             "everything — a generator's or turret's roof has to cover the hull roof it sits on, not " +
+             "disappear under it, and the part sticking out of the roof has to stay on top of that too. " +
+             "Sorting orders authored inside a prefab are kept as offsets from these bases.")]
+    public int hullInteriorSortingOrder = 0;
+    public int moduleInteriorSortingOrder = 1;
+    public int hullRoofSortingOrder = 20;
+    public int moduleRoofSortingOrder = 30;
+    public int topSortingOrder = 40;
+
     private Transform previewRoot;
     private readonly List<GameObject> previewPool = new();
     private Transform generalGridRoot;
@@ -88,6 +101,10 @@ public class ShipGrid : MonoBehaviour
     [Tooltip("Preview = closed look (main menu), Building = exposed internals (editor). " +
              "Applied to every module immediately on placement.")]
     public ShipViewMode CurrentViewMode { get; private set; } = ShipViewMode.Building;
+
+    /// <summary>Fired whenever SetViewMode runs — e.g. HullOutlineRenderer uses this to hide the
+    /// builder-only contour outside Building mode, without needing to also watch hull changes for that.</summary>
+    public event Action OnViewModeChanged;
 
     private ShipIdentity identity;
     private void Awake() => identity = GetComponent<ShipIdentity>();
@@ -182,29 +199,47 @@ public class ShipGrid : MonoBehaviour
 
     // ---------- Validation ----------
 
-    /// <summary>Structural rule (Hull and Armor both use this): cells must be free & in bounds, and adjacent to existing hull (unless ship is empty).</summary>
-    public bool CanPlaceHull(Vector2Int anchor, List<Vector2Int> localShape)
+    /// <summary>Structural rule (Hull and Armor both use this): cells must be free & in bounds, and
+    /// adjacent to existing hull (unless ship is empty) via a genuine solid-to-solid edge — a
+    /// triangular cell's hypotenuse side never counts, on either side of the join (see
+    /// BlockDefinition.CellShape / GetSolidSides).</summary>
+    public bool CanPlaceHull(Vector2Int anchor, List<BlockCell> rotatedCells)
     {
-        var cells = Offset(anchor, localShape);
+        var cells = Offset(anchor, BlockDefinition.Offsets(rotatedCells));
 
         foreach (var cell in cells)
         {
             if (!InBounds(cell)) return false;
             if (hullCells.ContainsKey(cell)) return false;
+            if (IsEngineInColumnAbove(cell)) return false; // an engine's exhaust renders down its whole column — keep all of it permanently clear
         }
 
         if (hullCells.Count == 0) return true; // first block can go anywhere
 
-        foreach (var cell in cells)
-            foreach (var n in Neighbors(cell))
-                if (hullCells.ContainsKey(n)) return true;
+        for (int i = 0; i < cells.Count; i++)
+        {
+            var mySolidSides = BlockDefinition.GetSolidSides(rotatedCells[i].shape);
+
+            foreach (var (offset, mySide, neighborSide) in AdjacencyDirections)
+            {
+                if (!mySolidSides.HasFlag(mySide)) continue; // this side is a hypotenuse — nothing can attach through it
+
+                if (!hullCells.TryGetValue(cells[i] + offset, out var neighborModule)) continue;
+
+                var neighborSolidSides = BlockDefinition.GetSolidSides(neighborModule.GetCellShape(cells[i] + offset));
+                if (neighborSolidSides.HasFlag(neighborSide)) return true; // genuine solid-to-solid contact
+            }
+        }
 
         return false;
     }
 
     /// <summary>Module mode rule: every target cell must already be covered by Hull specifically
     /// (Armor doesn't count — see HullOnlyCellPositions), and not already have a module. A Cockpit
-    /// is additionally rejected outright once the ship already has one — see HasCockpit.</summary>
+    /// is additionally rejected outright once the ship already has one — see HasCockpit. An Engine is
+    /// additionally rejected if anything already occupies its own column below it, all the way to the
+    /// bottom of the grid — see IsColumnBelowOccupied — since that's exactly where its exhaust visual
+    /// always renders.</summary>
     public bool CanPlaceModule(Vector2Int anchor, List<Vector2Int> localShape, BlockCategory category)
     {
         if (category == BlockCategory.Cockpit && HasCockpit) return false; // only one cockpit per ship
@@ -215,40 +250,76 @@ public class ShipGrid : MonoBehaviour
         {
             if (!hullCells.TryGetValue(cell, out var hull) || hull.type != ModuleType.Hull) return false; // not hull (empty, or armor-only)
             if (moduleCells.ContainsKey(cell)) return false;  // cell already has a module
+            if (IsEngineInColumnAbove(cell)) return false; // can't sit anywhere below an existing engine
         }
+
+        if (category == BlockCategory.Engine)
+            foreach (var cell in cells)
+                if (IsColumnBelowOccupied(cell)) return false; // this engine's own exhaust column must stay entirely clear
+
         return true;
     }
 
-    private static IEnumerable<Vector2Int> Neighbors(Vector2Int c)
+    /// <summary>Whether any block — hull, armor, or module — currently occupies this absolute cell.</summary>
+    private bool IsCellOccupied(Vector2Int cell) => hullCells.ContainsKey(cell) || moduleCells.ContainsKey(cell);
+
+    /// <summary>Whether a non-destroyed Engine module currently occupies this absolute cell.</summary>
+    private bool IsEngineAt(Vector2Int cell)
+        => moduleCells.TryGetValue(cell, out var m) && m.type == ModuleType.Engine && !m.IsDestroyed;
+
+    /// <summary>Whether an Engine occupies ANY cell directly above this one in the same column, all the
+    /// way to the top of the grid — an engine's exhaust renders down its entire column, not just the
+    /// one cell right below it.</summary>
+    private bool IsEngineInColumnAbove(Vector2Int cell)
     {
-        yield return c + Vector2Int.up;
-        yield return c + Vector2Int.down;
-        yield return c + Vector2Int.left;
-        yield return c + Vector2Int.right;
+        for (int y = cell.y + 1; y < GridHeight; y++)
+            if (IsEngineAt(new Vector2Int(cell.x, y))) return true;
+        return false;
     }
+
+    /// <summary>Whether anything occupies ANY cell below this one in the same column, all the way to
+    /// the bottom of the grid.</summary>
+    private bool IsColumnBelowOccupied(Vector2Int cell)
+    {
+        for (int y = cell.y - 1; y >= 0; y--)
+            if (IsCellOccupied(new Vector2Int(cell.x, y))) return true;
+        return false;
+    }
+
+    /// <summary>The 4 grid directions, each paired with which CellSides flag they touch on the
+    /// departing cell and on the neighboring cell — e.g. moving Up leaves via that cell's Top side
+    /// and arrives at the neighbor's Bottom side. Used by CanPlaceHull's per-side adjacency check.</summary>
+    private static readonly (Vector2Int offset, CellSides mySide, CellSides neighborSide)[] AdjacencyDirections =
+    {
+        (Vector2Int.up,    CellSides.Top,    CellSides.Bottom),
+        (Vector2Int.down,  CellSides.Bottom, CellSides.Top),
+        (Vector2Int.left,  CellSides.Left,   CellSides.Right),
+        (Vector2Int.right, CellSides.Right,  CellSides.Left),
+    };
 
     // ---------- Placement ----------
 
-    public ShipModule PlaceHull(BlockDefinition definition, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps)
+    public ShipModule PlaceHull(BlockDefinition definition, Vector2Int anchor, List<BlockCell> rotatedCells, int rotationSteps)
     {
-        var module = Place(definition, anchor, localShape, rotationSteps, hullCells, registerWithIdentity: true);
+        var module = Place(definition, anchor, rotatedCells, rotationSteps, hullCells, registerWithIdentity: true);
         if (moduleGridVisible) RedrawModuleGrid(); // keep the module grid in sync if hull changed while it's showing
         OnHullChanged?.Invoke();
         OnShipChanged?.Invoke();
         return module;
     }
 
-    public ShipModule PlaceModule(BlockDefinition definition, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps)
+    public ShipModule PlaceModule(BlockDefinition definition, Vector2Int anchor, List<BlockCell> rotatedCells, int rotationSteps)
     {
-        var module = Place(definition, anchor, localShape, rotationSteps, moduleCells, registerWithIdentity: false);
+        var module = Place(definition, anchor, rotatedCells, rotationSteps, moduleCells, registerWithIdentity: false);
         if (moduleGridVisible) RedrawModuleGrid(); // the cell it just filled must stop showing as available
         OnShipChanged?.Invoke();
         return module;
     }
 
-    private ShipModule Place(BlockDefinition definition, Vector2Int anchor, List<Vector2Int> localShape, int rotationSteps,
+    private ShipModule Place(BlockDefinition definition, Vector2Int anchor, List<BlockCell> rotatedCells, int rotationSteps,
                               Dictionary<Vector2Int, ShipModule> layer, bool registerWithIdentity)
     {
+        var localShape = BlockDefinition.Offsets(rotatedCells);
         var cells = Offset(anchor, localShape);
         Vector3 rootWorldPos = AnchorToWorld(anchor);
 
@@ -270,9 +341,18 @@ public class ShipGrid : MonoBehaviour
         module.moduleId = definition.id;
         module.buildCost = definition.buildCost;
         module.occupiedCells = cells;       // pure grid bookkeeping — independent of any transform
+        module.cellShapes = BlockDefinition.Shapes(rotatedCells); // same index order as occupiedCells
         module.anchorCell = anchor;
         module.rotationSteps = rotationSteps;
         module.ApplyViewMode(CurrentViewMode);
+
+        // Which layer this block landed on is only known here, and it's what decides whether its roof
+        // draws above or below other roofs.
+        bool structural = layer == hullCells;
+        module.ApplySortingOrders(
+            structural ? hullInteriorSortingOrder : moduleInteriorSortingOrder,
+            structural ? hullRoofSortingOrder : moduleRoofSortingOrder,
+            topSortingOrder);
 
         // Only the VISUAL child rotates/repositions — around its own point, computed fresh from
         // the already-rotated local shape, so it always lines up with occupiedCells exactly.
@@ -394,6 +474,8 @@ public class ShipGrid : MonoBehaviour
             HideGeneralGrid();
             HideModuleGrid();
         }
+
+        OnViewModeChanged?.Invoke();
     }
 
     // ---------- Placement preview (per-cell valid/invalid highlight under a dragged block) ----------
@@ -590,16 +672,16 @@ public class ShipGrid : MonoBehaviour
         {
             var def = db.GetById(entry.blockId);
             if (def == null) { Debug.LogWarning($"Unknown block id '{entry.blockId}'"); continue; }
-            var rotatedShape = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
-            PlaceHull(def, new Vector2Int(entry.anchorX, entry.anchorY), rotatedShape, entry.rotationSteps);
+            var rotatedCells = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
+            PlaceHull(def, new Vector2Int(entry.anchorX, entry.anchorY), rotatedCells, entry.rotationSteps);
         }
 
         foreach (var entry in layout.modules)
         {
             var def = db.GetById(entry.blockId);
             if (def == null) { Debug.LogWarning($"Unknown block id '{entry.blockId}'"); continue; }
-            var rotatedShape = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
-            PlaceModule(def, new Vector2Int(entry.anchorX, entry.anchorY), rotatedShape, entry.rotationSteps);
+            var rotatedCells = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
+            PlaceModule(def, new Vector2Int(entry.anchorX, entry.anchorY), rotatedCells, entry.rotationSteps);
         }
     }
 }

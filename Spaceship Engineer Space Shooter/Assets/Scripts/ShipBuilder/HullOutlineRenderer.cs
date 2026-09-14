@@ -10,6 +10,9 @@ using UnityEngine;
 /// Purely cosmetic — listens to ShipGrid.OnHullChanged and redraws automatically whenever hull
 /// pieces are placed or removed. Attach to the same GameObject as ShipGrid.
 ///
+/// Builder-only: it's a construction aid (a wall cross-section), not part of the finished ship's
+/// look, so it's hidden outside ShipViewMode.Building — menu preview and battle never show it.
+///
 /// ALGORITHM: for every traced cell, each of its 4 sides that borders a cell NOT in the traced set
 /// is a boundary edge. Each edge is emitted in a fixed direction per side (bottom: left-to-right,
 /// right: bottom-to-top, top: right-to-left, left: top-to-bottom), which keeps the shape's interior
@@ -38,15 +41,22 @@ public class HullOutlineRenderer : MonoBehaviour
     private void OnEnable()
     {
         grid.OnHullChanged += Regenerate;
+        grid.OnViewModeChanged += Regenerate; // a mode switch alone must hide/show it, not just a hull edit
         Regenerate(); // covers hull already built before this component was enabled (e.g. loaded ship)
     }
 
-    private void OnDisable() => grid.OnHullChanged -= Regenerate;
+    private void OnDisable()
+    {
+        grid.OnHullChanged -= Regenerate;
+        grid.OnViewModeChanged -= Regenerate;
+    }
 
     private void Regenerate()
     {
         if (outlineRoot != null) Destroy(outlineRoot.gameObject);
         outlineRoot = null;
+
+        if (grid.CurrentViewMode != ShipViewMode.Building) return; // builder-only, see class doc comment
 
         var loops = TraceBoundaryLoops(grid.HullOnlyCellPositions);
         if (loops.Count == 0) return;

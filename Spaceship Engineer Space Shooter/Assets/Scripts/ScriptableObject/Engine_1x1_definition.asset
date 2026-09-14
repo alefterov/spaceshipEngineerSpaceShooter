@@ -18,4 +18,5 @@ MonoBehaviour:
   prefab: {fileID: 729449600381729954, guid: 2f68f5ce4d6ff30439beec030796d5f9, type: 3}
   category: 3
   cells:
-  - {x: 0, y: 0}
+  - offset: {x: 0, y: 0}
+    shape: 0

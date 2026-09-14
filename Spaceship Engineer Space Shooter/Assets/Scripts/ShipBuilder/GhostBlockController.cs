@@ -57,7 +57,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     private bool lastValid;
     private bool lastAffordable; // separate from lastValid so EndGridDrag can tell WHY it's invalid
     private Vector2Int lastAnchor;
-    private List<Vector2Int> lastShape;
+    private List<BlockCell> lastShape;
 
     /// <summary>When true, tapping anywhere on the field deletes whatever block is there instead of placing.</summary>
     public bool IsDeleteModeActive { get; private set; }
@@ -258,6 +258,23 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
             ? moduleComp.visualRoot
             : ghostInstance.transform;
 
+        // The ghost only ever appears while building, so show the same parts a placed block would show
+        // there (interior, no roof). Has to happen BEFORE stripping, since ShipModule is about to go.
+        if (moduleComp != null)
+        {
+            moduleComp.ApplyViewMode(ShipViewMode.Building);
+
+            // Without this the ghost keeps whatever sortingOrder was authored directly on the prefab,
+            // which put a module ghost BEHIND hull sprites instead of above them. Match exactly what
+            // ShipGrid.Place() would assign for a real block on this same layer, so a module ghost
+            // renders above hull/armor but still under the module-mode grid highlight (moduleGridSortingOrder).
+            bool structural = currentMode != BuildMode.Modules;
+            moduleComp.ApplySortingOrders(
+                structural ? grid.hullInteriorSortingOrder : grid.moduleInteriorSortingOrder,
+                structural ? grid.hullRoofSortingOrder : grid.moduleRoofSortingOrder,
+                grid.topSortingOrder);
+        }
+
         // Strip gameplay behaviour so the ghost never fires/collides/takes damage.
         foreach (var mb in ghostInstance.GetComponentsInChildren<MonoBehaviour>())
             Destroy(mb);
@@ -282,11 +299,12 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         pointerWorld.z = 0f;
 
         Vector2Int anchor = grid.WorldToGrid(pointerWorld);
-        var localShape = BlockDefinition.RotateCells(currentBlock.cells, rotationSteps);
+        var rotatedCells = BlockDefinition.RotateCells(currentBlock.cells, rotationSteps);
+        var localOffsets = BlockDefinition.Offsets(rotatedCells);
 
         bool geometryValid = currentMode == BuildMode.Modules
-            ? grid.CanPlaceModule(anchor, localShape, currentBlock.category)
-            : grid.CanPlaceHull(anchor, localShape); // Hull and Armor share the same structural layer/rule
+            ? grid.CanPlaceModule(anchor, localOffsets, currentBlock.category)
+            : grid.CanPlaceHull(anchor, rotatedCells); // Hull and Armor share the same structural layer/rule
 
         // Affordability is part of validity too — can't afford it reads the same as "can't place it
         // here", cell goes red right along with any geometric reason. Tracked separately as well
@@ -299,17 +317,17 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         ghostInstance.transform.position = grid.AnchorToWorld(anchor);
         ghostInstance.transform.rotation = Quaternion.identity;
 
-        var (centroidCells, _) = ShipGrid.ComputeLocalFootprint(localShape);
+        var (centroidCells, _) = ShipGrid.ComputeLocalFootprint(localOffsets);
         ghostVisualRoot.localPosition = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
         ghostVisualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
 
         // Cell-by-cell blue/red validity feedback lives on the grid itself, not on the ghost.
-        var absoluteCells = grid.GetOccupiedCells(anchor, localShape);
+        var absoluteCells = grid.GetOccupiedCells(anchor, localOffsets);
         grid.ShowPlacementPreview(absoluteCells, valid ? validColor : invalidColor);
 
         lastValid = valid;
         lastAffordable = affordable;
         lastAnchor = anchor;
-        lastShape = localShape;
+        lastShape = rotatedCells;
     }
 }

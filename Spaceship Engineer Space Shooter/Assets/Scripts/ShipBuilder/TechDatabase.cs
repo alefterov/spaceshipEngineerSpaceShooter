@@ -14,6 +14,9 @@ public class TechDatabase : ScriptableObject
 
     private Dictionary<string, TechDefinition> lookup;
 
+    // See BlockDatabase.OnValidate — same staleness trap, same fix.
+    private void OnValidate() => lookup = null;
+
     private void EnsureLookup()
     {
         if (lookup != null) return;
@@ -59,5 +62,5 @@ public class TechDatabase : ScriptableObject
 
     /// <summary>Finds which tech (if any) unlocks the given block — used to gate the build palette.</summary>
     public TechDefinition GetTechForBlock(BlockDefinition block)
-        => block == null ? null : allTechs.FirstOrDefault(t => t != null && t.unlockedBlock == block);
+        => block == null ? null : allTechs.FirstOrDefault(t => t != null && t.unlockedBlocks.Contains(block));
 }

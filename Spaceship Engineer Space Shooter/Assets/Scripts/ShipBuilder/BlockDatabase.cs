@@ -12,6 +12,12 @@ public class BlockDatabase : ScriptableObject
 
     private Dictionary<string, BlockDefinition> lookup;
 
+    // Without this, adding a block in the Inspector after GetById has already run once this Editor
+    // session (e.g. between Play sessions with "Reload Domain" off) leaves the cached dictionary
+    // stale — the new block sits right there in allBlocks yet GetById reports it unknown. OnValidate
+    // only ever fires in the Editor, so this is a no-op in a build.
+    private void OnValidate() => lookup = null;
+
     private void EnsureLookup()
     {
         if (lookup != null) return;

@@ -47,8 +47,11 @@ public class WeaponModule : ShipModule
     public float fireArcDegrees = 30f;
 
     [Header("Turret (only used when aiming == Turret)")]
-    [Tooltip("The child transform that rotates to aim. Must NOT be visualRoot — ShipGrid owns that " +
-             "one for the block's grid orientation, and the two would fight each other.")]
+    [Tooltip("The child transform that rotates to aim — put the barrel under it, and muzzle under " +
+             "that. Must NOT be visualRoot — ShipGrid owns that one for the block's grid orientation, " +
+             "and the two would fight each other. Normally this IS (or lives under) ShipModule.topRoot, " +
+             "since the barrel is exactly the kind of part that stays visible in every view and draws " +
+             "above the roof.")]
     public Transform turretPivot;
     [Tooltip("Degrees per second the barrel can traverse.")]
     public float turretRotationSpeed = 180f;

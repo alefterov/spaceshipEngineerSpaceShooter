@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
-  m_Name: Hull_1x1_definition
+  m_Name: Shield_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
-  id: hull_1x1
-  displayName: Hull Block
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
-  prefab: {fileID: 863857228286269480, guid: efc7de93b327f0a43b919913f21850ce, type: 3}
-  category: 0
+  id: shield_1x1
+  displayName: Small Shield
+  icon: {fileID: 6229401350509173553, guid: 1f5f1bf7c04439a489d452c39329ae61, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 04ea34cb45494a942b455aa78da0978f, type: 3}
+  category: 5
+  buildCost: 10
   cells:
   - offset: {x: 0, y: 0}
     shape: 0
