@@ -37,6 +37,11 @@ public class GameData
              "GameDataManager.TryUpgradeSurvivalStartLevel.")]
     public int survivalStartLevelUpgrades;
 
+    [Tooltip("Best star rating (0-3) earned per campaign level so far. A List, not a Dictionary — " +
+             "JsonUtility can't serialize those — so it's only ever grown/updated via GameDataManager, " +
+             "never indexed directly.")]
+    public List<LevelStarEntry> levelStars = new();
+
     public ShipLayout playerShip = new();
 }
 
@@ -45,4 +50,11 @@ public class ResourceEntry
 {
     public string id;
     public int amount;
+}
+
+[System.Serializable]
+public class LevelStarEntry
+{
+    public string levelId;
+    public int stars;
 }

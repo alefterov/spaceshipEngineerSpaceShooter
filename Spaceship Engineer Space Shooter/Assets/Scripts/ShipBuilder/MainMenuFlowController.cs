@@ -33,6 +33,12 @@ public class MainMenuFlowController : MonoBehaviour
     [Tooltip("Text shown by messageToast when a save is blocked for missing a cockpit.")]
     public string cockpitRequiredMessage = "Кокпит обязателен для сохранения корабля";
 
+    [Header("Game mode selection")]
+    [Tooltip("Popup listing game modes (Campaign, Survival, ...). Shown when Play is pressed.")]
+    public GameModeSelectPopup gameModePopup;
+    [Tooltip("Popup with the campaign's level-select map (LevelButtonView buttons you lay out by hand).")]
+    public LevelSelectPopup levelSelectPopup;
+
     private void Start()
     {
         // GameDataManager already loaded the save file in its own Awake (runs before this Start,
@@ -43,11 +49,23 @@ public class MainMenuFlowController : MonoBehaviour
         ShowMainMenu();
     }
 
-    /// <summary>Wire to a "Play" button — battle scene doesn't exist yet, so this is a stub for now.</summary>
-    public void OnPlayPressed()
+    /// <summary>Wire to the main menu's "Play" button — opens the game-mode selection popup
+    /// (Campaign/Survival/...) instead of jumping straight into a battle.</summary>
+    public void OnPlayPressed() => gameModePopup.Open();
+
+    /// <summary>Wire to the "Campaign" button inside the game-mode popup — swaps it for the level-select map.</summary>
+    public void OnCampaignPressed()
     {
+        gameModePopup.Close();
+        levelSelectPopup.Open();
+    }
+
+    /// <summary>Wire to the "Survival" button inside the game-mode popup. Battle scene doesn't exist
+    /// yet, so this is a stub for now — the actual starting level is GameDataManager.GetSurvivalStartLevel().</summary>
+    public void OnSurvivalPressed()
+    {
+        gameModePopup.Close();
         Debug.Log("TODO: load battle scene once it exists — e.g. SceneManager.LoadScene(\"Battle\")");
-        // UnityEngine.SceneManagement.SceneManager.LoadScene("Battle");
     }
 
     /// <summary>Wire to a "Build Ship" / "Ангар" button on the main menu.</summary>

@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 3614471629338339322}
   - component: {fileID: 5319680353146940527}
   - component: {fileID: 4278035247279894494}
+  - component: {fileID: -2261863692467959999}
   m_Layer: 0
   m_Name: Hull_1x2
   m_TagString: Untagged
@@ -194,6 +195,7 @@ MonoBehaviour:
   occupiedCells:
   - {x: 0, y: 0}
   - {x: 0, y: 1}
+  cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
@@ -202,6 +204,26 @@ MonoBehaviour:
   roofRoot: {fileID: 5550460877350846553}
   topRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
+--- !u!114 &-2261863692467959999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863857228286269480}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
+  bodyRenderer: {fileID: 0}
+  pristineSprite: {fileID: 0}
+  lightDamageSprite: {fileID: 0}
+  moderateDamageSprite: {fileID: 0}
+  heavyDamageSprite: {fileID: 0}
+  criticalDamageSprite: {fileID: 0}
+  sparksEffect: {fileID: 0}
+  fireEffect: {fileID: 0}
 --- !u!1 &2386174222579282298
 GameObject:
   m_ObjectHideFlags: 0

@@ -164,16 +164,10 @@ public class BuildCameraController : MonoBehaviour
     /// with no padding. Falls back to a single cell at the board's center if no hull exists yet.</summary>
     private (Vector2Int min, Vector2Int maxExclusive) GetHullCellBounds()
     {
-        var cells = grid.HullOnlyCellPositions.ToList();
-        if (cells.Count == 0)
-        {
-            var center = new Vector2Int(grid.GridWidth / 2, grid.GridHeight / 2);
-            return (center, center + Vector2Int.one);
-        }
+        if (grid.TryGetHullCellBounds(out var min, out var maxExclusive)) return (min, maxExclusive);
 
-        var min = new Vector2Int(cells.Min(c => c.x), cells.Min(c => c.y));
-        var maxExclusive = new Vector2Int(cells.Max(c => c.x) + 1, cells.Max(c => c.y) + 1);
-        return (min, maxExclusive);
+        var center = new Vector2Int(grid.GridWidth / 2, grid.GridHeight / 2);
+        return (center, center + Vector2Int.one);
     }
 
     /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's hull

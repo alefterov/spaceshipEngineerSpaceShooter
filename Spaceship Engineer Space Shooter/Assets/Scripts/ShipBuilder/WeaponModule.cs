@@ -122,8 +122,8 @@ public class WeaponModule : ShipModule
     }
 
     /// <summary>The direction this weapon actually shoots in. Enemy ships are spawned unrotated
-    /// (EnemySpawner), so their fixed mounts are flipped here instead — keeping aiming checks and the
-    /// spawned projectile consistent with one another rather than correcting only one of the two.</summary>
+    /// (EnemyShipSpawner), so their fixed mounts are flipped here instead — keeping aiming checks and
+    /// the spawned projectile consistent with one another rather than correcting only one of the two.</summary>
     private Vector2 MuzzleForward
     {
         get

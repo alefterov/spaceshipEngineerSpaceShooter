@@ -165,6 +165,38 @@ public class ShipGrid : MonoBehaviour
         return transform.TransformPoint(new Vector3(x, y, 0f));
     }
 
+    /// <summary>Min/max HULL cell coordinates actually built (corner space, max exclusive) — the
+    /// ship's real footprint, independent of the grid's own (possibly much bigger, after hangar
+    /// upgrades) size. False if nothing's been built yet.</summary>
+    public bool TryGetHullCellBounds(out Vector2Int min, out Vector2Int maxExclusive)
+    {
+        var cells = HullOnlyCellPositions.ToList();
+        if (cells.Count == 0) { min = maxExclusive = default; return false; }
+
+        min = new Vector2Int(cells.Min(c => c.x), cells.Min(c => c.y));
+        maxExclusive = new Vector2Int(cells.Max(c => c.x) + 1, cells.Max(c => c.y) + 1);
+        return true;
+    }
+
+    /// <summary>World-space center of the ship's actual built hull footprint — NOT this transform's
+    /// own position, and not the grid's own center either, since a smaller ship built off to one side
+    /// of a (possibly hangar-upgraded) grid has a visual middle that's neither. Falls back to this
+    /// object's own position if no hull exists yet.</summary>
+    public Vector3 GetHullWorldCenter()
+        => TryGetHullCellBounds(out var min, out var maxExclusive)
+            ? (CornerToWorld(min) + CornerToWorld(maxExclusive)) * 0.5f
+            : transform.position;
+
+    /// <summary>World-space (width, height) of the ship's actual built hull footprint. Zero if
+    /// nothing's been built yet.</summary>
+    public Vector2 GetHullWorldSize()
+    {
+        if (!TryGetHullCellBounds(out var min, out var maxExclusive)) return Vector2.zero;
+        Vector3 a = CornerToWorld(min);
+        Vector3 b = CornerToWorld(maxExclusive);
+        return new Vector2(Mathf.Abs(b.x - a.x), Mathf.Abs(b.y - a.y));
+    }
+
     /// <summary>
     /// Centroid (in local cell units, relative to the anchor) and cell-count size of a shape.
     /// Used to position/size the module's visual child and its collider — completely separate
@@ -415,6 +447,55 @@ public class ShipGrid : MonoBehaviour
 
         if (moduleGridVisible) RedrawModuleGrid(); // freed cell should be able to show as available again
         OnShipChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Resolves a physical impact (e.g. a meteor) against whatever structural block occupies this
+    /// cell, treating it and any module riding on it as ONE combined pool of HP — a module reinforces
+    /// the hull cell it sits on against blunt impacts, on top of protecting its own separate HP from
+    /// direct weapons fire. An Armor cell never has a module on it (see CanPlaceModule), so this
+    /// naturally reduces to "just the armor's own HP" there without any special-casing.
+    ///
+    /// Lethal damage destroys the hull cell outright (RemoveHull already cascades to the module, if
+    /// any). Otherwise damage drains the hull's own HP first — its sprite is what visually shows wear
+    /// — and spills any overflow into the module's HP.
+    ///
+    /// Both the hull's own BlockDamageVisual AND the module's (if it has one) are pushed the same
+    /// combined ratio — a module's roof sprite renders visibly on top of the hull once the ship is
+    /// closed, so it needs to show the same wear the hull underneath it does.
+    ///
+    /// Returns true if this was lethal (block destroyed), false if it merely took damage. No-op
+    /// (returns false) if there's no structural block at this cell at all.
+    /// </summary>
+    public bool ApplyCollisionDamage(Vector2Int cell, float damage)
+    {
+        if (!hullCells.TryGetValue(cell, out var hull)) return false;
+
+        var module = moduleCells.TryGetValue(cell, out var m) ? m : null;
+        float combinedCurrent = hull.CurrentHP + (module != null ? module.CurrentHP : 0f);
+
+        if (damage >= combinedCurrent)
+        {
+            RemoveHull(hull);
+            return true;
+        }
+
+        float hullDamage = Mathf.Min(damage, hull.CurrentHP);
+        hull.TakeDamage(hullDamage);
+
+        float overflow = damage - hullDamage;
+        if (overflow > 0f && module != null) module.TakeDamage(overflow);
+
+        float combinedMax = hull.maxHP + (module != null ? module.maxHP : 0f);
+        float newCombinedCurrent = hull.CurrentHP + (module != null ? module.CurrentHP : 0f);
+        if (combinedMax > 0f)
+        {
+            float ratio = newCombinedCurrent / combinedMax;
+            if (hull.TryGetComponent<BlockDamageVisual>(out var hullVisual)) hullVisual.SetHealthRatio(ratio);
+            if (module != null && module.TryGetComponent<BlockDamageVisual>(out var moduleVisual)) moduleVisual.SetHealthRatio(ratio);
+        }
+
+        return false;
     }
 
     /// <summary>

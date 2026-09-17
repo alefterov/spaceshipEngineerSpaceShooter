@@ -31,6 +31,10 @@ public class GameDataManager : MonoBehaviour
     public event Action OnHangarLevelChanged;
     public event Action OnCreditsMultiplierLevelChanged;
     public event Action OnSurvivalStartLevelChanged;
+    /// <summary>Fired with the level's id right after SetLevelStars actually changes something — e.g.
+    /// so a LevelButtonView can refresh itself, or a neighboring level's lock/unlock state if it was
+    /// gated on this one being completed.</summary>
+    public event Action<string> OnLevelStarsChanged;
 
     // Credits as they stood at the last save (or at BeginBuildSession, if nothing's been saved
     // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
@@ -313,6 +317,45 @@ public class GameDataManager : MonoBehaviour
         OnSurvivalStartLevelChanged?.Invoke();
         Save();
         return true;
+    }
+
+    // ---------- Campaign levels ----------
+    // A level is unlocked once its prerequisite (if any) has been completed — see LevelDefinition.
+    // Star rating (0-3) is tracked separately and only ever improves; a repeat clear with fewer stars
+    // than a previous best doesn't overwrite it.
+
+    public int GetStars(LevelDefinition level)
+    {
+        if (level == null) return 0;
+        return Current.levelStars.FirstOrDefault(e => e.levelId == level.id)?.stars ?? 0;
+    }
+
+    public bool IsLevelCompleted(LevelDefinition level)
+        => level != null && Current.levelStars.Any(e => e.levelId == level.id);
+
+    public bool IsLevelUnlocked(LevelDefinition level)
+        => level != null && (level.prerequisite == null || IsLevelCompleted(level.prerequisite));
+
+    /// <summary>Records a level's result. Call once a battle (not implemented yet) resolves — the
+    /// battle-end code should pass however many of 3 stars the player earned. A no-op if that's not
+    /// better than the level's existing best.</summary>
+    public void SetLevelStars(LevelDefinition level, int stars)
+    {
+        if (level == null) return;
+
+        var entry = Current.levelStars.FirstOrDefault(e => e.levelId == level.id);
+        if (entry == null)
+        {
+            Current.levelStars.Add(new LevelStarEntry { levelId = level.id, stars = stars });
+        }
+        else
+        {
+            if (stars <= entry.stars) return; // not an improvement — nothing to save or notify
+            entry.stars = stars;
+        }
+
+        OnLevelStarsChanged?.Invoke(level.id);
+        Save();
     }
 
     // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------

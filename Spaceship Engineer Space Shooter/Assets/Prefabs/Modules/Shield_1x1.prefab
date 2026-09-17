@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
   - component: {fileID: -1392507341906032282}
+  - component: {fileID: 2321019612649558968}
   m_Layer: 0
   m_Name: Shield_1x1
   m_TagString: Untagged
@@ -101,6 +102,7 @@ MonoBehaviour:
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
+  cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
@@ -109,6 +111,26 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   topRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
+--- !u!114 &2321019612649558968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729449600381729954}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
+  bodyRenderer: {fileID: 0}
+  pristineSprite: {fileID: 0}
+  lightDamageSprite: {fileID: 0}
+  moderateDamageSprite: {fileID: 0}
+  heavyDamageSprite: {fileID: 0}
+  criticalDamageSprite: {fileID: 0}
+  sparksEffect: {fileID: 0}
+  fireEffect: {fileID: 0}
 --- !u!1 &790461595775913428
 GameObject:
   m_ObjectHideFlags: 0
