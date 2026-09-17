@@ -65,14 +65,12 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     /// <summary>Current rotation step (0-3, ×90°) — read by UI to spin the palette icon in sync.</summary>
     public int RotationSteps => rotationSteps;
 
-    /// <summary>True only while a ghost is actively being dragged on the grid (not just selected in the palette).</summary>
+    /// <summary>True only while a ghost is actively being dragged on the grid (not just selected in the
+    /// palette) — this is what BuildCameraController gates panning/zooming on. Deliberately narrower
+    /// than "a block is selected": isSelected stays true after a confirmed placement so the same block
+    /// can be dragged out again immediately (see ConfirmPlacement), and the camera has no reason to
+    /// stay locked during that idle-but-selected window.</summary>
     public bool IsDragging => draggingOnGrid;
-
-    /// <summary>True from the moment a block is selected (tap in the palette) all the way through
-    /// dragging and any pending confirm popup — i.e. whenever a placement is "in flight" and the
-    /// camera shouldn't move out from under the player. False again once confirmed, cancelled, or
-    /// deselected.</summary>
-    public bool IsPlacingBlock => isSelected;
 
     // ---------- Delete mode ----------
 

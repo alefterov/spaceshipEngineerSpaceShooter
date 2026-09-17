@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
-  m_Name: Tech_weapon_1x1_definition
+  m_Name: Tech_kineticGun_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
-  id: generator_1x1
-  displayName: Generator1
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  id: kineticGun_1x1
+  displayName: Kinetic Gun 1
+  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
   category: 6
   prerequisite: {fileID: 0}
   researchCost: 5

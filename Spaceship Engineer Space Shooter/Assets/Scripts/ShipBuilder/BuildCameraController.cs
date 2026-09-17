@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// One-finger drag pans the build camera; two-finger pinch zooms it. Both are disabled while a
-/// block is selected/being placed (GhostBlockController.IsPlacingBlock) or delete mode is active —
-/// the camera has to stay put while the player is mid-decision on something.
+/// One-finger drag pans the build camera; two-finger pinch zooms it. Both are disabled while a block
+/// is actively being dragged onto the grid (GhostBlockController.IsDragging) or delete mode is active
+/// — the camera has to stay put while the player's finger is mid-gesture on the grid itself.
 ///
 /// Polls Touchscreen/Mouse directly every frame instead of using uGUI's OnBeginDrag/OnDrag/OnEndDrag
 /// — with real multi-touch, those events aren't guaranteed to fire exactly once per finger (a lost
@@ -57,7 +57,7 @@ public class BuildCameraController : MonoBehaviour
     private float pinchStartDistance;
     private float pinchStartOrthoSize;
 
-    private bool CanControlCamera => ghost != null && !ghost.IsPlacingBlock && !ghost.IsDeleteModeActive;
+    private bool CanControlCamera => ghost != null && !ghost.IsDragging && !ghost.IsDeleteModeActive;
 
     private void Awake() => rectTransform = (RectTransform)transform;
 

@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 935714196513268400}
   - component: {fileID: 9171068947655010196}
   m_Layer: 0
-  m_Name: Weapon_1x1
+  m_Name: KineticGun_1x1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -187,13 +187,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
-  moduleId: weapon_1x1
+  moduleId: kineticGun_1x1
   buildCost: 0
   maxHP: 20
   mass: 1
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
+  cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
@@ -201,7 +202,7 @@ MonoBehaviour:
   interiorRoot: {fileID: 8868587245406197017}
   roofRoot: {fileID: 5397670763440138059}
   topRoot: {fileID: 9174914285220350066}
-  idleAnimator: {fileID: 0}
+  idleAnimator: {fileID: 3153761081599872217}
   aiming: 0
   fireControl: 0
   role: 0
@@ -224,6 +225,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7564032582017819259}
   - component: {fileID: 1873679183608753622}
+  - component: {fileID: 3153761081599872217}
   m_Layer: 0
   m_Name: Burrel
   m_TagString: Untagged
@@ -293,7 +295,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2698246831291938225, guid: 74d47549c4e731242bc1f13f5c047f68, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -306,6 +308,28 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!95 &3153761081599872217
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6182931849373065772}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ab444be8154d9824292fda3ae5e87a18, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6281750645506118479
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,7 +410,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
