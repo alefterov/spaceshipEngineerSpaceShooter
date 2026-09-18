@@ -75,10 +75,17 @@ public class Meteor : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (targetShip == null || !other.CompareTag("PlayerShip")) return;
-        if (other.GetComponent<ShipModule>() == null) return; // only an actual block counts as a hit
 
-        Vector2Int cell = targetShip.WorldToGrid(transform.position);
-        targetShip.ApplyCollisionDamage(cell, damage);
+        var hitModule = other.GetComponent<ShipModule>();
+        if (hitModule == null) return; // only an actual block counts as a hit
+
+        // Deliberately NOT WorldToGrid(transform.position) — with a sizable collider (this one's
+        // radius is nearly a whole cell), the trigger fires while the meteor's own center is still
+        // outside the block it just touched, resolving to the WRONG cell (often diagonally adjacent).
+        // hitModule.anchorCell is exact regardless of collider size or approach angle — ANY cell of
+        // this module would do, since ApplyCollisionDamage already pools every module across the
+        // hull's whole footprint rather than just the one cell passed in.
+        targetShip.ApplyCollisionDamage(hitModule.anchorCell, damage);
         Destroy(gameObject); // consumed on impact either way, lethal or not
     }
 }

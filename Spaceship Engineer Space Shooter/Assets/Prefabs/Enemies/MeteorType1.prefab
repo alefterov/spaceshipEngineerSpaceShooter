@@ -187,5 +187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Meteor
   damage: 20
-  speed: 3
+  speed: 10
+  scoreValue: 10
+  offscreenMargin: 3
   targetShip: {fileID: 0}

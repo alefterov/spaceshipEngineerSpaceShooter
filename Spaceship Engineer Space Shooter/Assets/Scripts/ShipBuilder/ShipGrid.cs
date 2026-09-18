@@ -464,48 +464,79 @@ public class ShipGrid : MonoBehaviour
 
     /// <summary>
     /// Resolves a physical impact (e.g. a meteor) against whatever structural block occupies this
-    /// cell, treating it and any module riding on it as ONE combined pool of HP — a module reinforces
-    /// the hull cell it sits on against blunt impacts, on top of protecting its own separate HP from
-    /// direct weapons fire. An Armor cell never has a module on it (see CanPlaceModule), so this
-    /// naturally reduces to "just the armor's own HP" there without any special-casing.
+    /// cell, treating it as ONE combined "virtual block" together with EVERY module riding anywhere on
+    /// its footprint — not just the module at the exact cell hit. A 2x2 hull piece with a shield on one
+    /// cell and a weapon on another pools the hull's HP with BOTH modules' HP together, since the
+    /// impact could just as easily have landed on either.
     ///
-    /// Lethal damage destroys the hull cell outright (RemoveHull already cascades to the module, if
-    /// any). Otherwise damage drains the hull's own HP first — its sprite is what visually shows wear
-    /// — and spills any overflow into the module's HP.
+    /// A module straddling two DIFFERENT hull pieces belongs to BOTH of their virtual blocks at once —
+    /// it isn't split proportionally. If one of those hull pieces dies, RemoveHull's own cascade (not
+    /// this method) destroys the module along with it; the OTHER hull piece the same module touched is
+    /// untouched, since RemoveHull only ever removes cells/modules belonging to the hull it was called
+    /// on. An Armor cell never has a module on it at all (see CanPlaceModule), so it naturally reduces
+    /// to "just the armor's own HP" without any special-casing.
     ///
-    /// Both the hull's own BlockDamageVisual AND the module's (if it has one) are pushed the same
-    /// combined ratio — a module's roof sprite renders visibly on top of the hull once the ship is
-    /// closed, so it needs to show the same wear the hull underneath it does.
+    /// Lethal damage destroys the hit hull piece outright. Otherwise damage drains the hull's own HP
+    /// first — its sprite is what visually shows wear — then spills any overflow across its modules in
+    /// turn. Every BlockDamageVisual involved (hull + all its modules) is pushed the same combined
+    /// ratio, since a module's roof sprite renders visibly on top of the hull once the ship is closed
+    /// and needs to show the same wear the hull underneath it does.
     ///
     /// Returns true if this was lethal (block destroyed), false if it merely took damage. No-op
     /// (returns false) if there's no structural block at this cell at all.
     /// </summary>
     public bool ApplyCollisionDamage(Vector2Int cell, float damage)
     {
-        if (!hullCells.TryGetValue(cell, out var hull)) return false;
+        if (!hullCells.TryGetValue(cell, out var hull))
+        {
+            Debug.Log($"[Collision] No hull at cell {cell} — grid has {hullCells.Count} hull cell(s) total: [{string.Join(", ", hullCells.Keys)}]. Damage of {damage} had nothing to apply to.");
+            return false;
+        }
 
-        var module = moduleCells.TryGetValue(cell, out var m) ? m : null;
-        float combinedCurrent = hull.CurrentHP + (module != null ? module.CurrentHP : 0f);
+        // EVERY distinct module touching ANY cell of this hull piece, not just the one that was hit.
+        var modules = hull.occupiedCells
+            .Where(moduleCells.ContainsKey)
+            .Select(c => moduleCells[c])
+            .Distinct()
+            .ToList();
+
+        float combinedCurrent = hull.CurrentHP + modules.Sum(m => m.CurrentHP);
+        float combinedMax = hull.maxHP + modules.Sum(m => m.maxHP);
 
         if (damage >= combinedCurrent)
         {
-            RemoveHull(hull);
+            Debug.Log($"[Collision] {hull.moduleId} at {cell} took {damage} damage (had {combinedCurrent}/{combinedMax} combined HP across {modules.Count} module(s)) — destroyed.");
+            RemoveHull(hull); // cascades to every module on hull's OWN cells — a module straddling another hull piece leaves that one untouched
             return true;
         }
 
-        float hullDamage = Mathf.Min(damage, hull.CurrentHP);
+        // Hull absorbs first (its sprite is what shows the damage), then overflow spills into its
+        // modules in turn until the damage is used up.
+        float remaining = damage;
+        float hullDamage = Mathf.Min(remaining, hull.CurrentHP);
         hull.TakeDamage(hullDamage);
+        remaining -= hullDamage;
 
-        float overflow = damage - hullDamage;
-        if (overflow > 0f && module != null) module.TakeDamage(overflow);
+        foreach (var module in modules)
+        {
+            if (remaining <= 0f) break;
+            float moduleDamage = Mathf.Min(remaining, module.CurrentHP);
+            if (moduleDamage <= 0f) continue;
+            module.TakeDamage(moduleDamage);
+            remaining -= moduleDamage;
+        }
 
-        float combinedMax = hull.maxHP + (module != null ? module.maxHP : 0f);
-        float newCombinedCurrent = hull.CurrentHP + (module != null ? module.CurrentHP : 0f);
+        float newCombinedCurrent = hull.CurrentHP + modules.Sum(m => m.CurrentHP);
+
+        Debug.Log($"[Collision] {hull.moduleId} at {cell} took {damage} damage — {newCombinedCurrent}/{combinedMax} combined HP remaining " +
+                  $"(hull {hull.CurrentHP}/{hull.maxHP}; modules: {string.Join(", ", modules.Select(m => $"'{m.moduleId}' {m.CurrentHP}/{m.maxHP}"))}).");
+
         if (combinedMax > 0f)
         {
             float ratio = newCombinedCurrent / combinedMax;
             if (hull.TryGetComponent<BlockDamageVisual>(out var hullVisual)) hullVisual.SetHealthRatio(ratio);
-            if (module != null && module.TryGetComponent<BlockDamageVisual>(out var moduleVisual)) moduleVisual.SetHealthRatio(ratio);
+            foreach (var module in modules)
+                if (module.TryGetComponent<BlockDamageVisual>(out var moduleVisual)) moduleVisual.SetHealthRatio(ratio);
         }
 
         return false;
@@ -718,6 +749,15 @@ public class ShipGrid : MonoBehaviour
     /// so this method itself never needs touching when new shield block variants are added.</summary>
     public float ComputeShieldStrength()
         => moduleCells.Values.Distinct().Where(m => m.type == ModuleType.Shield && !m.IsDestroyed).Sum(m => m.maxHP);
+
+    /// <summary>Current (not max) HP across surviving Armor blocks — e.g. for a battle HUD gauge
+    /// showing remaining armor rather than total armor capacity.</summary>
+    public float ComputeCurrentArmorHP()
+        => hullCells.Values.Distinct().Where(m => m.type == ModuleType.Armor && !m.IsDestroyed).Sum(m => m.CurrentHP);
+
+    /// <summary>Current (not max) HP across surviving Shield modules.</summary>
+    public float ComputeCurrentShieldHP()
+        => moduleCells.Values.Distinct().Where(m => m.type == ModuleType.Shield && !m.IsDestroyed).Sum(m => m.CurrentHP);
 
     /// <summary>Total damage-per-second across every non-destroyed weapon.</summary>
     public float ComputeFirepower()
