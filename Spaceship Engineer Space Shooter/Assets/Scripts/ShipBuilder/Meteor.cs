@@ -15,6 +15,11 @@ public class Meteor : MonoBehaviour
              "tough the meteor itself is against being shot down.")]
     public float damage = 20f;
     public float speed = 3f;
+    [Tooltip("Added to BattleScore when this meteor is shot down by a weapon — NOT when it hits the " +
+             "ship instead, and not when it just flies past and misses (see OnDestroyed below and Update).")]
+    public int scoreValue = 10;
+    [Tooltip("World-space distance beyond the camera's edge before this meteor despawns for having missed entirely.")]
+    public float offscreenMargin = 3f;
 
     [Tooltip("Assign at spawn time (see EnemySpawner). Falls back to searching for the player's ship if left unset.")]
     public ShipGrid targetShip;
@@ -29,8 +34,27 @@ public class Meteor : MonoBehaviour
         targetable.kind = TargetKind.Meteor;
         // Targetable.TakeDamage only flips IsDestroyed and fires an event — nothing removes the
         // GameObject on its own, so a defensive weapon shooting this down would otherwise leave it
-        // sitting in the scene forever, still flying, just inert.
-        targetable.OnDestroyed += _ => Destroy(gameObject);
+        // sitting in the scene forever, still flying, just inert. This path is ALSO the only one that
+        // awards score — hitting the ship or flying off-screen both call Destroy(gameObject) directly
+        // further down, bypassing Targetable.TakeDamage entirely, so neither one reaches this handler.
+        targetable.OnDestroyed += _ =>
+        {
+            BattleScore.Add(scoreValue);
+            Destroy(gameObject);
+        };
+    }
+
+    private void Update()
+    {
+        var cam = Camera.main;
+        if (cam == null || !cam.orthographic) return;
+
+        float halfHeight = cam.orthographicSize + offscreenMargin;
+        float halfWidth = halfHeight * cam.aspect;
+        Vector2 relative = (Vector2)transform.position - (Vector2)cam.transform.position;
+
+        if (Mathf.Abs(relative.x) > halfWidth || Mathf.Abs(relative.y) > halfHeight)
+            Destroy(gameObject); // missed the ship and flew off-screen — no score, doesn't count as a kill
     }
 
     private void Start()

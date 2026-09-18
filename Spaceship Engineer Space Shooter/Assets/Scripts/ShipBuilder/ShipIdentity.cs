@@ -15,9 +15,15 @@ public class ShipIdentity : MonoBehaviour
     public Faction faction = Faction.Player;
 
     public event Action<ShipIdentity> OnShipDestroyed;
+    /// <summary>Fired once when the ship's last Cockpit or last power-generating module (Generator) is
+    /// destroyed — see ShipGrid's module-destroyed handling, which is what actually notices this and
+    /// calls NotifyDisabled. The ship can still visually exist with most of its hull intact, but
+    /// battle-outcome logic (BattleOutcomeController) should treat it the same as fully destroyed.</summary>
+    public event Action<ShipIdentity> OnShipDisabled;
 
     private readonly List<ShipModule> hullPieces = new();
     private bool destroyed;
+    public bool IsDisabled { get; private set; }
 
     /// <summary>Whether this ship is in battle. Weapons only fire while this is true, which is what
     /// keeps them silent in the main menu preview and the ship builder.</summary>
@@ -58,5 +64,15 @@ public class ShipIdentity : MonoBehaviour
             destroyed = true;
             OnShipDestroyed?.Invoke(this);
         }
+    }
+
+    /// <summary>Called by ShipGrid right after it notices the last Cockpit or last Generator on this
+    /// ship is gone. Not called directly by anything else — ShipGrid owns the module bookkeeping needed
+    /// to know whether one REALLY remains.</summary>
+    public void NotifyDisabled()
+    {
+        if (IsDisabled || destroyed) return;
+        IsDisabled = true;
+        OnShipDisabled?.Invoke(this);
     }
 }

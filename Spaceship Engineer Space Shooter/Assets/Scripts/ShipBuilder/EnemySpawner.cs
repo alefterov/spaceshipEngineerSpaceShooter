@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,8 +35,9 @@ public class Wave
 }
 
 /// <summary>
-/// Spawns enemies/hazards (meteors for now) in waves. Replaces the old MeteorSpawner — waves let you
-/// shape difficulty over the course of a battle instead of a single flat spawn rate.
+/// Spawns enemies/hazards (meteors for now) in waves. Waves are configured PER LEVEL (see
+/// LevelDefinition.waves), not on this component — this just reads whichever level PendingBattle.Level
+/// points at, so every level plays out differently without touching the battle scene itself.
 ///
 /// Spawn positions are computed from the CAMERA's current view (orthographic size + aspect), not
 /// fixed scene Transforms — so "just off the top edge" stays correct regardless of screen size/aspect
@@ -58,25 +60,38 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("If on, ignores each entry's own Position Along Edge and rolls a random spot along the " +
              "edge for every individual spawn instead.")]
     public bool randomizePositionAlongEdge = true;
-    public List<Wave> waves = new();
 
-    public void StartWaves() => StartCoroutine(RunWaves());
+    /// <summary>Fired once every wave has finished spawning everything it has. Doesn't by itself mean
+    /// the battle is won — BattleOutcomeController still waits for the last spawned enemy to actually
+    /// be cleared (Targetable.Active) before declaring victory.</summary>
+    public event Action OnAllWavesSpawned;
+
+    private Coroutine wavesRoutine;
+
+    public void StartWaves() => wavesRoutine = StartCoroutine(RunWaves());
+    public void StopWaves() { if (wavesRoutine != null) StopCoroutine(wavesRoutine); }
 
     private IEnumerator RunWaves()
     {
-        foreach (var wave in waves)
+        var waves = PendingBattle.Level != null ? PendingBattle.Level.waves : null;
+        if (waves != null)
         {
-            foreach (var entry in wave.enemies)
+            foreach (var wave in waves)
             {
-                for (int i = 0; i < entry.count; i++)
+                foreach (var entry in wave.enemies)
                 {
-                    SpawnEnemy(entry);
-                    if (entry.spawnInterval > 0f) yield return new WaitForSeconds(entry.spawnInterval);
+                    for (int i = 0; i < entry.count; i++)
+                    {
+                        SpawnEnemy(entry);
+                        if (entry.spawnInterval > 0f) yield return new WaitForSeconds(entry.spawnInterval);
+                    }
                 }
-            }
 
-            yield return new WaitForSeconds(wave.delayAfterWave);
+                yield return new WaitForSeconds(wave.delayAfterWave);
+            }
         }
+
+        OnAllWavesSpawned?.Invoke();
     }
 
     private void SpawnEnemy(WaveEnemyEntry entry)
@@ -97,7 +112,7 @@ public class EnemySpawner : MonoBehaviour
         float halfHeight = cam.orthographicSize;
         float halfWidth = halfHeight * cam.aspect;
         Vector3 center = cam.transform.position;
-        float t = randomizePositionAlongEdge ? Random.value : entry.positionAlongEdge;
+        float t = randomizePositionAlongEdge ? UnityEngine.Random.value : entry.positionAlongEdge;
 
         return entry.side switch
         {

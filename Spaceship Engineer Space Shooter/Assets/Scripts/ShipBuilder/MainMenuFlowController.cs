@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Owns the first scene's two screens: Main Menu (closed-hull ship preview + Play/Build buttons)
@@ -60,12 +61,14 @@ public class MainMenuFlowController : MonoBehaviour
         levelSelectPopup.Open();
     }
 
-    /// <summary>Wire to the "Survival" button inside the game-mode popup. Battle scene doesn't exist
-    /// yet, so this is a stub for now — the actual starting level is GameDataManager.GetSurvivalStartLevel().</summary>
+    /// <summary>Wire to the "Survival" button inside the game-mode popup. The actual starting level
+    /// for survival is GameDataManager.GetSurvivalStartLevel() — BattleSequenceController (or whatever
+    /// survival-specific setup comes later) should read that once it's in the battle scene.</summary>
     public void OnSurvivalPressed()
     {
         gameModePopup.Close();
-        Debug.Log("TODO: load battle scene once it exists — e.g. SceneManager.LoadScene(\"Battle\")");
+        PendingBattle.Level = null; // survival doesn't pick a campaign level — clears any stale one from an earlier attempt
+        SceneManager.LoadScene(PendingBattle.BattleSceneName);
     }
 
     /// <summary>Wire to a "Build Ship" / "Ангар" button on the main menu.</summary>

@@ -49,6 +49,11 @@ public class BattleSequenceController : MonoBehaviour
              "has even arrived.")]
     public EnemySpawner enemySpawner;
 
+    [Header("Outcome")]
+    [Tooltip("Starts tracking win/loss at the same moment enemies start spawning — any earlier and the " +
+             "starting-HP snapshot would be taken before the ship is even done arriving.")]
+    public BattleOutcomeController battleOutcome;
+
     /// <summary>Fired at the same moment EnemySpawner starts, for anything else that also needs to
     /// know the intro just finished (e.g. a HUD element revealing itself).</summary>
     public event Action OnBattleStart;
@@ -124,6 +129,7 @@ public class BattleSequenceController : MonoBehaviour
         yield return StartCoroutine(RunCountdown());
 
         if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(true); // weapons stay silent until this fires
+        if (battleOutcome != null) battleOutcome.BeginTracking(); // must start before enemies do, so the starting-HP snapshot is undamaged
         if (enemySpawner != null) enemySpawner.StartWaves();
         OnBattleStart?.Invoke();
     }

@@ -411,9 +411,22 @@ public class ShipGrid : MonoBehaviour
             moduleCells.Keys.Where(k => moduleCells[k] == module).ToList().ForEach(k => moduleCells.Remove(k));
             if (moduleGridVisible) RedrawModuleGrid(); // freed cell should be able to show as available again
             OnShipChanged?.Invoke();
+
+            if (module.type == ModuleType.Cockpit || module.type == ModuleType.Generator)
+                CheckShipDisabled();
         };
 
         return module;
+    }
+
+    /// <summary>Losing the last Cockpit or last power-generating module leaves a ship unable to
+    /// function even with most of its hull intact — see ShipIdentity.NotifyDisabled/OnShipDisabled.
+    /// Checked whenever a Cockpit or Generator is destroyed, including indirectly via RemoveHull's
+    /// cascade (that force-destroy runs through the very same OnDestroyed event this reacts to).</summary>
+    private void CheckShipDisabled()
+    {
+        bool hasGenerator = moduleCells.Values.Distinct().Any(m => m.type == ModuleType.Generator && !m.IsDestroyed);
+        if (!HasCockpit || !hasGenerator) identity.NotifyDisabled();
     }
 
     /// <summary>Removes a hull piece and cascades: any module(s) sitting on its cells are destroyed too.</summary>
@@ -683,6 +696,14 @@ public class ShipGrid : MonoBehaviour
     public float ComputeTotalHP()
         => hullCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.maxHP)
          + moduleCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.maxHP);
+
+    /// <summary>Sum of CURRENT (not max) HP across every surviving block — hull, armor, and every
+    /// module combined. Unlike ComputeTotalHP (a capacity stat for the builder's stats panel), this
+    /// reflects actual damage taken — e.g. for star-rating a battle by how much HP survived it, see
+    /// BattleOutcomeController.</summary>
+    public float ComputeCurrentTotalHP()
+        => hullCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.CurrentHP)
+         + moduleCells.Values.Distinct().Where(m => !m.IsDestroyed).Sum(m => m.CurrentHP);
 
     /// <summary>Net energy — positive means surplus, negative means the ship is over budget.</summary>
     public float ComputeEnergyBalance()

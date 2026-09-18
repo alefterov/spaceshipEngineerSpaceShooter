@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -27,8 +28,8 @@ public class LevelButtonView : MonoBehaviour
     public Sprite filledStarSprite;
     public Sprite emptyStarSprite;
 
-    /// <summary>Fired when a player taps an unlocked level. No battle scene exists yet — hook this up
-    /// once one does, e.g. LevelButtonView.OnLevelSelected += level => SceneManager.LoadScene(...).</summary>
+    /// <summary>Fired right after the battle scene load is kicked off, for anything else that also
+    /// wants to know which level was picked (this same info is also in PendingBattle.Level by then).</summary>
     public static event Action<LevelDefinition> OnLevelSelected;
 
     private bool subscribed;
@@ -104,7 +105,7 @@ public class LevelButtonView : MonoBehaviour
     private void OnClicked()
     {
         PendingBattle.Level = level;
-        Debug.Log($"TODO: load the battle scene for level '{level.id}' — e.g. SceneManager.LoadScene(\"Battle\")");
+        SceneManager.LoadScene(PendingBattle.BattleSceneName);
         OnLevelSelected?.Invoke(level);
     }
 }
