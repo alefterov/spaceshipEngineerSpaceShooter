@@ -2,9 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Top-level state for the build screen: which mode is active (Hull, Armor, or Modules),
-/// which block is currently selected. Wire the mode-toggle buttons and the
-/// bottom palette to this.
+/// Top-level state for the build screen: which palette tab is active (Cockpit, Generators, Engines,
+/// Armor, Weapons), which block is currently selected. Wire the tab buttons and the bottom palette to
+/// this. Armor has Armor/Shields sub-tabs and Weapons has one sub-tab per weapon family. The tab only
+/// decides which blocks the palette lists — every block is placed on the same grid with the same rules
+/// (see ShipGrid.CanPlace).
 /// </summary>
 public class BuildModeController : MonoBehaviour
 {
@@ -23,11 +25,12 @@ public class BuildModeController : MonoBehaviour
     public Color deleteActiveColor = new(1f, 0.35f, 0.35f);
     private Color deleteDefaultColor;
 
-    [Tooltip("Row of Generator/Engine/Shield/Weapon/Cockpit sub-category buttons — only makes sense " +
-             "in Module mode, so it's shown/hidden automatically alongside it.")]
-    public GameObject moduleSubCategoryPanel;
+    [Tooltip("Row of Armor / Shields sub-tab buttons — shown only while the Armor tab is active.")]
+    public GameObject armorSubCategoryPanel;
+    [Tooltip("Row of Ballistic / Laser / Missile / Plasma sub-tab buttons — shown only while the Weapons tab is active.")]
+    public GameObject weaponSubCategoryPanel;
 
-    public BuildMode CurrentMode { get; private set; } = BuildMode.Hull;
+    public BuildMode CurrentMode { get; private set; } = BuildMode.Cockpit;
 
     private bool blockSelected;
 
@@ -37,7 +40,7 @@ public class BuildModeController : MonoBehaviour
         deleteButton.onClick.AddListener(ToggleDeleteMode);
         deleteDefaultColor = deleteButton.image.color;
 
-        // Deliberately NOT calling SetHullBuildMode() here. MainMenuFlowController.OnBuildShipPressed
+        // Deliberately NOT calling SetCockpitBuildMode() here. MainMenuFlowController.OnBuildShipPressed
         // already calls it explicitly every time the builder opens (including the first time) — if
         // this component lives under builderScreen (inactive at scene load), Start() is deferred by
         // Unity until later in the SAME frame builderScreen.SetActive(true) runs, which made this
@@ -53,65 +56,55 @@ public class BuildModeController : MonoBehaviour
         rotateButton.interactable = blockSelected && !ghost.IsDragging;
     }
 
-    /// <summary>Call from the "Корпус" tab button.</summary>
-    public void SetHullBuildMode()
+    /// <summary>Call from the "Кокпит" tab button.</summary>
+    public void SetCockpitBuildMode() => EnterMode(BuildMode.Cockpit);
+
+    /// <summary>Call from the "Генераторы" tab button.</summary>
+    public void SetGeneratorBuildMode() => EnterMode(BuildMode.Generators);
+
+    /// <summary>Call from the "Двигатели" tab button.</summary>
+    public void SetEngineBuildMode() => EnterMode(BuildMode.Engines);
+
+    /// <summary>Call from the "Броня" tab button. Lists physical armor; the Shields sub-tab switches to shields.</summary>
+    public void SetArmorBuildMode() => EnterMode(BuildMode.Armor);
+
+    /// <summary>Call from the "Оружие" tab button. Lists every weapon; a sub-tab narrows it to one family.</summary>
+    public void SetWeaponBuildMode() => EnterMode(BuildMode.Weapons);
+
+    private void EnterMode(BuildMode mode)
     {
-        BuildMode mode = BuildMode.Hull;
         CurrentMode = mode;
         ghost.StopPlacing();
         blockSelected = false;
         if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
         SetDeleteMode(false);
         grid.ShowGeneralGrid();
-        grid.HideModuleGrid(); // the module-placement grid only makes sense in Module mode
-        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(false);
+        if (armorSubCategoryPanel != null) armorSubCategoryPanel.SetActive(mode == BuildMode.Armor);
+        if (weaponSubCategoryPanel != null) weaponSubCategoryPanel.SetActive(mode == BuildMode.Weapons);
         palette.ShowForMode(mode);
     }
 
-    /// <summary>Call from the "Броня" tab button.</summary>
-    public void SetArmorBuildMode()
+    // ---------- Sub-tabs ----------
+    // Each ensures its parent tab is active first (so clicking a sub-tab works even if the player
+    // hasn't pressed the parent tab yet), then narrows the palette.
+
+    public void ShowPhysicalArmor() { EnsureMode(BuildMode.Armor); palette.ShowForCategory(BlockCategory.Armor); }
+    public void ShowShields() { EnsureMode(BuildMode.Armor); palette.ShowForCategory(BlockCategory.Shield); }
+
+    public void ShowBallisticWeapons() => ShowWeaponClass(WeaponClass.Ballistic);
+    public void ShowLaserWeapons() => ShowWeaponClass(WeaponClass.Laser);
+    public void ShowMissileWeapons() => ShowWeaponClass(WeaponClass.Missile);
+    public void ShowPlasmaWeapons() => ShowWeaponClass(WeaponClass.Plasma);
+
+    private void ShowWeaponClass(WeaponClass weaponClass)
     {
-        BuildMode mode = BuildMode.Armor;
-        CurrentMode = mode;
-        ghost.StopPlacing();
-        blockSelected = false;
-        if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
-        SetDeleteMode(false);
-        grid.ShowGeneralGrid();
-        grid.HideModuleGrid();
-        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(false);
-        palette.ShowForMode(mode);
+        EnsureMode(BuildMode.Weapons);
+        palette.ShowForWeaponClass(weaponClass);
     }
 
-    /// <summary>Call from the "Модули" tab button.</summary>
-    public void SetModuleBuildMode()
+    private void EnsureMode(BuildMode mode)
     {
-        BuildMode mode = BuildMode.Modules;
-        CurrentMode = mode;
-        ghost.StopPlacing();
-        blockSelected = false;
-        if (rotateButtonIcon != null) rotateButtonIcon.localRotation = Quaternion.identity;
-        SetDeleteMode(false);
-        grid.HideGeneralGrid(); // modules can only sit on hull cells — replace the general grid, don't stack on it
-        grid.ShowModuleGrid();
-        if (moduleSubCategoryPanel != null) moduleSubCategoryPanel.SetActive(true);
-        palette.ShowForMode(mode);
-    }
-
-    // ---------- Module sub-categories (Generators / Engines / Shields / Weapons / Cockpit tabs) ----------
-    // Each ensures Module mode is active first (so clicking a sub-tab works even if the player
-    // hasn't pressed "Modules" yet), then narrows the palette to just that one BlockCategory.
-
-    public void ShowGeneratorModules() => ShowModuleCategory(BlockCategory.Generator);
-    public void ShowEngineModules() => ShowModuleCategory(BlockCategory.Engine);
-    public void ShowShieldModules() => ShowModuleCategory(BlockCategory.Shield);
-    public void ShowWeaponModules() => ShowModuleCategory(BlockCategory.Weapon);
-    public void ShowCockpitModules() => ShowModuleCategory(BlockCategory.Cockpit);
-
-    private void ShowModuleCategory(BlockCategory category)
-    {
-        if (CurrentMode != BuildMode.Modules) SetModuleBuildMode();
-        palette.ShowForCategory(category);
+        if (CurrentMode != mode) EnterMode(mode);
     }
 
     /// <summary>Call from a palette button on a plain tap (BlockButtonDragHandle.OnTap) — selects the
@@ -120,7 +113,7 @@ public class BuildModeController : MonoBehaviour
     public void SelectBlock(BlockDefinition block)
     {
         SetDeleteMode(false); // selecting a new block always cancels delete mode
-        ghost.SelectBlock(block, CurrentMode);
+        ghost.SelectBlock(block);
         blockSelected = true;
         // Sync from ghost.RotationSteps rather than resetting to identity — re-selecting the
         // same block (e.g. when a drag-off gesture starts) now keeps its rotation, and the icon
@@ -171,5 +164,7 @@ public class BuildModeController : MonoBehaviour
     {
         ghost.StopPlacing();
         SetDeleteMode(false);
+        if (armorSubCategoryPanel != null) armorSubCategoryPanel.SetActive(false);
+        if (weaponSubCategoryPanel != null) weaponSubCategoryPanel.SetActive(false);
     }
 }

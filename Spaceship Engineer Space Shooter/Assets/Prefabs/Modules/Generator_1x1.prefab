@@ -107,11 +107,11 @@ MonoBehaviour:
   rotationSteps: 0
   isCore: 0
   visualRoot: {fileID: 7616474015210035435}
-  interiorRoot: {fileID: 7616474015210035435}
   roofRoot: {fileID: 6848331705709069150}
-  topRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
+  explosionEffectPrefab: {fileID: 0}
   powerOutput: 10
+  capacity: 100
 --- !u!114 &4140459331547520971
 MonoBehaviour:
   m_ObjectHideFlags: 0

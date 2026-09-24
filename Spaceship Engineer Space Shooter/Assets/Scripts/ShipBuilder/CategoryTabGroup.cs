@@ -6,12 +6,12 @@ using UnityEngine.UI;
 /// A row of mutually-exclusive tab/category buttons — clicking one tints it (ActiveColor, red by
 /// default) and resets whichever tab was previously active back to its normal color. Purely visual:
 /// each button's own OnClick (wired separately in the Inspector, e.g. to BuildModeController.
-/// SetHullBuildMode / ShowWeaponModules) still does the actual mode switch — this component just
+/// SetArmorBuildMode / ShowShields) still does the actual mode switch — this component just
 /// listens to the SAME buttons automatically (no extra OnClick entries needed) and manages which one
 /// looks "active".
 ///
-/// Use one instance per row — e.g. one for the Hull/Armor/Modules tabs, a separate one for the
-/// Generator/Engine/Shield/Weapon sub-tabs. Assumes each button's own Image is its background (the
+/// Use one instance per row — e.g. one for the Cockpit/Generators/Engines/Armor/Weapons tabs, a separate one for each
+/// sub-tab row (Armor/Shields, Ballistic/Laser/Missile/Plasma). Assumes each button's own Image is its background (the
 /// same Image assigned to Selectable.Image, not just Target Graphic — see BuildModeController's
 /// deleteButton for the same requirement).
 /// </summary>

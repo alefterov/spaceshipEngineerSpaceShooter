@@ -31,6 +31,7 @@ public class ShipMovement : MonoBehaviour
     private ShipGrid grid;
     private ShipIdentity identity;
     private ShipEnergySystem energy;
+    private EngineModule[] engines = System.Array.Empty<EngineModule>();
 
     /// <summary>Set every frame by ShipJoystickController — magnitude 0..1, direction is where the stick points.</summary>
     private Vector2 inputDirection;
@@ -42,21 +43,42 @@ public class ShipMovement : MonoBehaviour
         energy = GetComponent<ShipEnergySystem>();
     }
 
+    private void OnEnable()
+    {
+        grid.OnShipChanged += RefreshEngineList; // a built/destroyed engine should (dis)appear from the effect update immediately
+        RefreshEngineList();
+    }
+
+    private void OnDisable() => grid.OnShipChanged -= RefreshEngineList;
+
+    private void RefreshEngineList() => engines = GetComponentsInChildren<EngineModule>();
+
     public void SetInput(Vector2 direction) => inputDirection = direction;
 
     private void Update()
     {
-        if (!identity.CombatActive) return;
+        // Cached per-frame rather than re-derived inside the early-returns below, so every engine's
+        // burn effect correctly drops back to idle the instant the player lets go or runs out of
+        // energy — not just while actually moving.
+        float strength = identity.CombatActive ? Mathf.Clamp01(inputDirection.magnitude) : 0f;
 
-        float strength = Mathf.Clamp01(inputDirection.magnitude);
-        if (strength < 0.01f) return;
+        if (strength >= 0.01f)
+        {
+            float energyCost = energyPerSecondAtFullThrust * strength * Time.deltaTime;
+            if (energy != null && !energy.TrySpend(energyCost))
+            {
+                strength = 0f; // out of power — hold position, engines ease back to idle
+            }
+            else
+            {
+                float speed = GetMaxSpeed() * strength;
+                Vector3 delta = (Vector3)(inputDirection.normalized * speed * Time.deltaTime);
+                transform.position = ClampToView(transform.position + delta);
+            }
+        }
 
-        float energyCost = energyPerSecondAtFullThrust * strength * Time.deltaTime;
-        if (energy != null && !energy.TrySpend(energyCost)) return; // out of power this frame — hold position
-
-        float speed = GetMaxSpeed() * strength;
-        Vector3 delta = (Vector3)(inputDirection.normalized * speed * Time.deltaTime);
-        transform.position = ClampToView(transform.position + delta);
+        foreach (var engine in engines)
+            if (engine != null) engine.SetThrustStrength(strength);
     }
 
     /// <summary>Top speed at full joystick deflection, in world units/second.</summary>
@@ -66,18 +88,18 @@ public class ShipMovement : MonoBehaviour
         return grid.ComputeEnginePower() / mass * speedMultiplier;
     }
 
-    /// <summary>Clamps a candidate root position so the ship's actual built HULL BOUNDS (not just its
-    /// root point) stay fully inside the camera's view — reuses the same hull-bounds math
+    /// <summary>Clamps a candidate root position so the ship's actual built SHIP BOUNDS (not just its
+    /// root point) stay fully inside the camera's view — reuses the same ship-bounds math
     /// BattleSequenceController's arrival positioning already relies on.</summary>
     private Vector3 ClampToView(Vector3 desiredRootPosition)
     {
         var cam = battleCamera != null ? battleCamera : Camera.main;
         if (cam == null || !cam.orthographic) return desiredRootPosition;
 
-        Vector3 rootToHullCenter = grid.GetHullWorldCenter() - transform.position;
-        Vector3 desiredHullCenter = desiredRootPosition + rootToHullCenter;
+        Vector3 rootToShipCenter = grid.GetShipWorldCenter() - transform.position;
+        Vector3 desiredShipCenter = desiredRootPosition + rootToShipCenter;
 
-        Vector2 halfShipSize = grid.GetHullWorldSize() * 0.5f;
+        Vector2 halfShipSize = grid.GetShipWorldSize() * 0.5f;
         float halfCamHeight = cam.orthographicSize;
         float halfCamWidth = halfCamHeight * cam.aspect;
         Vector3 camCenter = cam.transform.position;
@@ -89,10 +111,10 @@ public class ShipMovement : MonoBehaviour
 
         // If the ship is bigger than the screen on an axis (min > max once inset), hold it centered
         // on that axis instead of jittering between two invalid clamp bounds.
-        float clampedX = minX <= maxX ? Mathf.Clamp(desiredHullCenter.x, minX, maxX) : camCenter.x;
-        float clampedY = minY <= maxY ? Mathf.Clamp(desiredHullCenter.y, minY, maxY) : camCenter.y;
+        float clampedX = minX <= maxX ? Mathf.Clamp(desiredShipCenter.x, minX, maxX) : camCenter.x;
+        float clampedY = minY <= maxY ? Mathf.Clamp(desiredShipCenter.y, minY, maxY) : camCenter.y;
 
-        Vector3 clampedHullCenter = new(clampedX, clampedY, desiredHullCenter.z);
-        return clampedHullCenter - rootToHullCenter;
+        Vector3 clampedShipCenter = new(clampedX, clampedY, desiredShipCenter.z);
+        return clampedShipCenter - rootToShipCenter;
     }
 }

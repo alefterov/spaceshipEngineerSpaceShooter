@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Owns the first scene's two screens: Main Menu (closed-hull ship preview + Play/Build buttons)
-/// and Ship Builder (exposed-hull view + block palette). Both live in this one scene —
+/// Owns the first scene's two screens: Main Menu (closed ship preview + Play/Build buttons)
+/// and Ship Builder (exposed-internals view + block palette). Both live in this one scene —
 /// only the battle itself is a separate scene, loaded later once that flow exists.
 /// </summary>
 public class MainMenuFlowController : MonoBehaviour
@@ -81,7 +81,7 @@ public class MainMenuFlowController : MonoBehaviour
         // builderScreen hierarchy — explicitly (re)activate it and reset build state here rather
         // than relying only on SetActive(builderScreen), or taps would keep working after exit.
         buildModeController.ghost.gameObject.SetActive(true);
-        buildModeController.SetHullBuildMode(); // fresh, predictable state every time we enter
+        buildModeController.SetCockpitBuildMode(); // fresh, predictable state every time we enter
 
         playerShip.SetViewMode(ShipViewMode.Building); // strip the roof so the grid/internals read clearly
         GameDataManager.Instance.BeginBuildSession(); // snapshot credits — rolled back by RevertCredits on an unsaved exit

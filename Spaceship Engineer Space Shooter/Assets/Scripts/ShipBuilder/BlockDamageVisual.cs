@@ -1,20 +1,19 @@
 using UnityEngine;
 
 /// <summary>
-/// Shows a block's wear as its combined HP (hull + whatever module rides on it — see
-/// ShipGrid.ApplyCollisionDamage) drops: 5 sprite tiers plus sparks/fire VFX at the low end. Purely
-/// reactive — SetHealthRatio(0..1) is the only thing that drives it, so it knows nothing about combat,
-/// modules, or the grid itself.
+/// Shows a block's wear as its own HP drops: 5 sprite tiers plus sparks/fire VFX at the low end. Listens
+/// to the ShipModule it belongs to (same GameObject or a parent), so it reacts to ANY damage — meteor,
+/// projectile, whatever — without anything having to push a ratio into it. SetHealthRatio(0..1) is still
+/// public for anything that wants to drive it manually.
 ///
-/// SETUP: goes on BOTH sides of a hit — the hull/armor block's own GameObject (its body sprite) AND
-/// the module riding on it, if any (its roof sprite, visible on top once the ship is closed). Both get
-/// pushed the SAME combined ratio, so a generator's roof shows the same wear as the hull under it.
+/// SETUP: put on each block prefab (on the root or on the child holding its body sprite) and assign the
+/// sprite tiers you have art for. Every block tracks only its OWN health.
 /// </summary>
 public class BlockDamageVisual : MonoBehaviour
 {
     [Header("Sprites (assign whichever tiers you have art for)")]
     public SpriteRenderer bodyRenderer;
-    [Tooltip("100% combined HP.")]
+    [Tooltip("100% HP.")]
     public Sprite pristineSprite;
     [Tooltip("Over 75% and up to 100%.")]
     public Sprite lightDamageSprite;
@@ -26,10 +25,28 @@ public class BlockDamageVisual : MonoBehaviour
     public Sprite criticalDamageSprite;
 
     [Header("Effects")]
-    [Tooltip("Shown at 50% combined HP or below.")]
+    [Tooltip("Shown at 50% HP or below.")]
     public GameObject sparksEffect;
-    [Tooltip("Shown at 25% combined HP or below.")]
+    [Tooltip("Shown at 25% HP or below.")]
     public GameObject fireEffect;
+
+    private ShipModule module;
+
+    private void OnEnable()
+    {
+        module = GetComponentInParent<ShipModule>();
+        if (module != null) module.OnDamaged += HandleDamaged;
+    }
+
+    private void OnDisable()
+    {
+        if (module != null) module.OnDamaged -= HandleDamaged;
+    }
+
+    private void HandleDamaged(ShipModule damaged, float amount)
+    {
+        if (damaged.maxHP > 0f) SetHealthRatio(damaged.CurrentHP / damaged.maxHP);
+    }
 
     public void SetHealthRatio(float ratio01)
     {

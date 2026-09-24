@@ -2,14 +2,14 @@ using UnityEngine;
 
 /// <summary>
 /// Primitive hazard: aimed at the player's ship once at spawn (not homing) and flies straight at it,
-/// detonating on the first block it touches — see ShipGrid.ApplyCollisionDamage for how that damage is
-/// resolved. Also a Targetable (kind=Meteor), so point-defense weapons can shoot it down first — see
+/// detonating on the first block it touches — that block (and only that block) takes the damage from its
+/// own HP pool. Also a Targetable (kind=Meteor), so point-defense weapons can shoot it down first — see
 /// WeaponModule.CanEngage / Projectile.TryHitTargetable.
 ///
 /// Needs a Collider2D (Is Trigger = on) in addition to the required components below.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Targetable))]
-public class Meteor : MonoBehaviour
+public class Meteor : MonoBehaviour, IShieldBlockable
 {
     [Tooltip("Damage dealt to whatever block it hits. Separate from Targetable.maxHP, which is how " +
              "tough the meteor itself is against being shot down.")]
@@ -25,6 +25,17 @@ public class Meteor : MonoBehaviour
     public ShipGrid targetShip;
 
     private Rigidbody2D rb;
+    private bool consumed;
+
+    // ---------- IShieldBlockable — a shield's protected area stops it before it reaches a block ----------
+    public float ImpactDamage => damage;
+    public bool IsConsumed => consumed;
+    public bool IsHostileTo(Faction shieldFaction) => shieldFaction == Faction.Player; // only ever aimed at the player's ship
+    public void AbsorbedByShield()
+    {
+        consumed = true;
+        Destroy(gameObject); // no score — only being shot down awards points (see Awake)
+    }
 
     private void Awake()
     {
@@ -74,18 +85,15 @@ public class Meteor : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (targetShip == null || !other.CompareTag("PlayerShip")) return;
+        if (consumed || targetShip == null || !other.CompareTag("PlayerShip")) return;
 
         var hitModule = other.GetComponent<ShipModule>();
         if (hitModule == null) return; // only an actual block counts as a hit
 
-        // Deliberately NOT WorldToGrid(transform.position) — with a sizable collider (this one's
-        // radius is nearly a whole cell), the trigger fires while the meteor's own center is still
-        // outside the block it just touched, resolving to the WRONG cell (often diagonally adjacent).
-        // hitModule.anchorCell is exact regardless of collider size or approach angle — ANY cell of
-        // this module would do, since ApplyCollisionDamage already pools every module across the
-        // hull's whole footprint rather than just the one cell passed in.
-        targetShip.ApplyCollisionDamage(hitModule.anchorCell, damage);
+        // The collider that fired the trigger belongs to exactly one block — no grid lookup needed
+        // (a WorldToGrid on the meteor's own center would resolve to the wrong cell anyway, since its
+        // collider is large enough to fire while its center is still outside the block it touched).
+        hitModule.TakeDamage(damage);
         Destroy(gameObject); // consumed on impact either way, lethal or not
     }
 }

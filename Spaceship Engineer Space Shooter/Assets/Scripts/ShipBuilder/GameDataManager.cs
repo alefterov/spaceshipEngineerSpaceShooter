@@ -84,7 +84,7 @@ public class GameDataManager : MonoBehaviour
     /// </summary>
     public void LoadShip(ShipGrid grid, BlockDatabase database)
     {
-        if (Current.playerShip == null || Current.playerShip.hull.Count == 0) return;
+        if (Current.playerShip == null || Current.playerShip.TotalEntries == 0) return;
         grid.BuildFromLayout(Current.playerShip, database, Faction.Player);
     }
 
@@ -116,7 +116,7 @@ public class GameDataManager : MonoBehaviour
         OnCreditsChanged?.Invoke();
     }
 
-    public bool HasSavedShip => Current.playerShip != null && Current.playerShip.hull.Count > 0;
+    public bool HasSavedShip => Current.playerShip != null && Current.playerShip.TotalEntries > 0;
 
     // ---------- Credits ----------
     // Soft currency spent on building/repairing. Deliberately NOT auto-saved on every change —

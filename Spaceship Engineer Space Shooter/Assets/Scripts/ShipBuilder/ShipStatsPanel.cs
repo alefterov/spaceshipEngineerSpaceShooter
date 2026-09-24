@@ -15,7 +15,7 @@ public class ShipStatsPanel : MonoBehaviour
     public ShipGrid grid;
 
     [Header("Labels")]
-    [Tooltip("Total HP across every placed block — hull, armor, and every module combined.")]
+    [Tooltip("Total HP across every placed block — every block combined.")]
     public TMP_Text hpLabel;
     public TMP_Text armorLabel;
     public TMP_Text shieldLabel;

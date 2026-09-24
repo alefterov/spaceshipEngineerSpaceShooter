@@ -2,20 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Data-only definition of a placeable block (hull piece or functional module).
+/// Data-only definition of a placeable block (armor, weapon, or a functional module).
 /// One asset per block type — drives both the bottom UI palette and the ghost preview.
 /// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Block Definition", fileName = "NewBlock")]
 public class BlockDefinition : ScriptableObject
 {
     [Header("Identity")]
-    public string id = "hull_1x1";
-    public string displayName = "Hull Block";
+    public string id = "armor_1x1";
+    public string displayName = "Armor Block";
     public Sprite icon;                 // shown in the bottom UI list
     public GameObject prefab;           // must have a ShipModule (or subclass) component
 
     [Header("Category — determines which build mode this block appears in")]
-    public BlockCategory category = BlockCategory.Hull;
+    public BlockCategory category = BlockCategory.Armor;
+    [Tooltip("Only used when Category is Weapon — which sub-tab of the Weapons build tab this block appears in.")]
+    public WeaponClass weaponClass = WeaponClass.Ballistic;
 
     [Header("Economy")]
     [Tooltip("Credits required to build one of this block. Dismantling refunds a fraction of this " +
@@ -28,10 +30,6 @@ public class BlockDefinition : ScriptableObject
              "triangle named by where its right angle sits (see CellShape) — its hypotenuse then faces " +
              "the two OTHER sides, and nothing can attach to the block through those. 1 entry = 1x1.")]
     public List<BlockCell> cells = new() { new BlockCell { offset = Vector2Int.zero, shape = CellShape.Square } };
-
-    // Cockpit deliberately excluded — it's a functional module (sits on hull, like Engine/Generator),
-    // not a structural piece. GetFunctionalBlocks() relies on that to include it in the Modules list.
-    public bool IsStructural => category == BlockCategory.Hull || category == BlockCategory.Armor;
 
     /// <summary>Just the offsets, e.g. for code that only needs geometry (bounding box, grid occupancy)
     /// and doesn't care about shape.</summary>
@@ -81,7 +79,7 @@ public class BlockDefinition : ScriptableObject
 
     /// <summary>Which of a cell's 4 sides are solid material a neighboring block can actually attach
     /// to — all 4 for Square, only the two legs for a triangle (its hypotenuse is never attachable,
-    /// see ShipGrid.CanPlaceHull).</summary>
+    /// see ShipGrid.CanPlace).</summary>
     public static CellSides GetSolidSides(CellShape shape) => shape switch
     {
         CellShape.TriangleBottomLeft => CellSides.Bottom | CellSides.Left,
@@ -101,15 +99,26 @@ public struct BlockCell
     public CellShape shape;
 }
 
+/// <summary>Sub-tab of the Weapons build tab — same four families as TechCategory's weapon branches.</summary>
+public enum WeaponClass
+{
+    Ballistic,
+    Laser,
+    Missile,
+    Plasma
+}
+
+// Explicit values keep already-serialized BlockDefinition assets on the same entries now that Hull
+// (was 0) no longer exists. Build tabs: Cockpit, Generator, Engine, Armor (Armor + Shield sub-tabs),
+// Weapons (one sub-tab per WeaponClass).
 public enum BlockCategory
 {
-    Hull,
-    Armor,
-    Weapon,
-    Engine,
-    Generator,
-    Shield,
-    Cockpit
+    Armor = 1,
+    Weapon = 2,
+    Engine = 3,
+    Generator = 4,
+    Shield = 5,
+    Cockpit = 6
 }
 
 /// <summary>A grid cell's silhouette. Triangle orientations are named by which corner holds the right

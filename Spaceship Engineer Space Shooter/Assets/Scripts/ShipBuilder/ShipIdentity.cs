@@ -5,9 +5,9 @@ using UnityEngine;
 public enum Faction { Player, Enemy }
 
 /// <summary>
-/// Marks a ship root as Player or Enemy, tags its modules accordingly (used by Projectile
+/// Marks a ship root as Player or Enemy, tags its blocks accordingly (used by Projectile
 /// for hit filtering), and tracks whether the ship as a whole is destroyed —
-/// either its core hull piece dies, or every hull piece is gone.
+/// either a block flagged isCore dies, or every block is gone.
 /// Same component drives both the player ship and every enemy ship.
 /// </summary>
 public class ShipIdentity : MonoBehaviour
@@ -15,13 +15,13 @@ public class ShipIdentity : MonoBehaviour
     public Faction faction = Faction.Player;
 
     public event Action<ShipIdentity> OnShipDestroyed;
-    /// <summary>Fired once when the ship's last Cockpit or last power-generating module (Generator) is
-    /// destroyed — see ShipGrid's module-destroyed handling, which is what actually notices this and
-    /// calls NotifyDisabled. The ship can still visually exist with most of its hull intact, but
+    /// <summary>Fired once when the ship's last Cockpit or last power-generating block (Generator) is
+    /// destroyed — see ShipGrid's block-destroyed handling, which is what actually notices this and
+    /// calls NotifyDisabled. The ship can still visually exist with most of its blocks intact, but
     /// battle-outcome logic (BattleOutcomeController) should treat it the same as fully destroyed.</summary>
     public event Action<ShipIdentity> OnShipDisabled;
 
-    private readonly List<ShipModule> hullPieces = new();
+    private readonly List<ShipModule> blocks = new();
     private bool destroyed;
     public bool IsDisabled { get; private set; }
 
@@ -44,22 +44,28 @@ public class ShipIdentity : MonoBehaviour
             weapon.SetCombatActive(active);
     }
 
-    public void RegisterHull(ShipModule hull)
+    /// <summary>Called by ShipGrid for every block it places.</summary>
+    public void RegisterBlock(ShipModule block)
     {
-        hullPieces.Add(hull);
-        hull.OnDestroyed += HandleHullPieceDestroyed;
+        blocks.Add(block);
+        block.OnDestroyed += HandleBlockDestroyed;
     }
 
-    private void HandleHullPieceDestroyed(ShipModule hull)
+    /// <summary>Called by ShipGrid when a block is removed WITHOUT being destroyed in combat (editor
+    /// deletion, or the whole grid being cleared) — so it never counts toward "ship destroyed".</summary>
+    public void UnregisterBlock(ShipModule block)
     {
-        hullPieces.Remove(hull);
+        blocks.Remove(block);
+        block.OnDestroyed -= HandleBlockDestroyed;
+    }
+
+    private void HandleBlockDestroyed(ShipModule block)
+    {
+        blocks.Remove(block);
 
         if (destroyed) return;
 
-        bool coreLost = hull.isCore;
-        bool allHullGone = hullPieces.TrueForAll(h => h.IsDestroyed) && hullPieces.Count == 0;
-
-        if (coreLost || allHullGone)
+        if (block.isCore || blocks.Count == 0)
         {
             destroyed = true;
             OnShipDestroyed?.Invoke(this);

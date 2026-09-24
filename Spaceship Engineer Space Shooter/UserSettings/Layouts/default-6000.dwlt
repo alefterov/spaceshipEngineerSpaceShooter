@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1664
     height: 1018.6667
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: Game
   m_RootView: {fileID: 6}
   m_MinSize: {x: 875, y: 371}
   m_MaxSize: {x: 10000, y: 10000}
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_MinSize: {x: 500, y: 112}
   m_MaxSize: {x: 40480, y: 16192}
   vertical: 0
-  controlID: 93
+  controlID: 152
   draggingID: 0
 --- !u!114 &10
 MonoBehaviour:
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 112}
   m_MaxSize: {x: 32384, y: 16192}
   vertical: 1
-  controlID: 94
+  controlID: 89
   draggingID: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -277,7 +277,7 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 56}
   m_MaxSize: {x: 32384, y: 8096}
   vertical: 0
-  controlID: 95
+  controlID: 90
   draggingID: 0
 --- !u!114 &12
 MonoBehaviour:
@@ -892,77 +892,17 @@ MonoBehaviour:
       m_LastClickedID:
         m_rawData: 0
       m_ExpandedIDs:
-      - m_rawData: 568105589213433934
-      - m_rawData: 568105589213434082
-      - m_rawData: 568105589213437102
-      - m_rawData: 568105589213438356
-      - m_rawData: 568105589213439040
-      - m_rawData: 568105589213440844
-      - m_rawData: 568105589213441044
-      - m_rawData: 568105589213441554
-      - m_rawData: 568105589213442070
-      - m_rawData: 568105589213442334
-      - m_rawData: 568105589213442974
-      - m_rawData: 568105589213450074
-      - m_rawData: 568105589213450898
-      - m_rawData: 568105589213451666
-      - m_rawData: 568105589213457660
-      - m_rawData: 568105589213457802
-      - m_rawData: 568105589213459792
-      - m_rawData: 568105589213462828
-      - m_rawData: 568105589213463480
-      - m_rawData: 568105589213467672
-      - m_rawData: 568105589213469420
-      - m_rawData: 568105589213474790
-      - m_rawData: 568105589213475762
-      - m_rawData: 568105589213478782
-      - m_rawData: 568105589213485628
-      - m_rawData: 568105589213490078
-      - m_rawData: 568105589213495574
-      - m_rawData: 568105589213506488
-      - m_rawData: 568105589213522086
-      - m_rawData: 568105589213526854
-      - m_rawData: 568105589213533430
-      - m_rawData: 568105589213544988
-      - m_rawData: 568105589213548658
-      - m_rawData: 568105589213548678
-      - m_rawData: 568105589213549224
-      - m_rawData: 568105589213549292
-      - m_rawData: 568105589213549316
-      - m_rawData: 568105589213549940
-      - m_rawData: 568105589213550182
-      - m_rawData: 568105589213551566
-      - m_rawData: 568105589213551734
-      - m_rawData: 568105589213551806
-      - m_rawData: 568105589213552812
-      - m_rawData: 568105589213697050
-      - m_rawData: 568105589213704696
-      - m_rawData: 568105589213711810
-      - m_rawData: 568105589213722606
-      - m_rawData: 568105589213722626
-      - m_rawData: 568105589213725978
-      - m_rawData: 568105589213726794
-      - m_rawData: 568105589213751408
-      - m_rawData: 568105589213755530
-      - m_rawData: 568105589213757428
-      - m_rawData: 568105584918845506
-      - m_rawData: 568105584918845570
-      - m_rawData: 568105584918845682
-      - m_rawData: 568105584918845726
-      - m_rawData: 568105584918845804
-      - m_rawData: 568105584918845816
-      - m_rawData: 568105584918845880
-      - m_rawData: 568105584918846020
-      - m_rawData: 568105584918846046
-      - m_rawData: 568105584918846064
-      - m_rawData: 568105584918846276
-      - m_rawData: 568105584918846292
-      - m_rawData: 568105584918846430
-      - m_rawData: 568105584918846458
-      - m_rawData: 568105584918846546
-      - m_rawData: 568105584918934652
-      - m_rawData: 568105584918945468
-      - m_rawData: 568105584918947686
+      - m_rawData: 568105589213709228
+      - m_rawData: 568105589213712242
+      - m_rawData: 568105589213712486
+      - m_rawData: 568105589213718970
+      - m_rawData: 568105589213720992
+      - m_rawData: 568105589213721636
+      - m_rawData: 568105589213721766
+      - m_rawData: 568105589213722066
+      - m_rawData: 568105589213755448
+      - m_rawData: 568105589213755964
+      - m_rawData: 568105584918857618
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1742,7 +1682,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets/Prefabs/Modules
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1752,7 +1692,7 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scenes
+  - Assets/Prefabs/Modules
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Work\spaceship_engineer_space_shooter\spaceshipEngineerSpaceShooter\Spaceship
     Engineer Space Shooter
@@ -1762,15 +1702,15 @@ MonoBehaviour:
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs:
-    - m_rawData: 568105584918845468
+    - m_rawData: 568105584918844296
     m_LastClickedID:
-      m_rawData: 568105584918845468
+      m_rawData: 568105584918844296
     m_ExpandedIDs:
     - m_rawData: 0
-    - m_rawData: 568105584918844182
-    - m_rawData: 568105584918844184
-    - m_rawData: 568105584918844186
-    - m_rawData: 568105584918844188
+    - m_rawData: 568105584918846062
+    - m_rawData: 568105584918846064
+    - m_rawData: 568105584918846066
+    - m_rawData: 568105584918846068
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1804,10 +1744,10 @@ MonoBehaviour:
       m_rawData: 0
     m_ExpandedIDs:
     - m_rawData: 0
-    - m_rawData: 568105584918844182
-    - m_rawData: 568105584918844184
-    - m_rawData: 568105584918844186
-    - m_rawData: 568105584918844188
+    - m_rawData: 568105584918846062
+    - m_rawData: 568105584918846064
+    - m_rawData: 568105584918846066
+    - m_rawData: 568105584918846068
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1836,9 +1776,9 @@ MonoBehaviour:
       m_ResourceFile: 
   m_ListAreaState:
     m_SelectedInstanceIDs:
-    - m_rawData: 568105584918930488
+    - m_rawData: 568105584918843716
     m_LastClickedEntityId:
-      m_rawData: 568105584918930488
+      m_rawData: 568105584918843716
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs:
     - m_rawData: 568105584918842266
@@ -1966,7 +1906,7 @@ MonoBehaviour:
     m_PrefName: Preview_InspectorPreview
   m_LastInspectedObjectEntityId:
     m_rawData: 0
-  m_LastVerticalScrollValue: 0
+  m_LastVerticalScrollValue: 848.00006
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:

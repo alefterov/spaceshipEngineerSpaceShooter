@@ -97,7 +97,7 @@ public static class ShipBuilderUISetup
         ghost.grid = shipGrid;
         ghost.worldCamera = mainCamera;
 
-        // Top bar: Hull / Modules mode tabs + Exit
+        // Top bar: Cockpit / Generators / Engines / Armor / Weapons mode tabs + Exit
         var topBar = CreateUIObject("TopBar", builderScreen);
         Anchor(topBar, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0, 140));
         topBar.pivot = new Vector2(0.5f, 1f);
@@ -113,10 +113,16 @@ public static class ShipBuilderUISetup
         topLayout.childForceExpandWidth = false;
         topLayout.childForceExpandHeight = true;
 
-        var hullModeButton = CreateButton(topBar, "HullModeButton", "Корпус", out var hullLE);
-        SetLayoutSize(hullLE, 220, 100);
-        var modulesModeButton = CreateButton(topBar, "ModulesModeButton", "Модули", out var modLE);
-        SetLayoutSize(modLE, 220, 100);
+        var cockpitModeButton = CreateButton(topBar, "CockpitModeButton", "Кокпит", out var cockpitLE);
+        SetLayoutSize(cockpitLE, 170, 100);
+        var generatorModeButton = CreateButton(topBar, "GeneratorModeButton", "Генераторы", out var generatorLE);
+        SetLayoutSize(generatorLE, 170, 100);
+        var engineModeButton = CreateButton(topBar, "EngineModeButton", "Двигатели", out var engineLE);
+        SetLayoutSize(engineLE, 170, 100);
+        var armorModeButton = CreateButton(topBar, "ArmorModeButton", "Броня", out var armorLE);
+        SetLayoutSize(armorLE, 170, 100);
+        var weaponsModeButton = CreateButton(topBar, "WeaponsModeButton", "Оружие", out var weaponsLE);
+        SetLayoutSize(weaponsLE, 170, 100);
 
         var spacer = CreateUIObject("Spacer", topBar);
         var spacerLE = spacer.gameObject.AddComponent<LayoutElement>();
@@ -220,8 +226,11 @@ public static class ShipBuilderUISetup
         AddClickListener(playButton, flow, nameof(MainMenuFlowController.OnPlayPressed));
         AddClickListener(buildShipButton, flow, nameof(MainMenuFlowController.OnBuildShipPressed));
         AddClickListener(exitButton, flow, nameof(MainMenuFlowController.OnExitBuilderPressed));
-        AddClickListener(hullModeButton, buildModeController, nameof(BuildModeController.SetHullBuildMode));
-        AddClickListener(modulesModeButton, buildModeController, nameof(BuildModeController.SetModuleBuildMode));
+        AddClickListener(cockpitModeButton, buildModeController, nameof(BuildModeController.SetCockpitBuildMode));
+        AddClickListener(generatorModeButton, buildModeController, nameof(BuildModeController.SetGeneratorBuildMode));
+        AddClickListener(engineModeButton, buildModeController, nameof(BuildModeController.SetEngineBuildMode));
+        AddClickListener(armorModeButton, buildModeController, nameof(BuildModeController.SetArmorBuildMode));
+        AddClickListener(weaponsModeButton, buildModeController, nameof(BuildModeController.SetWeaponBuildMode));
 
         FixBlockButtonHighlight();
 

@@ -2,19 +2,19 @@ using UnityEngine;
 using System;
 
 /// <summary>
-/// Base component for any part of a ship (hull, weapon, engine, shield, armor, generator).
-/// Attach this to every placeable module prefab. Handles per-module HP and destruction,
-/// which is the core of "точечный урон по модулям".
+/// Base component for any block of a ship (armor, weapon, engine, shield, generator, cockpit).
+/// Attach this to every placeable block prefab. Every block owns its own HP and is destroyed
+/// individually — that is the core of "точечный урон по модулям".
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class ShipModule : MonoBehaviour
 {
     [Header("Module Definition")]
-    public ModuleType type = ModuleType.Hull;
-    public string moduleId = "hull_basic";
+    public ModuleType type = ModuleType.Armor;
+    public string moduleId = "block";
 
     [Tooltip("Credits this block cost to build — always set from BlockDefinition.buildCost at " +
-             "placement time (ShipGrid.Place), same as moduleId. Not meant to be hand-edited on the " +
+             "placement time (ShipGrid.PlaceBlock), same as moduleId. Not meant to be hand-edited on the " +
              "prefab; read by GhostBlockController to compute the dismantle refund.")]
     public int buildCost;
 
@@ -30,9 +30,9 @@ public class ShipModule : MonoBehaviour
              "so it never drifts out of sync after rotating or reloading a saved layout.")]
     public System.Collections.Generic.List<Vector2Int> occupiedCells = new() { Vector2Int.zero };
 
-    [Tooltip("Per-cell shape, same order/index as occupiedCells — set alongside it by ShipGrid.Place " +
-             "from BlockDefinition.cellShapes (rotated to match). Used only by structural (Hull/Armor) " +
-             "adjacency checks (ShipGrid.CanPlaceHull) to keep new blocks off a triangle's hypotenuse.")]
+    [Tooltip("Per-cell shape, same order/index as occupiedCells — set alongside it by ShipGrid.PlaceBlock " +
+             "from BlockDefinition.cells (rotated to match). Used by ShipGrid.CanPlace's adjacency check " +
+             "to keep new blocks off a triangle's hypotenuse.")]
     public System.Collections.Generic.List<CellShape> cellShapes = new() { CellShape.Square };
 
     [Tooltip("The pivot/root cell this block was placed at. The GameObject's own transform always " +
@@ -42,7 +42,7 @@ public class ShipModule : MonoBehaviour
     [Tooltip("0-3, ×90° clockwise. Stored so a saved+reloaded ship reproduces the exact same footprint.")]
     public int rotationSteps;
 
-    [Tooltip("If true, destroying this module destroys the whole ship (e.g. the cockpit/core hull piece).")]
+    [Tooltip("If true, destroying this block destroys the whole ship.")]
     public bool isCore = false;
 
     [Header("Visual (child object)")]
@@ -51,19 +51,12 @@ public class ShipModule : MonoBehaviour
              "no matter how many times the block is rotated or reloaded from a save.")]
     public Transform visualRoot;
 
-    [Header("Visual parts (separate child objects, toggled by view mode)")]
-    [Tooltip("Everything that sits INSIDE the hull — e.g. a generator's machinery, a turret's mounting " +
-             "base. ALWAYS active — never deactivated. Reads as hidden once the roof goes on purely " +
-             "because roofRoot sits at a higher sorting order and is opaque over it, not because this " +
-             "object is switched off.")]
-    public Transform interiorRoot;
-    [Tooltip("This module's own roof. Shown only while the ship is closed (menu preview and battle), " +
-             "and drawn ABOVE the hull's own roof — see ShipGrid's roof sorting orders.")]
+    [Header("Visual part")]
+    [Tooltip("The block's own body sprite(s) — everything visible of this block. Always shown (builder, " +
+             "menu preview and battle alike), drawn at ShipGrid's roof sorting order. Sorting orders " +
+             "authored inside the prefab are kept as offsets from that base. Weapons additionally have " +
+             "a separate Top Root for their moving parts — see WeaponModule.")]
     public Transform roofRoot;
-    [Tooltip("The functional part itself protruding above the roof — e.g. a turret's barrel. Unlike " +
-             "interiorRoot/roofRoot this is ALWAYS visible (builder included), and always drawn above " +
-             "every roof — see ShipGrid's top sorting order.")]
-    public Transform topRoot;
 
     [Header("Idle animation (optional)")]
     [Tooltip("Animator for this block's idle/ambient animation (e.g. a weapon humming, a light " +
@@ -72,12 +65,15 @@ public class ShipModule : MonoBehaviour
              "but stays off while actively building. Leave unassigned for blocks with no animation.")]
     public Animator idleAnimator;
 
+    [Header("Destruction")]
+    [Tooltip("Spawned at this block's position when it's destroyed — an explosion VFX (particle " +
+             "system, animated sprite, whatever). Optional; leave unassigned for no effect.")]
+    public GameObject explosionEffectPrefab;
+
     // Sorting orders authored in the prefab are kept as OFFSETS, so ApplySortingOrders can shift a
-    // whole group onto its layer while preserving the relative order inside it (e.g. a barrel
-    // authored one above its roof stays one above it). Cached so repeated calls can't compound.
-    private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> interiorRenderers = new();
+    // whole group onto its layer while preserving the relative order inside it. Cached so repeated
+    // calls can't compound.
     private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> roofRenderers = new();
-    private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> topRenderers = new();
 
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
@@ -93,14 +89,12 @@ public class ShipModule : MonoBehaviour
 
         if (visualRoot == null) visualRoot = transform; // fallback for old single-cell prefabs without a child
 
-        CacheRenderers(interiorRoot, interiorRenderers);
         CacheRenderers(roofRoot, roofRenderers);
-        CacheRenderers(topRoot, topRenderers);
 
         SetIdleAnimationPlaying(false); // safe default until something explicitly turns it on
     }
 
-    private static void CacheRenderers(
+    protected static void CacheRenderers(
         Transform root, System.Collections.Generic.List<(SpriteRenderer, int)> into)
     {
         into.Clear();
@@ -111,42 +105,41 @@ public class ShipModule : MonoBehaviour
     }
 
     /// <summary>
-    /// Toggles the roof: shown while the ship is closed (menu preview, battle), hidden in the builder.
-    /// interiorRoot is deliberately NEVER deactivated — it stays active always and is simply covered
-    /// by the (higher-sorted, opaque) roof when one is showing, the same way a real wall hides a room
-    /// instead of the room ceasing to exist. topRoot and anything parented directly under visualRoot
-    /// rather than under either root are left alone too, so they stay visible in both.
-    ///
-    /// Also turns idle animation off in Building mode — the builder is the one context it should never
-    /// play in. Called by ShipGrid.SetViewMode. (Battle idle, later, will call SetIdleAnimationPlaying
-    /// directly instead — it isn't a ShipViewMode at all.)
+    /// Turns idle animation off in Building mode — the builder is the one context it should never play
+    /// in — and on in Preview (the closed look shown in the main menu). Called by ShipGrid.SetViewMode.
+    /// (Battle idle, later, will call SetIdleAnimationPlaying directly instead — it isn't a
+    /// ShipViewMode at all.) Nothing is shown/hidden any more: a block's body is always visible.
     /// </summary>
     public void ApplyViewMode(ShipViewMode mode)
     {
-        bool closed = mode == ShipViewMode.Preview;
-
-        if (roofRoot != null) roofRoot.gameObject.SetActive(closed);
-
-        SetIdleAnimationPlaying(closed);
+        previewLook = mode == ShipViewMode.Preview;
+        RefreshIdleAnimation();
     }
+
+    private bool previewLook;
+
+    /// <summary>Subclasses can veto the idle animation even in the Preview look — e.g. a turret in battle,
+    /// where an animation keyed on its rotation would fight the code that aims it.</summary>
+    protected virtual bool IdleAnimationAllowed => true;
+
+    /// <summary>Re-applies "idle animation plays" = preview look AND the subclass allows it. Call after
+    /// whatever IdleAnimationAllowed depends on changes.</summary>
+    protected void RefreshIdleAnimation() => SetIdleAnimationPlaying(previewLook && IdleAnimationAllowed);
 
     /// <summary>
-    /// Puts this module's parts on their render layers. Called by ShipGrid at placement time, which is
-    /// the only thing that knows whether this block went onto the structural or the module layer —
-    /// that distinction is what keeps a module's roof drawn above the hull's roof rather than under it.
-    /// Sorting orders authored in the prefab act as offsets within each group.
+    /// Puts this block's sprites on their render layer. Called by ShipGrid at placement time. Sorting
+    /// orders authored in the prefab act as offsets from roofBase. Weapons override this to also place
+    /// their separate moving parts (see WeaponModule.topRoot) on topBase, above every block body.
     /// </summary>
-    public void ApplySortingOrders(int interiorBase, int roofBase, int topBase)
+    public virtual void ApplySortingOrders(int roofBase, int topBase)
     {
-        foreach (var (renderer, authoredOrder) in interiorRenderers)
-            if (renderer != null) renderer.sortingOrder = interiorBase + authoredOrder;
-
         foreach (var (renderer, authoredOrder) in roofRenderers)
             if (renderer != null) renderer.sortingOrder = roofBase + authoredOrder;
-
-        foreach (var (renderer, authoredOrder) in topRenderers)
-            if (renderer != null) renderer.sortingOrder = topBase + authoredOrder;
     }
+
+    /// <summary>Called on the build ghost right before its gameplay scripts are stripped — override to
+    /// hide anything that only makes sense on a real placed block (e.g. a shield's coverage circle).</summary>
+    public virtual void PrepareAsGhost() { }
 
     /// <summary>Turns this block's idle/ambient animation on or off. Safe to call even when no
     /// idleAnimator is assigned (most blocks won't have one) — a no-op in that case.</summary>
@@ -191,40 +184,33 @@ public class ShipModule : MonoBehaviour
         // Subclasses (WeaponModule, EngineModule...) should override OnModuleDestroyed().
         OnModuleDestroyed();
 
-        // Detach visually instead of instantly deleting: gives the satisfying "part falls off" feel.
-        DetachAsDebris();
+        PlayDestructionEffect();
     }
 
     /// <summary>Override in subclasses to stop the module's function (e.g. WeaponModule stops firing).</summary>
     protected virtual void OnModuleDestroyed() { }
 
-    /// <summary>Turns the destroyed module into free-falling debris instead of just vanishing.</summary>
-    protected virtual void DetachAsDebris()
+    /// <summary>Spawns the explosion VFX (if assigned) and removes the block immediately — it
+    /// disappears rather than detaching as drifting/falling debris under gravity.</summary>
+    protected virtual void PlayDestructionEffect()
     {
-        transform.SetParent(null);
+        if (explosionEffectPrefab != null)
+            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
 
-        var rb = gameObject.GetComponent<Rigidbody2D>();
-        if (rb == null) rb = gameObject.AddComponent<Rigidbody2D>();
-        rb.gravityScale = 0.5f;
-        rb.linearVelocity = UnityEngine.Random.insideUnitCircle * 2f;
-        rb.angularVelocity = UnityEngine.Random.Range(-180f, 180f);
-
-        var col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false; // no longer blocks shots / triggers hits
-
-        UnityEngine.Object.Destroy(gameObject, 3f); // cleanup after debris drifts off
+        UnityEngine.Object.Destroy(gameObject);
     }
 }
 
+// Explicit values keep already-serialized prefabs/assets pointing at the same entries now that Hull
+// (was 0) no longer exists.
 public enum ModuleType
 {
-    Hull,
-    Armor,
-    Weapon,
-    Engine,
-    Shield,
-    Generator,
-    Cockpit
+    Armor = 1,
+    Weapon = 2,
+    Engine = 3,
+    Shield = 4,
+    Generator = 5,
+    Cockpit = 6
 }
 
 /// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>

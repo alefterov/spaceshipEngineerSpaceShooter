@@ -26,7 +26,7 @@ public class BattleSequenceController : MonoBehaviour
     public ShipIdentity playerShipIdentity;
     [Tooltip("Where the ship starts, off-screen.")]
     public Transform shipStartPoint;
-    [Tooltip("Where the ship's own built-hull CENTER should end up — not where its root transform " +
+    [Tooltip("Where the ship's own built-ship CENTER should end up — not where its root transform " +
              "lands, since the root is rarely the ship's actual visual middle once you account for " +
              "whatever shape was actually built. Falls back to the battle camera's center if unset.")]
     public Transform shipArrivalPoint;
@@ -53,6 +53,8 @@ public class BattleSequenceController : MonoBehaviour
     [Tooltip("Starts tracking win/loss at the same moment enemies start spawning — any earlier and the " +
              "starting-HP snapshot would be taken before the ship is even done arriving.")]
     public BattleOutcomeController battleOutcome;
+    [Tooltip("Same timing as Battle Outcome — snapshots the HUD gauges' starting HP/armor/shield here too.")]
+    public BattleHudGauges hudGauges;
 
     /// <summary>Fired at the same moment EnemySpawner starts, for anything else that also needs to
     /// know the intro just finished (e.g. a HUD element revealing itself).</summary>
@@ -96,7 +98,7 @@ public class BattleSequenceController : MonoBehaviour
         var cam = GetBattleCamera();
         if (cam == null || !cam.orthographic) return;
 
-        Vector2 size = playerShipGrid.GetHullWorldSize();
+        Vector2 size = playerShipGrid.GetShipWorldSize();
         if (size == Vector2.zero) return; // nothing built yet — nothing to fit
 
         float sizeForHeight = size.y * 0.5f + shipFramePadding;
@@ -106,21 +108,21 @@ public class BattleSequenceController : MonoBehaviour
         if (required > cam.orthographicSize) cam.orthographicSize = required;
     }
 
-    /// <summary>Where the ship's ROOT transform needs to end up so that its own built-hull CENTER (not
-    /// the root itself) lands exactly on shipArrivalPoint — see ShipGrid.GetHullWorldCenter for why
+    /// <summary>Where the ship's ROOT transform needs to end up so that its own built-ship CENTER (not
+    /// the root itself) lands exactly on shipArrivalPoint — see ShipGrid.GetShipWorldCenter for why
     /// those two points usually aren't the same.</summary>
     private Vector3 ComputeShipEndPosition()
     {
         if (playerShipGrid == null) return playerShip != null ? playerShip.position : Vector3.zero;
 
-        Vector3 rootToHullCenter = playerShipGrid.GetHullWorldCenter() - playerShipGrid.transform.position;
+        Vector3 rootToShipCenter = playerShipGrid.GetShipWorldCenter() - playerShipGrid.transform.position;
 
         Vector3 targetCenter = shipArrivalPoint != null ? shipArrivalPoint.position
             : GetBattleCamera() != null ? GetBattleCamera().transform.position
             : playerShip.position;
         targetCenter.z = playerShip.position.z; // never touch the ship's own depth
 
-        return targetCenter - rootToHullCenter;
+        return targetCenter - rootToShipCenter;
     }
 
     private IEnumerator RunIntro()
@@ -130,6 +132,7 @@ public class BattleSequenceController : MonoBehaviour
 
         if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(true); // weapons stay silent until this fires
         if (battleOutcome != null) battleOutcome.BeginTracking(); // must start before enemies do, so the starting-HP snapshot is undamaged
+        if (hudGauges != null) hudGauges.BeginTracking();
         if (enemySpawner != null) enemySpawner.StartWaves();
         OnBattleStart?.Invoke();
     }

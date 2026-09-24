@@ -9,28 +9,43 @@ public enum ProjectileOwner { Player, Enemy }
 /// composite collider) so OnTriggerEnter2D resolves to the specific part hit.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour, IShieldBlockable
 {
     public float damage = 5f;
     public float speed = 12f;
     public ProjectileOwner owner = ProjectileOwner.Player;
+    [Tooltip("Seconds before it disappears. A weapon that fires it overrides this so the shot stops at " +
+             "the weapon's Range (see WeaponModule.Spawn).")]
     public float lifeTime = 4f;
 
     private Rigidbody2D rb;
+    private bool consumed;
 
-    private void Awake()
+    // ---------- IShieldBlockable — a shield stops shots fired by the OTHER side; its own side's pass through ----------
+    public float ImpactDamage => damage;
+    public bool IsConsumed => consumed;
+    public bool IsHostileTo(Faction shieldFaction)
+        => (owner == ProjectileOwner.Player ? Faction.Player : Faction.Enemy) != shieldFaction;
+    public void AbsorbedByShield()
     {
-        rb = GetComponent<Rigidbody2D>();
-        Destroy(gameObject, lifeTime);
+        consumed = true;
+        Destroy(gameObject);
     }
+
+    private void Awake() => rb = GetComponent<Rigidbody2D>();
 
     private void Start()
     {
         rb.linearVelocity = transform.up * speed;
+
+        // Scheduled here rather than in Awake: Awake runs inside Instantiate, before the weapon that
+        // fired this shot has had a chance to set lifeTime from its range.
+        Destroy(gameObject, lifeTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (consumed) return;
         if (TryHitModule(other) || TryHitTargetable(other))
             Destroy(gameObject);
     }

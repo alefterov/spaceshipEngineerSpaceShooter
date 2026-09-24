@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Bottom scrollable list of available blocks, filtered by the active BuildMode
-/// (hull pieces in Hull mode, armor pieces in Armor mode, functional modules — including the
-/// cockpit — in Module mode, optionally narrowed further to one sub-category via ShowForCategory).
+/// (Cockpit, Generators, Engines, Armor, Weapons — Armor and Weapons optionally narrowed further to one
+/// sub-category via ShowForCategory / ShowForWeaponClass).
 /// buttonPrefab must have a BlockButtonView component (icon + selection highlight).
 /// </summary>
 public class BuildPaletteUI : MonoBehaviour
@@ -26,19 +26,23 @@ public class BuildPaletteUI : MonoBehaviour
     {
         List<BlockDefinition> blocks = mode switch
         {
-            BuildMode.Hull => database.GetByCategory(BlockCategory.Hull),
-            BuildMode.Armor => database.GetByCategory(BlockCategory.Armor),
-            _ => database.GetFunctionalBlocks(), // Modules — includes Cockpit, see BlockDefinition.IsStructural
+            BuildMode.Cockpit => database.GetByCategory(BlockCategory.Cockpit),
+            BuildMode.Generators => database.GetByCategory(BlockCategory.Generator),
+            BuildMode.Engines => database.GetByCategory(BlockCategory.Engine),
+            BuildMode.Armor => database.GetByCategory(BlockCategory.Armor), // shields via the Shields sub-tab
+            _ => database.GetByCategory(BlockCategory.Weapon),              // Weapons: every family until a sub-tab narrows it
         };
 
         Populate(blocks);
     }
 
-    /// <summary>Narrows the palette to one specific functional sub-category (Weapon/Engine/Generator/
-    /// Shield/Cockpit) — for the Module mode sub-tabs. Call ShowForMode(BuildMode.Modules) first (or
-    /// let BuildModeController.ShowWeaponModules() etc. do it for you) to actually switch build mode;
-    /// this only changes which blocks the palette lists.</summary>
+    /// <summary>Narrows the palette to one category — for the Armor tab's Armor/Shields sub-tabs. Call
+    /// after (or let BuildModeController do it) switching to the right build mode; this only changes
+    /// which blocks the palette lists.</summary>
     public void ShowForCategory(BlockCategory category) => Populate(database.GetByCategory(category));
+
+    /// <summary>Narrows the palette to one weapon family — for the Weapons tab's sub-tabs.</summary>
+    public void ShowForWeaponClass(WeaponClass weaponClass) => Populate(database.GetWeaponsByClass(weaponClass));
 
     private void Populate(List<BlockDefinition> blocks)
     {

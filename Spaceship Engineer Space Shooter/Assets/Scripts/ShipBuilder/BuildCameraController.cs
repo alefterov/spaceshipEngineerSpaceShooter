@@ -19,8 +19,8 @@ using UnityEngine.InputSystem;
 /// touched down inside that element's rect (checked once, when the finger appears), so gestures
 /// starting on the palette/buttons/etc. are naturally ignored without needing uGUI raycasts here.
 ///
-/// Panning is clamped so the camera can wander at most PanMarginCells past the ship's own Hull
-/// footprint (ShipGrid.HullOnlyCellPositions — the same cells the outline traces), not the full
+/// Panning is clamped so the camera can wander at most PanMarginCells past the ship's own
+/// footprint (ShipGrid.OccupiedCellPositions — the same cells the outline traces), not the full
 /// static grid, so the framing always tracks the ship you actually built rather than the board size.
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
@@ -32,7 +32,7 @@ public class BuildCameraController : MonoBehaviour
     public GhostBlockController ghost;
 
     [Header("Pan")]
-    [Tooltip("How many cells past the ship's own hull footprint the camera is allowed to pan.")]
+    [Tooltip("How many cells past the ship's own footprint the camera is allowed to pan.")]
     public float panMarginCells = 3f;
 
     [Header("Zoom (two-finger pinch)")]
@@ -160,21 +160,21 @@ public class BuildCameraController : MonoBehaviour
         targetCamera.transform.position = desired;
     }
 
-    /// <summary>Min/max hull-cell coordinates (corner space, max exclusive) — the ship's own footprint,
-    /// with no padding. Falls back to a single cell at the board's center if no hull exists yet.</summary>
-    private (Vector2Int min, Vector2Int maxExclusive) GetHullCellBounds()
+    /// <summary>Min/max occupied-cell coordinates (corner space, max exclusive) — the ship's own footprint,
+    /// with no padding. Falls back to a single cell at the board's center if nothing is built yet.</summary>
+    private (Vector2Int min, Vector2Int maxExclusive) GetShipCellBounds()
     {
-        if (grid.TryGetHullCellBounds(out var min, out var maxExclusive)) return (min, maxExclusive);
+        if (grid.TryGetShipCellBounds(out var min, out var maxExclusive)) return (min, maxExclusive);
 
         var center = new Vector2Int(grid.GridWidth / 2, grid.GridHeight / 2);
         return (center, center + Vector2Int.one);
     }
 
-    /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's hull
+    /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's
     /// bounding box, expanded by panMarginCells on every side.</summary>
     private (Vector3 min, Vector3 max) GetPanBounds()
     {
-        var (minCell, maxCellExclusive) = GetHullCellBounds();
+        var (minCell, maxCellExclusive) = GetShipCellBounds();
 
         Vector3 margin = new(panMarginCells * grid.cellSize, panMarginCells * grid.cellSize, 0f);
         Vector3 worldMin = grid.CornerToWorld(minCell) - margin;
@@ -182,13 +182,13 @@ public class BuildCameraController : MonoBehaviour
         return (worldMin, worldMax);
     }
 
-    /// <summary>Centers the camera on the ship's hull and zooms to fit the whole ship on screen (plus
+    /// <summary>Centers the camera on the ship and zooms to fit the whole ship on screen (plus
     /// framePaddingCells of breathing room). Call whenever entering the menu preview — including right
     /// after leaving the builder, since exiting always routes through that same preview transition
     /// (MainMenuFlowController.ShowMainMenu).</summary>
     public void FrameShip()
     {
-        var (minCell, maxCellExclusive) = GetHullCellBounds();
+        var (minCell, maxCellExclusive) = GetShipCellBounds();
         Vector3 worldMin = grid.CornerToWorld(minCell);
         Vector3 worldMax = grid.CornerToWorld(maxCellExclusive);
 

@@ -48,7 +48,6 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     private Transform ghostVisualRoot; // cached before ShipModule (and its visualRoot ref) gets stripped
     private readonly List<SpriteRenderer> ghostRenderers = new();
     private BlockDefinition currentBlock;
-    private BuildMode currentMode;
     private int rotationSteps;
 
     private bool isSelected;      // a palette block is chosen (rotate is allowed), no ghost required
@@ -85,11 +84,8 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// Tapping a cell in delete mode never deletes immediately — it finds whatever's there (a module
-    /// takes priority over the hull underneath it, same as ShipGrid.FindDeletableAt/TryDeleteAt) and
-    /// shows the same confirm/cancel popup used for placement. A cell with both only ever loses the
-    /// module on this tap; a second, separate tap (and its own confirmation) is needed to then delete
-    /// the hull piece once the module is gone.
+    /// Tapping a cell in delete mode never deletes immediately — it finds the block there (see
+    /// ShipGrid.FindDeletableAt) and shows the same confirm/cancel popup used for placement.
     /// </summary>
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -125,16 +121,15 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     /// block keeps whatever rotation was already dialed in; only picking a genuinely different
     /// block resets it to 0.
     /// </summary>
-    public void SelectBlock(BlockDefinition block, BuildMode mode)
+    public void SelectBlock(BlockDefinition block)
     {
-        bool sameBlock = isSelected && currentBlock == block && currentMode == mode;
+        bool sameBlock = isSelected && currentBlock == block;
         int keepRotation = sameBlock ? rotationSteps : 0;
 
         StopPlacing();
         IsDeleteModeActive = false; // selecting a block always cancels delete mode
 
         currentBlock = block;
-        currentMode = mode;
         rotationSteps = keepRotation;
         isSelected = true;
     }
@@ -223,12 +218,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // Hull and Armor are both structural — same hullCells layer, same adjacency rule.
-        // Only Modules (which now includes Cockpit) sits on the separate module layer.
-        if (currentMode == BuildMode.Modules)
-            grid.PlaceModule(currentBlock, lastAnchor, lastShape, rotationSteps);
-        else
-            grid.PlaceHull(currentBlock, lastAnchor, lastShape, rotationSteps);
+        grid.PlaceBlock(currentBlock, lastAnchor, lastShape, rotationSteps);
 
         DestroyGhost();
         grid.ClearPlacementPreview();
@@ -261,16 +251,11 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         if (moduleComp != null)
         {
             moduleComp.ApplyViewMode(ShipViewMode.Building);
+            moduleComp.PrepareAsGhost();
 
-            // Without this the ghost keeps whatever sortingOrder was authored directly on the prefab,
-            // which put a module ghost BEHIND hull sprites instead of above them. Match exactly what
-            // ShipGrid.Place() would assign for a real block on this same layer, so a module ghost
-            // renders above hull/armor but still under the module-mode grid highlight (moduleGridSortingOrder).
-            bool structural = currentMode != BuildMode.Modules;
-            moduleComp.ApplySortingOrders(
-                structural ? grid.hullInteriorSortingOrder : grid.moduleInteriorSortingOrder,
-                structural ? grid.hullRoofSortingOrder : grid.moduleRoofSortingOrder,
-                grid.topSortingOrder);
+            // Without this the ghost keeps whatever sortingOrder was authored directly on the prefab.
+            // Match exactly what ShipGrid.PlaceBlock would assign to a real block.
+            moduleComp.ApplySortingOrders(grid.roofSortingOrder, grid.topSortingOrder);
         }
 
         // Strip gameplay behaviour so the ghost never fires/collides/takes damage.
@@ -300,9 +285,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         var rotatedCells = BlockDefinition.RotateCells(currentBlock.cells, rotationSteps);
         var localOffsets = BlockDefinition.Offsets(rotatedCells);
 
-        bool geometryValid = currentMode == BuildMode.Modules
-            ? grid.CanPlaceModule(anchor, localOffsets, currentBlock.category)
-            : grid.CanPlaceHull(anchor, rotatedCells); // Hull and Armor share the same structural layer/rule
+        bool geometryValid = grid.CanPlace(anchor, rotatedCells, currentBlock.category);
 
         // Affordability is part of validity too — can't afford it reads the same as "can't place it
         // here", cell goes red right along with any geometric reason. Tracked separately as well
@@ -316,8 +299,11 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         ghostInstance.transform.rotation = Quaternion.identity;
 
         var (centroidCells, _) = ShipGrid.ComputeLocalFootprint(localOffsets);
-        ghostVisualRoot.localPosition = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
-        ghostVisualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
+        if (ghostVisualRoot != ghostInstance.transform) // never move the root itself — same rule as ShipGrid.PlaceBlock
+        {
+            ghostVisualRoot.localPosition = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
+            ghostVisualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
+        }
 
         // Cell-by-cell blue/red validity feedback lives on the grid itself, not on the ghost.
         var absoluteCells = grid.GetOccupiedCells(anchor, localOffsets);

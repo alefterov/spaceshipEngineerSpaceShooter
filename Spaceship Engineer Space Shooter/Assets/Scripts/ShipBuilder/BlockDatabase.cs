@@ -44,12 +44,12 @@ public class BlockDatabase : ScriptableObject
         return result;
     }
 
-    /// <summary>All functional blocks belonging to the "Module build mode".</summary>
-    public List<BlockDefinition> GetFunctionalBlocks()
+    /// <summary>Weapon blocks of one family — for the Weapons tab's sub-tabs.</summary>
+    public List<BlockDefinition> GetWeaponsByClass(WeaponClass weaponClass)
     {
         var result = new List<BlockDefinition>();
         foreach (var b in allBlocks)
-            if (b != null && !b.IsStructural) result.Add(b);
+            if (b != null && b.category == BlockCategory.Weapon && b.weaponClass == weaponClass) result.Add(b);
         return result;
     }
 }

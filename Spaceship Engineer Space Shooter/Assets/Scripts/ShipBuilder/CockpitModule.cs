@@ -1,11 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// Cockpit — a functional module like Engine/Generator/Shield/Weapon (sits on Hull cells,
-/// moduleCells layer, no special structural treatment). Tagged with its own ModuleType so
-/// ShipGrid.HasCockpit can find it (a bare ShipModule defaults to ModuleType.Hull and would
-/// silently not count). The only thing that makes a cockpit special: the ship can't be saved
-/// without at least one non-destroyed one — see ShipGrid.HasCockpit / MainMenuFlowController.
+/// Cockpit — a block like any other (own HP, same placement rules). Tagged with its own ModuleType so
+/// ShipGrid.HasCockpit can find it. The only thing that makes a cockpit special: the ship can't be
+/// saved without at least one non-destroyed one — see ShipGrid.HasCockpit / MainMenuFlowController —
+/// and losing the last one disables the ship in battle.
 /// </summary>
 public class CockpitModule : ShipModule
 {

@@ -12,6 +12,12 @@ using UnityEngine.SceneManagement;
 /// Either way, the SAME BattleResultPanel is told what to show — see that class for the win/loss
 /// display differences (stars, message, Next Level availability).
 ///
+/// Deliberately does NOT pause the scene (no Time.timeScale) — whatever's left of the player's ship
+/// just sits there un-piloted (SetCombatActive(false) stops it responding to the joystick and stops
+/// its weapons firing) while everything else keeps going: existing enemies keep flying/attacking, and
+/// any wreckage keeps drifting under whatever motion it already had, instead of the whole battle
+/// freezing behind the result panel.
+///
 /// Wire BattleSequenceController to call BeginTracking() once its arrival/countdown intro finishes —
 /// starting the starting-HP snapshot and enemy tracking any earlier would count intro-time as combat.
 /// </summary>
@@ -63,9 +69,9 @@ public class BattleOutcomeController : MonoBehaviour
         if (outcomeDecided) return;
         outcomeDecided = true;
 
-        if (enemySpawner != null) enemySpawner.StopWaves();
+        if (enemySpawner != null) enemySpawner.StopWaves(); // no new waves against an already-lost player — existing enemies keep going regardless
+        if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(false); // stops responding to the joystick AND stops its weapons firing
         AwardCredits(); // points earned before dying still count
-        Time.timeScale = 0f; // freeze the battle behind the panel
 
         if (resultPanel != null) resultPanel.ShowResult(won: false, earnedStars: 0, hasNextLevel: false);
     }
@@ -81,7 +87,7 @@ public class BattleOutcomeController : MonoBehaviour
 
         if (PendingBattle.Level != null) GameDataManager.Instance.SetLevelStars(PendingBattle.Level, stars);
         AwardCredits();
-        Time.timeScale = 0f; // freeze the battle behind the panel
+        if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(false); // nothing left to fight — same "player done" treatment as a loss
 
         bool hasNextLevel = PendingBattle.Level != null && PendingBattle.Level.nextLevel != null;
         if (resultPanel != null) resultPanel.ShowResult(won: true, earnedStars: stars, hasNextLevel: hasNextLevel);
@@ -94,18 +100,10 @@ public class BattleOutcomeController : MonoBehaviour
     }
 
     /// <summary>Wire to the loss/win panel's "Try Again" button.</summary>
-    public void RetryLevel()
-    {
-        Time.timeScale = 1f; // must undo the freeze BEFORE loading, or the reloaded scene starts frozen too
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+    public void RetryLevel() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
     /// <summary>Wire to the loss/win panel's "Home" button.</summary>
-    public void GoHome()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(homeSceneName);
-    }
+    public void GoHome() => SceneManager.LoadScene(homeSceneName);
 
     /// <summary>Wire to the result panel's "Next Level" button — BattleResultPanel already disables it
     /// on a loss or when this level has no NextLevel set, so reaching here implies both are fine.</summary>
@@ -113,7 +111,6 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (PendingBattle.Level == null || PendingBattle.Level.nextLevel == null) return;
 
-        Time.timeScale = 1f;
         PendingBattle.Level = PendingBattle.Level.nextLevel;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
