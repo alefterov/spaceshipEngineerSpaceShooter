@@ -9,6 +9,13 @@ public enum Faction { Player, Enemy }
 /// for hit filtering), and tracks whether the ship as a whole is destroyed —
 /// either a block flagged isCore dies, or every block is gone.
 /// Same component drives both the player ship and every enemy ship.
+///
+/// Also ensures the root itself carries a Targetable (kind=Ship, faction synced to this component's own)
+/// — WITHOUT one, this ship is simply invisible to WeaponModule.FindTarget (which only ever scans
+/// Targetable.Active), so neither side could ever open fire on it. Added/kept in sync in ApplyTagToRoot,
+/// the same moment faction is finalized, rather than here in Awake — a builder-assembled ship (ShipGrid.
+/// BuildFromLayout/BuildFromDefinitions) sets faction AFTER this component's own Awake has already run,
+/// and Unity doesn't guarantee sibling Awake order besides.
 /// </summary>
 public class ShipIdentity : MonoBehaviour
 {
@@ -32,7 +39,13 @@ public class ShipIdentity : MonoBehaviour
     private void Awake() => ApplyTagToRoot();
 
     public void ApplyTagToRoot()
-        => gameObject.tag = faction == Faction.Player ? "PlayerShip" : "EnemyShip";
+    {
+        gameObject.tag = faction == Faction.Player ? "PlayerShip" : "EnemyShip";
+
+        if (!TryGetComponent<Targetable>(out var targetable)) targetable = gameObject.AddComponent<Targetable>();
+        targetable.kind = TargetKind.Ship;
+        targetable.faction = faction;
+    }
 
     /// <summary>Call once when a battle starts (and again with false when it ends) — arms or disarms
     /// every weapon on this ship. Weapons built or loaded afterwards read CombatActive themselves in

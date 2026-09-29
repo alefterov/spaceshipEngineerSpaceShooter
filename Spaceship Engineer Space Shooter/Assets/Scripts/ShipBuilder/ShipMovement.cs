@@ -64,8 +64,10 @@ public class ShipMovement : MonoBehaviour
 
         if (strength >= 0.01f)
         {
-            float energyCost = energyPerSecondAtFullThrust * strength * Time.deltaTime;
-            if (energy != null && !energy.TrySpend(energyCost))
+            // Crew Helmsman bonus: higher efficiency means a LOWER energy cost, so this divides.
+            float efficiency = GameDataManager.Instance != null ? GameDataManager.Instance.GetHelmsmanEfficiencyMultiplier() : 1f;
+            float energyCost = energyPerSecondAtFullThrust * strength * Time.deltaTime / Mathf.Max(0.01f, efficiency);
+            if (energy != null && !energy.TrySpend(energyCost, ShipEnergySystem.EnergyPriorityGroup.Movement))
             {
                 strength = 0f; // out of power — hold position, engines ease back to idle
             }
@@ -77,15 +79,24 @@ public class ShipMovement : MonoBehaviour
             }
         }
 
+        // Disabled (last Cockpit or last Generator gone) means no crew left to run anything — engines go
+        // fully dark rather than just easing to idle, same treatment EnemyShip gives a disabled enemy.
         foreach (var engine in engines)
-            if (engine != null) engine.SetThrustStrength(strength);
+        {
+            if (engine == null) continue;
+            if (identity.IsDisabled) engine.SetEffectRunning(false);
+            else engine.SetThrustStrength(strength);
+        }
     }
 
-    /// <summary>Top speed at full joystick deflection, in world units/second.</summary>
+    /// <summary>Top speed at full joystick deflection, in world units/second. Includes the crew
+    /// Helmsman's speed bonus.</summary>
     public float GetMaxSpeed()
     {
         float mass = Mathf.Max(0.01f, grid.ComputeTotalMass());
-        return grid.ComputeEnginePower() / mass * speedMultiplier;
+        float baseSpeed = grid.ComputeEnginePower() / mass * speedMultiplier;
+        float helmsman = GameDataManager.Instance != null ? GameDataManager.Instance.GetHelmsmanSpeedMultiplier() : 1f;
+        return baseSpeed * helmsman;
     }
 
     /// <summary>Clamps a candidate root position so the ship's actual built SHIP BOUNDS (not just its

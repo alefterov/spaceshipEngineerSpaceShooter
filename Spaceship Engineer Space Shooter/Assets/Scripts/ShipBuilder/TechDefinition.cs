@@ -33,7 +33,9 @@ public class TechDefinition : ScriptableObject
 }
 
 /// <summary>One independent linear research chain per value — a weapon TYPE, not the generic
-/// BlockCategory.Weapon, since Ballistic/Laser/Missile/Plasma each need their own progression.</summary>
+/// BlockCategory.Weapon, since Ballistic/Laser/Missile/Plasma each need their own progression. New
+/// values are added at the END, never inserted between existing ones — already-saved TechDefinition
+/// assets store this as a plain index, so reordering would silently repoint them at the wrong category.</summary>
 public enum TechCategory
 {
     Hull,
@@ -45,5 +47,6 @@ public enum TechCategory
     BallisticWeapon,
     LaserWeapon,
     Missile,
-    PlasmaWeapon
+    PlasmaWeapon,
+    Repair
 }

@@ -119,6 +119,8 @@ public static class ShipBuilderUISetup
         SetLayoutSize(generatorLE, 170, 100);
         var engineModeButton = CreateButton(topBar, "EngineModeButton", "Двигатели", out var engineLE);
         SetLayoutSize(engineLE, 170, 100);
+        var repairModeButton = CreateButton(topBar, "RepairModeButton", "Ремонт", out var repairLE);
+        SetLayoutSize(repairLE, 170, 100);
         var armorModeButton = CreateButton(topBar, "ArmorModeButton", "Броня", out var armorLE);
         SetLayoutSize(armorLE, 170, 100);
         var weaponsModeButton = CreateButton(topBar, "WeaponsModeButton", "Оружие", out var weaponsLE);
@@ -229,6 +231,7 @@ public static class ShipBuilderUISetup
         AddClickListener(cockpitModeButton, buildModeController, nameof(BuildModeController.SetCockpitBuildMode));
         AddClickListener(generatorModeButton, buildModeController, nameof(BuildModeController.SetGeneratorBuildMode));
         AddClickListener(engineModeButton, buildModeController, nameof(BuildModeController.SetEngineBuildMode));
+        AddClickListener(repairModeButton, buildModeController, nameof(BuildModeController.SetRepairBuildMode));
         AddClickListener(armorModeButton, buildModeController, nameof(BuildModeController.SetArmorBuildMode));
         AddClickListener(weaponsModeButton, buildModeController, nameof(BuildModeController.SetWeaponBuildMode));
 

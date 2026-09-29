@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -35,6 +36,9 @@ public class GameDataManager : MonoBehaviour
     /// so a LevelButtonView can refresh itself, or a neighboring level's lock/unlock state if it was
     /// gated on this one being completed.</summary>
     public event Action<string> OnLevelStarsChanged;
+    /// <summary>Fired whenever AddExperience actually changes playerExperience/playerLevel (a zero-xp
+    /// call is a no-op and doesn't fire this).</summary>
+    public event Action OnExperienceChanged;
 
     // Credits as they stood at the last save (or at BeginBuildSession, if nothing's been saved
     // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
@@ -357,6 +361,157 @@ public class GameDataManager : MonoBehaviour
         OnLevelStarsChanged?.Invoke(level.id);
         Save();
     }
+
+    // ---------- Player level & experience ----------
+    // Meta-progression separate from the ship: earned from battle rewards (BattleOutcomeController) and
+    // shown on the result panel's level-up bar (ExperienceBarView). Persisted immediately, like coins/
+    // research — never part of the build-session revert.
+
+    [Header("Player level curve")]
+    [Tooltip("Every player starts at level 0. This is the experience required to advance from level 0 to level 1.")]
+    public int baseExperiencePerLevel = 100;
+    [Tooltip("Multiplies the experience required for each level after the first — 1.2 means each level " +
+             "needs 20% more than the last.")]
+    public float experienceGrowthPerLevel = 1.2f;
+
+    [Header("Research points per level-up")]
+    [Tooltip("Research points granted every time the player's account level goes up (on top of whatever " +
+             "credits/experience the battle itself awarded) — multiplied by however many levels a single " +
+             "gain crosses, if it's big enough to cross more than one. See AddExperience.")]
+    public int researchPointsPerLevel = 20;
+
+    public int PlayerLevel => Current.playerLevel;
+    public int PlayerExperience => Current.playerExperience;
+
+    /// <summary>Experience needed to advance FROM this level to the next.</summary>
+    public int GetExperienceRequiredForLevel(int level)
+        => Mathf.Max(1, Mathf.RoundToInt(baseExperiencePerLevel * Mathf.Pow(experienceGrowthPerLevel, Mathf.Max(0, level))));
+
+    /// <summary>One level's worth of an experience gain — how full the bar was before and after, and how
+    /// much that level needed in total. A single big gain can span several of these (one per level it
+    /// rolled past) — see ExperienceBarView.PlaySteps, which animates through them in order.</summary>
+    public struct ExperienceGainStep
+    {
+        public int level;
+        public int startXp, endXp, xpRequired;
+    }
+
+    /// <summary>
+    /// Adds experience, leveling up (possibly more than once) if it fills the current level's bar — each
+    /// level-up also grants researchPointsPerLevel research points. Returns the sequence of per-level
+    /// steps the gain passed through — ALWAYS at least one entry (a zero-length step at the player's
+    /// current standing) even when amount is 0 or negative, so a caller can use the same result to just
+    /// show the current position with nothing to animate.
+    /// </summary>
+    public List<ExperienceGainStep> AddExperience(int amount)
+    {
+        var steps = new List<ExperienceGainStep>();
+        int remaining = Mathf.Max(0, amount);
+        bool changed = remaining > 0;
+        int levelsGained = 0;
+
+        do
+        {
+            int level = Current.playerLevel;
+            int required = GetExperienceRequiredForLevel(level);
+            int startXp = Current.playerExperience;
+
+            int add = Mathf.Min(remaining, Mathf.Max(0, required - startXp));
+            Current.playerExperience += add;
+            remaining -= add;
+
+            steps.Add(new ExperienceGainStep { level = level, startXp = startXp, endXp = Current.playerExperience, xpRequired = required });
+
+            if (Current.playerExperience < required) break; // didn't fill this level — nothing left to carry over anyway
+
+            Current.playerExperience = 0;
+            Current.playerLevel++;
+            levelsGained++;
+        } while (remaining > 0);
+
+        if (levelsGained > 0) Current.researchPoints += researchPointsPerLevel * levelsGained;
+
+        if (changed)
+        {
+            OnExperienceChanged?.Invoke();
+            if (levelsGained > 0) OnResearchPointsChanged?.Invoke();
+            Save();
+        }
+        return steps;
+    }
+
+    // ---------- Ship's crew ----------
+    // 4 roles, each upgraded independently with credits — see CrewRole's own doc comment for what each
+    // one boosts. Every multiplier below reads the crew popup's live level, so callers never need to
+    // cache one; they're only ever meaningfully different from 1x for Faction.Player ships (callers
+    // that also apply to enemy ships check faction themselves before reading these).
+
+    /// <summary>Fired whenever TryUpgradeCrew actually changes a role's level — e.g. so a CrewMemberView
+    /// for that role can refresh itself.</summary>
+    public event Action<CrewRole> OnCrewChanged;
+
+    [Header("Crew upgrade cost")]
+    public int crewUpgradeBaseCost = 150;
+    [Tooltip("Extra credits added per level a role already has — makes each successive upgrade pricier.")]
+    public int crewUpgradeCostPerLevel = 75;
+
+    [Header("Crew — Gunner (turret aim speed / fire rate)")]
+    [Tooltip("+10% turret traverse speed per level.")]
+    public float gunnerAimSpeedPerLevel = 0.1f;
+    [Tooltip("+10% fire rate (shorter cooldown) per level.")]
+    public float gunnerFireRatePerLevel = 0.1f;
+
+    [Header("Crew — Engineer (shield power / max HP / repair rate)")]
+    [Tooltip("+10% shield capacity per level.")]
+    public float engineerShieldPerLevel = 0.1f;
+    [Tooltip("+10% every block's max HP per level.")]
+    public float engineerMaxHpPerLevel = 0.1f;
+    [Tooltip("+10% Repair block healing rate per level.")]
+    public float engineerRepairPerLevel = 0.1f;
+
+    [Header("Crew — Helmsman (move speed / engine efficiency)")]
+    [Tooltip("+10% top speed per level.")]
+    public float helmsmanSpeedPerLevel = 0.1f;
+    [Tooltip("+10% engine energy efficiency (lower fuel cost for the same thrust) per level.")]
+    public float helmsmanEfficiencyPerLevel = 0.1f;
+
+    [Header("Crew — Captain (experience gain)")]
+    [Tooltip("+10% experience earned from battle per level.")]
+    public float captainExperiencePerLevel = 0.1f;
+
+    public int GetCrewLevel(CrewRole role) => Current.crewLevels.FirstOrDefault(e => e.role == role)?.level ?? 0;
+
+    public int GetCrewUpgradeCost(CrewRole role) => crewUpgradeBaseCost + GetCrewLevel(role) * crewUpgradeCostPerLevel;
+
+    public bool CanUpgradeCrew(CrewRole role) => Current.credits >= GetCrewUpgradeCost(role);
+
+    /// <summary>Spends credits and raises a crew role by one level. Returns false (and spends nothing,
+    /// firing OnInsufficientCredits) if the player can't afford it.</summary>
+    public bool TryUpgradeCrew(CrewRole role)
+    {
+        int cost = GetCrewUpgradeCost(role);
+        if (Current.credits < cost) { NotifyInsufficientCredits(); return false; }
+
+        Current.credits -= cost;
+
+        var entry = Current.crewLevels.FirstOrDefault(e => e.role == role);
+        if (entry == null) { entry = new CrewLevelEntry { role = role, level = 0 }; Current.crewLevels.Add(entry); }
+        entry.level++;
+
+        OnCreditsChanged?.Invoke();
+        OnCrewChanged?.Invoke(role);
+        Save();
+        return true;
+    }
+
+    public float GetGunnerAimSpeedMultiplier() => 1f + GetCrewLevel(CrewRole.Gunner) * gunnerAimSpeedPerLevel;
+    public float GetGunnerFireRateMultiplier() => 1f + GetCrewLevel(CrewRole.Gunner) * gunnerFireRatePerLevel;
+    public float GetEngineerShieldMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerShieldPerLevel;
+    public float GetEngineerMaxHpMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerMaxHpPerLevel;
+    public float GetEngineerRepairMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerRepairPerLevel;
+    public float GetHelmsmanSpeedMultiplier() => 1f + GetCrewLevel(CrewRole.Helmsman) * helmsmanSpeedPerLevel;
+    public float GetHelmsmanEfficiencyMultiplier() => 1f + GetCrewLevel(CrewRole.Helmsman) * helmsmanEfficiencyPerLevel;
+    public float GetCaptainExperienceMultiplier() => 1f + GetCrewLevel(CrewRole.Captain) * captainExperiencePerLevel;
 
     // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------
 

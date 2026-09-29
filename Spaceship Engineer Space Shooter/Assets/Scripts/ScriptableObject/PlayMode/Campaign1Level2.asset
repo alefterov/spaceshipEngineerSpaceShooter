@@ -15,7 +15,7 @@ MonoBehaviour:
   id: campaign_1_level_2
   displayNumber: 2
   prerequisite: {fileID: 11400000, guid: 2d2f32b641ce9e348bf785130c513fea, type: 2}
-  nextLevel: {fileID: 0}
+  nextLevel: {fileID: 11400000, guid: eacbe491c38b47d4c8e53b4885fa8ab9, type: 2}
   background: {fileID: -7132766539568104575, guid: 6c75b43da3ba85f46b23dbebca4e182e, type: 3}
   waves:
   - enemies:

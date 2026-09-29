@@ -23,6 +23,12 @@ public class WaveEnemyEntry
     [Tooltip("Where along that edge — 0 is one corner, 1 the other, 0.5 the middle. Ignored if the " +
              "spawner's Randomize Position Along Edge is on.")]
     public float positionAlongEdge = 0.5f;
+
+    [Header("Ship-only (ignored for anything but an EnemyShip prefab)")]
+    [Tooltip("Optional attack route: an ordered list of hand-placed points in the battle scene this ship " +
+             "travels to, and how long it pauses at each before continuing. Leave empty for the ship to " +
+             "fall back to its own default approach-then-strafe behavior instead — see EnemyShip.")]
+    public List<EnemyShipWaypoint> route = new();
 }
 
 /// <summary>One wave: every entry's enemies spawn in list order, then the wave pauses before the next.</summary>
@@ -46,6 +52,8 @@ public class Wave
 /// Deliberately simple for this first pass beyond that: entries within a wave spawn strictly in list
 /// order, one edge per entry. Multi-side simultaneous patterns / per-wave formations are meant to grow
 /// from here once there's more than one enemy type to actually need it for.
+///
+/// Meteors are the exception to the per-entry side: each flies a random top-edge-to-bottom-edge line.
 ///
 /// Wire BattleSequenceController.OnBattleStart to StartWaves() so nothing spawns before the
 /// arrival/countdown intro finishes.
@@ -98,9 +106,50 @@ public class EnemySpawner : MonoBehaviour
     {
         if (entry.enemyPrefab == null || targetShip == null) return;
 
+        // Meteors ignore the entry's side/position: each flies a straight line from a random point on the
+        // top edge of the screen to a random point on the bottom edge.
+        if (entry.enemyPrefab.TryGetComponent<Meteor>(out _))
+        {
+            ComputeMeteorTrajectory(out Vector3 start, out Vector2 direction);
+            var meteorObj = Instantiate(entry.enemyPrefab, start, Quaternion.identity);
+            var meteor = meteorObj.GetComponent<Meteor>();
+            meteor.targetShip = targetShip;
+            meteor.Launch(direction);
+            return;
+        }
+
+        // Only other enemy types would go here — add more type checks as new ones join.
         var instance = Instantiate(entry.enemyPrefab, ComputeSpawnPoint(entry), Quaternion.identity);
-        // Only enemy type that exists so far — add more type checks here as new ones join it.
-        if (instance.TryGetComponent<Meteor>(out var meteor)) meteor.targetShip = targetShip;
+        if (instance.TryGetComponent<EnemyShip>(out var ship))
+        {
+            ship.battleCamera = battleCamera;
+            if (entry.route.Count > 0) ship.route = entry.route; // otherwise keep whatever the prefab itself was authored with, if any
+        }
+    }
+
+    /// <summary>A random point just above the top edge of the camera's view and a random point just
+    /// below its bottom edge; the meteor flies the straight line between them. Both points are chosen
+    /// independently across the FULL width, so trajectories run from vertical to steeply diagonal.</summary>
+    private void ComputeMeteorTrajectory(out Vector3 start, out Vector2 direction)
+    {
+        var cam = battleCamera != null ? battleCamera : Camera.main;
+        if (cam == null || !cam.orthographic)
+        {
+            start = targetShip.transform.position + Vector3.up * 10f; // no camera to measure against — still fly downward
+            direction = Vector2.down;
+            return;
+        }
+
+        float halfHeight = cam.orthographicSize;
+        float halfWidth = halfHeight * cam.aspect;
+        Vector3 center = cam.transform.position;
+
+        float topX = center.x + UnityEngine.Random.Range(-halfWidth, halfWidth);
+        float bottomX = center.x + UnityEngine.Random.Range(-halfWidth, halfWidth);
+
+        start = new Vector3(topX, center.y + halfHeight + spawnMargin, 0f);
+        var end = new Vector2(bottomX, center.y - halfHeight - spawnMargin);
+        direction = (end - (Vector2)start).normalized;
     }
 
     private Vector3 ComputeSpawnPoint(WaveEnemyEntry entry)

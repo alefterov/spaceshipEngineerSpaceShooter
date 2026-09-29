@@ -197,7 +197,7 @@ MonoBehaviour:
   cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
-  isCore: 1
+  isCore: 0
   visualRoot: {fileID: 2620639036222649162}
   interiorRoot: {fileID: 2620639036222649162}
   roofRoot: {fileID: 2296316168755013408}

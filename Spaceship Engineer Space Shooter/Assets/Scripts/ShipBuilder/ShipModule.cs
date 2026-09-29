@@ -80,6 +80,8 @@ public class ShipModule : MonoBehaviour
 
     // Fired when this module takes damage — UI/VFX can subscribe.
     public event Action<ShipModule, float> OnDamaged;
+    // Fired when this module is healed (e.g. by a RepairModule) — BlockDamageVisual removes marks on this.
+    public event Action<ShipModule, float> OnHealed;
     // Fired once, when HP hits zero.
     public event Action<ShipModule> OnDestroyed;
 
@@ -92,6 +94,13 @@ public class ShipModule : MonoBehaviour
         CacheRenderers(roofRoot, roofRenderers);
 
         SetIdleAnimationPlaying(false); // safe default until something explicitly turns it on
+
+        // Every block shows wear: a prefab's own BlockDamageVisual keeps its tuned settings but is
+        // switched on (the old sprite-tier version was left disabled on most prefabs); one with none gets
+        // a default instance.
+        var wear = GetComponentInChildren<BlockDamageVisual>(true);
+        if (wear == null) gameObject.AddComponent<BlockDamageVisual>();
+        else wear.enabled = true;
     }
 
     protected static void CacheRenderers(
@@ -106,11 +115,12 @@ public class ShipModule : MonoBehaviour
 
     /// <summary>
     /// Turns idle animation off in Building mode — the builder is the one context it should never play
-    /// in — and on in Preview (the closed look shown in the main menu). Called by ShipGrid.SetViewMode.
-    /// (Battle idle, later, will call SetIdleAnimationPlaying directly instead — it isn't a
-    /// ShipViewMode at all.) Nothing is shown/hidden any more: a block's body is always visible.
+    /// in — and on in Preview (the closed look shown in the main menu and in battle — see ShipGrid's own
+    /// doc comment on CurrentViewMode). Called by ShipGrid.SetViewMode/PlaceBlock. Nothing is shown/hidden
+    /// any more: a block's body is always visible. Virtual so EngineModule can also stop/start its burn
+    /// effect here — it shouldn't so much as idle while sitting in the builder.
     /// </summary>
-    public void ApplyViewMode(ShipViewMode mode)
+    public virtual void ApplyViewMode(ShipViewMode mode)
     {
         previewLook = mode == ShipViewMode.Preview;
         RefreshIdleAnimation();
@@ -173,6 +183,27 @@ public class ShipModule : MonoBehaviour
         }
     }
 
+    /// <summary>Restores HP, e.g. from a RepairModule — symmetric to TakeDamage. A no-op once destroyed
+    /// (a wreck isn't repaired back to life) or if it's already at full HP.</summary>
+    public void Heal(float amount)
+    {
+        if (IsDestroyed || amount <= 0f) return;
+
+        float before = CurrentHP;
+        CurrentHP = Mathf.Min(maxHP, CurrentHP + amount);
+        if (CurrentHP > before) OnHealed?.Invoke(this, CurrentHP - before);
+    }
+
+    /// <summary>Scales maxHP (and tops CurrentHP back up to match, since this only ever runs once, right
+    /// after a fresh block is placed) — e.g. the crew Engineer's max-HP bonus, applied by ShipGrid.
+    /// PlaceBlock for the player's own ships only. A no-op for a 1x multiplier.</summary>
+    public void ApplyMaxHpMultiplier(float multiplier)
+    {
+        if (Mathf.Approximately(multiplier, 1f) || multiplier <= 0f) return;
+        maxHP *= multiplier;
+        CurrentHP = maxHP;
+    }
+
     protected virtual void Destroy()
     {
         if (IsDestroyed) return;
@@ -210,7 +241,8 @@ public enum ModuleType
     Engine = 3,
     Shield = 4,
     Generator = 5,
-    Cockpit = 6
+    Cockpit = 6,
+    Repair = 7
 }
 
 /// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>

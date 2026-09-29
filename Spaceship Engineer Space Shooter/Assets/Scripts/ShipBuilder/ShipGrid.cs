@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 /// <summary>Which palette tab is active in the builder, in tab order. Armor also covers Shields and
 /// Weapons covers every weapon family via sub-tabs. Purely a palette filter — every block, whatever its
 /// tab, is placed on the same grid with the same rules (see ShipGrid.CanPlace).</summary>
-public enum BuildMode { Cockpit, Generators, Engines, Armor, Weapons }
+public enum BuildMode { Cockpit, Generators, Engines, Repair, Armor, Weapons }
 
 /// <summary>
 /// Grid the ship is built on. ONE layer: every block (armor, weapon, engine, generator, shield,
@@ -69,7 +69,9 @@ public class ShipGrid : MonoBehaviour
     public IEnumerable<Vector2Int> OccupiedCellPositions => cells.Keys;
 
     /// <summary>Every distinct block currently on the grid (multi-cell blocks appear once).</summary>
-    private IEnumerable<ShipModule> Blocks => cells.Values.Distinct();
+    /// <summary>Every distinct block currently on the grid (multi-cell blocks appear once) — e.g. for a
+    /// RepairModule scanning for the most damaged one.</summary>
+    public IEnumerable<ShipModule> Blocks => cells.Values.Distinct();
 
     /// <summary>Whether the ship has at least one non-destroyed Cockpit placed. A ship without one is
     /// not allowed to be saved — see MainMenuFlowController.OnSaveShipPressed.</summary>
@@ -316,6 +318,12 @@ public class ShipGrid : MonoBehaviour
         module.rotationSteps = rotationSteps;
         module.ApplyViewMode(CurrentViewMode);
         module.ApplySortingOrders(roofSortingOrder, topSortingOrder);
+
+        // Crew Engineer bonus — player ships only, applied once here so it's baked into a freshly
+        // placed block's maxHP/CurrentHP rather than recomputed live (matches how the Gunner/Helmsman/
+        // Captain bonuses are read fresh each use elsewhere, just simpler to bake for a static stat).
+        if (identity.faction == Faction.Player && GameDataManager.Instance != null)
+            module.ApplyMaxHpMultiplier(GameDataManager.Instance.GetEngineerMaxHpMultiplier());
 
         // Only the VISUAL child rotates/repositions — around its own point, computed fresh from
         // the already-rotated local shape, so it always lines up with occupiedCells exactly.
@@ -576,8 +584,8 @@ public class ShipGrid : MonoBehaviour
         OnShipChanged?.Invoke();
     }
 
-    /// <summary>Builds a full ship from a saved layout with no player input — used for enemy ships and for
-    /// restoring a saved player ship. Placement rules are NOT re-checked: a saved layout is trusted.</summary>
+    /// <summary>Builds a full ship from a saved layout with no player input — used for restoring a saved
+    /// player ship. Placement rules are NOT re-checked: a saved layout is trusted.</summary>
     public void BuildFromLayout(ShipLayout layout, BlockDatabase db, Faction faction)
     {
         Clear();
@@ -593,9 +601,34 @@ public class ShipGrid : MonoBehaviour
         {
             var def = db.GetById(entry.blockId);
             if (def == null) { Debug.LogWarning($"Unknown block id '{entry.blockId}'"); continue; }
-            var rotatedCells = BlockDefinition.RotateCells(def.cells, entry.rotationSteps);
-            PlaceBlock(def, new Vector2Int(entry.anchorX, entry.anchorY), rotatedCells, entry.rotationSteps);
+            PlaceFromDefinition(def, new Vector2Int(entry.anchorX, entry.anchorY), entry.rotationSteps);
         }
+    }
+
+    /// <summary>Builds a full ship with each block's BlockDefinition given DIRECTLY rather than looked up
+    /// by id — used for enemy ships (see EnemyShip), whose blocks don't need to
+    /// be registered in any BlockDatabase at all. Placement rules are NOT re-checked, same as
+    /// BuildFromLayout: a hand-authored ship is trusted. Entries with no block assigned are skipped.</summary>
+    public void BuildFromDefinitions(IEnumerable<(BlockDefinition block, Vector2Int anchor, int rotationSteps)> placements, Faction faction)
+    {
+        Clear();
+
+        identity.faction = faction;
+        identity.ApplyTagToRoot();
+
+        if (placements == null) return;
+
+        foreach (var (block, anchor, rotationSteps) in placements)
+        {
+            if (block == null) continue;
+            PlaceFromDefinition(block, anchor, rotationSteps);
+        }
+    }
+
+    private void PlaceFromDefinition(BlockDefinition def, Vector2Int anchor, int rotationSteps)
+    {
+        var rotatedCells = BlockDefinition.RotateCells(def.cells, rotationSteps);
+        PlaceBlock(def, anchor, rotatedCells, rotationSteps);
     }
 }
 

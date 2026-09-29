@@ -42,6 +42,17 @@ public class GameData
              "never indexed directly.")]
     public List<LevelStarEntry> levelStars = new();
 
+    [Tooltip("Player's account level — separate from ship/hangar level, rises by earning battle " +
+             "experience. Starts at 0 for a fresh save. See GameDataManager.AddExperience.")]
+    public int playerLevel;
+    [Tooltip("Experience earned toward the NEXT player level — resets to 0 (any overflow carried into " +
+             "the next level) each time playerLevel increases.")]
+    public int playerExperience;
+
+    [Tooltip("Crew member levels — Captain/Engineer/Gunner/Helmsman, each upgraded with credits (see " +
+             "GameDataManager.TryUpgradeCrew). A List, not a Dictionary — JsonUtility can't serialize those.")]
+    public List<CrewLevelEntry> crewLevels = new();
+
     public ShipLayout playerShip = new();
 }
 
@@ -57,4 +68,11 @@ public class LevelStarEntry
 {
     public string levelId;
     public int stars;
+}
+
+[System.Serializable]
+public class CrewLevelEntry
+{
+    public CrewRole role;
+    public int level;
 }

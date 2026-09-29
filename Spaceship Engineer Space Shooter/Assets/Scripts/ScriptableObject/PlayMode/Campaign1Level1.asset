@@ -15,7 +15,7 @@ MonoBehaviour:
   id: campaign_1_level_1
   displayNumber: 1
   prerequisite: {fileID: 0}
-  nextLevel: {fileID: 0}
+  nextLevel: {fileID: 11400000, guid: ecc1992ad7941084cb97100696cbeac2, type: 2}
   background: {fileID: -7132766539568104575, guid: 6c75b43da3ba85f46b23dbebca4e182e, type: 3}
   waves:
   - enemies:
@@ -24,6 +24,13 @@ MonoBehaviour:
       spawnInterval: 5
       side: 0
       positionAlongEdge: 0.2
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+      count: 2
+      spawnInterval: 5
+      side: 0
+      positionAlongEdge: 0.2
+      route: []
     delayAfterWave: 10
   - enemies:
     - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
@@ -31,4 +38,5 @@ MonoBehaviour:
       spawnInterval: 3
       side: 0
       positionAlongEdge: 0.395
+      route: []
     delayAfterWave: 10

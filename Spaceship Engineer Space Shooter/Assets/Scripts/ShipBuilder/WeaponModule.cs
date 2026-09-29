@@ -6,7 +6,10 @@ using UnityEngine;
 public enum WeaponAiming { Fixed, Turret }
 
 /// <summary>Automatic = fires by itself whenever a valid target is in range and the cooldown is up.
-/// Manual = never fires on its own; the player triggers it from a button (see ManualWeaponController).</summary>
+/// Manual = on a PLAYER ship, never fires on its own — the player triggers it from a button (see
+/// ManualWeaponController). On an ENEMY ship this distinction doesn't apply: there's no one to press a
+/// button, so every weapon fires automatically regardless of this setting (see WeaponModule.Update) —
+/// Manual only matters for planning the player's own loadout.</summary>
 public enum WeaponFireControl { Automatic, Manual }
 
 /// <summary>
@@ -23,6 +26,11 @@ public enum WeaponFireControl { Automatic, Manual }
 /// Only fires while combat is active (ShipIdentity.SetCombatActive), so weapons stay silent in the
 /// main menu preview and in the ship builder. Stops instantly once ShipModule.TakeDamage() reduces
 /// HP to zero — this is what makes shooting off a specific part actually matter.
+///
+/// Every shot costs energy from the ship's ShipEnergySystem (see EnergyCostPerShot) — a weapon simply
+/// holds fire, cooldown and all, whenever the ship can't afford the next shot, the same "can't afford
+/// it, do nothing" rule ShipMovement and ShieldModule already follow. This applies identically to
+/// player and enemy ships, so a heavy loadout genuinely has to be power-budgeted on both sides.
 /// </summary>
 public class WeaponModule : ShipModule
 {
@@ -51,6 +59,12 @@ public class WeaponModule : ShipModule
     public float cooldownSeconds = 0.35f;
     public float projectileDamage = 5f;
     public float projectileSpeed = 12f;
+    // Energy spent PER SHOT — reuses Energy Delta (that field's own tooltip already documents it as
+    // "per second"): at a shot every Cooldown Seconds, spending |Energy Delta| x Cooldown Seconds each
+    // time averages out to exactly that per-second rate. Firing is skipped (held, not wasted) whenever
+    // the ship's ShipEnergySystem can't afford it — the same pool engines and shields draw from, so a
+    // ship's weapons, engines and shields all compete over one real energy budget. See FireIfReady.
+    public float EnergyCostPerShot => Mathf.Abs(energyDelta) * EffectiveCooldownSeconds;
     [Tooltip("FIRING RANGE, in world units (1 = one grid cell). A target is engaged only within this " +
              "distance, and the shot itself disappears once it has travelled this far.")]
     public float range = 12f;
@@ -85,17 +99,31 @@ public class WeaponModule : ShipModule
     private bool combatActive;
     private bool warnedMisconfigured;
     private ShipIdentity identity;
+    private ShipEnergySystem energy;
 
     /// <summary>Sustained damage output — what the stats panel's Firepower reads (see ShipGrid.ComputeFirepower).</summary>
-    public float DamagePerSecond => projectileDamage / Mathf.Max(0.01f, cooldownSeconds);
+    public float DamagePerSecond => projectileDamage / Mathf.Max(0.01f, EffectiveCooldownSeconds);
 
     /// <summary>1 right after firing, easing to 0 as the weapon becomes ready — drives the manual-fire
     /// button's radial cooldown ring directly.</summary>
-    public float CooldownRemaining01 => Mathf.Clamp01(cooldownRemaining / Mathf.Max(0.01f, cooldownSeconds));
+    public float CooldownRemaining01 => Mathf.Clamp01(cooldownRemaining / Mathf.Max(0.01f, EffectiveCooldownSeconds));
 
     public bool IsReadyToFire => !IsDestroyed && poweredOn && cooldownRemaining <= 0f;
 
     private Faction OwnFaction => identity != null ? identity.faction : Faction.Player;
+
+    /// <summary>Crew Gunner bonus — player ships only. Higher fire rate means a SHORTER cooldown, so this
+    /// divides rather than multiplies.</summary>
+    private float EffectiveCooldownSeconds
+        => OwnFaction == Faction.Player && GameDataManager.Instance != null
+            ? cooldownSeconds / Mathf.Max(0.01f, GameDataManager.Instance.GetGunnerFireRateMultiplier())
+            : cooldownSeconds;
+
+    /// <summary>Crew Gunner bonus — player ships only.</summary>
+    private float EffectiveTurretRotationSpeed
+        => OwnFaction == Faction.Player && GameDataManager.Instance != null
+            ? turretRotationSpeed * GameDataManager.Instance.GetGunnerAimSpeedMultiplier()
+            : turretRotationSpeed;
 
     protected override void Awake()
     {
@@ -104,6 +132,7 @@ public class WeaponModule : ShipModule
         energyDelta = -Mathf.Abs(energyDelta); // weapons consume energy
         CacheRenderers(topRoot, topRenderers);
         identity = GetComponentInParent<ShipIdentity>();
+        energy = GetComponentInParent<ShipEnergySystem>(); // absent = energy is simply never checked (see FireIfReady)
 
         // Picks up the ship's existing state, so a weapon built/loaded onto an already-fighting ship
         // isn't left inert — the reverse direction is covered by ShipIdentity.SetCombatActive.
@@ -134,7 +163,10 @@ public class WeaponModule : ShipModule
 
         if (aiming == WeaponAiming.Turret) AimTurretAt(aimPoint);
 
-        if (fireControl == WeaponFireControl.Automatic) TryFireAt(aimPoint);
+        // Manual only means anything for the player, who has a button to pull the trigger with — an
+        // enemy ship has no one to press it, so every one of its weapons fires on its own (see the
+        // WeaponFireControl enum doc comment).
+        if (fireControl == WeaponFireControl.Automatic || OwnFaction == Faction.Enemy) TryFireAt(aimPoint);
     }
 
     /// <summary>Warns ONCE about a weapon that can never fire because of missing prefab wiring — silence
@@ -187,9 +219,10 @@ public class WeaponModule : ShipModule
     {
         if (!IsReadyToFire || projectilePrefab == null || muzzle == null) return false;
         if (aimPoint.HasValue && !InFiringArc(aimPoint.Value)) return false;
+        if (energy != null && !energy.TrySpend(EnergyCostPerShot, ShipEnergySystem.EnergyPriorityGroup.Weapons)) return false; // not enough power right now — holds fire, tries again next frame
 
         Spawn();
-        cooldownRemaining = cooldownSeconds;
+        cooldownRemaining = EffectiveCooldownSeconds;
         return true;
     }
 
@@ -214,17 +247,11 @@ public class WeaponModule : ShipModule
         }
     }
 
-    /// <summary>The direction this weapon actually shoots in. Enemy ships are spawned unrotated
-    /// (EnemyShipSpawner), so their fixed mounts are flipped here instead — keeping aiming checks and
-    /// the spawned projectile consistent with one another rather than correcting only one of the two.</summary>
-    private Vector2 MuzzleForward
-    {
-        get
-        {
-            bool flip = aiming == WeaponAiming.Fixed && OwnFaction == Faction.Enemy;
-            return flip ? -BarrelDirection : BarrelDirection;
-        }
-    }
+    /// <summary>The direction this weapon actually shoots in — just BarrelDirection. Enemy ships are
+    /// given a real, physical facing at spawn (EnemyShip rotates the whole ship root — see Face Down),
+    /// so no per-weapon correction is needed here; the muzzle's geometry already points the right way
+    /// for both factions.</summary>
+    private Vector2 MuzzleForward => BarrelDirection;
 
     private void Spawn()
     {
@@ -306,7 +333,7 @@ public class WeaponModule : ShipModule
         Vector3 shootDirectionInPivot = Quaternion.Inverse(turretPivot.rotation) * (Vector3)BarrelDirection;
         Quaternion desired = Quaternion.FromToRotation(shootDirectionInPivot, toAim);
         turretPivot.rotation = Quaternion.RotateTowards(
-            turretPivot.rotation, desired, turretRotationSpeed * Time.deltaTime);
+            turretPivot.rotation, desired, EffectiveTurretRotationSpeed * Time.deltaTime);
     }
 
     /// <summary>Nearest engageable target within range, or null.</summary>

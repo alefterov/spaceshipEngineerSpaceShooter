@@ -118,7 +118,8 @@ public enum BlockCategory
     Engine = 3,
     Generator = 4,
     Shield = 5,
-    Cockpit = 6
+    Cockpit = 6,
+    Repair = 7
 }
 
 /// <summary>A grid cell's silhouette. Triangle orientations are named by which corner holds the right

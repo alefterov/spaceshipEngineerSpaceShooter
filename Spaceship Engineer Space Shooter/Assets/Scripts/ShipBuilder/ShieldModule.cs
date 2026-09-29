@@ -77,6 +77,12 @@ public class ShieldModule : ShipModule
 
         energy = GetComponentInParent<ShipEnergySystem>();
         identity = GetComponentInParent<ShipIdentity>();
+
+        // Crew Engineer bonus — player ships only, baked into Capacity itself so every other place that
+        // reads it (ShipGrid.ComputeShieldStrength, Recharge/reactivateFraction math below) sees it too.
+        if (OwnFaction == Faction.Player && GameDataManager.Instance != null)
+            capacity *= GameDataManager.Instance.GetEngineerShieldMultiplier();
+
         Reserve = capacity; // starts full
 
         BuildZone();
@@ -157,7 +163,7 @@ public class ShieldModule : ShipModule
         if (energy != null)
         {
             wanted = Mathf.Min(wanted, energy.Current);
-            if (wanted <= 0f || !energy.TrySpend(wanted)) return;
+            if (wanted <= 0f || !energy.TrySpend(wanted, ShipEnergySystem.EnergyPriorityGroup.Defense)) return;
         }
 
         Reserve += wanted;

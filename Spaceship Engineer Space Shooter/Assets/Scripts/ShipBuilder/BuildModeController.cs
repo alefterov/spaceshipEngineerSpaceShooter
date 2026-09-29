@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Top-level state for the build screen: which palette tab is active (Cockpit, Generators, Engines,
-/// Armor, Weapons), which block is currently selected. Wire the tab buttons and the bottom palette to
-/// this. Armor has Armor/Shields sub-tabs and Weapons has one sub-tab per weapon family. The tab only
-/// decides which blocks the palette lists — every block is placed on the same grid with the same rules
-/// (see ShipGrid.CanPlace).
+/// Repair, Armor, Weapons), which block is currently selected. Wire the tab buttons and the bottom
+/// palette to this. Armor has Armor/Shields sub-tabs and Weapons has one sub-tab per weapon family. The
+/// tab only decides which blocks the palette lists — every block is placed on the same grid with the
+/// same rules (see ShipGrid.CanPlace).
 /// </summary>
 public class BuildModeController : MonoBehaviour
 {
@@ -64,6 +64,9 @@ public class BuildModeController : MonoBehaviour
 
     /// <summary>Call from the "Двигатели" tab button.</summary>
     public void SetEngineBuildMode() => EnterMode(BuildMode.Engines);
+
+    /// <summary>Call from the "Ремонт" tab button.</summary>
+    public void SetRepairBuildMode() => EnterMode(BuildMode.Repair);
 
     /// <summary>Call from the "Броня" tab button. Lists physical armor; the Shields sub-tab switches to shields.</summary>
     public void SetArmorBuildMode() => EnterMode(BuildMode.Armor);

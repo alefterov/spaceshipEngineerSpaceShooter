@@ -18,8 +18,18 @@ public class Projectile : MonoBehaviour, IShieldBlockable
              "the weapon's Range (see WeaponModule.Spawn).")]
     public float lifeTime = 4f;
 
+    [Header("Impact")]
+    [Tooltip("Quick particle effect spawned where the shot hits something or is stopped by a shield — " +
+             "not when it simply runs out of range. A particle prefab, or a child object of this " +
+             "prefab used as a template (it's switched off until the hit). Leave empty for none.")]
+    public GameObject impactEffectPrefab;
+    [Tooltip("Seconds until the spawned impact effect is removed. Make it at least as long as the effect. " +
+             "0 = never removed by this script.")]
+    public float impactEffectLifetime = 1f;
+
     private Rigidbody2D rb;
     private bool consumed;
+    private bool broken;
 
     // ---------- IShieldBlockable — a shield stops shots fired by the OTHER side; its own side's pass through ----------
     public float ImpactDamage => damage;
@@ -29,10 +39,36 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     public void AbsorbedByShield()
     {
         consumed = true;
-        Destroy(gameObject);
+        Break();
     }
 
-    private void Awake() => rb = GetComponent<Rigidbody2D>();
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+        // The impact effect may be a child object of this very prefab rather than a separate prefab
+        // asset. It's only a template to copy at the moment of the hit — left running it would play at launch.
+        if (impactEffectPrefab != null && impactEffectPrefab.transform.IsChildOf(transform))
+            impactEffectPrefab.SetActive(false);
+    }
+
+    /// <summary>The shot's end when it hits something: the impact effect at the spot, and the shot is
+    /// removed. Idempotent. Running out of range just vanishes (see Start) — that isn't a hit.</summary>
+    private void Break()
+    {
+        if (broken) return;
+        broken = true;
+        consumed = true;
+
+        if (impactEffectPrefab != null)
+        {
+            var fx = Instantiate(impactEffectPrefab, transform.position, Quaternion.identity); // unparented: it must outlive this shot
+            fx.SetActive(true); // the copy of an in-prefab template starts switched off (see Awake)
+            if (impactEffectLifetime > 0f) Destroy(fx, impactEffectLifetime);
+        }
+
+        Destroy(gameObject);
+    }
 
     private void Start()
     {
@@ -47,7 +83,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     {
         if (consumed) return;
         if (TryHitModule(other) || TryHitTargetable(other))
-            Destroy(gameObject);
+            Break();
     }
 
     /// <summary>Ships: damage resolves to the SPECIFIC module collider hit, not to some abstract

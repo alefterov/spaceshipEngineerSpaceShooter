@@ -29,6 +29,7 @@ public class BuildPaletteUI : MonoBehaviour
             BuildMode.Cockpit => database.GetByCategory(BlockCategory.Cockpit),
             BuildMode.Generators => database.GetByCategory(BlockCategory.Generator),
             BuildMode.Engines => database.GetByCategory(BlockCategory.Engine),
+            BuildMode.Repair => database.GetByCategory(BlockCategory.Repair),
             BuildMode.Armor => database.GetByCategory(BlockCategory.Armor), // shields via the Shields sub-tab
             _ => database.GetByCategory(BlockCategory.Weapon),              // Weapons: every family until a sub-tab narrows it
         };

@@ -209,7 +209,7 @@ MonoBehaviour:
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
   muzzle: {fileID: 3813965180775659288}
-  cooldownSeconds: 0.6
+  cooldownSeconds: 0.5
   projectileDamage: 5
   projectileSpeed: 12
   range: 70
