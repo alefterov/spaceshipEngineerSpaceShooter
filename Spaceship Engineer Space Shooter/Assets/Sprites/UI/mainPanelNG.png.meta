@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 04f0c1e0d023dc44f8e5fa4582f09469
+guid: 02af5c7c2e57f2c43afb220b361f9afb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2410639817334206750
-    second: TechPanelBg_0
+      213: -1963899522730390903
+    second: mainPanelNG_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,45 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TechPanelBg_0
+      name: mainPanelNG_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1000
-        height: 1600
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2eec166bbdfab8ed0800000000000000
-      internalID: -2410639817334206750
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: TechPanelBg_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1053
-        height: 1638
+        width: 1080
+        height: 321
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: aaa18e0f14aeb594bb56ba116574bc27
-      internalID: 59886298
+      spriteID: 98a881d0ac3deb4e0800000000000000
+      internalID: -1963899522730390903
       vertices: []
       indices: 
       edges: []
@@ -160,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 12a18d0e842ad7946b2c6b373bef2a8c
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -170,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TechPanelBg_0: -2410639817334206750
-      TechPanelBg_1: 59886298
+      mainPanelNG_0: -1963899522730390903
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

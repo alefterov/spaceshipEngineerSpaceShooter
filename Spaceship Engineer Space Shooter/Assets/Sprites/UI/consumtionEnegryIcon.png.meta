@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 04f0c1e0d023dc44f8e5fa4582f09469
+guid: 3ba608a4f71b1ec4781e3ce6498c6089
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2410639817334206750
-    second: TechPanelBg_0
+      213: 243364108058807774
+    second: consumtionEnegryIcon_0
+  - first:
+      213: -5112786602914968800
+    second: consumtionEnegryIcon_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TechPanelBg_0
+      name: consumtionEnegryIcon_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1000
-        height: 1600
+        x: 49
+        y: 49
+        width: 102
+        height: 202
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,20 +131,42 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2eec166bbdfab8ed0800000000000000
-      internalID: -2410639817334206750
+      spriteID: eddccebed5a906300800000000000000
+      internalID: 243364108058807774
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TechPanelBg_1
+      name: consumtionEnegryIcon_1
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 46
+        width: 136
+        height: 208
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02b80e06cabbb09b0800000000000000
+      internalID: -5112786602914968800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: consumtionEnegryIcon_2
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1053
-        height: 1638
+        width: 300
+        height: 300
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,8 +175,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: aaa18e0f14aeb594bb56ba116574bc27
-      internalID: 59886298
+      spriteID: d1c983bd4832d1941bbc8456be2ee384
+      internalID: -1213869405
       vertices: []
       indices: 
       edges: []
@@ -160,7 +185,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 12a18d0e842ad7946b2c6b373bef2a8c
+    spriteID: 6ccd3c88e352a8e4e9204d670de43a0c
     internalID: 0
     vertices: []
     indices: 
@@ -170,8 +195,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TechPanelBg_0: -2410639817334206750
-      TechPanelBg_1: 59886298
+      consumtionEnegryIcon_0: 243364108058807774
+      consumtionEnegryIcon_1: -5112786602914968800
+      consumtionEnegryIcon_2: -1213869405
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

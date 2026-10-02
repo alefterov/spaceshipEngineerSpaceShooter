@@ -121,7 +121,7 @@ TextureImporter:
         width: 1000
         height: 500
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -134,11 +134,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: MenuOanelBg_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1054
+        height: 541
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0de8f214ad8661b429c5fb3c9019c592
+      internalID: -1551133927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: f2c4115f93a88654580ffcacf3c8694b
     internalID: 0
     vertices: []
     indices: 
@@ -149,6 +171,7 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       MenuOanelBg_0: 7105245876418505037
+      MenuOanelBg_1: -1551133927
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
