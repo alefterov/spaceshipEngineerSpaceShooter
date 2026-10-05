@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -8601134107536703365}
   - component: {fileID: 3792144078380607541}
   m_Layer: 0
-  m_Name: Engine_type1_1x1
+  m_Name: EngineJet_2x2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EngineModule
   type: 3
-  moduleId: engine_1x1
-  buildCost: 0
+  moduleId: engine_2x2
+  buildCost: 60
   maxHP: 20
   mass: 1
   energyDelta: 0
