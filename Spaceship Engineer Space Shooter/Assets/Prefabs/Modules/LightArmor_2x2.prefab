@@ -95,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmorModule
   type: 1
   moduleId: lightarmor_2x2
-  buildCost: 0
+  buildCost: 20
   maxHP: 20
   mass: 1
   energyDelta: 0

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_armorHeavyTriangle_1x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: heavy_triangle_armor_1x2
+  displayName: Heavy Armor III & IV
+  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  category: 1
+  prerequisite: {fileID: 11400000, guid: 684697775a20c574f8b1e7f16c0fd6c2, type: 2}
+  researchCost: 60
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 4b98eb848415b41478747821e805ce6b, type: 2}
+  - {fileID: 11400000, guid: 84ede3a9410f91549ac73770c33fb28f, type: 2}

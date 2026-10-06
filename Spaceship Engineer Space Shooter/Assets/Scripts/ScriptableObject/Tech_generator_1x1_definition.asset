@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Tech_generator_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: generator_1x1
-  displayName: Generator1
+  displayName: Generator I
   icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
   category: 3
   prerequisite: {fileID: 0}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_shield_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: shield_2x2
+  displayName: Shield III
+  icon: {fileID: 1592439655506188743, guid: ba464af8cc411bc44827d28c0e71f10e, type: 3}
+  category: 5
+  prerequisite: {fileID: 11400000, guid: 4e07855d627cc2b4bafaf0c616d8c1d2, type: 2}
+  researchCost: 70
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 1acd907f71566f942a7ba0b6d076ef75, type: 2}

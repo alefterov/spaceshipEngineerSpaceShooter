@@ -99,7 +99,7 @@ MonoBehaviour:
   moduleId: shield_1x1
   buildCost: 10
   maxHP: 20
-  mass: 1
+  mass: 2
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -114,7 +114,7 @@ MonoBehaviour:
   radius: 5
   capacity: 50
   rechargePerSecond: 10
-  reactivateFraction: 0.25
+  reactivateFraction: 0.147
   zoneRenderer: {fileID: 5961069768649543108}
   zoneAlpha: 0.608
   zoneFadeSpeed: 2
@@ -133,11 +133,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
   bodyRenderer: {fileID: 0}
-  pristineSprite: {fileID: 0}
-  lightDamageSprite: {fileID: 0}
-  moderateDamageSprite: {fileID: 0}
-  heavyDamageSprite: {fileID: 0}
-  criticalDamageSprite: {fileID: 0}
+  markSprites: []
+  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
+  maxMarks: 16
+  markSize: {x: 0.15, y: 0.4}
+  clipToBlock: 1
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &790461595775913428

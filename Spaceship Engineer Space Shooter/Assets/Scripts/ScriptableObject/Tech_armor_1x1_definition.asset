@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
   m_Name: Tech_armor_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
-  id: lightarmor_1x1
-  displayName: Armom 1
+  id: light_armor_1x1
+  displayName: Light Armor I
   icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
   category: 1
   prerequisite: {fileID: 0}

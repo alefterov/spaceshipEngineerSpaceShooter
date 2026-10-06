@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Repair_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: repair_1x1
-  displayName: Small Repair Module
+  displayName: Repair Module I
   icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
   prefab: {fileID: 729449600381729954, guid: aec31744a97c9d04d946fe1df792b0da, type: 3}
   category: 7

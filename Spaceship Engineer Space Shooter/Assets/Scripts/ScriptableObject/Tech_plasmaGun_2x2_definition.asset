@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_plasmaGun_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: plasma_gun_2x2
+  displayName: Plasms Gun II
+  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  category: 9
+  prerequisite: {fileID: 11400000, guid: e0671afb85ca2fd46b09541616c6d8aa, type: 2}
+  researchCost: 70
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 78ef95beafdf92347917dbf578142889, type: 2}

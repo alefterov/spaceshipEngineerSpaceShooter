@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_kineticStaticGun1_1x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: kinetic_static_gun1_1x2
+  displayName: Kinetic Gun IV
+  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  category: 6
+  prerequisite: {fileID: 11400000, guid: 737a7163023ed8941979a2803514694a, type: 2}
+  researchCost: 70
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 3c3ec2e15bcffaa429d633ded6849aa8, type: 2}

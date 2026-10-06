@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
   m_Name: Armomr_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
-  id: lightarmor_1x1
-  displayName: armom 1
+  id: light_armor_1x1
+  displayName: Light Armor I
   icon: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
   prefab: {fileID: 729449600381729954, guid: 43e8ae83c7e65ff499959b4451c1d34a, type: 3}
   category: 1
+  weaponClass: 0
+  buildCost: 10
   cells:
   - offset: {x: 0, y: 0}
     shape: 0

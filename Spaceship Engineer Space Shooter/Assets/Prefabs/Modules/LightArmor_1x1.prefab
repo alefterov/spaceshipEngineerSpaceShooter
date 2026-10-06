@@ -95,9 +95,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmorModule
   type: 1
   moduleId: lightarmor_1x1
-  buildCost: 0
-  maxHP: 20
-  mass: 1
+  buildCost: 10
+  maxHP: 50
+  mass: 2
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -106,10 +106,9 @@ MonoBehaviour:
   rotationSteps: 0
   isCore: 0
   visualRoot: {fileID: 8868587245406197017}
-  interiorRoot: {fileID: 0}
   roofRoot: {fileID: 0}
-  topRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
+  explosionEffectPrefab: {fileID: 0}
 --- !u!114 &-742998057405673786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,11 +122,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
   bodyRenderer: {fileID: 0}
-  pristineSprite: {fileID: 0}
-  lightDamageSprite: {fileID: 0}
-  moderateDamageSprite: {fileID: 0}
-  heavyDamageSprite: {fileID: 0}
-  criticalDamageSprite: {fileID: 0}
+  markSprites: []
+  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
+  maxMarks: 16
+  markSize: {x: 0.15, y: 0.4}
+  clipToBlock: 1
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &6296295213716718776

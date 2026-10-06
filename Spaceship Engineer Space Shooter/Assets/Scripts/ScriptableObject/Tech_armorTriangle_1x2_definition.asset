@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Tech_armorTriangle_1x2_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: light_triangle_armor_1x2
-  displayName: Armor2
+  displayName: Light Armor III & IV
   icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
   category: 1
   prerequisite: {fileID: 11400000, guid: fd0eb6a189f54944bb15dbfa4e7199f8, type: 2}
-  researchCost: 5
+  researchCost: 20
   unlockedBlocks:
   - {fileID: 11400000, guid: 0fcad489cb229ed48ad986a786ced449, type: 2}
   - {fileID: 11400000, guid: 792907d6ce3ced740a8672268b8d3ac0, type: 2}

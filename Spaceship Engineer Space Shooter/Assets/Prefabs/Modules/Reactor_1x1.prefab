@@ -96,9 +96,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
   type: 5
   moduleId: reactor_1x1
-  buildCost: 0
-  maxHP: 30
-  mass: 1
+  buildCost: 80
+  maxHP: 50
+  mass: 2
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -110,8 +110,8 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
-  powerOutput: 10
-  capacity: 100
+  powerOutput: 25
+  capacity: 400
 --- !u!114 &4140459331547520971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,7 +213,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 4427969112588347586, guid: 29660792a4b00454d97839e19614f07c, type: 3}
+  m_Sprite: {fileID: -3246616830695259953, guid: 06a254911d1c3d44c8ed43efe3887c39, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -305,7 +305,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -269203348661926682, guid: e707b20ced67bdc46bcc23ebbc99ebe6, type: 3}
+  m_Sprite: {fileID: -3246616830695259953, guid: 06a254911d1c3d44c8ed43efe3887c39, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

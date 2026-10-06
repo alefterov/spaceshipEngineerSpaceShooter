@@ -69,7 +69,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -79,7 +79,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &6742166914654747244
 MonoBehaviour:
@@ -95,9 +95,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmorModule
   type: 1
   moduleId: heavy_triangle_armor_1x2_right
-  buildCost: 10
-  maxHP: 20
-  mass: 1
+  buildCost: 100
+  maxHP: 350
+  mass: 8
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -211,7 +211,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2104745622655416903, guid: 2009f7e61a08e7c408452567506178b4, type: 3}
+  m_Sprite: {fileID: 5861332586572652406, guid: d2dc032726f7d9948b4d71338f89c900, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

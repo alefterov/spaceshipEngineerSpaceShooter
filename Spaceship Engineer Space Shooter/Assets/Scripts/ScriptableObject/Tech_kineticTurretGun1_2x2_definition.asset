@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_kineticTurretGun1_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: kinetic_turret_gun1_2x2
+  displayName: Kinetic Turret Gun IV
+  icon: {fileID: 5628704119742269869, guid: 848b567bed3c68c4d9a9e71f4074bb3b, type: 3}
+  category: 6
+  prerequisite: {fileID: 11400000, guid: 9082a6e572c9e1b4e818de073a426adc, type: 2}
+  researchCost: 90
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 533c7586f5256554692e11b65dca0dde, type: 2}

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Tech_repair_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: repair_1x1
-  displayName: Repair 1
+  displayName: Repair I
   icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
   category: 10
   prerequisite: {fileID: 0}
-  researchCost: 5
+  researchCost: 10
   unlockedBlocks:
   - {fileID: 11400000, guid: e3690a71fee3b8c4b9acdfd2c56638d0, type: 2}

@@ -96,9 +96,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
   type: 5
   moduleId: generator_1x1
-  buildCost: 0
+  buildCost: 10
   maxHP: 20
-  mass: 1
+  mass: 2
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
-  powerOutput: 10
+  powerOutput: 5
   capacity: 100
 --- !u!114 &4140459331547520971
 MonoBehaviour:
@@ -125,11 +125,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
   bodyRenderer: {fileID: 0}
-  pristineSprite: {fileID: 0}
-  lightDamageSprite: {fileID: 0}
-  moderateDamageSprite: {fileID: 0}
-  heavyDamageSprite: {fileID: 0}
-  criticalDamageSprite: {fileID: 0}
+  markSprites: []
+  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
+  maxMarks: 16
+  markSize: {x: 0.15, y: 0.4}
+  clipToBlock: 1
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &790461595775913428
@@ -305,7 +305,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -269203348661926682, guid: e707b20ced67bdc46bcc23ebbc99ebe6, type: 3}
+  m_Sprite: {fileID: 4427969112588347586, guid: 29660792a4b00454d97839e19614f07c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

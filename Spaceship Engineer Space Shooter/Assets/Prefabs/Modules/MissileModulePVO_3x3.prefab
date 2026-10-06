@@ -189,7 +189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: missileModule_1x1
-  buildCost: 30
+  buildCost: 40
   maxHP: 20
   mass: 1
   energyDelta: 3

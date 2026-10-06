@@ -70,7 +70,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.5, y: 0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -80,7 +80,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &-3292497082667388247
 MonoBehaviour:
@@ -95,13 +95,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairModule
   type: 7
-  moduleId: repair_2x2
-  buildCost: 20
-  maxHP: 20
-  mass: 1
+  moduleId: repair_3x3
+  buildCost: 150
+  maxHP: 200
+  mass: 10
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  - {x: 1, y: 0}
   cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
@@ -110,9 +113,9 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
-  repairPerSecond: 1
-  energyPerHp: 1
-  maxSimultaneousTargets: 1
+  repairPerSecond: 4
+  energyPerHp: 4
+  maxSimultaneousTargets: 3
 --- !u!114 &4140459331547520971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,7 +162,7 @@ Transform:
   m_GameObject: {fileID: 790461595775913428}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -214,7 +217,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -1557615189062591140, guid: 1c081b098a788934184ade02443d38d0, type: 3}
+  m_Sprite: {fileID: 7141705675893925905, guid: 19a6ed11d6cbba5449e4562a9f7ff782, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -251,7 +254,7 @@ Transform:
   m_GameObject: {fileID: 9165489166209485565}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -306,7 +309,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 272182301997621738, guid: 3aa0ffea02d82044588de1b6c9d7669a, type: 3}
+  m_Sprite: {fileID: 7141705675893925905, guid: 19a6ed11d6cbba5449e4562a9f7ff782, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

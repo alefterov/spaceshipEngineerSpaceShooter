@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: ArmorHeavyTriangle_1x2_left_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: heavy_triangle_armor_1x2_left
+  displayName: Heavy Armor III
+  icon: {fileID: -8969765771252838727, guid: 1a3dcd66801308f4790237656fcdf8be, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 3153f4f676c12b848a4a84d5497c1b83, type: 3}
+  category: 1
+  weaponClass: 0
+  buildCost: 100
+  cells:
+  - offset: {x: 0, y: 0}
+    shape: 1
+  - offset: {x: 0, y: 1}
+    shape: 1

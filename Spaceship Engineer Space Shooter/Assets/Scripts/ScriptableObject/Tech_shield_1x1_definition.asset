@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Tech_shield_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: shield_1x1
-  displayName: Shield 1
+  displayName: Shield I
   icon: {fileID: 1592439655506188743, guid: ba464af8cc411bc44827d28c0e71f10e, type: 3}
   category: 5
   prerequisite: {fileID: 0}
-  researchCost: 5
+  researchCost: 10
   unlockedBlocks:
   - {fileID: 11400000, guid: d151b4778c9946e41b228e067b530d25, type: 2}

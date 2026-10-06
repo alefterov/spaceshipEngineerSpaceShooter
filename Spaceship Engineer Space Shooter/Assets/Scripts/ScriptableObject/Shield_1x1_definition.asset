@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Shield_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: shield_1x1
-  displayName: Small Shield
+  displayName: Shield I
   icon: {fileID: 6229401350509173553, guid: 1f5f1bf7c04439a489d452c39329ae61, type: 3}
   prefab: {fileID: 729449600381729954, guid: 04ea34cb45494a942b455aa78da0978f, type: 3}
   category: 5
+  weaponClass: 0
   buildCost: 10
   cells:
   - offset: {x: 0, y: 0}

@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: ArmorTriangle_1x2_left_definition
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: light_triangle_armor_1x2_left
-  displayName: armor triangle 2
+  displayName: Light Armor III
   icon: {fileID: -8969765771252838727, guid: 1a3dcd66801308f4790237656fcdf8be, type: 3}
   prefab: {fileID: 729449600381729954, guid: 98fce909a64fcb641bab126275cd3175, type: 3}
   category: 1
-  buildCost: 10
+  weaponClass: 0
+  buildCost: 20
   cells:
   - offset: {x: 0, y: 0}
     shape: 1

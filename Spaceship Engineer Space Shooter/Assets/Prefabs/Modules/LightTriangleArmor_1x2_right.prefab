@@ -69,7 +69,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -79,7 +79,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 2}
   m_EdgeRadius: 0
 --- !u!114 &6742166914654747244
 MonoBehaviour:
@@ -95,9 +95,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmorModule
   type: 1
   moduleId: light_triangle_armor_1x2_right
-  buildCost: 10
-  maxHP: 20
-  mass: 1
+  buildCost: 20
+  maxHP: 100
+  mass: 3
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -107,10 +107,9 @@ MonoBehaviour:
   rotationSteps: 0
   isCore: 0
   visualRoot: {fileID: 8868587245406197017}
-  interiorRoot: {fileID: 0}
   roofRoot: {fileID: 0}
-  topRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
+  explosionEffectPrefab: {fileID: 0}
 --- !u!114 &-3729766247033474665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,11 +123,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
   bodyRenderer: {fileID: 0}
-  pristineSprite: {fileID: 0}
-  lightDamageSprite: {fileID: 0}
-  moderateDamageSprite: {fileID: 0}
-  heavyDamageSprite: {fileID: 0}
-  criticalDamageSprite: {fileID: 0}
+  markSprites: []
+  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
+  maxMarks: 16
+  markSize: {x: 0.15, y: 0.4}
+  clipToBlock: 1
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &6296295213716718776

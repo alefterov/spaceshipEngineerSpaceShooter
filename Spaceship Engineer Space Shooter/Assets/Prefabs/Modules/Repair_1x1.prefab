@@ -96,9 +96,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RepairModule
   type: 7
   moduleId: repair_1x1
-  buildCost: 20
-  maxHP: 20
-  mass: 1
+  buildCost: 30
+  maxHP: 50
+  mass: 2
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -111,7 +111,7 @@ MonoBehaviour:
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
   repairPerSecond: 1
-  energyPerHp: 1
+  energyPerHp: 2
   maxSimultaneousTargets: 1
 --- !u!114 &4140459331547520971
 MonoBehaviour:
@@ -306,7 +306,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 272182301997621738, guid: 3aa0ffea02d82044588de1b6c9d7669a, type: 3}
+  m_Sprite: {fileID: -1557615189062591140, guid: 1c081b098a788934184ade02443d38d0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
