@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: kinetic_static_gun2_1x1
   displayName: Kinetic Gun II
-  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  icon: {fileID: -9084382987404578745, guid: 865b9fd3bb40baa48af2913c5bf155e7, type: 3}
   category: 6
   prerequisite: {fileID: 11400000, guid: 2a6b2e2121d07d8419681638a8469dce, type: 2}
   researchCost: 20

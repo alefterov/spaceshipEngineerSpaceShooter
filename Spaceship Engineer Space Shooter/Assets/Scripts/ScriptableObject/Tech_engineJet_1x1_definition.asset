@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: engine_jet_1x1
   displayName: Jet Thraster I
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: -8385485876735171490, guid: aa5464605951f85478988a1fc7ec7477, type: 3}
   category: 4
   prerequisite: {fileID: 0}
   researchCost: 5

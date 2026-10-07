@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: light_triangle_armor_1x1
   displayName: Light Armor II
-  icon: {fileID: -4774381420270357247, guid: 81916581e49193a4aa89614c98e39aa2, type: 3}
+  icon: {fileID: 8470703321211150727, guid: 6b5f5c0771c85c34e96442f662f7ad09, type: 3}
   prefab: {fileID: 729449600381729954, guid: 891a8d0f517f8184e8b9a5f0af7f2046, type: 3}
   category: 1
   weaponClass: 0

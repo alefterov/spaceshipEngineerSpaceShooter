@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: repair_2x2
   displayName: Repair III
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: -3585318410574806985, guid: b8eeaf258b1e0634ca0806cea0056cd0, type: 3}
   category: 10
   prerequisite: {fileID: 11400000, guid: 42d1c2a16509aa141a23bad5449f6e47, type: 2}
   researchCost: 70

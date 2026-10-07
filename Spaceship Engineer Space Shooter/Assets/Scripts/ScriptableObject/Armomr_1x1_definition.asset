@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: light_armor_1x1
   displayName: Light Armor I
-  icon: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  icon: {fileID: 3633487211903439609, guid: fcdb01d5b66a2fb42a8ddcb401e2c940, type: 3}
   prefab: {fileID: 729449600381729954, guid: 43e8ae83c7e65ff499959b4451c1d34a, type: 3}
   category: 1
   weaponClass: 0

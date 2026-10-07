@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Tech_plasmaGun_1x1_definition
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: plasma_gun_1x1
-  displayName: Plasms Gun I
-  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  displayName: PlasmaGun I
+  icon: {fileID: -1244867649942888930, guid: 03ede45bd5374df4ca08bd58f7cc1e3d, type: 3}
   category: 9
   prerequisite: {fileID: 0}
   researchCost: 30

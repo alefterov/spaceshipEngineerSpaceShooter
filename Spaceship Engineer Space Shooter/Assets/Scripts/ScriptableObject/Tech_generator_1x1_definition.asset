@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: generator_1x1
   displayName: Generator I
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: -269203348661926682, guid: c20c3f43d19c6e946a3a7ccf400eb45e, type: 3}
   category: 3
   prerequisite: {fileID: 0}
   researchCost: 5

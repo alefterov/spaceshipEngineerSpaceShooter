@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: shield_2x2
   displayName: Shield III
-  icon: {fileID: 6229401350509173553, guid: 1f5f1bf7c04439a489d452c39329ae61, type: 3}
+  icon: {fileID: -4380323182244897569, guid: 9607134391196194a851180a0b2d570a, type: 3}
   prefab: {fileID: 729449600381729954, guid: b7ae2b6409781b04090c621423a5b4c6, type: 3}
   category: 5
   weaponClass: 0

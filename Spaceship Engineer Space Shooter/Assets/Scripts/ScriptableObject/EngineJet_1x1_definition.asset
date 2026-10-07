@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: engine_jet_1x1
   displayName: Jet Thraster I
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -8385485876735171490, guid: aa5464605951f85478988a1fc7ec7477, type: 3}
   prefab: {fileID: 729449600381729954, guid: 2f68f5ce4d6ff30439beec030796d5f9, type: 3}
   category: 3
   weaponClass: 0

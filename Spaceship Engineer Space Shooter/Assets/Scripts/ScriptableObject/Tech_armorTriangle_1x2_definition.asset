@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: light_triangle_armor_1x2
   displayName: Light Armor III & IV
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 7849191137200156980, guid: 2cc4da12dad42bd47a8cc663335073b6, type: 3}
   category: 1
   prerequisite: {fileID: 11400000, guid: fd0eb6a189f54944bb15dbfa4e7199f8, type: 2}
   researchCost: 20

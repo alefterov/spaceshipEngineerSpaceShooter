@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: generator_1x2
   displayName: Generator II
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -289057879429318319, guid: 5e5528ca7ab0e244f95941dd8632c28c, type: 3}
   prefab: {fileID: 729449600381729954, guid: f741efb5c4d36ff4eb6b49f32b09e5b9, type: 3}
   category: 4
   weaponClass: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: Cockpit_1x1
   displayName: 'Cockpit '
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 928279348840330441, guid: f71e4c98018bedf40995a7acc90a9684, type: 3}
   category: 2
   prerequisite: {fileID: 0}
   researchCost: 5

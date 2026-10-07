@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: laser_gun_1x1
   displayName: Laser Gun I
-  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  icon: {fileID: 5900883858491927032, guid: 1480e00d91785844b8c70f61cff76477, type: 3}
   category: 7
   prerequisite: {fileID: 0}
   researchCost: 30

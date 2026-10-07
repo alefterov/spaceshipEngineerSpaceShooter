@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: engine_ion_1x2
   displayName: Ion Thraster II
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 4338233385113764424, guid: d72c8b984d6c425429c1f8d73958f1dc, type: 3}
   category: 4
   prerequisite: {fileID: 11400000, guid: de75ecbd147398948aaa147fb4330ea4, type: 2}
   researchCost: 40

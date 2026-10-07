@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: laser_gun_1x1
   displayName: Lase Gun I
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: 5900883858491927032, guid: 1480e00d91785844b8c70f61cff76477, type: 3}
   prefab: {fileID: 729449600381729954, guid: 2fea6394f64960b48b52fbd84d19089c, type: 3}
   category: 2
   weaponClass: 1

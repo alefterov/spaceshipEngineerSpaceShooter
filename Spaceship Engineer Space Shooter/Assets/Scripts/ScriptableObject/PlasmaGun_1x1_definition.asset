@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: plasma_gun_1x1
   displayName: Plasma Gun I
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -1244867649942888930, guid: 03ede45bd5374df4ca08bd58f7cc1e3d, type: 3}
   prefab: {fileID: 729449600381729954, guid: f25306061e91382469b3d7c5bc2b0dd8, type: 3}
   category: 2
   weaponClass: 3

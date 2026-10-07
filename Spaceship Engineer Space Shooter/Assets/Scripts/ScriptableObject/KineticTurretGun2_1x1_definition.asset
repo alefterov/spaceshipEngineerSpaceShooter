@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: kinetic_turret_gun2_1x1
   displayName: Kinetic Turret Gun II
-  icon: {fileID: 5628704119742269869, guid: 848b567bed3c68c4d9a9e71f4074bb3b, type: 3}
+  icon: {fileID: 426649727142562439, guid: 80961a358f0ba8b42bdd4b636f4099f8, type: 3}
   prefab: {fileID: 729449600381729954, guid: d919d6941e3403e4c9636f1e3e647f22, type: 3}
   category: 2
   weaponClass: 0

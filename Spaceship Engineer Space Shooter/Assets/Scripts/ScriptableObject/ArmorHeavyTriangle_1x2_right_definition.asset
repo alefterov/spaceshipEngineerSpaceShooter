@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: heavy_triangle_armor_1x2_right
   displayName: Heavy Armor IV
-  icon: {fileID: 2104745622655416903, guid: 2009f7e61a08e7c408452567506178b4, type: 3}
+  icon: {fileID: 9046753385145302163, guid: 1ef478eecdef24649b91680c4a88e931, type: 3}
   prefab: {fileID: 729449600381729954, guid: 02be957d56c7b7b4198289689746a6ec, type: 3}
   category: 1
   weaponClass: 0

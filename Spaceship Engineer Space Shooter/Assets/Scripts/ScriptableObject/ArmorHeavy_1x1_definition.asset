@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: heavy_armor_1x1
   displayName: Hevy Armor I
-  icon: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  icon: {fileID: -5232639800007487861, guid: e55e1c5f87fc4544c830a99742d1bf79, type: 3}
   prefab: {fileID: 729449600381729954, guid: 322bf85b454e8284d9102712e369ac16, type: 3}
   category: 1
   weaponClass: 0

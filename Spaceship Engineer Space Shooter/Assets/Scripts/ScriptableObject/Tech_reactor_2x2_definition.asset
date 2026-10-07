@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: reactor_2x2
   displayName: Nuclear Reactor III
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 7871940844312130901, guid: aaa4b4f615a41b94383bc18fe080e67a, type: 3}
   category: 3
   prerequisite: {fileID: 11400000, guid: e529561a813bffa4081a58d45e757087, type: 2}
   researchCost: 100

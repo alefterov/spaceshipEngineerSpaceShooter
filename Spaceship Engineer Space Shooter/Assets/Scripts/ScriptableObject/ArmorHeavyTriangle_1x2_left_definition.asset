@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: heavy_triangle_armor_1x2_left
   displayName: Heavy Armor III
-  icon: {fileID: -8969765771252838727, guid: 1a3dcd66801308f4790237656fcdf8be, type: 3}
+  icon: {fileID: 7880843120089190074, guid: 50d83c9d6055fe246a8f941cf7638f1e, type: 3}
   prefab: {fileID: 729449600381729954, guid: 3153f4f676c12b848a4a84d5497c1b83, type: 3}
   category: 1
   weaponClass: 0

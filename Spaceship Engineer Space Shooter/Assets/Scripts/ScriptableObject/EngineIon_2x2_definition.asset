@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: engine_ion__1x3
   displayName: Ion Thraster III
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -5065031205525248684, guid: 1b049bc7a1e8c3c40ba53696a3294f5e, type: 3}
   prefab: {fileID: 729449600381729954, guid: 8b6e26dd6643baf46abf6f50176c178e, type: 3}
   category: 3
   weaponClass: 0

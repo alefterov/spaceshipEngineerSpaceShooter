@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: shield_1x2
   displayName: Shield II
-  icon: {fileID: 1592439655506188743, guid: ba464af8cc411bc44827d28c0e71f10e, type: 3}
+  icon: {fileID: -542610010313566252, guid: 15ea7d2c5bc2ebd45a3bc1f3dc6c5841, type: 3}
   category: 5
   prerequisite: {fileID: 11400000, guid: afeb1add54c481243ac50c3f2afffd0d, type: 2}
   researchCost: 30

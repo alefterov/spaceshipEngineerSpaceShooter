@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: armor_cockpit_1x1
   displayName: Armor Cockpit
-  icon: {fileID: -8021862539860591915, guid: c2365ca6cf8e93643a035b5a3ba3747e, type: 3}
+  icon: {fileID: 271054513149356456, guid: c4be80f5b6ec2d449bd1f2f2dd609ceb, type: 3}
   prefab: {fileID: 729449600381729954, guid: 41b62efd9cea20a4d9660253b19fc3bd, type: 3}
   category: 6
   weaponClass: 0

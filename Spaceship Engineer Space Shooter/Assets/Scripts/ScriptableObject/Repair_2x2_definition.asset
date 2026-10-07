@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: repair_2x2
   displayName: Repair Module III
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -3585318410574806985, guid: b8eeaf258b1e0634ca0806cea0056cd0, type: 3}
   prefab: {fileID: 729449600381729954, guid: b15f7ae54e9d6dc4aaf7f703a40500ea, type: 3}
   category: 7
   weaponClass: 0

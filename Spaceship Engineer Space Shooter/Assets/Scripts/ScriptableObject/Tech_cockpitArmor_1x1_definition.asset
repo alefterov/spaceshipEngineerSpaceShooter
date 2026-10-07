@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: armor_cockpit_1x1
   displayName: Armor Cockpit
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 271054513149356456, guid: c4be80f5b6ec2d449bd1f2f2dd609ceb, type: 3}
   category: 2
   prerequisite: {fileID: 11400000, guid: 16514800eb2c97140a0611aec0861e21, type: 2}
   researchCost: 50

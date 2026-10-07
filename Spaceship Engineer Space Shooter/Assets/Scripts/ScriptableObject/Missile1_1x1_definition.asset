@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: missile1_1x1
   displayName: Missile I
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: 8257564649388197635, guid: 91a64d3ebd02426429104d8ffba61146, type: 3}
   prefab: {fileID: 729449600381729954, guid: f22f34183569a8a4a92b0517fd96678d, type: 3}
   category: 2
   weaponClass: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: missile2_1x1
   displayName: Missile II
-  icon: {fileID: 2890907854713218435, guid: 2396e9117bc7ece4bb21bce6b88b4277, type: 3}
+  icon: {fileID: -842041185517527542, guid: 32abef2398430d54ab1338f312996a8d, type: 3}
   category: 8
   prerequisite: {fileID: 11400000, guid: 7bdcef5a5c34a9145be016718b3eb348, type: 2}
   researchCost: 20

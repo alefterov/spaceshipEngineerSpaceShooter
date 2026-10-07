@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: kinetic_static_gun2_1x1
   displayName: Kinetic Gun II
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -9084382987404578745, guid: 865b9fd3bb40baa48af2913c5bf155e7, type: 3}
   prefab: {fileID: 729449600381729954, guid: 1d49c988641cb96459216f8738c48617, type: 3}
   category: 2
   weaponClass: 0

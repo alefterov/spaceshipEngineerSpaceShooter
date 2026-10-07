@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: heavy_triangle_armor_1x1
   displayName: Heavy Armor II
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: 1723631299150117980, guid: 09a09ad79d4e3f54d8993820452534a3, type: 3}
   category: 1
   prerequisite: {fileID: 11400000, guid: 710f38ab96e6a3844a23b5c7ad0b2c76, type: 2}
   researchCost: 30

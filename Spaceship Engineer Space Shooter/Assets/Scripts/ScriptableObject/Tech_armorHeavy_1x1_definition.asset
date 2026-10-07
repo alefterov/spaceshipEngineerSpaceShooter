@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
   id: heavy_armor_1x1
   displayName: Heavy Armor I
-  icon: {fileID: 7556670683140017899, guid: 451cc7ba30e2abf4fad1b1dedacb3bd1, type: 3}
+  icon: {fileID: -5232639800007487861, guid: e55e1c5f87fc4544c830a99742d1bf79, type: 3}
   category: 1
   prerequisite: {fileID: 11400000, guid: 405dfe7cc93c1ff48b2371a60efe8cbf, type: 2}
   researchCost: 35

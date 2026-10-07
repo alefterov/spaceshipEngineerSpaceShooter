@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
   id: reactor_1x1
   displayName: Nuclear Reactor I
-  icon: {fileID: -8131872849017986755, guid: 7bb3826600a98ab4799ced1d3326fe16, type: 3}
+  icon: {fileID: -3246616830695259953, guid: 7e075c18d5498bc4ba25d24158250843, type: 3}
   prefab: {fileID: 729449600381729954, guid: 933102d4f4defac4e9bc3ec59e39267d, type: 3}
   category: 4
   weaponClass: 0
