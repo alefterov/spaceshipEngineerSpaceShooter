@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: EnemyGenerator_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: generator_2x2
+  displayName: Generator III
+  icon: {fileID: -1706766606437318581, guid: 439a42a86aa96f44d80cfa5984ba17c4, type: 3}
+  prefab: {fileID: 729449600381729954, guid: cf8d1005e32ebe746a779326d7d88bc1, type: 3}
+  category: 4
+  weaponClass: 0
+  buildCost: 10
+  cells:
+  - offset: {x: 0, y: 0}
+    shape: 0
+  - offset: {x: 0, y: 1}
+    shape: 0
+  - offset: {x: 1, y: 1}
+    shape: 0
+  - offset: {x: 1, y: 0}
+    shape: 0

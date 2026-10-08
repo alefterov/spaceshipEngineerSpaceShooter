@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: EnemyEngineJet_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: engine_jet__1x3
+  displayName: Jet Thraster III
+  icon: {fileID: 6201066232245736876, guid: 56f89e23fefdaaa489a23dfcf5fc7446, type: 3}
+  prefab: {fileID: 729449600381729954, guid: b07b7a234dbfe7f4a922437e20c817aa, type: 3}
+  category: 3
+  weaponClass: 0
+  buildCost: 10
+  cells:
+  - offset: {x: 0, y: 0}
+    shape: 0
+  - offset: {x: 0, y: 1}
+    shape: 0
+  - offset: {x: 1, y: 1}
+    shape: 0
+  - offset: {x: 1, y: 0}
+    shape: 0

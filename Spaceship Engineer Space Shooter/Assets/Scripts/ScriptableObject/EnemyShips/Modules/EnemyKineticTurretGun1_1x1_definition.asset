@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: EnemyKineticTurretGun1_1x1_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: kinetic_turret_gun1_1x1
+  displayName: Kinetic Turret Gun I
+  icon: {fileID: 5192300637677176551, guid: 81a06d5d8d8732a429233b86bcec2272, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 8a913443b9786e044bdb3055caecd94a, type: 3}
+  category: 2
+  weaponClass: 0
+  buildCost: 10
+  cells:
+  - offset: {x: 0, y: 0}
+    shape: 0

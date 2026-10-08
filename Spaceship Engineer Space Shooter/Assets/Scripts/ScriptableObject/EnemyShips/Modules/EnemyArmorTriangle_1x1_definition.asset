@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc91be344d718e4d8a06aea7dcb271f, type: 3}
+  m_Name: EnemyArmorTriangle_1x1_definition
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDefinition
+  id: light_triangle_armor_1x1
+  displayName: Light Armor II
+  icon: {fileID: 8470703321211150727, guid: 6b5f5c0771c85c34e96442f662f7ad09, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 6a37f16a4b409fb409993d804cd73e76, type: 3}
+  category: 1
+  weaponClass: 0
+  buildCost: 10
+  cells:
+  - offset: {x: 0, y: 0}
+    shape: 2
