@@ -820,23 +820,23 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 379.3333
-      height: 653
-    m_Scale: {x: 0.30231482, y: 0.30231482}
-    m_Translation: {x: 189.66666, y: 326.5}
+      width: 438
+      height: 637
+    m_Scale: {x: 0.29490742, y: 0.29490742}
+    m_Translation: {x: 219, y: 318.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -627.3813
+      x: -742.60596
       y: -1080
-      width: 1254.7626
+      width: 1485.2119
       height: 2160
     m_MinimalGUI: 1
-  m_defaultScale: 0.30231482
-  m_LastWindowPixelSize: {x: 379.3333, y: 674}
+  m_defaultScale: 0.29490742
+  m_LastWindowPixelSize: {x: 438, y: 658}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000101000000000000
@@ -1528,9 +1528,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 0.76447505, y: 2.667694, z: -0.0066874544}
+    m_Target: {x: -1.5497253, y: 2.73807, z: 0}
     speed: 2
-    m_Value: {x: -0.2784512, y: -1.1498868, z: 0.0680814}
+    m_Value: {x: 0.76447505, y: 2.667694, z: -0.0066874544}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 2
@@ -1581,9 +1581,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 1.5347669
+    m_Target: 0.7246517
     speed: 2
-    m_Value: 3.191993
+    m_Value: 1.5347669
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1695,10 +1695,10 @@ MonoBehaviour:
       m_rawData: 568105584918847256
     m_ExpandedIDs:
     - m_rawData: 0
-    - m_rawData: 568105584918848810
-    - m_rawData: 568105584918848812
-    - m_rawData: 568105584918848814
-    - m_rawData: 568105584918848816
+    - m_rawData: 568105584918851134
+    - m_rawData: 568105584918851136
+    - m_rawData: 568105584918851138
+    - m_rawData: 568105584918851140
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1732,10 +1732,10 @@ MonoBehaviour:
       m_rawData: 0
     m_ExpandedIDs:
     - m_rawData: 0
-    - m_rawData: 568105584918848810
-    - m_rawData: 568105584918848812
-    - m_rawData: 568105584918848814
-    - m_rawData: 568105584918848816
+    - m_rawData: 568105584918851134
+    - m_rawData: 568105584918851136
+    - m_rawData: 568105584918851138
+    - m_rawData: 568105584918851140
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
