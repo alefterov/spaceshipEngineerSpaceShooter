@@ -162,16 +162,17 @@ public class BattleOutcomeController : MonoBehaviour
         _ => 0,
     };
 
-    private static int ScaleCredits(int amount) => Mathf.RoundToInt(amount * GameDataManager.Instance.GetCreditsMultiplier());
+    private static int ScaleCredits(int amount)
+        => Mathf.RoundToInt(amount * GameDataManager.Instance.GetCreditsMultiplier() * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.CreditsGain));
 
     /// <summary>Actually grants the credits/experience computed above and returns the experience-bar
-    /// animation steps for the result panel. Experience is scaled by the crew Captain's own bonus here,
+    /// animation steps for the result panel. Experience is scaled by the crew ExperienceGain perk here,
     /// in one place, so it applies identically whether the battle was won or lost.</summary>
     private static List<GameDataManager.ExperienceGainStep> AwardRewards(int credits, int experience)
     {
         if (credits > 0) GameDataManager.Instance.AddCredits(credits);
 
-        int scaledExperience = Mathf.RoundToInt(experience * GameDataManager.Instance.GetCaptainExperienceMultiplier());
+        int scaledExperience = Mathf.RoundToInt(experience * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ExperienceGain));
         return GameDataManager.Instance.AddExperience(scaledExperience);
     }
 

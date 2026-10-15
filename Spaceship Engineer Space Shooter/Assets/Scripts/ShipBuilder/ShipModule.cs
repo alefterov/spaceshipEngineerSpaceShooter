@@ -174,6 +174,10 @@ public class ShipModule : MonoBehaviour
     {
         if (IsDestroyed || amount <= 0f) return;
 
+        // Crew ZeroDamageChance perk — blocks of the player's ship only: the hit simply does nothing.
+        if (CompareTag("PlayerShip") && GameDataManager.Instance != null && GameDataManager.Instance.RollCrewChance(CrewPerkType.ZeroDamageChance))
+            return;
+
         CurrentHP = Mathf.Max(0f, CurrentHP - amount);
         OnDamaged?.Invoke(this, amount);
 
@@ -195,7 +199,7 @@ public class ShipModule : MonoBehaviour
     }
 
     /// <summary>Scales maxHP (and tops CurrentHP back up to match, since this only ever runs once, right
-    /// after a fresh block is placed) — e.g. the crew Engineer's max-HP bonus, applied by ShipGrid.
+    /// after a fresh block is placed) — e.g. the crew ArmorEfficiency perk, applied by ShipGrid.
     /// PlaceBlock for the player's own ships only. A no-op for a 1x multiplier.</summary>
     public void ApplyMaxHpMultiplier(float multiplier)
     {

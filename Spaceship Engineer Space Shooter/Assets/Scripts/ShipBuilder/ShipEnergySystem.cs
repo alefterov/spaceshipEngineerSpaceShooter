@@ -59,7 +59,13 @@ public class ShipEnergySystem : MonoBehaviour
         priorityOrder.AddRange(list);
     }
 
-    private void Awake() => grid = GetComponent<ShipGrid>();
+    private ShipIdentity identity;
+
+    private void Awake()
+    {
+        grid = GetComponent<ShipGrid>();
+        identity = GetComponent<ShipIdentity>();
+    }
 
     private void OnEnable()
     {
@@ -73,6 +79,8 @@ public class ShipEnergySystem : MonoBehaviour
     private void Update()
     {
         float generation = grid.ComputeEnergyGeneration(); // existing stat — sum of every generator's Power Output
+        if (identity != null && identity.faction == Faction.Player && GameDataManager.Instance != null)
+            generation *= GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.GeneratorEfficiency); // crew perk (generators and reactors) — player ships only
         if (generation > 0f) Add(generation * Time.deltaTime);
 
         RecomputeBudgets();

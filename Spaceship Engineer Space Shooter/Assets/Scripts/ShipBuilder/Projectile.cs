@@ -14,6 +14,9 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     public float damage = 5f;
     public float speed = 12f;
     public ProjectileOwner owner = ProjectileOwner.Player;
+    [Tooltip("Set by the firing weapon. Laser and Plasma shots can be dodged with the crew evasion-vs-energy " +
+             "perk, Ballistic and Missile shots with the evasion-vs-ballistic perk.")]
+    public WeaponClass weaponClass = WeaponClass.Ballistic;
     [Tooltip("Seconds before it disappears. A weapon that fires it overrides this so the shot stops at " +
              "the weapon's Range (see WeaponModule.Spawn).")]
     public float lifeTime = 4f;
@@ -30,6 +33,8 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     private Rigidbody2D rb;
     private bool consumed;
     private bool broken;
+    private bool evasionRolled;
+    private bool evaded;
 
     // ---------- IShieldBlockable — a shield stops shots fired by the OTHER side; its own side's pass through ----------
     public float ImpactDamage => damage;
@@ -99,8 +104,27 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         if (owner == ProjectileOwner.Player && !isEnemyModule) return false;
         if (owner == ProjectileOwner.Enemy && !isPlayerModule) return false;
 
+        // Crew evasion perk: an enemy shot at the player's ship is rolled ONCE, on first contact. A dodged
+        // shot flies on through the whole ship, harmlessly, instead of being re-rolled on every block.
+        if (isPlayerModule && owner == ProjectileOwner.Enemy && TryEvade()) return false;
+
         hitModule.TakeDamage(damage);
         return true;
+    }
+
+    private bool TryEvade()
+    {
+        if (!evasionRolled)
+        {
+            evasionRolled = true;
+            var data = GameDataManager.Instance;
+            if (data != null)
+            {
+                bool energyWeapon = weaponClass is WeaponClass.Laser or WeaponClass.Plasma;
+                evaded = data.RollCrewChance(energyWeapon ? CrewPerkType.EvadeEnergyWeapons : CrewPerkType.EvadeBallisticWeapons);
+            }
+        }
+        return evaded;
     }
 
     /// <summary>Missiles and meteors — single-HP objects rather than module assemblies, which is what

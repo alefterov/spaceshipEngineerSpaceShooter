@@ -64,6 +64,8 @@ public class GameDataManager : MonoBehaviour
     public void LoadOrCreate()
     {
         Current = SaveSystem.Load() ?? new GameData();
+        GrantStarterCrewIfNeeded();
+        RebuildPerkBonuses();
         OnDataLoaded?.Invoke();
     }
 
@@ -441,77 +443,248 @@ public class GameDataManager : MonoBehaviour
     }
 
     // ---------- Ship's crew ----------
-    // 4 roles, each upgraded independently with credits — see CrewRole's own doc comment for what each
-    // one boosts. Every multiplier below reads the crew popup's live level, so callers never need to
-    // cache one; they're only ever meaningfully different from 1x for Faction.Player ships (callers
-    // that also apply to enemy ships check faction themselves before reading these).
+    // The player owns crew MEMBERS (CrewMemberData — a copy of some CrewMemberDefinition with its own rank
+    // and level). Up to 4 of them stand in the 4 slots, one per CrewRole. ONLY members standing in a slot
+    // count: their unlocked perks (each perk has its own unlock rank) feed the player's ship through
+    // GetCrewPerkMultiplier, scaled by the member's level. A member can be levelled up with credits only
+    // while standing in a slot; two copies of the same definition and rank can be merged into a higher
+    // rank (TryMerge) — which resets the level and unlocks the next perk.
 
-    /// <summary>Fired whenever TryUpgradeCrew actually changes a role's level — e.g. so a CrewMemberView
-    /// for that role can refresh itself.</summary>
-    public event Action<CrewRole> OnCrewChanged;
+    /// <summary>Fired after ANY crew change — a member added/removed, moved between slot and collection,
+    /// levelled up or ranked up. Crew UI rebuilds itself on this.</summary>
+    public event Action OnCrewChanged;
 
-    [Header("Crew upgrade cost")]
-    public int crewUpgradeBaseCost = 150;
-    [Tooltip("Extra credits added per level a role already has — makes each successive upgrade pricier.")]
-    public int crewUpgradeCostPerLevel = 75;
+    [Header("Crew")]
+    [Tooltip("Resolves saved crew members back to their definitions, and holds the starting crew. Required.")]
+    public CrewDatabase crewDatabase;
+    [Tooltip("Level-up price = the member's Level Up Base Cost x its current level + current level x this.")]
+    public int crewLevelCostExtraPerLevel = 2;
+    [Range(0f, 1f), Tooltip("Upper limit for every CHANCE perk (zero damage, evasion...) after all crew bonuses are added — 0.75 = never above 75%.")]
+    public float crewChanceCap = 0.75f;
 
-    [Header("Crew — Gunner (turret aim speed / fire rate)")]
-    [Tooltip("+10% turret traverse speed per level.")]
-    public float gunnerAimSpeedPerLevel = 0.1f;
-    [Tooltip("+10% fire rate (shorter cooldown) per level.")]
-    public float gunnerFireRatePerLevel = 0.1f;
+    // Total bonus per CrewPerkType from the members in the slots, rebuilt whenever crew changes. Cached
+    // because gameplay reads it every frame (weapons, movement) and recomputing from the save list there
+    // would mean list scans per weapon per frame.
+    private readonly float[] perkBonus = new float[32];
 
-    [Header("Crew — Engineer (shield power / max HP / repair rate)")]
-    [Tooltip("+10% shield capacity per level.")]
-    public float engineerShieldPerLevel = 0.1f;
-    [Tooltip("+10% every block's max HP per level.")]
-    public float engineerMaxHpPerLevel = 0.1f;
-    [Tooltip("+10% Repair block healing rate per level.")]
-    public float engineerRepairPerLevel = 0.1f;
+    public IReadOnlyList<CrewMemberData> CrewMembers => Current.crewMembers;
 
-    [Header("Crew — Helmsman (move speed / engine efficiency)")]
-    [Tooltip("+10% top speed per level.")]
-    public float helmsmanSpeedPerLevel = 0.1f;
-    [Tooltip("+10% engine energy efficiency (lower fuel cost for the same thrust) per level.")]
-    public float helmsmanEfficiencyPerLevel = 0.1f;
+    public CrewMemberData GetCrewMember(string instanceId)
+        => string.IsNullOrEmpty(instanceId) ? null : Current.crewMembers.FirstOrDefault(m => m.instanceId == instanceId);
 
-    [Header("Crew — Captain (experience gain)")]
-    [Tooltip("+10% experience earned from battle per level.")]
-    public float captainExperiencePerLevel = 0.1f;
+    public CrewMemberDefinition GetCrewDefinition(CrewMemberData member)
+        => member == null || crewDatabase == null ? null : crewDatabase.GetById(member.definitionId);
 
-    public int GetCrewLevel(CrewRole role) => Current.crewLevels.FirstOrDefault(e => e.role == role)?.level ?? 0;
-
-    public int GetCrewUpgradeCost(CrewRole role) => crewUpgradeBaseCost + GetCrewLevel(role) * crewUpgradeCostPerLevel;
-
-    public bool CanUpgradeCrew(CrewRole role) => Current.credits >= GetCrewUpgradeCost(role);
-
-    /// <summary>Spends credits and raises a crew role by one level. Returns false (and spends nothing,
-    /// firing OnInsufficientCredits) if the player can't afford it.</summary>
-    public bool TryUpgradeCrew(CrewRole role)
+    /// <summary>The member currently standing in this slot, or null if it's empty.</summary>
+    public CrewMemberData GetAssignedMember(CrewRole slot)
     {
-        int cost = GetCrewUpgradeCost(role);
-        if (Current.credits < cost) { NotifyInsufficientCredits(); return false; }
+        var entry = Current.crewSlots.FirstOrDefault(s => s.role == slot);
+        return entry == null ? null : GetCrewMember(entry.instanceId);
+    }
 
-        Current.credits -= cost;
+    public bool IsCrewAssigned(string instanceId)
+        => !string.IsNullOrEmpty(instanceId) && Current.crewSlots.Any(s => s.instanceId == instanceId);
 
-        var entry = Current.crewLevels.FirstOrDefault(e => e.role == role);
-        if (entry == null) { entry = new CrewLevelEntry { role = role, level = 0 }; Current.crewLevels.Add(entry); }
-        entry.level++;
+    /// <summary>Gives the player a fresh copy (rank 1, level 1) of this crew member, unassigned. Call from
+    /// whatever hands crew out — shop, loot, rewards. Returns the new copy's instanceId.</summary>
+    public string AddCrewMember(CrewMemberDefinition definition)
+    {
+        if (definition == null) return null;
 
-        OnCreditsChanged?.Invoke();
-        OnCrewChanged?.Invoke(role);
-        Save();
+        var member = NewCrewMember(definition);
+        Current.crewMembers.Add(member);
+        CrewChanged();
+        return member.instanceId;
+    }
+
+    private static CrewMemberData NewCrewMember(CrewMemberDefinition definition)
+        => new() { instanceId = Guid.NewGuid().ToString("N"), definitionId = definition.id, rank = 1, level = 1 };
+
+    /// <summary>Puts a member into the slot of its own specialty, replacing whoever stood there (who simply
+    /// goes back to the collection). False if the member doesn't exist or belongs to a different specialty.</summary>
+    public bool TryAssignToSlot(string instanceId, CrewRole slot)
+    {
+        var member = GetCrewMember(instanceId);
+        var definition = GetCrewDefinition(member);
+        if (member == null || definition == null || definition.role != slot) return false;
+
+        var entry = Current.crewSlots.FirstOrDefault(s => s.role == slot);
+        if (entry == null)
+        {
+            entry = new CrewSlotEntry { role = slot };
+            Current.crewSlots.Add(entry);
+        }
+
+        if (entry.instanceId == instanceId) return true; // already there — nothing to change
+
+        entry.instanceId = instanceId;
+        CrewChanged();
         return true;
     }
 
-    public float GetGunnerAimSpeedMultiplier() => 1f + GetCrewLevel(CrewRole.Gunner) * gunnerAimSpeedPerLevel;
-    public float GetGunnerFireRateMultiplier() => 1f + GetCrewLevel(CrewRole.Gunner) * gunnerFireRatePerLevel;
-    public float GetEngineerShieldMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerShieldPerLevel;
-    public float GetEngineerMaxHpMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerMaxHpPerLevel;
-    public float GetEngineerRepairMultiplier() => 1f + GetCrewLevel(CrewRole.Engineer) * engineerRepairPerLevel;
-    public float GetHelmsmanSpeedMultiplier() => 1f + GetCrewLevel(CrewRole.Helmsman) * helmsmanSpeedPerLevel;
-    public float GetHelmsmanEfficiencyMultiplier() => 1f + GetCrewLevel(CrewRole.Helmsman) * helmsmanEfficiencyPerLevel;
-    public float GetCaptainExperienceMultiplier() => 1f + GetCrewLevel(CrewRole.Captain) * captainExperiencePerLevel;
+    /// <summary>Takes a member out of its slot, back to the collection. No-op if it wasn't in one.</summary>
+    public void UnassignCrew(string instanceId)
+    {
+        if (!ClearSlotsHolding(instanceId)) return;
+        CrewChanged();
+    }
+
+    private bool ClearSlotsHolding(string instanceId)
+    {
+        bool changed = false;
+        foreach (var slot in Current.crewSlots)
+        {
+            if (slot.instanceId != instanceId) continue;
+            slot.instanceId = "";
+            changed = true;
+        }
+        return changed;
+    }
+
+    // ----- Level-up -----
+
+    /// <summary>Price of this member's NEXT level: Level Up Base Cost x current level, plus current level
+    /// x Crew Level Cost Extra Per Level.</summary>
+    public int GetCrewLevelUpCost(CrewMemberData member)
+    {
+        var definition = GetCrewDefinition(member);
+        if (definition == null) return 0;
+        return definition.levelUpBaseCost * member.level + member.level * crewLevelCostExtraPerLevel;
+    }
+
+    public bool CanAffordCrewLevelUp(CrewMemberData member) => member != null && Current.credits >= GetCrewLevelUpCost(member);
+
+    /// <summary>Spends credits to raise a member's level by one. Only members standing in a slot can be
+    /// levelled. Returns false (spending nothing, and firing OnInsufficientCredits when it was the money
+    /// that was missing) if it can't.</summary>
+    public bool TryLevelUpCrew(string instanceId)
+    {
+        var member = GetCrewMember(instanceId);
+        if (member == null || !IsCrewAssigned(instanceId)) return false;
+
+        int cost = GetCrewLevelUpCost(member);
+        if (Current.credits < cost)
+        {
+            NotifyInsufficientCredits();
+            return false;
+        }
+
+        Current.credits -= cost;
+        member.level++;
+
+        OnCreditsChanged?.Invoke();
+        CrewChanged();
+        return true;
+    }
+
+    // ----- Merge (rank-up) -----
+
+    public bool CanRankUpCrew(CrewMemberData member) => member != null && member.rank < CrewMemberDefinition.MaxRank;
+
+    /// <summary>Whether `candidate` may be fed to `target` in a merge: a different copy of the exact same
+    /// definition (same kind, therefore same specialty) at the exact same rank.</summary>
+    public bool CanBeMergeFodder(CrewMemberData target, CrewMemberData candidate)
+        => target != null && candidate != null
+           && candidate.instanceId != target.instanceId
+           && candidate.definitionId == target.definitionId
+           && candidate.rank == target.rank;
+
+    /// <summary>
+    /// "Crossing": consumes the two fodder copies and raises the target one rank — its level resets to 1
+    /// (the levels bought so far are lost), the next perk unlocks, and its portrait swaps to the new rank's.
+    /// The result goes back to the collection (out of its slot, if it stood in one). False, changing
+    /// nothing, if the target is already max rank or either fodder doesn't match.
+    /// </summary>
+    public bool TryMergeCrew(string targetId, string fodderAId, string fodderBId)
+    {
+        var target = GetCrewMember(targetId);
+        var fodderA = GetCrewMember(fodderAId);
+        var fodderB = GetCrewMember(fodderBId);
+
+        if (target == null || fodderA == null || fodderB == null || fodderA == fodderB) return false;
+        if (!CanRankUpCrew(target) || !CanBeMergeFodder(target, fodderA) || !CanBeMergeFodder(target, fodderB)) return false;
+
+        ClearSlotsHolding(fodderA.instanceId);
+        ClearSlotsHolding(fodderB.instanceId);
+        ClearSlotsHolding(target.instanceId);
+        Current.crewMembers.Remove(fodderA);
+        Current.crewMembers.Remove(fodderB);
+
+        target.rank++;
+        target.level = 1;
+
+        CrewChanged();
+        return true;
+    }
+
+    // ----- Perks -----
+
+    /// <summary>The coefficient (1 = no change) for one kind of ordinary perk, from every member standing
+    /// in a slot whose unlocked perks include it — bonuses from different members add together. For a
+    /// CHANCE perk use GetCrewChance instead.</summary>
+    public float GetCrewPerkMultiplier(CrewPerkType type)
+    {
+        int index = (int)type;
+        return index > 0 && index < perkBonus.Length ? 1f + perkBonus[index] : 1f;
+    }
+
+    /// <summary>The probability (0..Crew Chance Cap) of a CHANCE perk, summed over the crew in the slots.</summary>
+    public float GetCrewChance(CrewPerkType type)
+    {
+        int index = (int)type;
+        float chance = index > 0 && index < perkBonus.Length ? perkBonus[index] : 0f;
+        return Mathf.Clamp(chance, 0f, crewChanceCap);
+    }
+
+    /// <summary>Rolls a CHANCE perk once: true with the perk's probability.</summary>
+    public bool RollCrewChance(CrewPerkType type)
+    {
+        float chance = GetCrewChance(type);
+        return chance > 0f && UnityEngine.Random.value < chance;
+    }
+
+    private void RebuildPerkBonuses()
+    {
+        Array.Clear(perkBonus, 0, perkBonus.Length);
+        if (Current == null) return;
+
+        foreach (var slot in Current.crewSlots)
+        {
+            var member = GetCrewMember(slot.instanceId);
+            var definition = GetCrewDefinition(member);
+            if (member == null || definition == null) continue;
+
+            foreach (var perk in definition.perks)
+            {
+                if (perk == null || !perk.IsUnlocked(member.rank)) continue;
+
+                int index = (int)perk.type;
+                if (index <= 0 || index >= perkBonus.Length) continue;
+
+                perkBonus[index] += perk.GetBonus(member.level);
+            }
+        }
+    }
+
+    private void CrewChanged()
+    {
+        RebuildPerkBonuses();
+        OnCrewChanged?.Invoke();
+        Save();
+    }
+
+    /// <summary>Hands out CrewDatabase.starterCrew once per save. Skipped (and retried next launch) while
+    /// no database is assigned, so forgetting to assign it never burns the one-time grant.</summary>
+    private void GrantStarterCrewIfNeeded()
+    {
+        if (Current.crewStarterGranted || crewDatabase == null) return;
+
+        Current.crewStarterGranted = true;
+        foreach (var definition in crewDatabase.starterCrew)
+            if (definition != null) Current.crewMembers.Add(NewCrewMember(definition));
+
+        Save();
+    }
 
     // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------
 

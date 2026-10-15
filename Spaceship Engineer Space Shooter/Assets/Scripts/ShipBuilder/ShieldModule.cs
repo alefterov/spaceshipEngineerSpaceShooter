@@ -78,10 +78,10 @@ public class ShieldModule : ShipModule
         energy = GetComponentInParent<ShipEnergySystem>();
         identity = GetComponentInParent<ShipIdentity>();
 
-        // Crew Engineer bonus — player ships only, baked into Capacity itself so every other place that
+        // Crew ShieldEfficiency perk — player ships only, baked into Capacity itself so every other place that
         // reads it (ShipGrid.ComputeShieldStrength, Recharge/reactivateFraction math below) sees it too.
         if (OwnFaction == Faction.Player && GameDataManager.Instance != null)
-            capacity *= GameDataManager.Instance.GetEngineerShieldMultiplier();
+            capacity *= GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ShieldEfficiency);
 
         Reserve = capacity; // starts full
 

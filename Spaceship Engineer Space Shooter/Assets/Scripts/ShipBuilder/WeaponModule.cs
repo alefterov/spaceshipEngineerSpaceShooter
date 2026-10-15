@@ -37,6 +37,10 @@ public class WeaponModule : ShipModule
     [Header("Weapon — behaviour")]
     public WeaponAiming aiming = WeaponAiming.Fixed;
     public WeaponFireControl fireControl = WeaponFireControl.Automatic;
+    [Tooltip("Ballistic / Laser / Missile / Plasma — picks the crew damage perk that boosts this weapon and the " +
+             "evasion perk that can dodge its shots. Set automatically from the BlockDefinition when the block is " +
+             "placed, so it only needs hand-setting on a prefab used outside the ship builder.")]
+    public WeaponClass weaponClass = WeaponClass.Ballistic;
 
     [Header("Weapon — targeting")]
     [Tooltip("Kinds of target this weapon may engage. Meteor is open to everything today; e.g. give " +
@@ -102,7 +106,7 @@ public class WeaponModule : ShipModule
     private ShipEnergySystem energy;
 
     /// <summary>Sustained damage output — what the stats panel's Firepower reads (see ShipGrid.ComputeFirepower).</summary>
-    public float DamagePerSecond => projectileDamage / Mathf.Max(0.01f, EffectiveCooldownSeconds);
+    public float DamagePerSecond => projectileDamage * EffectiveDamageMultiplier / Mathf.Max(0.01f, EffectiveCooldownSeconds);
 
     /// <summary>1 right after firing, easing to 0 as the weapon becomes ready — drives the manual-fire
     /// button's radial cooldown ring directly.</summary>
@@ -112,18 +116,25 @@ public class WeaponModule : ShipModule
 
     private Faction OwnFaction => identity != null ? identity.faction : Faction.Player;
 
-    /// <summary>Crew Gunner bonus — player ships only. Higher fire rate means a SHORTER cooldown, so this
-    /// divides rather than multiplies.</summary>
-    private float EffectiveCooldownSeconds
-        => OwnFaction == Faction.Player && GameDataManager.Instance != null
-            ? cooldownSeconds / Mathf.Max(0.01f, GameDataManager.Instance.GetGunnerFireRateMultiplier())
-            : cooldownSeconds;
+    /// <summary>Fire rate is exactly what the prefab says — no crew perk touches it.</summary>
+    private float EffectiveCooldownSeconds => cooldownSeconds;
 
-    /// <summary>Crew Gunner bonus — player ships only.</summary>
-    private float EffectiveTurretRotationSpeed
+    /// <summary>Crew damage perk for this weapon's class (ballistic / missile / laser / plasma) — player
+    /// ships only.</summary>
+    private float EffectiveDamageMultiplier
         => OwnFaction == Faction.Player && GameDataManager.Instance != null
-            ? turretRotationSpeed * GameDataManager.Instance.GetGunnerAimSpeedMultiplier()
-            : turretRotationSpeed;
+            ? GameDataManager.Instance.GetCrewPerkMultiplier(DamagePerkFor(weaponClass))
+            : 1f;
+
+    private static CrewPerkType DamagePerkFor(WeaponClass weaponClass) => weaponClass switch
+    {
+        WeaponClass.Missile => CrewPerkType.MissileDamage,
+        WeaponClass.Laser => CrewPerkType.LaserDamage,
+        WeaponClass.Plasma => CrewPerkType.PlasmaDamage,
+        _ => CrewPerkType.BallisticDamage,
+    };
+
+    private float EffectiveTurretRotationSpeed => turretRotationSpeed;
 
     protected override void Awake()
     {
@@ -260,10 +271,11 @@ public class WeaponModule : ShipModule
         var proj = Instantiate(projectilePrefab, muzzle.position, rotation);
         if (proj.TryGetComponent<Projectile>(out var p))
         {
-            p.damage = projectileDamage;
+            p.damage = projectileDamage * EffectiveDamageMultiplier;
             p.speed = projectileSpeed;
             p.lifeTime = (range + 1f) / Mathf.Max(0.01f, projectileSpeed); // the shot ends where the weapon's range ends (+1 unit of slack)
             p.owner = OwnFaction == Faction.Enemy ? ProjectileOwner.Enemy : ProjectileOwner.Player;
+            p.weaponClass = weaponClass;
         }
     }
 

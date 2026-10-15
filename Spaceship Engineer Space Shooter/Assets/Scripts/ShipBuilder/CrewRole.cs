@@ -1,16 +1,12 @@
-/// <summary>The 4 ship's-crew roles, each upgraded separately with credits (see GameDataManager.
-/// TryUpgradeCrew) and each boosting a different pair of the player's ship stats. All 4 are treated
-/// identically in the UI — just an upgrade, no naming or avatar-picking flow for any of them:
-///  - Captain: experience gain from battle (see GameDataManager.GetCaptainExperienceMultiplier).
-///  - Engineer: shield power and max HP (ShieldModule.capacity, ShipModule.maxHP) — and the repair rate
-///    of Repair blocks (RepairModule).
-///  - Gunner: turret aim speed and fire rate (WeaponModule).
-///  - Helmsman: movement speed and engine energy efficiency (ShipMovement).
-/// Values are explicit so this survives new roles being added without renumbering old saves.</summary>
+/// <summary>The 4 crew SPECIALTIES — also the 4 fixed slots (places) on the crew screen. A crew member
+/// (CrewMemberDefinition) belongs to exactly one specialty and can only be placed in the slot of that
+/// same specialty. What a member actually DOES is decided by its own perks (CrewPerk), not by its
+/// specialty — the specialty only says where it may stand. Values are explicit so saves survive new
+/// roles being added; Navigator keeps the value the old "Helmsman" had.</summary>
 public enum CrewRole
 {
     Captain = 1,
     Engineer = 2,
     Gunner = 3,
-    Helmsman = 4
+    Navigator = 4
 }

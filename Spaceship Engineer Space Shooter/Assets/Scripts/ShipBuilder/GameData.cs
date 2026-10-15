@@ -49,9 +49,15 @@ public class GameData
              "the next level) each time playerLevel increases.")]
     public int playerExperience;
 
-    [Tooltip("Crew member levels — Captain/Engineer/Gunner/Helmsman, each upgraded with credits (see " +
-             "GameDataManager.TryUpgradeCrew). A List, not a Dictionary — JsonUtility can't serialize those.")]
-    public List<CrewLevelEntry> crewLevels = new();
+    [Tooltip("Every crew member the player owns, assigned or not. A List, not a Dictionary — JsonUtility " +
+             "can't serialize those. See GameDataManager's crew section.")]
+    public List<CrewMemberData> crewMembers = new();
+    [Tooltip("Which crew member stands in which of the 4 slots (by instanceId). A slot with no entry, or " +
+             "an empty instanceId, is empty.")]
+    public List<CrewSlotEntry> crewSlots = new();
+    [Tooltip("Set once the starting crew (CrewDatabase.starterCrew) has been handed out, so it's never " +
+             "granted twice.")]
+    public bool crewStarterGranted;
 
     public ShipLayout playerShip = new();
 }
@@ -70,9 +76,20 @@ public class LevelStarEntry
     public int stars;
 }
 
+/// <summary>One crew member the player owns: a copy of some CrewMemberDefinition with its own rank (1-3)
+/// and level. instanceId is unique per copy — two copies of the same definition are told apart by it.</summary>
 [System.Serializable]
-public class CrewLevelEntry
+public class CrewMemberData
+{
+    public string instanceId;
+    public string definitionId;
+    public int rank = 1;
+    public int level = 1;
+}
+
+[System.Serializable]
+public class CrewSlotEntry
 {
     public CrewRole role;
-    public int level;
+    public string instanceId;
 }

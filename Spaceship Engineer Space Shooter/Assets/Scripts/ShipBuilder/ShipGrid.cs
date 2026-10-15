@@ -319,11 +319,14 @@ public class ShipGrid : MonoBehaviour
         module.ApplyViewMode(CurrentViewMode);
         module.ApplySortingOrders(roofSortingOrder, topSortingOrder);
 
-        // Crew Engineer bonus — player ships only, applied once here so it's baked into a freshly
-        // placed block's maxHP/CurrentHP rather than recomputed live (matches how the Gunner/Helmsman/
-        // Captain bonuses are read fresh each use elsewhere, just simpler to bake for a static stat).
-        if (identity.faction == Faction.Player && GameDataManager.Instance != null)
-            module.ApplyMaxHpMultiplier(GameDataManager.Instance.GetEngineerMaxHpMultiplier());
+        // The weapon's class comes from the BlockDefinition (like moduleId above), so crew damage perks and
+        // evasion know what kind of shots it fires.
+        if (module is WeaponModule weapon) weapon.weaponClass = definition.weaponClass;
+
+        // Crew ArmorEfficiency perk — armor blocks of the player's ship only, applied once here so it's baked
+        // into a freshly placed block's maxHP/CurrentHP rather than recomputed live.
+        if (module.type == ModuleType.Armor && identity.faction == Faction.Player && GameDataManager.Instance != null)
+            module.ApplyMaxHpMultiplier(GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ArmorEfficiency));
 
         // Only the VISUAL child rotates/repositions — around its own point, computed fresh from
         // the already-rotated local shape, so it always lines up with occupiedCells exactly.

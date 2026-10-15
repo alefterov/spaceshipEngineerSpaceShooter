@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>The engine family — what the Navigator's Ion / Jet power perks apply to. Set per engine prefab.</summary>
+public enum EngineKind { Jet, Ion }
+
 /// <summary>
 /// Engine. Contributes thrust to the ship's movement while alive.
 /// ShipController should sum GetThrust() across all non-destroyed engines
@@ -9,6 +12,8 @@ public class EngineModule : ShipModule
 {
     [Header("Engine")]
     public float thrustPower = 5f;
+    [Tooltip("Ion or Jet — which crew perk (IonEnginePower / JetEnginePower) boosts this engine.")]
+    public EngineKind kind = EngineKind.Jet;
 
     [Header("Thrust effect (optional)")]
     [Tooltip("Burn/exhaust particle system — plays continuously at Idle Emission Rate, scaled up " +
@@ -47,7 +52,19 @@ public class EngineModule : ShipModule
     }
 
     /// <summary>Returns this engine's thrust contribution, or 0 if destroyed.</summary>
-    public float GetThrust() => IsDestroyed ? 0f : thrustPower;
+    public float GetThrust() => IsDestroyed ? 0f : thrustPower * CrewThrustMultiplier;
+
+    // Crew Ion/Jet power perk — player ships only. The ship identity is looked up on first use and cached.
+    private ShipIdentity identity;
+    private float CrewThrustMultiplier
+    {
+        get
+        {
+            if (identity == null) identity = GetComponentInParent<ShipIdentity>();
+            if (identity == null || identity.faction != Faction.Player || GameDataManager.Instance == null) return 1f;
+            return GameDataManager.Instance.GetCrewPerkMultiplier(kind == EngineKind.Ion ? CrewPerkType.IonEnginePower : CrewPerkType.JetEnginePower);
+        }
+    }
 
     /// <summary>Called every frame by ShipMovement/EnemyShip with the ship's current thrust deflection
     /// (0 = idling, 1 = full thrust) — scales this engine's own burn effect between Idle and Full Thrust

@@ -1,9 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Open/close panel for the ship's-crew screen — an avatar per role (Captain/Engineer/Gunner/Helmsman)
-/// with an upgrade button under each, bought with credits (see CrewMemberView, one per role, and
-/// GameDataManager's crew API). Same plain SetActive pattern as TechTreePopup — each CrewMemberView
+/// Open/close panel for the ship's-crew screen (the 4 slots + the collection scroll view). Same plain
+/// SetActive pattern as TechTreePopup — everything inside (CrewMemberView slots, CrewCollectionView)
 /// re-subscribes and refreshes itself automatically whenever this panel is (re)activated.
 /// </summary>
 public class CrewPopup : MonoBehaviour

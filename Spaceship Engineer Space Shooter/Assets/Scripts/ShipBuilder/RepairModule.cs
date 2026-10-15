@@ -16,9 +16,9 @@ using UnityEngine;
 /// this doesn't give extra total output for free, just spreads the same crew thinner across more patients.
 ///
 /// Its own separate research branch (Category = Repair on both the BlockDefinition and its unlocking
-/// TechDefinition) — set that up in the tech tree like any other block. The crew Engineer's own repair
-/// bonus (GameDataManager.GetEngineerRepairMultiplier) scales Repair Per Second for the player's ships
-/// only, same as the Engineer's shield/max-HP bonuses elsewhere.
+/// TechDefinition) — set that up in the tech tree like any other block. The crew RepairRate perk
+/// scales Repair Per Second for the player's ships
+/// only, same as the other crew perks elsewhere.
 /// </summary>
 public class RepairModule : ShipModule
 {
@@ -71,7 +71,7 @@ public class RepairModule : ShipModule
 
         float rate = repairPerSecond;
         if (identity != null && identity.faction == Faction.Player && GameDataManager.Instance != null)
-            rate *= GameDataManager.Instance.GetEngineerRepairMultiplier();
+            rate *= GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.RepairEfficiency);
 
         // Shared across whichever blocks actually got picked this frame — fewer targets than the max
         // (e.g. only 1 damaged block exists) means that one gets the FULL rate, not a diluted share.
