@@ -2,7 +2,8 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// The scroll view full of crew cards: every crew member the player owns who is NOT standing in a slot.
+/// The scroll view full of crew cards: every crew member the player owns who is NOT standing in a slot,
+/// grouped by kind and rank (identical copies share one card with a count).
 /// Rebuilds itself whenever crew changes. Also a drop target — dragging a member from a slot onto the
 /// scroll view takes it off the slot.
 ///
@@ -17,8 +18,6 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
     public Transform content;
     [Tooltip("The card to copy for each member: needs a CrewCardView.")]
     public CrewCardView cardPrefab;
-    [Tooltip("Handed to every card so its Rank Up Button can open it. Optional.")]
-    public CrewMergePopup mergePopup;
 
     private bool subscribed;
     private bool warnedNoDatabase;
@@ -71,20 +70,22 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
             Destroy(child);
         }
 
-        var members = data.CrewMembers
+        // One card per KIND and RANK ("x3" when there are several identical copies). The card stands for
+        // the copy with the highest level — that is the one you pull into a slot when you drag it.
+        var groups = data.CrewMembers
             .Where(m => !data.IsCrewAssigned(m.instanceId))
             .Select(m => (member: m, definition: data.GetCrewDefinition(m)))
             .Where(x => x.definition != null)
-            .OrderBy(x => (int)x.definition.role)
-            .ThenByDescending(x => x.member.rank)
-            .ThenByDescending(x => x.member.level)
-            .ThenBy(x => x.definition.displayName);
+            .GroupBy(x => (x.member.definitionId, x.member.rank))
+            .Select(g => (best: g.OrderByDescending(x => x.member.level).First(), count: g.Count()))
+            .OrderBy(g => (int)g.best.definition.role)
+            .ThenBy(g => g.best.definition.displayName)
+            .ThenByDescending(g => g.best.member.rank);
 
-        foreach (var (member, _) in members)
+        foreach (var (best, count) in groups)
         {
             var card = Instantiate(cardPrefab, content);
-            card.MergePopup = mergePopup;
-            card.Bind(member);
+            card.Bind(best.member, count);
             card.gameObject.SetActive(true);
         }
     }

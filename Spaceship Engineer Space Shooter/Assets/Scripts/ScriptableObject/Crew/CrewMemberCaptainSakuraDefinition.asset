@@ -20,28 +20,7 @@ MonoBehaviour:
   - {fileID: 878248206331294622, guid: aaab9a99e7dccfe49a1936a82a16ce16, type: 3}
   - {fileID: 124876707234394285, guid: 5a7fb87f6550d9040a96dff222c7983c, type: 3}
   perks:
-  - type: 12
-    unlockRank: 1
-    displayName: 
-    icon: {fileID: 2815870781640260013, guid: 5a3def2c990e4344894a3a1a72faa368, type: 3}
-    baseBonus: 0.01
-    bonusPerLevel: 0.01
-  - type: 10
-    unlockRank: 2
-    displayName: 
-    icon: {fileID: -1089104622, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
-    baseBonus: 0.01
-    bonusPerLevel: 0.01
-  - type: 11
-    unlockRank: 3
-    displayName: 
-    icon: {fileID: 2133254289, guid: fc871d2e28a66b344aa30b53aba374f8, type: 3}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
-  - type: 0
-    unlockRank: 3
-    displayName: 
-    icon: {fileID: 0}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
+  - {fileID: 11400000, guid: 60fea48f27c2c4f448870907ebd54e37, type: 2}
+  - {fileID: 11400000, guid: ba3689de6d2522348bb663e6a1e86274, type: 2}
+  - {fileID: 11400000, guid: 4b8894acc2ded0c45872b25b71faf2e4, type: 2}
   levelUpBaseCost: 100

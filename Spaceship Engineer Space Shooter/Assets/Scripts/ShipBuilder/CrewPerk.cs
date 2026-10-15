@@ -64,31 +64,3 @@ public static class CrewPerkTypeExtensions
         || type == CrewPerkType.EvadeEnergyWeapons
         || type == CrewPerkType.EvadeBallisticWeapons;
 }
-
-/// <summary>
-/// One skill slot of a crew member: what it improves and how strongly. A member has 4 of these in
-/// CrewMemberDefinition.perks; each is unlocked once the member reaches its Unlock Rank. Every unlocked
-/// perk scales with the member's single level: bonus = Base Bonus + Bonus Per Level x (level - 1). For an
-/// ordinary perk the coefficient shown (and applied) is 1 + bonus; for a CHANCE perk the bonus IS the
-/// chance.
-/// </summary>
-[System.Serializable]
-public class CrewPerk
-{
-    public CrewPerkType type = CrewPerkType.None;
-    [Tooltip("The member's rank at which this perk unlocks (1 to the maximum rank). With 4 perks and 3 ranks " +
-             "the default is 1, 1, 2, 3 — two perks at rank 1, one more at each higher rank.")]
-    [Min(1)] public int unlockRank = 1;
-    [Tooltip("Shown in the UI where a perk name fits (optional).")]
-    public string displayName;
-    public Sprite icon;
-    [Tooltip("Bonus at level 1 — 0.1 means x1.10 (or a 10% chance, for a chance perk).")]
-    public float baseBonus = 0.1f;
-    [Tooltip("Extra bonus for every level above 1 — 0.05 means +0.05 per level.")]
-    public float bonusPerLevel = 0.05f;
-
-    public bool IsUnlocked(int rank) => type != CrewPerkType.None && rank >= unlockRank;
-
-    public float GetBonus(int level) => baseBonus + bonusPerLevel * Mathf.Max(0, level - 1);
-    public float GetCoefficient(int level) => 1f + GetBonus(level);
-}

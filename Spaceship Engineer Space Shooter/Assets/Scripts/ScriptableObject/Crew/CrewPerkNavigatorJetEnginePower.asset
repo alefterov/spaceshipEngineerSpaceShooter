@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a59cc648533a1d41b120f219f6a6da6, type: 3}
+  m_Name: CrewPerkNavigatorJetEnginePower
+  m_EditorClassIdentifier: Assembly-CSharp::CrewPerkDefinition
+  type: 15
+  displayName: Jet Engine Power
+  icon: {fileID: -180412743, guid: df93b4c9524d3674792f522013d5856d, type: 3}
+  baseBonus: 0.5
+  bonusPerLevel: 0.25

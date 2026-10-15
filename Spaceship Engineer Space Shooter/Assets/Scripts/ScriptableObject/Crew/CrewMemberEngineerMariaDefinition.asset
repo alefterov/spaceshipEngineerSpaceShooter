@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505d98f3835009a468847c6a4943237f, type: 3}
+  m_Name: CrewMemberEngineerMariaDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::CrewMemberDefinition
+  id: crew_engineer_maria
+  displayName: Engineer Maria
+  role: 2
+  rankSprites:
+  - {fileID: -2665135109390939889, guid: bc2a3320532eb384c98339c813b9ac50, type: 3}
+  - {fileID: 3279149067375375764, guid: ae3c9a7d5cf7b3c42b9467782ff7119a, type: 3}
+  - {fileID: 5193340514892713004, guid: a3ee09eb855b2424bb207a24104cd701, type: 3}
+  perks:
+  - {fileID: 11400000, guid: a28409b242a3fc64c9bf10d2cec8766a, type: 2}
+  - {fileID: 11400000, guid: b815d9b99bb885b41bbee5fdf6ed1a92, type: 2}
+  - {fileID: 11400000, guid: e49001b5d2557c640913869042b04dcb, type: 2}
+  levelUpBaseCost: 100

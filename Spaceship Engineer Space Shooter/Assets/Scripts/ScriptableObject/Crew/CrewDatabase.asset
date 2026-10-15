@@ -12,5 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20f262023bd360d47b6ee3580989ba2f, type: 3}
   m_Name: CrewDatabase
   m_EditorClassIdentifier: Assembly-CSharp::CrewDatabase
-  allMembers: []
-  starterCrew: []
+  allMembers:
+  - {fileID: 11400000, guid: adc9e59b2cd06c34b87b996aeea456be, type: 2}
+  - {fileID: 11400000, guid: 2cde74e9a6f6dd442ad03a3e1d835228, type: 2}
+  - {fileID: 11400000, guid: ff9872f7deaccc64a9dc149202b2df9a, type: 2}
+  - {fileID: 11400000, guid: 7db6a7e0fbb2ed642bec73668d0add42, type: 2}
+  - {fileID: 11400000, guid: 1846f9ce21459934fbd9d283e6110c4d, type: 2}
+  - {fileID: 11400000, guid: ea22274432557df419168e58cd527ab9, type: 2}
+  - {fileID: 11400000, guid: 991b12e6e8ae1b74895143710bc19665, type: 2}
+  - {fileID: 11400000, guid: a52e5a64df1f49947bd63cac06f7ea8a, type: 2}
+  - {fileID: 11400000, guid: 3ab21582d2c525a47807d50ef9e7eefe, type: 2}
+  - {fileID: 11400000, guid: 020f03752a3ea704dac37112f09e9441, type: 2}
+  - {fileID: 11400000, guid: 09ac85034cc548a46947e20808e3a8b1, type: 2}
+  - {fileID: 11400000, guid: 65f8fcace0da56f479f5af4357b50c12, type: 2}
+  - {fileID: 11400000, guid: 0294b0c419e8e554db48465323a53bad, type: 2}
+  - {fileID: 11400000, guid: 0847fbd694e19e84aad70498ba6c59ba, type: 2}
+  - {fileID: 11400000, guid: 3ae715998b2be2245b7480876153ee9b, type: 2}
+  - {fileID: 11400000, guid: fde1a56278039ef4497c9e28672d35df, type: 2}
+  starterCrew:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}

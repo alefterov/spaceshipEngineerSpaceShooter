@@ -1,20 +1,23 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// The rank-up ("crossing") popup. Opens for one crew member (Open) — shown in Base Card — plus two empty
-/// windows (CrewMergeSlot) into which you drag two OTHER copies of the exact same kind at the exact same
-/// rank (from the collection scroll view, or from a slot). Confirm consumes both: the member goes up one
-/// rank, its level resets to 1, its next skill unlocks and its picture changes to the new rank's. It then
-/// sits in the collection, not in a slot (GameDataManager.TryMergeCrew).
+/// The rank-up ("crossing") popup. Opens from a crew SLOT's Rank Up Button (Open) for the member standing
+/// there — shown in Base Card. Its own scroll view lists ONLY the cards that can be used: spare copies of the
+/// exact same kind at the exact same rank. Drag two of them into the two windows (CrewMergeSlot) and confirm:
+/// both are consumed and the merge price is paid in credits (shown on the Confirm Button), the member goes up one rank, its level resets to 1, its next skill unlocks and its
+/// picture changes to the new rank's. The member STAYS in its slot, and the popup closes (the slot already
+/// shows the new card behind it).
 ///
-/// The collection scroll view has to stay reachable while this is open (the cards are dragged out of it)
-/// — lay the popup out so it doesn't cover it. Closes itself if the member can no longer be ranked up.
+/// Lay the popup out so the slot being ranked up stays visible if you like — it is not needed for the
+/// dragging, which happens entirely inside the popup. Closes itself if the member can no longer be ranked
+/// up (taken off its slot, or already at the top rank).
 ///
-/// SETUP: put on the popup's root (it starts INACTIVE; slots' "Rank Up" buttons call Open through their
-/// Merge Popup field). Assign Base Card, the two Slots, and Confirm Button; Hint Label is optional. Wire
-/// whatever close button you have to Close().
+/// SETUP: put on the popup's root (it starts INACTIVE). Assign Base Card, the two Slots, Confirm Button, and
+/// the fodder scroll view's Fodder Content + Fodder Card Prefab; Hint Label is optional. Wire whatever close
+/// button you have to Close().
 /// </summary>
 public class CrewMergePopup : MonoBehaviour
 {
@@ -24,9 +27,19 @@ public class CrewMergePopup : MonoBehaviour
     public CrewMergeSlot slotA;
     public CrewMergeSlot slotB;
 
+    [Header("Available cards (own scroll view)")]
+    [Tooltip("The popup scroll view's Content — a card per usable spare copy is created inside it.")]
+    public Transform fodderContent;
+    [Tooltip("The card to copy for each usable copy: needs a CrewCardView. May be a prefab asset or a template " +
+             "card sitting in Fodder Content in the scene (switched off, never destroyed).")]
+    public CrewCardView fodderCardPrefab;
+
     [Header("UI")]
-    [Tooltip("Enabled only when both windows hold a valid partner.")]
+    [Tooltip("Enabled only when both windows hold a valid partner AND the player can pay the merge price.")]
     public Button confirmButton;
+    [Tooltip("The merge price in credits — normally the text on the Confirm Button. The price is set by " +
+             "GameDataManager.Crew Merge Costs (by the rank being merged).")]
+    public TMP_Text costLabel;
     [Tooltip("Optional. {0} = the member's name, {1} = the rank the partners must have.")]
     public TMP_Text hintLabel;
     public string hintFormat = "Перетащите 2 карточки «{0}» ранга {1}";
@@ -42,6 +55,7 @@ public class CrewMergePopup : MonoBehaviour
     private void Awake()
     {
         if (baseCard != null) baseCard.draggable = false;
+        if (fodderCardPrefab != null && fodderCardPrefab.gameObject.scene.IsValid()) fodderCardPrefab.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -49,7 +63,11 @@ public class CrewMergePopup : MonoBehaviour
         if (confirmButton != null) confirmButton.onClick.AddListener(Confirm);
 
         var data = GameDataManager.Instance;
-        if (data != null) data.OnCrewChanged += Refresh;
+        if (data != null)
+        {
+            data.OnCrewChanged += Refresh;
+            data.OnCreditsChanged += Refresh; // affordability of the Confirm Button depends on it
+        }
     }
 
     private void OnDisable()
@@ -57,10 +75,14 @@ public class CrewMergePopup : MonoBehaviour
         if (confirmButton != null) confirmButton.onClick.RemoveListener(Confirm);
 
         var data = GameDataManager.Instance;
-        if (data != null) data.OnCrewChanged -= Refresh;
+        if (data != null)
+        {
+            data.OnCrewChanged -= Refresh;
+            data.OnCreditsChanged -= Refresh;
+        }
     }
 
-    /// <summary>Opens the popup to rank up this member.</summary>
+    /// <summary>Opens the popup to rank up this member (who must be standing in a slot).</summary>
     public void Open(string instanceId)
     {
         baseId = instanceId;
@@ -98,15 +120,19 @@ public class CrewMergePopup : MonoBehaviour
 
     private bool BothSelected => slotA != null && slotB != null && slotA.Selected != null && slotB.Selected != null;
 
+    private bool IsSelected(CrewMemberData member)
+        => (slotA != null && slotA.Selected != null && slotA.Selected.instanceId == member.instanceId)
+        || (slotB != null && slotB.Selected != null && slotB.Selected.instanceId == member.instanceId);
+
     private void Refresh()
     {
         if (!IsOpen) return;
 
         var data = GameDataManager.Instance;
         var baseMember = data != null ? data.GetCrewMember(baseId) : null;
-        if (baseMember == null || !data.CanRankUpCrew(baseMember))
+        if (baseMember == null || !data.CanRankUpCrew(baseMember) || !data.IsCrewAssigned(baseId))
         {
-            Close(); // gone, or already at the top rank — nothing left to do here
+            Close(); // gone, off its slot, or already at the top rank — nothing left to do here
             return;
         }
 
@@ -120,7 +146,31 @@ public class CrewMergePopup : MonoBehaviour
         if (hintLabel != null && definition != null)
             hintLabel.text = string.Format(hintFormat, definition.displayName, baseMember.rank);
 
-        if (confirmButton != null) confirmButton.interactable = BothSelected;
+        RebuildFodderList(data, baseMember);
+
+        if (costLabel != null) costLabel.text = data.GetCrewMergeCost(baseMember).ToString();
+        if (confirmButton != null) confirmButton.interactable = BothSelected && data.CanAffordCrewMerge(baseMember);
+    }
+
+    /// <summary>The popup's own scroll view: one card per usable spare copy, minus the ones already sitting in
+    /// a window. Nothing else is shown.</summary>
+    private void RebuildFodderList(GameDataManager data, CrewMemberData baseMember)
+    {
+        if (fodderContent == null || fodderCardPrefab == null) return;
+
+        for (int i = fodderContent.childCount - 1; i >= 0; i--)
+        {
+            var child = fodderContent.GetChild(i).gameObject;
+            if (child == fodderCardPrefab.gameObject) continue; // the scene template stays
+            Destroy(child);
+        }
+
+        foreach (var candidate in data.GetMergeCandidates(baseMember).Where(c => !IsSelected(c)))
+        {
+            var card = Instantiate(fodderCardPrefab, fodderContent);
+            card.Bind(candidate);
+            card.gameObject.SetActive(true);
+        }
     }
 
     private static void DropStaleSelection(CrewMergeSlot slot, GameDataManager data, CrewMemberData baseMember)

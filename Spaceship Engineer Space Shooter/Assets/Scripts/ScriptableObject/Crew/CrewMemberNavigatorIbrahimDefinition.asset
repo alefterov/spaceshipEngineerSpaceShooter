@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505d98f3835009a468847c6a4943237f, type: 3}
+  m_Name: CrewMemberNavigatorIbrahimDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::CrewMemberDefinition
+  id: crew_navigator_ibrahim
+  displayName: Navigator Ibrahim
+  role: 4
+  rankSprites:
+  - {fileID: 671822560118941926, guid: 54cc9797592121c4ebf4eeb82c1e991c, type: 3}
+  - {fileID: -2090398976100313146, guid: 5748619f8306861488ce5ada5deacd5f, type: 3}
+  - {fileID: 5268101163641913913, guid: df428f7ce0d0c1d4c80d1ca116289f9e, type: 3}
+  perks:
+  - {fileID: 11400000, guid: 2568f30dd11f88b48a26b43dd32a53d0, type: 2}
+  - {fileID: 11400000, guid: e9a9a5cf151db694ab5029fa10874d93, type: 2}
+  - {fileID: 11400000, guid: 7833d500f71966147a32ec60b1b12d2f, type: 2}
+  levelUpBaseCost: 100

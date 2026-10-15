@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a59cc648533a1d41b120f219f6a6da6, type: 3}
+  m_Name: CrewPerkCaptainZeroDamageChance
+  m_EditorClassIdentifier: Assembly-CSharp::CrewPerkDefinition
+  type: 13
+  displayName: Zero Damage
+  icon: {fileID: -1102406930, guid: 7b90f82f5c79abd44a4680b59aa6072a, type: 3}
+  baseBonus: 0.01
+  bonusPerLevel: 0.01

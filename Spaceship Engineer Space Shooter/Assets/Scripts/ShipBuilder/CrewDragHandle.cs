@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// Drag-and-drop for crew cards. Put on anything that also has an ICrewMemberProvider (CrewCardView,
 /// CrewMemberView) — they add it themselves if it's missing. Dragging spawns a semi-transparent copy of the
 /// portrait that follows the finger on top of everything; on release it's dropped on the topmost
-/// ICrewDropTarget under the finger. The original never moves, so a refused drop needs no "snap back".
+/// ICrewDropTarget under the finger (a slot member released over no target at all is taken off its slot). The original never moves, so a refused drop needs no "snap back".
 ///
 /// INSIDE A SCROLL VIEW: a drag ALONG the scroll's axis scrolls the list as usual; a drag across it
 /// (up/down for a horizontal list) pulls the card out. So a horizontal collection works with slots placed
@@ -97,6 +97,9 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
             if (target.CanAccept(member)) target.Drop(member);
             return; // the topmost target decides — accepted or not, nothing underneath gets a second chance
         }
+
+        // Released over nothing at all.
+        GetComponent<ICrewReleaseHandler>()?.OnReleasedOutside(member);
     }
 
     private void CreateGhost(PointerEventData eventData)

@@ -26,6 +26,10 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider
     [Tooltip("Formatted with Rank Format.")]
     public TMP_Text rankLabel;
     public string rankFormat = "Ранг {0}";
+    [Tooltip("Optional: how many identical copies this card stands for (collection cards are grouped by kind and " +
+             "rank). Hidden for a single copy.")]
+    public TMP_Text countLabel;
+    public string countFormat = "x{0}";
     [Tooltip("The three SkillItems, in order — perk 1 first.")]
     public CrewPerkView[] perkViews;
     [Tooltip("Optional: opens the merge (rank-up) popup for this member. Hidden at max rank, or when no " +
@@ -65,7 +69,8 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider
         if (!TryGetComponent<CrewDragHandle>(out _)) gameObject.AddComponent<CrewDragHandle>();
     }
 
-    public void Bind(CrewMemberData member)
+    /// <summary>Shows `member`. `count` = how many identical copies this card represents (1 = just this one).</summary>
+    public void Bind(CrewMemberData member, int count = 1)
     {
         Init();
 
@@ -74,8 +79,8 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider
         bool filled = member != null && definition != null;
         Member = filled ? member : null;
 
-        if (filledRoot != null) filledRoot.SetActive(filled);
-        if (emptyRoot != null) emptyRoot.SetActive(!filled);
+        if (UsableRoot(filledRoot)) filledRoot.SetActive(filled);
+        if (UsableRoot(emptyRoot)) emptyRoot.SetActive(!filled);
 
         if (avatarImage != null)
         {
@@ -83,14 +88,46 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider
             avatarImage.sprite = sprite != null ? sprite : emptySprite;
         }
 
-        if (nameLabel != null) nameLabel.text = filled ? definition.displayName : "";
-        if (levelLabel != null) levelLabel.text = filled ? $"{member.level} LV" : "";
-        if (rankLabel != null) rankLabel.text = filled ? string.Format(rankFormat, member.rank) : "";
+        // An empty card shows nothing but its portrait icon (whatever sprite the Avatar Image has in the editor).
+        SetLabel(nameLabel, filled, filled ? definition.displayName : "");
+        SetLabel(levelLabel, filled, filled ? $"{member.level} LV" : "");
+        SetLabel(rankLabel, filled, filled ? string.Format(rankFormat, member.rank) : "");
 
         CrewPerkView.Populate(perkViews, definition, filled ? member : null);
 
+        if (countLabel != null)
+        {
+            countLabel.gameObject.SetActive(filled && count > 1);
+            if (filled && count > 1) countLabel.text = string.Format(countFormat, count);
+        }
+
         if (rankUpButton != null)
             rankUpButton.gameObject.SetActive(filled && MergePopup != null && data.CanRankUpCrew(member));
+    }
+
+    private static void SetLabel(TMP_Text label, bool visible, string text)
+    {
+        if (label == null) return;
+        label.gameObject.SetActive(visible);
+        if (visible) label.text = text;
+    }
+
+    // Empty Root / Filled Root are switched on and off, so they must never be this card's own object or one
+    // of its parents — that would switch the card itself off (and it could never come back). Such a
+    // misassignment is ignored, with a one-time warning.
+    private bool warnedBadRoot;
+    private bool UsableRoot(GameObject root)
+    {
+        if (root == null) return false;
+        if (!transform.IsChildOf(root.transform)) return true;
+
+        if (!warnedBadRoot)
+        {
+            warnedBadRoot = true;
+            Debug.LogWarning($"CrewCardView on '{name}': Empty Root / Filled Root points at the card itself (or a parent) — ignored. " +
+                             "Assign a CHILD object, or leave it empty.", this);
+        }
+        return false;
     }
 
     private void OnRankUpClicked()

@@ -20,3 +20,10 @@ public interface ICrewDropTarget
     bool CanAccept(CrewMemberData member);
     void Drop(CrewMemberData member);
 }
+
+/// <summary>A drag source that wants to know when its member was released over NO drop target at all — a
+/// crew slot uses it to let go of its member ("drag it out of the slot to take it off").</summary>
+public interface ICrewReleaseHandler
+{
+    void OnReleasedOutside(CrewMemberData member);
+}

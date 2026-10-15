@@ -445,10 +445,10 @@ public class GameDataManager : MonoBehaviour
     // ---------- Ship's crew ----------
     // The player owns crew MEMBERS (CrewMemberData — a copy of some CrewMemberDefinition with its own rank
     // and level). Up to 4 of them stand in the 4 slots, one per CrewRole. ONLY members standing in a slot
-    // count: their unlocked perks (each perk has its own unlock rank) feed the player's ship through
+    // count: their unlocked perks (the Nth perk in the definition unlocks at rank N) feed the player's ship through
     // GetCrewPerkMultiplier, scaled by the member's level. A member can be levelled up with credits only
     // while standing in a slot; two copies of the same definition and rank can be merged into a higher
-    // rank (TryMerge) — which resets the level and unlocks the next perk.
+    // rank (TryMergeCrew) — which resets the level and unlocks the next perk; the ranked-up member stays in its slot.
 
     /// <summary>Fired after ANY crew change — a member added/removed, moved between slot and collection,
     /// levelled up or ranked up. Crew UI rebuilds itself on this.</summary>
@@ -461,6 +461,8 @@ public class GameDataManager : MonoBehaviour
     public int crewLevelCostExtraPerLevel = 2;
     [Range(0f, 1f), Tooltip("Upper limit for every CHANCE perk (zero damage, evasion...) after all crew bonuses are added — 0.75 = never above 75%.")]
     public float crewChanceCap = 0.75f;
+    [Tooltip("Credits a rank-up (merge) costs, by the rank the member has NOW: element 0 = merging a rank 1 member into rank 2, element 1 = rank 2 into rank 3.")]
+    public int[] crewMergeCosts = { 1000, 2000 };
 
     // Total bonus per CrewPerkType from the members in the slots, rebuilt whenever crew changes. Cached
     // because gameplay reads it every frame (weapons, movement) and recomputing from the save list there
@@ -578,22 +580,47 @@ public class GameDataManager : MonoBehaviour
     }
 
     // ----- Merge (rank-up) -----
+    // Only a member standing in a slot can be ranked up. It is fed two spare copies from the collection — the
+    // exact same kind at the exact same rank — and STAYS in its slot with the new rank.
 
     public bool CanRankUpCrew(CrewMemberData member) => member != null && member.rank < CrewMemberDefinition.MaxRank;
 
     /// <summary>Whether `candidate` may be fed to `target` in a merge: a different copy of the exact same
-    /// definition (same kind, therefore same specialty) at the exact same rank.</summary>
+    /// definition (same kind, therefore same specialty) at the exact same rank, sitting in the collection
+    /// (not in a slot).</summary>
     public bool CanBeMergeFodder(CrewMemberData target, CrewMemberData candidate)
         => target != null && candidate != null
            && candidate.instanceId != target.instanceId
            && candidate.definitionId == target.definitionId
-           && candidate.rank == target.rank;
+           && candidate.rank == target.rank
+           && !IsCrewAssigned(candidate.instanceId);
+
+    /// <summary>Every spare copy that could be fed to `target`, lowest level first (the ones that cost the
+    /// least to lose).</summary>
+    public List<CrewMemberData> GetMergeCandidates(CrewMemberData target)
+        => Current.crewMembers.Where(m => CanBeMergeFodder(target, m)).OrderBy(m => m.level).ToList();
+
+    /// <summary>Whether the rank-up button should be usable: the member stands in a slot, isn't at the top
+    /// rank, and at least two spare copies exist.</summary>
+    public bool CanMergeCrew(CrewMemberData member)
+        => CanRankUpCrew(member) && IsCrewAssigned(member.instanceId) && GetMergeCandidates(member).Count >= 2;
+
+    /// <summary>Credits it costs to rank this member up (from Crew Merge Costs, by its current rank). The
+    /// last entry is reused if the list is shorter than the number of ranks.</summary>
+    public int GetCrewMergeCost(CrewMemberData member)
+    {
+        if (member == null || crewMergeCosts == null || crewMergeCosts.Length == 0) return 0;
+        return Mathf.Max(0, crewMergeCosts[Mathf.Clamp(member.rank - 1, 0, crewMergeCosts.Length - 1)]);
+    }
+
+    public bool CanAffordCrewMerge(CrewMemberData member) => member != null && Current.credits >= GetCrewMergeCost(member);
 
     /// <summary>
     /// "Crossing": consumes the two fodder copies and raises the target one rank — its level resets to 1
     /// (the levels bought so far are lost), the next perk unlocks, and its portrait swaps to the new rank's.
-    /// The result goes back to the collection (out of its slot, if it stood in one). False, changing
-    /// nothing, if the target is already max rank or either fodder doesn't match.
+    /// The target STAYS in its slot. False, changing nothing, if the target isn't in a slot, is already max
+    /// rank, either fodder doesn't match, or the credits (GetCrewMergeCost) are missing — in that last case
+    /// OnInsufficientCredits fires. Spends the credits on success.
     /// </summary>
     public bool TryMergeCrew(string targetId, string fodderAId, string fodderBId)
     {
@@ -602,11 +629,19 @@ public class GameDataManager : MonoBehaviour
         var fodderB = GetCrewMember(fodderBId);
 
         if (target == null || fodderA == null || fodderB == null || fodderA == fodderB) return false;
-        if (!CanRankUpCrew(target) || !CanBeMergeFodder(target, fodderA) || !CanBeMergeFodder(target, fodderB)) return false;
+        if (!IsCrewAssigned(targetId) || !CanRankUpCrew(target)) return false;
+        if (!CanBeMergeFodder(target, fodderA) || !CanBeMergeFodder(target, fodderB)) return false;
 
-        ClearSlotsHolding(fodderA.instanceId);
-        ClearSlotsHolding(fodderB.instanceId);
-        ClearSlotsHolding(target.instanceId);
+        int cost = GetCrewMergeCost(target);
+        if (Current.credits < cost)
+        {
+            NotifyInsufficientCredits();
+            return false;
+        }
+
+        Current.credits -= cost;
+        OnCreditsChanged?.Invoke();
+
         Current.crewMembers.Remove(fodderA);
         Current.crewMembers.Remove(fodderB);
 
@@ -654,11 +689,12 @@ public class GameDataManager : MonoBehaviour
             var definition = GetCrewDefinition(member);
             if (member == null || definition == null) continue;
 
-            foreach (var perk in definition.perks)
+            // The Nth perk in the list belongs to rank N: a rank-2 member has the first two.
+            int unlocked = Mathf.Min(member.rank, definition.perks.Length);
+            for (int i = 0; i < unlocked; i++)
             {
-                if (perk == null || !perk.IsUnlocked(member.rank)) continue;
-
-                int index = (int)perk.type;
+                var perk = definition.perks[i];
+                int index = perk != null ? (int)perk.type : 0;
                 if (index <= 0 || index >= perkBonus.Length) continue;
 
                 perkBonus[index] += perk.GetBonus(member.level);

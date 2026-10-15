@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// One KIND of crew member (a character) — one asset per character. Holds everything that never changes
-/// per copy: which specialty/slot it fits, its portrait for each of the 3 ranks, its 4 perks and what a
+/// per copy: which specialty/slot it fits, its portrait for each of the 3 ranks, its 3 perks (one per rank) and what a
 /// level-up costs. The player's actual copies (with their own rank and level) are CrewMemberData in the
 /// save file, pointing back here by Id.
 ///
@@ -12,7 +12,6 @@ using UnityEngine;
 public class CrewMemberDefinition : ScriptableObject
 {
     public const int MaxRank = 3;
-    public const int PerkCount = 4;
 
     [Header("Identity")]
     [Tooltip("Unique — saved copies point back here by this id, so don't change it after release.")]
@@ -27,33 +26,15 @@ public class CrewMemberDefinition : ScriptableObject
     public Sprite[] rankSprites = new Sprite[MaxRank];
 
     [Header("Perks")]
-    [Tooltip("Exactly 4. Each perk has its own Unlock Rank (default 1, 1, 2, 3: two perks at rank 1, one " +
-             "more at rank 2 and one more at rank 3). Leave a perk's Type at None to leave that slot unused.")]
-    public CrewPerk[] perks = DefaultPerks();
+    [Tooltip("Exactly 3 perk assets, in order: the first is available at rank 1, the second at rank 2, the " +
+             "third at rank 3. Locked ones show semi-transparent on the card. Leave an entry empty for no perk.")]
+    public CrewPerkDefinition[] perks = new CrewPerkDefinition[MaxRank];
 
-    private static CrewPerk[] DefaultPerks()
-    {
-        var result = new CrewPerk[PerkCount];
-        for (int i = 0; i < result.Length; i++)
-            result[i] = new CrewPerk { unlockRank = Mathf.Clamp(i, 1, MaxRank) };
-        return result;
-    }
-
-    // Keeps an asset created back when members had 3 perks usable: grows the array to 4 (new entries get
-    // the default unlock rank) and clamps every unlock rank into 1..MaxRank.
+    // Keeps the list exactly one entry per rank (an asset made earlier may have a different length).
     private void OnValidate()
     {
-        if (perks == null) perks = DefaultPerks();
-        if (perks.Length != PerkCount)
-        {
-            int oldLength = perks.Length;
-            System.Array.Resize(ref perks, PerkCount);
-            for (int i = oldLength; i < PerkCount; i++)
-                perks[i] = new CrewPerk { unlockRank = Mathf.Clamp(i, 1, MaxRank) };
-        }
-
-        foreach (var perk in perks)
-            if (perk != null) perk.unlockRank = Mathf.Clamp(perk.unlockRank, 1, MaxRank);
+        if (perks == null) perks = new CrewPerkDefinition[MaxRank];
+        else if (perks.Length != MaxRank) System.Array.Resize(ref perks, MaxRank);
     }
 
     [Header("Level-up cost")]

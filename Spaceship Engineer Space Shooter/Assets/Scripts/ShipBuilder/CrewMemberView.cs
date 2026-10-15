@@ -5,8 +5,8 @@ using UnityEngine.UI;
 /// <summary>
 /// One of the 4 SLOTS (places) on the crew screen — Captain, Engineer, Gunner, Navigator. Drag a crew card
 /// onto the slot of its own specialty to put that member to work; a member of a different specialty is
-/// refused. Whoever stood there goes back to the collection. Dragging the member back out (onto the
-/// collection) takes it off the slot.
+/// refused. Whoever stood there goes back to the collection. To take a member off its slot, drag it out and
+/// release it away from the slots (anywhere that is not another drop target, or onto the collection).
 ///
 /// Only a member standing here can be levelled up (Upgrade Button, paid in credits — the price is on the
 /// button; it's disabled while you can't afford it) and only a member standing here lends its skills to the
@@ -14,10 +14,10 @@ using UnityEngine.UI;
 ///
 /// SETUP: one per slot, on the slot's root (the old per-role CrewMemberView on your four slots became this
 /// — Role, Role Display Name, Avatar Image, Name Label, Level Label, Cost Label and Upgrade Button keep
-/// their values). Set Role to the slot's specialty, and assign the four SkillItems as Perk Views. The root
+/// their values). Set Role to the slot's specialty, and assign the three SkillItems as Perk Views. The root
 /// Image needs Raycast Target on (the default) so drops land on it. Optional: Rank Up Button + Merge Popup.
 /// </summary>
-public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarget
+public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarget, ICrewReleaseHandler
 {
     [Header("Which slot")]
     public CrewRole role;
@@ -43,7 +43,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
     public Button upgradeButton;
 
     [Header("Rank up (optional)")]
-    [Tooltip("Opens the merge popup for the member standing here. Hidden at max rank / on an empty slot.")]
+    [Tooltip("Opens the merge popup for the member standing here. Hidden at max rank / on an empty slot; greyed out until two spare identical cards (same kind, same rank) are in the collection.")]
     public Button rankUpButton;
     public CrewMergePopup mergePopup;
 
@@ -144,7 +144,10 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         if (costLabel != null && filled) costLabel.text = data.GetCrewLevelUpCost(member).ToString();
 
         if (rankUpButton != null)
+        {
             rankUpButton.gameObject.SetActive(filled && mergePopup != null && data.CanRankUpCrew(member));
+            if (filled) rankUpButton.interactable = data.CanMergeCrew(member); // needs 2 spare identical cards
+        }
     }
 
     private void OnUpgradeClicked()
@@ -167,4 +170,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
     }
 
     public void Drop(CrewMemberData member) => GameDataManager.Instance.TryAssignToSlot(member.instanceId, role);
+
+    // Dragged out of the slot and released over nothing: the member leaves the slot (back to the collection).
+    public void OnReleasedOutside(CrewMemberData member) => GameDataManager.Instance.UnassignCrew(member.instanceId);
 }

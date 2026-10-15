@@ -120,9 +120,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 25
-        width: 38
-        height: 100
+        y: 0
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,7 +168,7 @@ TextureImporter:
         width: 150
         height: 150
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -177,6 +177,28 @@ TextureImporter:
       bones: []
       spriteID: fda977424a1396745b373846c492c772
       internalID: -177197974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: balisicDamage_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 150
+        height: 150
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f04de1831a231494a85a59c3e1844f5c
+      internalID: -1215309266
       vertices: []
       indices: 
       edges: []
@@ -198,6 +220,7 @@ TextureImporter:
       balisicDamage_0: 1195457875689323247
       balisicDamage_1: -6666225644344055825
       balisicDamage_2: -177197974
+      balisicDamage_3: -1215309266
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

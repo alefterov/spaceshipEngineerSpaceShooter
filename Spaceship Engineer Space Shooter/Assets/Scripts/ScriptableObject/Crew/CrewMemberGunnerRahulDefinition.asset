@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505d98f3835009a468847c6a4943237f, type: 3}
+  m_Name: CrewMemberGunnerRahulDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::CrewMemberDefinition
+  id: crew_gunner_rahul
+  displayName: Gunner Rahul
+  role: 3
+  rankSprites:
+  - {fileID: -3917797820973624554, guid: 7acebe1f778e6334eb9ac9158f721eb2, type: 3}
+  - {fileID: -4715142151391811387, guid: bf7812f24c401884e8ebaed560fd7cc9, type: 3}
+  - {fileID: 3473535546261951484, guid: 6a5e7a0b9445afa4394dc5d7c1610df3, type: 3}
+  perks:
+  - {fileID: 11400000, guid: 1eeba8a8f0e4fc340a933954df260ae1, type: 2}
+  - {fileID: 11400000, guid: 05aaa1cde3f911a448318678a9612b2c, type: 2}
+  - {fileID: 11400000, guid: b47a54b03d3adc84f9b59a4467508ca3, type: 2}
+  levelUpBaseCost: 100
