@@ -111,6 +111,7 @@ MonoBehaviour:
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
   thrustPower: 10
+  kind: 1
   thrustEffect: {fileID: 828817674342048638}
   idleEmissionRate: 20
   fullThrustEmissionRate: 30

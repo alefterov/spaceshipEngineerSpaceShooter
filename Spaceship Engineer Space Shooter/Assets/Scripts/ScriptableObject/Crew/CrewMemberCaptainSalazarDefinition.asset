@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505d98f3835009a468847c6a4943237f, type: 3}
+  m_Name: CrewMemberCaptainSalazarDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::CrewMemberDefinition
+  id: crew_captain_salazar
+  displayName: Captain Salazar
+  role: 1
+  rankSprites:
+  - {fileID: 2732320895251568530, guid: f5b039b3992e2db429318fd246efa415, type: 3}
+  - {fileID: 3186200231346503341, guid: 2c5502309f3d1d346aa5d8c65ff41951, type: 3}
+  - {fileID: -5738999577382062390, guid: 24dd791bb7cae834cb58bef0c2da938c, type: 3}
+  perks:
+  - type: 11
+    unlockRank: 1
+    displayName: 
+    icon: {fileID: 7223918021585036677, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
+    baseBonus: 0.1
+    bonusPerLevel: 0.05
+  - type: 13
+    unlockRank: 2
+    displayName: 
+    icon: {fileID: 2133254289, guid: fc871d2e28a66b344aa30b53aba374f8, type: 3}
+    baseBonus: 0.01
+    bonusPerLevel: 0.01
+  - type: 10
+    unlockRank: 3
+    displayName: 
+    icon: {fileID: -1089104622, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
+    baseBonus: 0.1
+    bonusPerLevel: 0.05
+  - type: 0
+    unlockRank: 3
+    displayName: 
+    icon: {fileID: 0}
+    baseBonus: 0.1
+    bonusPerLevel: 0.05
+  levelUpBaseCost: 100

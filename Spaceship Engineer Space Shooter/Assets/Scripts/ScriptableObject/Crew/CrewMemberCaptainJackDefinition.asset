@@ -16,28 +16,28 @@ MonoBehaviour:
   displayName: Captain Jack
   role: 1
   rankSprites:
-  - {fileID: 357149866581394783, guid: 45008af919dccd74ab0942fb83fe3889, type: 3}
-  - {fileID: -9078921097168299430, guid: c9874ae6aa8d9dc4ba7bebed492c069f, type: 3}
-  - {fileID: -2144770008280942566, guid: 5cda114a2a5cbc0459c6b2ae44a318a7, type: 3}
+  - {fileID: -2320545489842424201, guid: c28981d76c920af41bd7599eab0bd162, type: 3}
+  - {fileID: -5168710682899079653, guid: 6a9b5d32176428c41a88c67e0674c256, type: 3}
+  - {fileID: -1207029103560289377, guid: cafc3efdfbb88e543b523f8ed64a8cda, type: 3}
   perks:
-  - type: 11
+  - type: 13
     unlockRank: 1
     displayName: 
-    icon: {fileID: 7223918021585036677, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
+    icon: {fileID: -1102406930, guid: 7b90f82f5c79abd44a4680b59aa6072a, type: 3}
+    baseBonus: 0.01
+    bonusPerLevel: 0.01
+  - type: 11
+    unlockRank: 2
+    displayName: 
+    icon: {fileID: 2133254289, guid: fc871d2e28a66b344aa30b53aba374f8, type: 3}
     baseBonus: 0.1
     bonusPerLevel: 0.05
   - type: 12
-    unlockRank: 2
-    displayName: 
-    icon: {fileID: 0}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
-  - type: 13
     unlockRank: 3
     displayName: 
-    icon: {fileID: 0}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
+    icon: {fileID: 2815870781640260013, guid: 5a3def2c990e4344894a3a1a72faa368, type: 3}
+    baseBonus: 0.01
+    bonusPerLevel: 0.01
   - type: 0
     unlockRank: 3
     displayName: 

@@ -16,26 +16,26 @@ MonoBehaviour:
   displayName: Captain Sakura
   role: 1
   rankSprites:
-  - {fileID: 357149866581394783, guid: 45008af919dccd74ab0942fb83fe3889, type: 3}
-  - {fileID: -9078921097168299430, guid: c9874ae6aa8d9dc4ba7bebed492c069f, type: 3}
-  - {fileID: -2144770008280942566, guid: 5cda114a2a5cbc0459c6b2ae44a318a7, type: 3}
+  - {fileID: -3815231913309134130, guid: 25e2474b83853934d9c012103fc1c5b9, type: 3}
+  - {fileID: 878248206331294622, guid: aaab9a99e7dccfe49a1936a82a16ce16, type: 3}
+  - {fileID: 124876707234394285, guid: 5a7fb87f6550d9040a96dff222c7983c, type: 3}
   perks:
-  - type: 10
+  - type: 12
     unlockRank: 1
     displayName: 
-    icon: {fileID: 7223918021585036677, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
-  - type: 13
-    unlockRank: 3
-    displayName: 
-    icon: {fileID: 0}
-    baseBonus: 0.1
-    bonusPerLevel: 0.05
-  - type: 12
+    icon: {fileID: 2815870781640260013, guid: 5a3def2c990e4344894a3a1a72faa368, type: 3}
+    baseBonus: 0.01
+    bonusPerLevel: 0.01
+  - type: 10
     unlockRank: 2
     displayName: 
-    icon: {fileID: 0}
+    icon: {fileID: -1089104622, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
+    baseBonus: 0.01
+    bonusPerLevel: 0.01
+  - type: 11
+    unlockRank: 3
+    displayName: 
+    icon: {fileID: 2133254289, guid: fc871d2e28a66b344aa30b53aba374f8, type: 3}
     baseBonus: 0.1
     bonusPerLevel: 0.05
   - type: 0
