@@ -44,6 +44,13 @@ public class GameDataManager : MonoBehaviour
     // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
     private int creditsAtSessionStart;
 
+    [Header("Number display")]
+    [Tooltip("Prices and amounts of this size or more are shown shortened: 1000 -> 1k, 1 250 000 -> 1.25m, then b, t. " +
+             "Shortened to hundredths for display only — the real amounts spent and earned are never rounded.")]
+    public long compactNumbersFrom = 1000;
+
+    private void OnValidate() => NumberFormat.Threshold = compactNumbersFrom;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -53,6 +60,7 @@ public class GameDataManager : MonoBehaviour
         }
 
         Instance = this;
+        NumberFormat.Threshold = compactNumbersFrom;
         DontDestroyOnLoad(gameObject);
 
         LoadOrCreate();
@@ -457,8 +465,8 @@ public class GameDataManager : MonoBehaviour
     [Header("Crew")]
     [Tooltip("Resolves saved crew members back to their definitions, and holds the starting crew. Required.")]
     public CrewDatabase crewDatabase;
-    [Tooltip("Level-up price = the member's Level Up Base Cost x its current level + current level x this.")]
-    public int crewLevelCostExtraPerLevel = 2;
+    [Tooltip("Level-up price = (the member's Level Up Base Cost x its current level + current level x this) x its rank — rank 2 pays double and rank 3 triple, since more perks level up at once.")]
+    public int crewLevelCostExtraPerLevel = 15;
     [Range(0f, 1f), Tooltip("Upper limit for every CHANCE perk (zero damage, evasion...) after all crew bonuses are added — 0.75 = never above 75%.")]
     public float crewChanceCap = 0.75f;
     [Tooltip("Credits a rank-up (merge) costs, by the rank the member has NOW: element 0 = merging a rank 1 member into rank 2, element 1 = rank 2 into rank 3.")]
@@ -545,13 +553,13 @@ public class GameDataManager : MonoBehaviour
 
     // ----- Level-up -----
 
-    /// <summary>Price of this member's NEXT level: Level Up Base Cost x current level, plus current level
-    /// x Crew Level Cost Extra Per Level.</summary>
+    /// <summary>Price of this member's NEXT level: (Level Up Base Cost x current level, plus current level
+    /// x Crew Level Cost Extra Per Level) x the member's rank.</summary>
     public int GetCrewLevelUpCost(CrewMemberData member)
     {
         var definition = GetCrewDefinition(member);
         if (definition == null) return 0;
-        return definition.levelUpBaseCost * member.level + member.level * crewLevelCostExtraPerLevel;
+        return (definition.levelUpBaseCost * member.level + member.level * crewLevelCostExtraPerLevel) * Mathf.Max(1, member.rank);
     }
 
     public bool CanAffordCrewLevelUp(CrewMemberData member) => member != null && Current.credits >= GetCrewLevelUpCost(member);

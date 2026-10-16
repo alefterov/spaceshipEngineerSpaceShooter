@@ -15,7 +15,7 @@ using UnityEngine.UI;
 /// SkillItems (each with a CrewPerkView) as Perk Views, and optionally Level Label / Rank Label / Rank Up
 /// Button. Make it a prefab and give it to CrewCollectionView.
 /// </summary>
-public class CrewCardView : MonoBehaviour, ICrewMemberProvider
+public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHandler
 {
     [Header("UI (assign whichever exist)")]
     [Tooltip("The portrait. Its sprite is swapped to the member's picture for its current rank.")]
@@ -103,6 +103,23 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider
 
         if (rankUpButton != null)
             rankUpButton.gameObject.SetActive(filled && MergePopup != null && data.CanRankUpCrew(member));
+    }
+
+    /// <summary>What happens when this card is dragged and released over nothing (away from itself). Set by
+    /// whoever owns the card — the merge popup's windows use it to empty themselves. Left unset, the member
+    /// is taken off its crew slot if it stands in one, and nothing happens otherwise.</summary>
+    public System.Action<CrewMemberData> ReleasedOutside { get; set; }
+
+    public void OnReleasedOutside(CrewMemberData member)
+    {
+        if (ReleasedOutside != null)
+        {
+            ReleasedOutside(member);
+            return;
+        }
+
+        var data = GameDataManager.Instance;
+        if (data != null && member != null && data.IsCrewAssigned(member.instanceId)) data.UnassignCrew(member.instanceId);
     }
 
     private static void SetLabel(TMP_Text label, bool visible, string text)

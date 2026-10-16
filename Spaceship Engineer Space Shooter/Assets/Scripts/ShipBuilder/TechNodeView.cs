@@ -91,7 +91,7 @@ public class TechNodeView : MonoBehaviour
 
         if (icon != null && tech.icon != null) icon.sprite = tech.icon;
         if (nameLabel != null) nameLabel.text = tech.displayName;
-        if (costLabel != null) costLabel.text = tech.researchCost.ToString();
+        if (costLabel != null) costLabel.text = NumberFormat.Compact(tech.researchCost);
 
         if (researchedIndicator != null) researchedIndicator.SetActive(researched);
         if (lockedIndicator != null) lockedIndicator.SetActive(!researched && !prerequisiteMet);

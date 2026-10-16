@@ -74,10 +74,10 @@ public class BattleResultPanel : MonoBehaviour
         float duration = Mathf.Max(0.01f, creditsCountDuration);
         for (float t = 0f; t < duration; t += Time.deltaTime)
         {
-            creditsEarnedLabel.text = Mathf.RoundToInt(Mathf.Lerp(0, target, t / duration)).ToString();
+            creditsEarnedLabel.text = NumberFormat.Compact(Mathf.RoundToInt(Mathf.Lerp(0, target, t / duration)));
             yield return null;
         }
-        creditsEarnedLabel.text = target.ToString();
+        creditsEarnedLabel.text = NumberFormat.Compact(target);
     }
 
     private IEnumerator ShowEmptyStars()

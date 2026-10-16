@@ -54,7 +54,7 @@ public class CrewMergePopup : MonoBehaviour
 
     private void Awake()
     {
-        if (baseCard != null) baseCard.draggable = false;
+        if (baseCard != null) baseCard.draggable = false; // the member being ranked up stays put
         if (fodderCardPrefab != null && fodderCardPrefab.gameObject.scene.IsValid()) fodderCardPrefab.gameObject.SetActive(false);
     }
 
@@ -148,7 +148,7 @@ public class CrewMergePopup : MonoBehaviour
 
         RebuildFodderList(data, baseMember);
 
-        if (costLabel != null) costLabel.text = data.GetCrewMergeCost(baseMember).ToString();
+        if (costLabel != null) costLabel.text = NumberFormat.Compact(data.GetCrewMergeCost(baseMember));
         if (confirmButton != null) confirmButton.interactable = BothSelected && data.CanAffordCrewMerge(baseMember);
     }
 

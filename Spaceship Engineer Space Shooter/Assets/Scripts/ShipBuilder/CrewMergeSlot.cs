@@ -26,7 +26,11 @@ public class CrewMergeSlot : MonoBehaviour, ICrewDropTarget
         if (popup == null) popup = GetComponentInParent<CrewMergePopup>(true);
         if (card == null) card = GetComponentInChildren<CrewCardView>(true);
         if (card == null) Debug.LogWarning($"CrewMergeSlot on '{name}': no Card assigned and no CrewCardView found in its children — the window will show nothing.", this);
-        if (card != null) card.draggable = false; // a selection isn't pulled out by hand — use the clear button
+        if (card != null)
+        {
+            card.draggable = true; // drag the selected card out of the window (and release it away from it) to empty it
+            card.ReleasedOutside = _ => OnClearClicked();
+        }
         if (clearButton != null) clearButton.onClick.AddListener(OnClearClicked);
     }
 

@@ -38,8 +38,8 @@ public class CrewMemberDefinition : ScriptableObject
     }
 
     [Header("Level-up cost")]
-    [Tooltip("Starting price. The price of the next level is Level Up Base Cost x current level + current " +
-             "level x GameDataManager.Crew Level Cost Extra Per Level.")]
+    [Tooltip("Starting price. The price of the next level is (Level Up Base Cost x current level + current " +
+             "level x GameDataManager.Crew Level Cost Extra Per Level) x the member's rank.")]
     public int levelUpBaseCost = 100;
 
     /// <summary>The portrait for this rank (1-3). Falls back to the nearest lower rank that has a

@@ -3,7 +3,9 @@ using UnityEngine;
 
 /// <summary>
 /// The scroll view full of crew cards: every crew member the player owns who is NOT standing in a slot,
-/// grouped by kind and rank (identical copies share one card with a count).
+/// kept together by kind. Only completely identical copies (same kind, rank AND level) share one card, with
+/// a count ("x3"); every other copy has a card of its own, laid out left to right from the highest rank and
+/// level to the lowest.
 /// Rebuilds itself whenever crew changes. Also a drop target — dragging a member from a slot onto the
 /// scroll view takes it off the slot.
 ///
@@ -70,17 +72,17 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
             Destroy(child);
         }
 
-        // One card per KIND and RANK ("x3" when there are several identical copies). The card stands for
-        // the copy with the highest level — that is the one you pull into a slot when you drag it.
+        // Identical copies (same kind, rank AND level) share one card ("x3"); anything else gets its own card.
         var groups = data.CrewMembers
             .Where(m => !data.IsCrewAssigned(m.instanceId))
             .Select(m => (member: m, definition: data.GetCrewDefinition(m)))
             .Where(x => x.definition != null)
-            .GroupBy(x => (x.member.definitionId, x.member.rank))
-            .Select(g => (best: g.OrderByDescending(x => x.member.level).First(), count: g.Count()))
+            .GroupBy(x => (x.member.definitionId, x.member.rank, x.member.level))
+            .Select(g => (best: g.First(), count: g.Count()))
             .OrderBy(g => (int)g.best.definition.role)
             .ThenBy(g => g.best.definition.displayName)
-            .ThenByDescending(g => g.best.member.rank);
+            .ThenByDescending(g => g.best.member.rank)
+            .ThenByDescending(g => g.best.member.level);
 
         foreach (var (best, count) in groups)
         {

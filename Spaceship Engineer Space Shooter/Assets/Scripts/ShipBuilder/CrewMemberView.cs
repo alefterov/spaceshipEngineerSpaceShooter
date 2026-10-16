@@ -141,7 +141,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
             if (filled) upgradeButton.interactable = data.CanAffordCrewLevelUp(member); // the credits check
         }
 
-        if (costLabel != null && filled) costLabel.text = data.GetCrewLevelUpCost(member).ToString();
+        if (costLabel != null && filled) costLabel.text = NumberFormat.Compact(data.GetCrewLevelUpCost(member));
 
         if (rankUpButton != null)
         {

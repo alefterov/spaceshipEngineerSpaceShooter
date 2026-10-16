@@ -25,6 +25,11 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
     private bool forwardingToScroll;
     private RectTransform ghost;
     private Canvas rootCanvas;
+    /// <summary>Raised when a crew-card drag really starts / ends (the finger lifts). CrewDropHint listens.</summary>
+    public static event System.Action<CrewMemberData> DragStarted;
+    public static event System.Action DragEnded;
+
+    private CrewMemberData draggedMember; // who is being dragged; null = no card drag of our own is in progress
 
     private ICrewMemberProvider Provider => provider ??= GetComponent<ICrewMemberProvider>();
 
@@ -37,6 +42,7 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
     public void OnBeginDrag(PointerEventData eventData)
     {
         forwardingToScroll = false;
+        draggedMember = null;
         scroll = GetComponentInParent<ScrollRect>();
 
         bool canDragCard = Provider != null && Provider.Member != null && Provider.CanDrag;
@@ -49,6 +55,8 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
             return;
         }
 
+        draggedMember = Provider.Member; // fixed now — the card may be rebuilt before the drag ends
+        DragStarted?.Invoke(draggedMember);
         CreateGhost(eventData);
     }
 
@@ -67,13 +75,28 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
             return;
         }
 
-        var member = Provider?.Member;
+        // Only a drag that really started here (OnBeginDrag got as far as picking a member up) may drop
+        // anything. Without this, a gesture that was refused at its start — a card that can't be dragged —
+        // still ran the drop logic when released, and could e.g. take a member off its slot.
+        var member = draggedMember;
+        draggedMember = null;
         DestroyGhost(); // first — so the ghost can never be what gets hit, and never outlives a data rebuild
+        if (member != null) DragEnded?.Invoke(); // hints start fading out the instant the finger lifts
 
         if (member != null) DropOnTarget(eventData, member);
     }
 
-    private void OnDisable() => DestroyGhost();
+    private void OnDisable()
+    {
+        DestroyGhost();
+
+        // Disabled/destroyed in the middle of a drag (the card was rebuilt): OnEndDrag will never come.
+        if (draggedMember != null)
+        {
+            draggedMember = null;
+            DragEnded?.Invoke();
+        }
+    }
 
     private bool IsAlongScrollAxis(PointerEventData eventData)
     {
@@ -84,21 +107,29 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
         return true;
     }
 
+    // The drop is decided by what is TOPMOST under the finger. If that thing belongs to a drop target, that
+    // target accepts or refuses. If it belongs to none (empty panel, another card, a popup's background...)
+    // the card was released "outside" — nothing underneath may react to it. (Looking past such an object for
+    // a target hidden beneath it made releases silently fail whenever a slot or the collection happened to
+    // lie behind the popup.)
     private void DropOnTarget(PointerEventData eventData, CrewMemberData member)
     {
         var hits = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, hits); // sorted topmost first
 
-        foreach (var hit in hits)
+        if (hits.Count > 0)
         {
-            var target = hit.gameObject.GetComponentInParent<ICrewDropTarget>();
-            if (target == null) continue;
+            var topmost = hits[0].gameObject;
+            var target = topmost.GetComponentInParent<ICrewDropTarget>();
+            if (target != null)
+            {
+                if (target.CanAccept(member)) target.Drop(member);
+                return;
+            }
 
-            if (target.CanAccept(member)) target.Drop(member);
-            return; // the topmost target decides — accepted or not, nothing underneath gets a second chance
+            if (topmost.transform.IsChildOf(transform)) return; // dropped back on the dragged object itself
         }
 
-        // Released over nothing at all.
         GetComponent<ICrewReleaseHandler>()?.OnReleasedOutside(member);
     }
 

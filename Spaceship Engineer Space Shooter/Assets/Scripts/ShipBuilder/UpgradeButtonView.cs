@@ -122,7 +122,7 @@ public class UpgradeButtonView : MonoBehaviour
 
         if (levelLabel != null) levelLabel.text = $"{level} LV";
         if (valueLabel != null) valueLabel.text = value;
-        if (costLabel != null) costLabel.text = cost.ToString();
+        if (costLabel != null) costLabel.text = NumberFormat.Compact(cost);
         if (upgradeButton != null) upgradeButton.interactable = canUpgrade;
     }
 

@@ -106,7 +106,7 @@ public class CurrencyDisplay : MonoBehaviour
             Currency.Coins => GameDataManager.Instance.Coins,
             _ => GameDataManager.Instance.ResearchPoints,
         };
-        label.text = amount.ToString();
+        label.text = NumberFormat.Compact(amount);
     }
 
     /// <summary>Briefly grows and tints the text red, then eases back. Also callable directly if
