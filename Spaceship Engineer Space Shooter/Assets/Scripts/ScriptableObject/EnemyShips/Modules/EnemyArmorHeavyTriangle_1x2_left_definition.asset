@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Heavy Armor III
   icon: {fileID: 7880843120089190074, guid: 50d83c9d6055fe246a8f941cf7638f1e, type: 3}
   prefab: {fileID: 729449600381729954, guid: b1d629cf83398d34da53e1fc973e835c, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 100

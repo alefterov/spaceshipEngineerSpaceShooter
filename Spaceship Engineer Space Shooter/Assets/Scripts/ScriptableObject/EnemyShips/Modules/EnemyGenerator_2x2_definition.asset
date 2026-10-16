@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Generator III
   icon: {fileID: -1706766606437318581, guid: 439a42a86aa96f44d80cfa5984ba17c4, type: 3}
   prefab: {fileID: 729449600381729954, guid: cf8d1005e32ebe746a779326d7d88bc1, type: 3}
+  enemyOnly: 1
   category: 4
   weaponClass: 0
   buildCost: 10

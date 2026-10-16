@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Armor Cockpit
   icon: {fileID: 271054513149356456, guid: c4be80f5b6ec2d449bd1f2f2dd609ceb, type: 3}
   prefab: {fileID: 729449600381729954, guid: c52afcf66d7600a4882234722cce00b5, type: 3}
+  enemyOnly: 1
   category: 6
   weaponClass: 0
   buildCost: 200

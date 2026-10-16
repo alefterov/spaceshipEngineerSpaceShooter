@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Shield III
   icon: {fileID: -4380323182244897569, guid: 9607134391196194a851180a0b2d570a, type: 3}
   prefab: {fileID: 729449600381729954, guid: 7add4a71969187641ae003d065a09138, type: 3}
+  enemyOnly: 1
   category: 5
   weaponClass: 0
   buildCost: 10

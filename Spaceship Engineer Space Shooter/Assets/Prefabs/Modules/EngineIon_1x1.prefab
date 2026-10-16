@@ -110,11 +110,12 @@ MonoBehaviour:
   roofRoot: {fileID: 4579919626324089469}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   thrustPower: 10
   kind: 1
   thrustEffect: {fileID: 828817674342048638}
-  idleEmissionRate: 20
-  fullThrustEmissionRate: 30
+  idleEmissionRate: 10
+  fullThrustEmissionRate: 50
 --- !u!114 &3792144078380607541
 MonoBehaviour:
   m_ObjectHideFlags: 0

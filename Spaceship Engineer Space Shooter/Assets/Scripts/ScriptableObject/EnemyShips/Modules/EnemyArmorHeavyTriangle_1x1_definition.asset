@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Heavy Armor II
   icon: {fileID: 1723631299150117980, guid: 09a09ad79d4e3f54d8993820452534a3, type: 3}
   prefab: {fileID: 729449600381729954, guid: e2088fb7d90054b4dbd5c4caede80bab, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 50

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Jet Thraster II
   icon: {fileID: -1631095247027408229, guid: f56c3d53da050064bb75bb319e4bdcca, type: 3}
   prefab: {fileID: 729449600381729954, guid: 6bebcc2c99ae6834aaae633c088415f2, type: 3}
+  enemyOnly: 1
   category: 3
   weaponClass: 0
   buildCost: 10

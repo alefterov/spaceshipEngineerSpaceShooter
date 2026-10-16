@@ -950,7 +950,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1733157319}
   m_Direction: 0
   m_Value: 0.99999994
-  m_Size: 0.00000008719308
+  m_Size: 0.6785714
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6708,8 +6708,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameDataManager
   compactNumbersFrom: 1000
-  hangarUpgradeBaseCost: 5
-  hangarUpgradeCostPerLevel: 5
+  hangarColumnBaseCost: 5
+  hangarColumnCostPerLevel: 5
+  hangarRowBaseCost: 5
+  hangarRowCostPerLevel: 5
   creditsMultiplierUpgradeBaseCost: 1
   creditsMultiplierUpgradeCostPerLevel: 1
   creditsMultiplierPerLevel: 0.1
@@ -8116,8 +8118,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 1503432687}
     m_Modifications:
     - target: {fileID: -7273923436680038194, guid: 346a760d3fb50084d84b87395aca463f, type: 3}
+      propertyPath: grid
+      value: 
+      objectReference: {fileID: 579742665}
+    - target: {fileID: -7273923436680038194, guid: 346a760d3fb50084d84b87395aca463f, type: 3}
       propertyPath: upgradeType
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2291114017187569370, guid: 346a760d3fb50084d84b87395aca463f, type: 3}
       propertyPath: m_SizeDelta.x
@@ -12276,7 +12282,8 @@ MonoBehaviour:
   width: 5
   height: 5
   cellSize: 1
-  hangarLevel: 0
+  hangarColumns: 0
+  hangarRows: 0
   cellVisualPrefab: {fileID: 440694396213574733, guid: 6b2008c6daa5bbc4e8c514afc4ab5548, type: 3}
   buildGridColor: {r: 1, g: 1, b: 1, a: 1}
   roofSortingOrder: 20

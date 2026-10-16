@@ -30,6 +30,24 @@ public class Projectile : MonoBehaviour, IShieldBlockable
              "0 = never removed by this script.")]
     public float impactEffectLifetime = 1f;
 
+    [Header("Trail")]
+    [Tooltip("Leaves a short fading trail behind the shot while it flies. If the prefab already has its own " +
+             "TrailRenderer (a child, or the one assigned in ProjectileGlow) that one is used and its own settings " +
+             "are kept — only the fade-out after the shot ends is added. Otherwise one is created from the " +
+             "values below.")]
+    public bool trailEnabled = true;
+    [Tooltip("How long a point of the trail lasts, in seconds — the trail's length.")]
+    [Min(0f)] public float trailTime = 0.25f;
+    [Tooltip("Trail width right behind the shot, in world units, and at its far tip.")]
+    public float trailStartWidth = 0.12f;
+    public float trailEndWidth = 0f;
+    [Tooltip("Trail color; it fades to transparent along its length. Taken from the prefab's ProjectileGlow color if it has one.")]
+    public Color trailColor = new(1f, 0.8f, 0.4f, 0.9f);
+    [Tooltip("Optional material (e.g. additive). Empty = the plain sprite material.")]
+    public Material trailMaterial;
+    public int trailSortingOrder = 0;
+
+    private TrailRenderer trail;
     private Rigidbody2D rb;
     private bool consumed;
     private bool broken;
@@ -50,6 +68,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        SetUpTrail();
 
         // The impact effect may be a child object of this very prefab rather than a separate prefab
         // asset. It's only a template to copy at the moment of the hit — left running it would play at launch.
@@ -72,6 +91,54 @@ public class Projectile : MonoBehaviour, IShieldBlockable
             if (impactEffectLifetime > 0f) Destroy(fx, impactEffectLifetime);
         }
 
+        Despawn();
+    }
+
+    // ---------- Trail ----------
+
+    /// <summary>Uses the prefab's own TrailRenderer if there is one (also the one assigned in ProjectileGlow);
+    /// otherwise creates a child trail from the Trail settings above.</summary>
+    private void SetUpTrail()
+    {
+        if (!trailEnabled || trailTime <= 0f) return;
+
+        trail = GetComponentInChildren<TrailRenderer>();
+        if (trail != null) return; // the prefab's own trail keeps its own settings
+
+        var glow = GetComponent<ProjectileGlow>();
+        Color color = glow != null ? glow.color : trailColor;
+
+        var go = new GameObject("Trail", typeof(TrailRenderer));
+        go.transform.SetParent(transform, false);
+
+        trail = go.GetComponent<TrailRenderer>();
+        trail.time = trailTime;
+        trail.startWidth = trailStartWidth;
+        trail.endWidth = trailEndWidth;
+        trail.minVertexDistance = 0.05f;
+        trail.numCapVertices = 4;
+        trail.alignment = LineAlignment.View;
+        trail.sortingOrder = trailSortingOrder;
+        trail.material = trailMaterial != null ? trailMaterial : new Material(Shader.Find("Sprites/Default"));
+
+        var end = color;
+        end.a = 0f;
+        trail.startColor = color;
+        trail.endColor = end;
+    }
+
+    /// <summary>The shot's real end (hit, absorbed, or out of range). The trail is cut loose first, so it
+    /// fades away on its own where the shot was instead of vanishing with it.</summary>
+    private void Despawn()
+    {
+        if (trail != null)
+        {
+            trail.transform.SetParent(null, true);
+            trail.emitting = false;
+            trail.autodestruct = true; // removes itself once the last of the trail has faded
+            trail = null;
+        }
+
         Destroy(gameObject);
     }
 
@@ -81,7 +148,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
 
         // Scheduled here rather than in Awake: Awake runs inside Instantiate, before the weapon that
         // fired this shot has had a chance to set lifeTime from its range.
-        Destroy(gameObject, lifeTime);
+        Invoke(nameof(Despawn), lifeTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

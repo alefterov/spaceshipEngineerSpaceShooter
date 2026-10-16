@@ -3,18 +3,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// One button driving a single progression upgrade — hangar size, battle credits multiplier, or
+/// One button driving a single progression upgrade — a hangar column or a hangar row (two separate buttons,
+/// each with its own price), battle credits multiplier, or
 /// survival mode starting level. All three share the same research-point economy and linear
 /// cost-scaling pattern in GameDataManager; this just picks which one via UpgradeType and shows its
 /// current value + next level's cost, mirroring CurrencyDisplay's Currency enum switch.
 /// </summary>
 public class UpgradeButtonView : MonoBehaviour
 {
-    public enum UpgradeType { Hangar, BattleCreditsMultiplier, SurvivalStartLevel }
+    // Explicit values keep already-serialized buttons on the same entry: the old single "Hangar" button (0)
+    // is now the column button. Add a second button set to HangarRows for rows.
+    public enum UpgradeType { HangarColumns = 0, BattleCreditsMultiplier = 1, SurvivalStartLevel = 2, HangarRows = 3 }
 
     [Header("Upgrade")]
-    public UpgradeType upgradeType = UpgradeType.Hangar;
-    [Tooltip("Required only for UpgradeType.Hangar — the grid the upgrade applies to.")]
+    public UpgradeType upgradeType = UpgradeType.HangarColumns;
+    [Tooltip("Required only for the hangar types (HangarColumns / HangarRows) — the grid the upgrade applies to.")]
     public ShipGrid grid;
 
     [Header("UI (assign whichever exist on this prefab)")]
@@ -62,7 +65,8 @@ public class UpgradeButtonView : MonoBehaviour
         data.OnResearchPointsChanged += Refresh;
         switch (upgradeType)
         {
-            case UpgradeType.Hangar: data.OnHangarLevelChanged += Refresh; break;
+            case UpgradeType.HangarColumns:
+            case UpgradeType.HangarRows: data.OnHangarLevelChanged += Refresh; break;
             case UpgradeType.BattleCreditsMultiplier: data.OnCreditsMultiplierLevelChanged += Refresh; break;
             case UpgradeType.SurvivalStartLevel: data.OnSurvivalStartLevelChanged += Refresh; break;
         }
@@ -82,7 +86,8 @@ public class UpgradeButtonView : MonoBehaviour
         data.OnResearchPointsChanged -= Refresh;
         switch (upgradeType)
         {
-            case UpgradeType.Hangar: data.OnHangarLevelChanged -= Refresh; break;
+            case UpgradeType.HangarColumns:
+            case UpgradeType.HangarRows: data.OnHangarLevelChanged -= Refresh; break;
             case UpgradeType.BattleCreditsMultiplier: data.OnCreditsMultiplierLevelChanged -= Refresh; break;
             case UpgradeType.SurvivalStartLevel: data.OnSurvivalStartLevelChanged -= Refresh; break;
         }
@@ -100,11 +105,12 @@ public class UpgradeButtonView : MonoBehaviour
 
         switch (upgradeType)
         {
-            case UpgradeType.Hangar:
-                level = data.HangarLevel;
+            case UpgradeType.HangarColumns:
+            case UpgradeType.HangarRows:
+                level = upgradeType == UpgradeType.HangarColumns ? data.HangarColumns : data.HangarRows;
                 value = grid != null ? $"{grid.GridWidth}x{grid.GridHeight}" : "-";
-                cost = data.GetHangarUpgradeCost();
-                canUpgrade = data.CanUpgradeHangar();
+                cost = upgradeType == UpgradeType.HangarColumns ? data.GetHangarColumnUpgradeCost() : data.GetHangarRowUpgradeCost();
+                canUpgrade = upgradeType == UpgradeType.HangarColumns ? data.CanUpgradeHangarColumn() : data.CanUpgradeHangarRow();
                 break;
             case UpgradeType.BattleCreditsMultiplier:
                 level = data.CreditsMultiplierLevel;
@@ -133,7 +139,8 @@ public class UpgradeButtonView : MonoBehaviour
 
         switch (upgradeType)
         {
-            case UpgradeType.Hangar: data.TryUpgradeHangar(grid); break;
+            case UpgradeType.HangarColumns: data.TryUpgradeHangarColumn(grid); break;
+            case UpgradeType.HangarRows: data.TryUpgradeHangarRow(grid); break;
             case UpgradeType.BattleCreditsMultiplier: data.TryUpgradeCreditsMultiplier(); break;
             case UpgradeType.SurvivalStartLevel: data.TryUpgradeSurvivalStartLevel(); break;
         }

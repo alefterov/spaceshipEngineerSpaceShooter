@@ -72,6 +72,15 @@ public class GameDataManager : MonoBehaviour
     public void LoadOrCreate()
     {
         Current = SaveSystem.Load() ?? new GameData();
+
+        // An old save counted one combined hangar level (a row AND a column each): convert it once.
+        if (Current.hangarLevel > 0)
+        {
+            Current.hangarColumns += Current.hangarLevel;
+            Current.hangarRows += Current.hangarLevel;
+            Current.hangarLevel = 0;
+        }
+
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
         OnDataLoaded?.Invoke();
@@ -242,28 +251,47 @@ public class GameDataManager : MonoBehaviour
     }
 
     // ---------- Hangar (build grid) upgrades ----------
-    // Each level permanently adds one row and one column to the ship's buildable grid (see
-    // ShipGrid.SetHangarLevel). Paid with research points, same currency and immediate-persistence
-    // semantics as researching a technology — not part of the revertible build-session state.
+    // Two separate purchases with their OWN prices: one adds a COLUMN to the ship's buildable grid, the other
+    // a ROW (see ShipGrid.SetHangarSize). Each has its own base cost and its own growth per purchase, and
+    // each price depends only on how many upgrades of THAT kind were bought. Paid with research points, same
+    // currency and immediate-persistence semantics as researching a technology — not part of the revertible
+    // build-session state.
 
-    [Header("Hangar upgrade cost")]
-    [Tooltip("Research-point cost of the first hangar upgrade (level 0 -> 1).")]
-    public int hangarUpgradeBaseCost = 200;
-    [Tooltip("Extra research-point cost added per hangar level already owned — makes each successive upgrade pricier.")]
-    public int hangarUpgradeCostPerLevel = 100;
+    [Header("Hangar upgrade cost — columns")]
+    [Tooltip("Research-point cost of the first column upgrade.")]
+    public int hangarColumnBaseCost = 200;
+    [Tooltip("Extra research-point cost added per column already bought.")]
+    public int hangarColumnCostPerLevel = 100;
 
-    public int HangarLevel => Current.hangarLevel;
+    [Header("Hangar upgrade cost — rows")]
+    [Tooltip("Research-point cost of the first row upgrade.")]
+    public int hangarRowBaseCost = 200;
+    [Tooltip("Extra research-point cost added per row already bought.")]
+    public int hangarRowCostPerLevel = 100;
 
-    public int GetHangarUpgradeCost() => hangarUpgradeBaseCost + Current.hangarLevel * hangarUpgradeCostPerLevel;
+    public int HangarColumns => Current.hangarColumns;
+    public int HangarRows => Current.hangarRows;
 
-    public bool CanUpgradeHangar() => Current.researchPoints >= GetHangarUpgradeCost();
+    /// <summary>Price of the next column.</summary>
+    public int GetHangarColumnUpgradeCost() => hangarColumnBaseCost + Current.hangarColumns * hangarColumnCostPerLevel;
 
-    /// <summary>Spends research points to add one row and one column to the given grid's buildable
-    /// area. Returns false (and changes nothing) if there aren't enough points, firing
-    /// OnInsufficientResearchPoints the same way TryResearch does.</summary>
-    public bool TryUpgradeHangar(ShipGrid grid)
+    /// <summary>Price of the next row.</summary>
+    public int GetHangarRowUpgradeCost() => hangarRowBaseCost + Current.hangarRows * hangarRowCostPerLevel;
+
+    public bool CanUpgradeHangarColumn() => Current.researchPoints >= GetHangarColumnUpgradeCost();
+    public bool CanUpgradeHangarRow() => Current.researchPoints >= GetHangarRowUpgradeCost();
+
+    /// <summary>Spends research points to add one column to the given grid's buildable area. Returns false
+    /// (and changes nothing) if there aren't enough points, firing OnInsufficientResearchPoints the same way
+    /// TryResearch does.</summary>
+    public bool TryUpgradeHangarColumn(ShipGrid grid) => TryUpgradeHangar(grid, addColumn: true);
+
+    /// <summary>Same as TryUpgradeHangarColumn, but adds a row.</summary>
+    public bool TryUpgradeHangarRow(ShipGrid grid) => TryUpgradeHangar(grid, addColumn: false);
+
+    private bool TryUpgradeHangar(ShipGrid grid, bool addColumn)
     {
-        int cost = GetHangarUpgradeCost();
+        int cost = addColumn ? GetHangarColumnUpgradeCost() : GetHangarRowUpgradeCost();
         if (Current.researchPoints < cost)
         {
             OnInsufficientResearchPoints?.Invoke();
@@ -271,8 +299,10 @@ public class GameDataManager : MonoBehaviour
         }
 
         Current.researchPoints -= cost;
-        Current.hangarLevel++;
-        if (grid != null) grid.SetHangarLevel(Current.hangarLevel);
+        if (addColumn) Current.hangarColumns++;
+        else Current.hangarRows++;
+
+        if (grid != null) grid.SetHangarSize(Current.hangarColumns, Current.hangarRows);
         OnResearchPointsChanged?.Invoke();
         OnHangarLevelChanged?.Invoke();
         Save();
@@ -658,6 +688,19 @@ public class GameDataManager : MonoBehaviour
 
         CrewChanged();
         return true;
+    }
+
+    // ----- Missile target priority (player) -----
+
+    /// <summary>The saved missile target order (ModuleType values), or null if never changed.</summary>
+    public IReadOnlyList<int> SavedMissilePriority
+        => Current.missileTargetPriority != null && Current.missileTargetPriority.Count > 0 ? Current.missileTargetPriority : null;
+
+    /// <summary>Remembers the player's missile target order and saves it right away.</summary>
+    public void SaveMissilePriority(IEnumerable<ModuleType> order)
+    {
+        Current.missileTargetPriority = order.Select(t => (int)t).ToList();
+        Save();
     }
 
     // ----- Perks -----

@@ -5068,6 +5068,14 @@ MonoBehaviour:
   damage: 5
   speed: 12
   owner: 0
+  weaponClass: 0
   lifeTime: 5
   impactEffectPrefab: {fileID: 3910864154725973254}
   impactEffectLifetime: 1
+  trailEnabled: 1
+  trailTime: 0.12
+  trailStartWidth: 0.06
+  trailEndWidth: 0
+  trailColor: {r: 1, g: 0.8, b: 0.4, a: 0.9}
+  trailMaterial: {fileID: 0}
+  trailSortingOrder: 0

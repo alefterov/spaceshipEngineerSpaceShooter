@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Nuclear Reactor II
   icon: {fileID: -6394016524309410801, guid: 8790dd22b902ad940a917684580cee3e, type: 3}
   prefab: {fileID: 729449600381729954, guid: c4ba8c841efeb7e43a6c1fb40c84b1a6, type: 3}
+  enemyOnly: 1
   category: 4
   weaponClass: 0
   buildCost: 10

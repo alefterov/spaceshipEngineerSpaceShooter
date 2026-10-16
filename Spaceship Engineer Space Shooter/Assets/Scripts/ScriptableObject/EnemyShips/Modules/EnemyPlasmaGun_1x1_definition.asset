@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Plasma Gun I
   icon: {fileID: -1244867649942888930, guid: 03ede45bd5374df4ca08bd58f7cc1e3d, type: 3}
   prefab: {fileID: 729449600381729954, guid: e8fafc9c9acade64c8b6f10c44bfefef, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 3
   buildCost: 10

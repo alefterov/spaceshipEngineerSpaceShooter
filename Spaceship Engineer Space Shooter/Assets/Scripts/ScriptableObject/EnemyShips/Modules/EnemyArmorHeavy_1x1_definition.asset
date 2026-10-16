@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Hevy Armor I
   icon: {fileID: -5232639800007487861, guid: e55e1c5f87fc4544c830a99742d1bf79, type: 3}
   prefab: {fileID: 729449600381729954, guid: 0c826b32c18dca642aa59fcfe7d72559, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 50

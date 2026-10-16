@@ -69,6 +69,8 @@ public class ShipModule : MonoBehaviour
     [Tooltip("Spawned at this block's position when it's destroyed — an explosion VFX (particle " +
              "system, animated sprite, whatever). Optional; leave unassigned for no effect.")]
     public GameObject explosionEffectPrefab;
+    [Tooltip("Seconds until the spawned explosion is removed. Make it at least as long as the effect. 0 = never removed by this script.")]
+    public float explosionLifetime = 3f;
 
     // Sorting orders authored in the prefab are kept as OFFSETS, so ApplySortingOrders can shift a
     // whole group onto its layer while preserving the relative order inside it. Cached so repeated
@@ -230,7 +232,10 @@ public class ShipModule : MonoBehaviour
     protected virtual void PlayDestructionEffect()
     {
         if (explosionEffectPrefab != null)
-            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+        {
+            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            if (explosionLifetime > 0f) UnityEngine.Object.Destroy(fx, explosionLifetime);
+        }
 
         UnityEngine.Object.Destroy(gameObject);
     }

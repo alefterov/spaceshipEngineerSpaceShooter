@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Lase Gun I
   icon: {fileID: 5900883858491927032, guid: 1480e00d91785844b8c70f61cff76477, type: 3}
   prefab: {fileID: 729449600381729954, guid: d6575dab0fe72a14a874cd35482d3450, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 1
   buildCost: 10

@@ -36,7 +36,58 @@ public class ShipIdentity : MonoBehaviour
     /// keeps them silent in the main menu preview and the ship builder.</summary>
     public bool CombatActive { get; private set; }
 
+    private static readonly List<ShipIdentity> all = new();
+
+    /// <summary>How many of this ship's blocks are still alive (destroyed ones drop out of the list).</summary>
+    public int LiveBlockCount => blocks.Count;
+
+    /// <summary>This ship's living blocks (destroyed ones drop out of the list).</summary>
+    public IReadOnlyList<ShipModule> LiveBlocks => blocks;
+
+    /// <summary>Every ship currently in the scene.</summary>
+    public static IReadOnlyList<ShipIdentity> All => all;
+
+    /// <summary>True while any enemy ship in the scene still has at least one living block — wrecks included.
+    /// A ship that lost its cockpit or generators is only "disabled": its remaining blocks still count.</summary>
+    public static bool AnyEnemyBlocksAlive
+    {
+        get
+        {
+            foreach (var ship in all)
+                if (ship != null && ship.faction == Faction.Enemy && ship.blocks.Count > 0) return true;
+            return false;
+        }
+    }
+
+    /// <summary>Position of the living block closest to `from`, or false if no block is left. Weapons aim at
+    /// this rather than at the ship's middle: a damaged ship has holes, and the blocks that remain may be off to
+    /// one side.</summary>
+    public bool TryGetNearestBlockPosition(Vector2 from, out Vector2 position)
+    {
+        position = default;
+        float bestSqr = float.MaxValue;
+        bool found = false;
+
+        foreach (var block in blocks)
+        {
+            if (block == null || block.IsDestroyed) continue;
+
+            Vector2 p = block.transform.position;
+            float sqr = (p - from).sqrMagnitude;
+            if (sqr >= bestSqr) continue;
+
+            bestSqr = sqr;
+            position = p;
+            found = true;
+        }
+
+        return found;
+    }
+
     private void Awake() => ApplyTagToRoot();
+
+    private void OnEnable() => all.Add(this);
+    private void OnDisable() => all.Remove(this);
 
     public void ApplyTagToRoot()
     {

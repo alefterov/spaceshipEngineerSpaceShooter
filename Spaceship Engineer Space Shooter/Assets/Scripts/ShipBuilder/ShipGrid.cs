@@ -26,17 +26,24 @@ public class ShipGrid : MonoBehaviour
     public float cellSize = 1f;
 
     [Header("Hangar upgrades")]
-    [Tooltip("Extra rows/columns granted by hangar upgrades — each level adds exactly one of each. " +
-             "Set via SetHangarLevel; GameDataManager owns the persisted value and the research-point " +
-             "cost (see GameDataManager.TryUpgradeHangar). AnchorToWorld/CornerToWorld always center on " +
-             "the CURRENT effective size, so the grid stays centered as it grows — SetHangarLevel " +
+    [Tooltip("Extra columns / rows granted by hangar upgrades — bought separately. Set via SetHangarSize; " +
+             "GameDataManager owns the persisted values and the research-point cost (see " +
+             "GameDataManager.TryUpgradeHangarColumn / TryUpgradeHangarRow). AnchorToWorld/CornerToWorld always " +
+             "center on the CURRENT effective size, so the grid stays centered as it grows — SetHangarSize " +
              "repositions already-placed blocks to match instead of leaving them behind.")]
-    [SerializeField] private int hangarLevel;
+    [SerializeField] private int hangarColumns;
+    [SerializeField] private int hangarRows;
 
-    public int HangarLevel => hangarLevel;
+    public int HangarColumns => hangarColumns;
+    public int HangarRows => hangarRows;
     /// <summary>Actual buildable size including hangar upgrades — e.g. for a "5x5" UI label.</summary>
-    public int GridWidth => width + hangarLevel;
-    public int GridHeight => height + hangarLevel;
+    public int GridWidth => width + hangarColumns;
+    public int GridHeight => height + hangarRows;
+
+    [Header("Destruction")]
+    [Tooltip("Explosion effect for any block of this ship whose own prefab has none assigned (Explosion Effect " +
+             "Prefab on the block), so every destroyed block — the player's and the enemy's alike — explodes. Optional.")]
+    public GameObject fallbackExplosionEffect;
 
     [Header("Placement visuals")]
     [Tooltip("Small square sprite, one instance per grid cell — used for the build grid and the " +
@@ -91,16 +98,17 @@ public class ShipGrid : MonoBehaviour
 
     public bool InBounds(Vector2Int cell) => cell.x >= 0 && cell.x < GridWidth && cell.y >= 0 && cell.y < GridHeight;
 
-    /// <summary>Applies a hangar level directly — call once on load/start (GameDataManager.HangarLevel)
-    /// and again whenever it changes via an upgrade. Since AnchorToWorld centers on the current
+    /// <summary>Applies the hangar size directly — call once on load/start (GameDataManager.HangarColumns /
+    /// HangarRows) and again whenever an upgrade changes it. Since AnchorToWorld centers on the current
     /// effective size, growing it shifts where every anchor cell maps to in world space by a uniform
     /// amount — repositions every already-placed block to match, so the whole ship translates
     /// together and stays centered on the (now bigger) grid instead of drifting to one corner of it.
     /// Also redraws the grid overlay if it's currently shown.</summary>
-    public void SetHangarLevel(int level)
+    public void SetHangarSize(int columns, int rows)
     {
-        if (hangarLevel == level) return;
-        hangarLevel = level;
+        if (hangarColumns == columns && hangarRows == rows) return;
+        hangarColumns = columns;
+        hangarRows = rows;
 
         foreach (var m in Blocks)
             if (m != null) m.transform.position = AnchorToWorld(m.anchorCell);
@@ -119,7 +127,7 @@ public class ShipGrid : MonoBehaviour
     /// <summary>
     /// World position of a SINGLE grid cell's center — this is where a block's root transform
     /// is placed (the anchor/pivot cell). Centers on the CURRENT effective grid size (base size plus
-    /// any hangar upgrades), so the whole grid stays centered as it grows — see SetHangarLevel.
+    /// any hangar upgrades), so the whole grid stays centered as it grows — see SetHangarSize.
     /// </summary>
     public Vector3 AnchorToWorld(Vector2Int anchor)
     {
@@ -318,6 +326,7 @@ public class ShipGrid : MonoBehaviour
         module.rotationSteps = rotationSteps;
         module.ApplyViewMode(CurrentViewMode);
         module.ApplySortingOrders(roofSortingOrder, topSortingOrder);
+        if (module.explosionEffectPrefab == null) module.explosionEffectPrefab = fallbackExplosionEffect;
 
         // The weapon's class comes from the BlockDefinition (like moduleId above), so crew damage perks and
         // evasion know what kind of shots it fires.

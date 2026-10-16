@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Gun I
   icon: {fileID: 1146031736757195537, guid: 3ef0ff3da209d3840aa4571fc1e9a164, type: 3}
   prefab: {fileID: 729449600381729954, guid: de7ecca97f4451a4fade6fd31aaeccc6, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 0
   buildCost: 10

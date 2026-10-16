@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Gun IV
   icon: {fileID: -197046026718460408, guid: 7cc1dfe65118aab4db4f965d9a3ba0c8, type: 3}
   prefab: {fileID: 729449600381729954, guid: 1ecf8cae67ae625498fe4ca2a1292e13, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 0
   buildCost: 10

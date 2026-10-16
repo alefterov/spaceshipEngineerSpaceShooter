@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Missile IV
   icon: {fileID: -2565261897859594294, guid: 7988d16dae4434747a55a882462af750, type: 3}
   prefab: {fileID: 729449600381729954, guid: cb17de1304bbbc54d9620581676570d8, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 2
   buildCost: 10

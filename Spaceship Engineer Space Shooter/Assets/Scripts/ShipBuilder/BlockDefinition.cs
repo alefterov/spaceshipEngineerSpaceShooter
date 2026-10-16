@@ -13,6 +13,9 @@ public class BlockDefinition : ScriptableObject
     public string displayName = "Armor Block";
     public Sprite icon;                 // shown in the bottom UI list
     public GameObject prefab;           // must have a ShipModule (or subclass) component
+    [Tooltip("Tick for blocks that only enemy ships use. They are never offered in the player's build palette " +
+             "(the scroll view of the build panel), but enemy ships can still be built from them.")]
+    public bool enemyOnly;
 
     [Header("Category — determines which build mode this block appears in")]
     public BlockCategory category = BlockCategory.Armor;

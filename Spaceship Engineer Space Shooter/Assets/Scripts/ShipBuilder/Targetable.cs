@@ -30,10 +30,34 @@ public class Targetable : MonoBehaviour
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
 
-    /// <summary>World-space velocity, for aiming ahead of a moving target. Read straight from a
-    /// Rigidbody2D when there is one (exact); otherwise measured from how far the transform moved last
-    /// frame (ships are moved by setting transform.position directly).</summary>
-    public Vector2 Velocity => body != null && body.bodyType != RigidbodyType2D.Static ? body.linearVelocity : measuredVelocity;
+    /// <summary>World-space velocity, for aiming ahead of a moving target. Works for every kind of target:
+    /// a Rigidbody2D that is really moving under physics (meteors, missiles) reports its own exact velocity;
+    /// anything else — ships, whose position is set directly through the transform, and which may even carry a
+    /// kinematic Rigidbody2D that always reports zero — gets the velocity measured from how far it moved,
+    /// lightly smoothed so the aim doesn't twitch.</summary>
+    public Vector2 Velocity
+    {
+        get
+        {
+            if (body != null && body.bodyType == RigidbodyType2D.Dynamic) return body.linearVelocity;
+            if (body != null && body.linearVelocity.sqrMagnitude > 0.0001f) return body.linearVelocity;
+            return measuredVelocity;
+        }
+    }
+
+    /// <summary>False for a ship whose every block is gone (an empty hull is nothing to shoot at). Anything
+    /// that is not a ship is always shootable. A ship with blocks left — even a disabled wreck — stays a target.</summary>
+    public bool HasLiveBlocks => shipIdentity == null || shipIdentity.LiveBlockCount > 0;
+
+    /// <summary>Where a weapon at `from` should aim. For a ship: its NEAREST living block, so a damaged or
+    /// disabled wreck is shot block by block instead of through a hole in its middle. Anything else, and a ship
+    /// with no block left: AimPoint.</summary>
+    public Vector2 AimPointFrom(Vector2 from)
+        => shipIdentity != null && shipIdentity.TryGetNearestBlockPosition(from, out var block) ? block : AimPoint;
+
+    /// <summary>The middle of the whole ship for a ship (its root point can sit
+    /// off to one side), the object's position for everything else.</summary>
+    public Vector2 AimPoint => shipGrid != null ? (Vector2)shipGrid.GetShipWorldCenter() : (Vector2)transform.position;
 
     /// <summary>Fired once when HP reaches zero — hook explosion VFX, score, or a missile's own
     /// cleanup here. The GameObject is NOT destroyed automatically.</summary>
@@ -45,6 +69,8 @@ public class Targetable : MonoBehaviour
     public static IReadOnlyList<Targetable> Active => active;
 
     private Rigidbody2D body;
+    private ShipGrid shipGrid;
+    private ShipIdentity shipIdentity;
     private Vector2 lastPosition;
     private Vector2 measuredVelocity;
 
@@ -52,6 +78,8 @@ public class Targetable : MonoBehaviour
     {
         CurrentHP = maxHP;
         body = GetComponent<Rigidbody2D>();
+        shipGrid = GetComponent<ShipGrid>();
+        shipIdentity = GetComponent<ShipIdentity>();
     }
 
     private void OnEnable()
@@ -63,14 +91,33 @@ public class Targetable : MonoBehaviour
 
     private void OnDisable() => active.Remove(this);
 
+    // Measured for every target, bodied or not (see Velocity for which one is used).
+    private const float MaxPlausibleSpeed = 200f; // a bigger jump in one frame is a teleport (spawn, arrival), not movement
+    private const float VelocitySmoothing = 20f;  // per second — about 50 ms to follow a change
+
     private void LateUpdate()
     {
-        if (body != null) return; // exact velocity already available from the Rigidbody2D
-
         float dt = Time.deltaTime;
         Vector2 position = transform.position;
-        if (dt > 0f) measuredVelocity = (position - lastPosition) / dt;
+
+        if (dt > 0f)
+        {
+            Vector2 raw = (position - lastPosition) / dt;
+            if (raw.magnitude <= MaxPlausibleSpeed)
+                measuredVelocity = Vector2.Lerp(measuredVelocity, raw, 1f - Mathf.Exp(-VelocitySmoothing * dt));
+        }
+
         lastPosition = position;
+    }
+
+    /// <summary>Sets kind, side and HP in one go, for objects that create their Targetable in code (a missile).
+    /// HP is refilled.</summary>
+    public void Configure(TargetKind newKind, Faction newFaction, float hp)
+    {
+        kind = newKind;
+        faction = newFaction;
+        maxHP = hp;
+        CurrentHP = hp;
     }
 
     public void TakeDamage(float amount)

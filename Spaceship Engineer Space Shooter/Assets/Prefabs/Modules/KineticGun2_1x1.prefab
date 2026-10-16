@@ -203,16 +203,21 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 3153761081599872217}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   aiming: 0
   fireControl: 0
+  weaponClass: 0
   allowedTargets: 000000000200000004000000
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
+  muzzles:
+  - {fileID: 3813965180775659288}
+  - {fileID: 4626232742426936394}
   muzzle: {fileID: 3813965180775659288}
   cooldownSeconds: 0.5
   projectileDamage: 5
   projectileSpeed: 12
-  range: 70
+  range: 200
   fireArcDegrees: 30
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}

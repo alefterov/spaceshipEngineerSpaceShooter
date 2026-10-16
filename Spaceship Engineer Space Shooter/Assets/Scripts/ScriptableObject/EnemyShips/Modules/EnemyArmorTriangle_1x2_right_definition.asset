@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Light Armor IV
   icon: {fileID: -2307356264147785132, guid: b0864727fc6a6de498fec1caffc9faef, type: 3}
   prefab: {fileID: 729449600381729954, guid: 5024b912f28b5fb4aa536ffe912bfa79, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 20

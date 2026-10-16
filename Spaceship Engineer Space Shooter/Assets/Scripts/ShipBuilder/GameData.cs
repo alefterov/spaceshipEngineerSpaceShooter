@@ -25,9 +25,20 @@ public class GameData
              "JsonUtility can't serialize either of those.")]
     public List<string> researchedTechIds = new();
 
-    [Tooltip("Hangar (build grid) upgrade level — each level adds one row and one column to the " +
-             "ship's buildable area. Bought with research points, see GameDataManager.TryUpgradeHangar.")]
+    [Tooltip("OLD single hangar level (one row AND one column per level). Only read once, to convert an old " +
+             "save into hangarColumns / hangarRows — see GameDataManager.LoadOrCreate.")]
     public int hangarLevel;
+
+    [Tooltip("Columns added to the ship's buildable area by hangar upgrades. Bought with research points, see " +
+             "GameDataManager.TryUpgradeHangarColumn.")]
+    public int hangarColumns;
+
+    [Tooltip("Rows added to the ship's buildable area by hangar upgrades. Bought with research points, see " +
+             "GameDataManager.TryUpgradeHangarRow.")]
+    public int hangarRows;
+
+    [Tooltip("The player's missile target priority: ModuleType values, first = hit first. Empty until changed in the missile priority window.")]
+    public List<int> missileTargetPriority = new();
 
     [Tooltip("Battle credits-reward multiplier upgrade level. Bought with research points, see " +
              "GameDataManager.TryUpgradeCreditsMultiplier.")]

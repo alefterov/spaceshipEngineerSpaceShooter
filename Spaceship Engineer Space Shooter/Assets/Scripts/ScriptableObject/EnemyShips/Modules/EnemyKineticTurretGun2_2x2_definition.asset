@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Turret Gun V
   icon: {fileID: 6251704090204384563, guid: 573531d4a0c221a449796877e9a68090, type: 3}
   prefab: {fileID: 729449600381729954, guid: 056bff1d2ee178e41a2070d8e6cd7635, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 0
   buildCost: 10

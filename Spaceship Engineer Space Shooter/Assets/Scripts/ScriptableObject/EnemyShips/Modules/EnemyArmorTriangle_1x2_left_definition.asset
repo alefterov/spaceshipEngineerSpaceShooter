@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Light Armor III
   icon: {fileID: 5876581694289399108, guid: 356d805e83c7b4546b151144f8f49e21, type: 3}
   prefab: {fileID: 729449600381729954, guid: d7ce72dcd4bde634c822a4a81d821976, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 20

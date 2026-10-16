@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Gun III
   icon: {fileID: -8470880251923861391, guid: 8b30da00b14f3d946ae3d91b1bc1abb7, type: 3}
   prefab: {fileID: 729449600381729954, guid: b524354a06a442d4eb0fb481ec136e46, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 0
   buildCost: 10

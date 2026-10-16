@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Repair Module I
   icon: {fileID: 272182301997621738, guid: 92124d426acdd0a4b9d7eae6a89a3f1d, type: 3}
   prefab: {fileID: 729449600381729954, guid: 1b06b7c772a321f4681000ff28a43f4d, type: 3}
+  enemyOnly: 1
   category: 7
   weaponClass: 0
   buildCost: 10

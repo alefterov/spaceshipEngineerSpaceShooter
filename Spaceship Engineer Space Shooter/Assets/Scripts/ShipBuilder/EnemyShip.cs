@@ -84,6 +84,16 @@ public class EnemyShip : MonoBehaviour
              "\"doesn't limp\" rule the player's own ship follows.")]
     public float energyPerSecondAtFullThrust = 5f;
 
+    [Header("Ramming")]
+    [Tooltip("A battering ram: instead of hovering at the top of the screen, this ship flies straight at the " +
+             "player's ship and keeps pushing into it, trading collision damage block by block (see RamCollision). " +
+             "With a Route set it first follows the route to its last point and then rams. Collision damage itself " +
+             "happens for ANY enemy ship that touches the player's ship, rammer or not.")]
+    public bool ramsPlayer;
+    [Tooltip("When every weapon this ship started with has been destroyed, it gives up on maneuvering and goes to ram " +
+             "the player's ship, exactly like a Rams Player ship. A ship built without any weapon is not affected.")]
+    public bool ramWhenUnarmed = true;
+
     [Header("Default behavior (used only when Route is empty)")]
     [Tooltip("Falls back to Camera.main if left unset. EnemySpawner fills this in automatically for a " +
              "wave-spawned ship.")]
@@ -113,7 +123,7 @@ public class EnemyShip : MonoBehaviour
              "for it by tag if left unset.")]
     public Transform target;
 
-    private enum State { Approaching, Maneuvering, FollowingRoute }
+    private enum State { Approaching, Maneuvering, FollowingRoute, Ramming }
     private State state;
 
     private ShipGrid grid;
@@ -150,22 +160,37 @@ public class EnemyShip : MonoBehaviour
         // fight to be properly balanced, whether or not the prefab happens to already have this component.
         energy = GetComponent<ShipEnergySystem>();
         if (energy == null) energy = gameObject.AddComponent<ShipEnergySystem>();
+
+        // Collision damage against the player's ship — see RamCollision. Add one to the prefab yourself to tune it.
+        if (!TryGetComponent<RamCollision>(out _)) gameObject.AddComponent<RamCollision>();
     }
 
     private void OnEnable()
     {
         identity.OnShipDisabled += HandleDisabled;
-        grid.OnShipChanged += RefreshEngineList; // a destroyed engine should stop contributing to speed/thrust immediately
-        RefreshEngineList();
+        grid.OnShipChanged += HandleShipChanged; // a destroyed engine should stop contributing to speed/thrust immediately; losing the last weapon sends the ship ramming
+        HandleShipChanged(); // also records whether the ship starts out armed
     }
 
     private void OnDisable()
     {
         identity.OnShipDisabled -= HandleDisabled;
-        grid.OnShipChanged -= RefreshEngineList;
+        grid.OnShipChanged -= HandleShipChanged;
     }
 
     private void RefreshEngineList() => engines = GetComponentsInChildren<EngineModule>();
+
+    private bool hadWeapons;
+
+    private void HandleShipChanged()
+    {
+        RefreshEngineList();
+
+        // Armed at some point, and every weapon is gone now: stop maneuvering and ram.
+        bool hasWeapons = grid.Blocks.Any(m => m is WeaponModule && !m.IsDestroyed);
+        if (hasWeapons) hadWeapons = true;
+        else if (hadWeapons && ramWhenUnarmed && !disabled && state != State.Ramming) state = State.Ramming;
+    }
 
     private void Start()
     {
@@ -181,7 +206,9 @@ public class EnemyShip : MonoBehaviour
         // position (that used to rotate the whole ship toward wherever they were standing) — see Face Down.
         transform.rotation = faceDown ? Quaternion.Euler(0f, 0f, 180f) : Quaternion.identity;
 
-        state = route.Count > 0 && route.Any(w => w.point != null) ? State.FollowingRoute : State.Approaching;
+        bool hasRoute = route.Count > 0 && route.Any(w => w.point != null);
+        state = hasRoute ? State.FollowingRoute : ramsPlayer ? State.Ramming : State.Approaching;
+        if (state == State.Approaching) PlaceAtEntry();
 
         identity.SetCombatActive(true); // starts fighting the instant it appears — no arrival intro like the player gets
     }
@@ -241,6 +268,7 @@ public class EnemyShip : MonoBehaviour
             case State.FollowingRoute: UpdateRoute(); break;
             case State.Approaching: UpdateApproaching(); break;
             case State.Maneuvering: UpdateManeuvering(); break;
+            case State.Ramming: UpdateRamming(); break;
         }
     }
 
@@ -254,6 +282,62 @@ public class EnemyShip : MonoBehaviour
         if (toTarget.sqrMagnitude < 0.0001f) return; // already there — nothing left to close
 
         transform.position += (Vector3)(toTarget.normalized * disabledDriftSpeed * Time.deltaTime);
+    }
+
+    // ---------- Entry: always from above, always inside the allowed width ----------
+
+    /// <summary>A ship on the default behavior advances straight along its facing (down) and never steers
+    /// sideways while approaching — so it is only ever visible if it STARTS inside the allowed width. The
+    /// spawner may put it anywhere along an edge (or on a side edge); this pulls it to a legal entry point: its
+    /// whole width inside the play bounds (screen width minus the margin — computed from the CURRENT camera,
+    /// so a bigger view after hangar upgrades widens the range automatically) and, if it isn't already
+    /// above the screen, just beyond the top edge, from where it flies in.</summary>
+    private void PlaceAtEntry()
+    {
+        var cam = battleCamera != null ? battleCamera : Camera.main;
+        if (cam == null || !cam.orthographic || !TryGetPlayBounds(out var min, out var max)) return;
+
+        Vector2 half = grid.GetShipWorldSize() * 0.5f;
+        Vector3 centerOffset = grid.GetShipWorldCenter() - transform.position;
+        Vector3 center = transform.position + centerOffset;
+
+        float minX = min.x + half.x;
+        float maxX = max.x - half.x;
+        center.x = minX <= maxX ? Mathf.Clamp(center.x, minX, maxX) : (min.x + max.x) * 0.5f; // wider than the zone: centered
+
+        float aboveTop = cam.transform.position.y + cam.orthographicSize + half.y + 0.5f;
+        if (center.y < aboveTop) center.y = aboveTop;
+
+        transform.position = center - centerOffset;
+    }
+
+    // ---------- Ramming: charges the player's nearest block and keeps pushing ----------
+
+    private ShipIdentity targetIdentity;
+
+    /// <summary>Flies at real (engine-computed) speed toward the player's nearest living block — NOT held
+    /// inside the maneuver zone and never turning aside. Once it arrives it keeps pressing into the target, so
+    /// the collision (RamCollision) repeats until one side's blocks are gone. Holds position if there is
+    /// nothing left to hit.</summary>
+    private void UpdateRamming()
+    {
+        if (targetIdentity == null && target != null) targetIdentity = target.GetComponentInParent<ShipIdentity>();
+
+        Vector2 from = grid.GetShipWorldCenter();
+        Vector2 aim;
+        if (targetIdentity != null && targetIdentity.TryGetNearestBlockPosition(from, out var block)) aim = block;
+        else if (target != null && targetIdentity == null) aim = target.position;
+        else { ConsumeMoveSpeed(); return; } // the target has no blocks left — nothing to ram
+
+        float speed = ConsumeMoveSpeed();
+        if (speed <= 0.001f) return;
+
+        Vector2 toAim = aim - from;
+        float distance = toAim.magnitude;
+        if (distance < 0.01f) return;
+
+        float step = Mathf.Min(speed * Time.deltaTime, distance);
+        transform.position += (Vector3)(toAim / distance * step);
     }
 
     // ---------- Default behavior: advance into view, then maneuver ----------
@@ -359,7 +443,11 @@ public class EnemyShip : MonoBehaviour
 
     private void UpdateRoute()
     {
-        if (routeIndex >= route.Count) return; // reached the end — holds position here
+        if (routeIndex >= route.Count)
+        {
+            if (ramsPlayer) state = State.Ramming; // route finished: charge
+            return; // otherwise holds position at the last point
+        }
 
         var waypoint = route[routeIndex];
         if (waypoint.point == null) { routeIndex++; return; }

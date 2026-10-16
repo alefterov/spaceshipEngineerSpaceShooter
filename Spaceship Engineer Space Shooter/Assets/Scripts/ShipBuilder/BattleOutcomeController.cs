@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Decides how a battle ends and reacts to it:
 ///  - Player ship destroyed OR disabled (last Cockpit/Generator lost) -> loss.
-///  - Every wave has finished spawning AND no enemy hazards remain (Targetable.Active) -> win. Stars
+///  - Every wave has finished spawning AND no enemy hazards remain (Targetable.Active) AND no enemy ship has
+///    a living block left (even a disabled wreck) -> win. Stars
 ///    (1-3) come from how much of the ship's starting HP survived.
 ///
 /// Either way, the SAME BattleResultPanel is told what to show — see that class for the win/loss
@@ -84,9 +85,11 @@ public class BattleOutcomeController : MonoBehaviour
 
     private IEnumerator WaitForEnemiesCleared()
     {
+        // Not won while ANY enemy block is still alive (ShipIdentity.AnyEnemyBlocksAlive — a disabled wreck
+        // counts too), so the player keeps firing until the last enemy block is gone.
         // Targetable.Active is every hazard currently alive (meteors now, missiles/etc. later) —
         // "cleared" means none left, regardless of whether each one was shot down or just flew past.
-        while (!outcomeDecided && Targetable.Active.Any(t => t.kind != TargetKind.Ship))
+        while (!outcomeDecided && (Targetable.Active.Any(t => t.kind != TargetKind.Ship) || ShipIdentity.AnyEnemyBlocksAlive))
             yield return null;
 
         if (!outcomeDecided) Win();

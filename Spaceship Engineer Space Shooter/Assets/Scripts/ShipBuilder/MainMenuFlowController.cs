@@ -44,7 +44,7 @@ public class MainMenuFlowController : MonoBehaviour
     {
         // GameDataManager already loaded the save file in its own Awake (runs before this Start,
         // as long as it lives in the same scene or a bootstrap scene loaded earlier).
-        playerShip.SetHangarLevel(GameDataManager.Instance.HangarLevel); // restore any hangar upgrades bought previously
+        playerShip.SetHangarSize(GameDataManager.Instance.HangarColumns, GameDataManager.Instance.HangarRows); // restore any hangar upgrades bought previously
         GameDataManager.Instance.LoadShip(playerShip, database);
         GameDataManager.Instance.BeginBuildSession(); // baseline for RevertCredits, in case Build is entered before any Save
         ShowMainMenu();

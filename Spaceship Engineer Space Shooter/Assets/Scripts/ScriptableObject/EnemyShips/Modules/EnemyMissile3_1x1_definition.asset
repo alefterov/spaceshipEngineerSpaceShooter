@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Missile II
   icon: {fileID: 8442217015665508581, guid: 76c54ca6cc986924a9021e5b65539d0d, type: 3}
   prefab: {fileID: 729449600381729954, guid: 7f3a76d84ccc5aa4fb554424ab46787a, type: 3}
+  enemyOnly: 1
   category: 2
   weaponClass: 2
   buildCost: 10

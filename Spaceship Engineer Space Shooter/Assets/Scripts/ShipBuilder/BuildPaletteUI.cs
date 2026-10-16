@@ -53,7 +53,7 @@ public class BuildPaletteUI : MonoBehaviour
         selectedButton = null;
 
         foreach (var block in blocks)
-            if (IsUnlocked(block)) CreateButton(block);
+            if (!block.enemyOnly && IsUnlocked(block)) CreateButton(block); // enemy-only blocks never show for the player
     }
 
     private bool IsUnlocked(BlockDefinition block)

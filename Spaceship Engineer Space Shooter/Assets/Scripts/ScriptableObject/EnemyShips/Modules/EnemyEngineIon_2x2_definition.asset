@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Ion Thraster III
   icon: {fileID: -5065031205525248684, guid: 1b049bc7a1e8c3c40ba53696a3294f5e, type: 3}
   prefab: {fileID: 729449600381729954, guid: 83907ae569b93ab4abf4c576ecff145e, type: 3}
+  enemyOnly: 1
   category: 3
   weaponClass: 0
   buildCost: 10

@@ -62,7 +62,9 @@ MonoBehaviour:
   width: 5
   height: 5
   cellSize: 1
-  hangarLevel: 0
+  hangarColumns: 0
+  hangarRows: 0
+  fallbackExplosionEffect: {fileID: 0}
   cellVisualPrefab: {fileID: 0}
   buildGridColor: {r: 1, g: 1, b: 1, a: 0.06}
   roofSortingOrder: 20
@@ -80,17 +82,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShip
   blocks:
-  - block: {fileID: 11400000, guid: 40bd42fc7011c21448830432c9650149, type: 2}
+  - block: {fileID: 11400000, guid: afd79db4637704842bbf8a2399a83d70, type: 2}
     position: {x: 0, y: 0}
     rotationSteps: 0
-  - block: {fileID: 11400000, guid: 813b8366630fa264ea60b1a5e175d9de, type: 2}
+  - block: {fileID: 11400000, guid: 8f2e232877db00b40ac8101bb96ece53, type: 2}
     position: {x: 0, y: 1}
     rotationSteps: 0
-  - block: {fileID: 11400000, guid: 49f039d11f70740498ebf41462a34bd0, type: 2}
+  - block: {fileID: 11400000, guid: 010533493f5b15343af5d9cbcd240ad3, type: 2}
     position: {x: 0, y: -1}
     rotationSteps: 0
-  - block: {fileID: 11400000, guid: 1f99b6e9bc5cba94ab5fc653e337f3b8, type: 2}
+  - block: {fileID: 11400000, guid: 074456c2a3a86a4498b01d9f4f383473, type: 2}
     position: {x: 0, y: -2}
     rotationSteps: 0
+  faceDown: 1
+  route: []
+  speedMultiplier: 1
+  energyPerSecondAtFullThrust: 5
+  ramsPlayer: 0
+  ramWhenUnarmed: 1
+  battleCamera: {fileID: 0}
+  extraApproachFraction: 0.5
+  screenMarginFraction: 0.05
+  maneuverZoneHeightFraction: 0.4
   disabledDriftSpeed: 0.5
   target: {fileID: 0}

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Heavy Armor IV
   icon: {fileID: 9046753385145302163, guid: 1ef478eecdef24649b91680c4a88e931, type: 3}
   prefab: {fileID: 729449600381729954, guid: 6073ef15e9dc3034189705224933ee4f, type: 3}
+  enemyOnly: 1
   category: 1
   weaponClass: 0
   buildCost: 100

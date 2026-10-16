@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Cockpit
   icon: {fileID: 928279348840330441, guid: f71e4c98018bedf40995a7acc90a9684, type: 3}
   prefab: {fileID: 729449600381729954, guid: b9d2294d442096640a85568201c82c1c, type: 3}
+  enemyOnly: 1
   category: 6
   weaponClass: 0
   buildCost: 10
