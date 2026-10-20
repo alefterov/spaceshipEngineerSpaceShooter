@@ -190,9 +190,10 @@ MonoBehaviour:
   type: 2
   moduleId: kineticGun_1x1
   buildCost: 400
+  laserResistance: 0
   maxHP: 200
   mass: 10
-  energyDelta: 6
+  energyDelta: -6
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000
@@ -203,6 +204,7 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 3153761081599872217}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   aiming: 0
   fireControl: 0
   weaponClass: 0

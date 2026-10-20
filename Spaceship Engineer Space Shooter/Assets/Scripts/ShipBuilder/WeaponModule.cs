@@ -70,12 +70,10 @@ public class WeaponModule : ShipModule
     public float cooldownSeconds = 0.35f;
     public float projectileDamage = 5f;
     public float projectileSpeed = 12f;
-    // Energy spent PER SHOT — reuses Energy Delta (that field's own tooltip already documents it as
-    // "per second"): at a shot every Cooldown Seconds, spending |Energy Delta| x Cooldown Seconds each
-    // time averages out to exactly that per-second rate. Firing is skipped (held, not wasted) whenever
-    // the ship's ShipEnergySystem can't afford it — the same pool engines and shields draw from, so a
-    // ship's weapons, engines and shields all compete over one real energy budget. See FireIfReady.
-    public float EnergyCostPerShot => energyPerBarrelPerSecond * EffectiveCooldownSeconds;
+    // Energy spent PER SHOT, per barrel — exactly the number in Energy Delta (not per second). A shot is skipped
+    // (held, not wasted) whenever the ship's ShipEnergySystem can't afford it — the same pool engines and
+    // shields draw from, so a ship's weapons, engines and shields all compete over one real energy budget. See FireIfReady.
+    public virtual float EnergyCostPerShot => energyPerShot;
     [Tooltip("FIRING RANGE, in world units (1 = one grid cell). A target is engaged only within this " +
              "distance, and the shot itself disappears once it has travelled this far.")]
     public float range = 12f;
@@ -108,7 +106,9 @@ public class WeaponModule : ShipModule
     // One entry per barrel: the barrels reload independently, so after an energy shortage they drift apart.
     protected readonly List<Transform> barrels = new();
     protected float[] barrelCooldowns = new float[1];
-    private float energyPerBarrelPerSecond; // what ONE barrel burns per second (the prefab's Energy Delta)
+    private float energyPerShot; // what ONE shot of ONE barrel costs (the prefab's Energy Delta)
+    protected float EnergyPerShot => energyPerShot;
+    protected ShipEnergySystem Energy => energy;
     private bool poweredOn = true;
     private bool combatActive;
     protected bool CombatActive => combatActive;
@@ -118,7 +118,13 @@ public class WeaponModule : ShipModule
     private ShipEnergySystem energy;
 
     /// <summary>Sustained damage output — what the stats panel's Firepower reads (see ShipGrid.ComputeFirepower).</summary>
-    public float DamagePerSecond => projectileDamage * EffectiveDamageMultiplier * BarrelCount / Mathf.Max(0.01f, EffectiveCooldownSeconds);
+    /// <summary>Seconds from one shot of a barrel to the next one of the same barrel (a beam weapon adds its beam time).</summary>
+    protected virtual float ShotCycleSeconds => EffectiveCooldownSeconds;
+
+    /// <summary>Average energy per second for the stats panel: one shot's cost per barrel, over the shot cycle.</summary>
+    public override float EnergyPerSecondEstimate => -EnergyCostPerShot * BarrelCount / Mathf.Max(0.01f, ShotCycleSeconds);
+
+    public virtual float DamagePerSecond => projectileDamage * EffectiveDamageMultiplier * BarrelCount / Mathf.Max(0.01f, EffectiveCooldownSeconds);
 
     /// <summary>How many barrels this weapon has (1 for an ordinary gun).</summary>
     public int BarrelCount => barrels.Count > 0 ? barrels.Count : 1;
@@ -167,10 +173,9 @@ public class WeaponModule : ShipModule
         base.Awake();
         type = ModuleType.Weapon;
         energyDelta = -Mathf.Abs(energyDelta); // weapons consume energy
-        energyPerBarrelPerSecond = Mathf.Abs(energyDelta);
+        energyPerShot = Mathf.Abs(energyDelta);
 
         BuildBarrels();
-        energyDelta = -energyPerBarrelPerSecond * barrels.Count; // the ship's energy balance counts every barrel
         CacheRenderers(topRoot, topRenderers);
         identity = GetComponentInParent<ShipIdentity>();
         energy = GetComponentInParent<ShipEnergySystem>(); // absent = energy is simply never checked (see FireIfReady)
@@ -221,12 +226,12 @@ public class WeaponModule : ShipModule
     /// here is exactly what makes "the guns don't shoot" so hard to track down otherwise.</summary>
     protected bool ValidateSetup()
     {
-        bool ok = projectilePrefab != null && barrels.Count > 0 && (aiming != WeaponAiming.Turret || turretPivot != null);
+        bool ok = (!RequiresProjectilePrefab || projectilePrefab != null) && barrels.Count > 0 && (aiming != WeaponAiming.Turret || turretPivot != null);
         if (ok || warnedMisconfigured) return ok;
 
         warnedMisconfigured = true;
         Debug.LogWarning($"Weapon '{moduleId}' can't fire: " +
-                         (projectilePrefab == null ? "Projectile Prefab is not assigned. " : "") +
+                         (RequiresProjectilePrefab && projectilePrefab == null ? "Projectile Prefab is not assigned. " : "") +
                          (barrels.Count == 0 ? "Muzzles list is empty (assign at least one barrel tip). " : "") +
                          (aiming == WeaponAiming.Turret && turretPivot == null ? "Turret Pivot is not assigned (aiming = Turret). " : "") +
                          "Fix it on the block's prefab.", this);
@@ -282,9 +287,22 @@ public class WeaponModule : ShipModule
     /// frame — so a triple gun on a starved ship fires one or two barrels and the barrels fall out of step.
     /// Returns whether at least one shot went out.
     /// </summary>
+    /// <summary>Seconds between one barrel firing and the next one being allowed to — 0 = every loaded barrel fires
+    /// in the same volley. A subclass sets it to stagger its barrels one after another.</summary>
+    protected virtual float SalvoDelay => 0f;
+
+    /// <summary>Whether a Projectile Prefab is needed to fire (false for a weapon that fires a beam).</summary>
+    protected virtual bool RequiresProjectilePrefab => true;
+
+    /// <summary>How long a barrel stays unloaded after it fires. A beam weapon counts the cooldown from the end of
+    /// the beam, so it adds the beam time.</summary>
+    protected virtual float ReloadAfterShot => EffectiveCooldownSeconds;
+    private float nextShotTime;
+
     protected bool FireIfReady(Vector2? aimPoint)
     {
-        if (IsDestroyed || !poweredOn || projectilePrefab == null || barrels.Count == 0) return false;
+        if (IsDestroyed || !poweredOn || (RequiresProjectilePrefab && projectilePrefab == null) || barrels.Count == 0) return false;
+        if (SalvoDelay > 0f && Time.time < nextShotTime) return false;
         if (aimPoint.HasValue && !InFiringArc(aimPoint.Value)) return false;
 
         bool fired = false;
@@ -296,8 +314,15 @@ public class WeaponModule : ShipModule
             if (energy != null && !energy.TrySpend(EnergyCostPerShot, ShipEnergySystem.EnergyPriorityGroup.Weapons)) break;
 
             Spawn(barrels[i]);
-            barrelCooldowns[i] = EffectiveCooldownSeconds;
+            barrelCooldowns[i] = ReloadAfterShot;
             fired = true;
+
+            // One barrel at a time when the weapon staggers its shots: the next one has to wait.
+            if (SalvoDelay > 0f)
+            {
+                nextShotTime = Time.time + SalvoDelay;
+                break;
+            }
         }
 
         return fired;

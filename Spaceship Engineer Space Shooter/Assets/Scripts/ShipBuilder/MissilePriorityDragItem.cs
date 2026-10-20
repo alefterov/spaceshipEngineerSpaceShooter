@@ -15,7 +15,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(LayoutElement))]
 public class MissilePriorityDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public ModuleType targetType = ModuleType.Cockpit;
+    [Tooltip("Cockpit, Weapon (every kind of weapon), Generator, Shield, Engine, Repair or Armor. Other types are ignored.")]
+    public ModuleType targetType = ModuleType.Weapon;
     public MissilePriorityController controller;
 
     private RectTransform rect;

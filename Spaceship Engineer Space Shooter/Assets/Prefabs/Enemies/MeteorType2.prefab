@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Meteor
   damage: 20
-  speed: 18
+  speed: 12
   creditReward: 5
   experienceReward: 5
   offscreenMargin: 4

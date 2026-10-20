@@ -222,9 +222,10 @@ MonoBehaviour:
   type: 2
   moduleId: kineticTurretGun3_1x1
   buildCost: 300
+  laserResistance: 0
   maxHP: 180
   mass: 6
-  energyDelta: 2
+  energyDelta: -2
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000
@@ -235,6 +236,7 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 1643671066974087282}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   aiming: 1
   fireControl: 0
   weaponClass: 0

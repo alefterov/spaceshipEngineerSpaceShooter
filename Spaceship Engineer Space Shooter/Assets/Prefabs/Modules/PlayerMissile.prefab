@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 3910864154725973254}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.39, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -41,14 +41,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3910864154725973254}
   serializedVersion: 8
-  lengthInSec: 2
+  lengthInSec: 1
   simulationSpeed: 4
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -116,7 +116,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2
+      scalar: 0.42
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -604,7 +604,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 14
+    maxNumParticles: 200
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -665,10 +665,10 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 4
-    angle: 60
+    angle: 8.1
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
-    radiusThickness: 1
+    radiusThickness: 0
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 90, y: 90, z: 0}
@@ -870,7 +870,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 1
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -5107,11 +5107,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c21e09eb602f0e4897f4d253fbf7a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Missile
-  speed: 5
+  speed: 4
   straightSeconds: 0.6
   turnRateDegreesPerSecond: 120
-  lifeTime: 10
+  lifeTime: 16
   neighbourDamageFraction: 0.1
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 11f391dc323dcee4db13e568f2f7878c, type: 3}
   explosionEffectLifetime: 2
+  trailEnabled: 1
+  trailTime: 0.72
+  trailStartWidth: 0.15
+  trailEndWidth: 0
+  trailColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 0.59607846}
+  trailMaterial: {fileID: 0}
+  trailSortingOrder: 0
   hitPoints: 5

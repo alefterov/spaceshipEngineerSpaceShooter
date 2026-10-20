@@ -4,7 +4,7 @@ using UnityEngine;
 /// Moves the ship toward wherever ShipJoystickController points, at a speed derived from total
 /// engine thrust vs total ship mass (see ShipGrid.ComputeEnginePower/ComputeTotalMass) — a heavier
 /// ship, or one that's lost engines mid-fight, moves slower. Consumes energy from ShipEnergySystem
-/// while thrusting; simply stops (doesn't limp along at reduced speed) if the pool runs dry.
+/// while thrusting; loses thrust (and coasts to a stop) if the pool runs dry. Speed changes gradually — see ShipInertia.
 ///
 /// Only moves while ShipIdentity.CombatActive is true, so the player can't drive the ship during the
 /// arrival/countdown intro — same gate WeaponModule already uses for firing.
@@ -20,8 +20,17 @@ public class ShipMovement : MonoBehaviour
 {
     [Tooltip("Multiplies thrust/mass into an actual world-units-per-second speed — tune to taste.")]
     public float speedMultiplier = 1f;
-    [Tooltip("Energy spent per second while thrusting at full joystick deflection — scales down with a lighter push.")]
+    [Tooltip("FALLBACK only: energy per second at full thrust, used when none of the ship's engines has an Energy Delta set. Normally the engines' own Energy Delta (added up) is what moving costs.")]
     public float energyPerSecondAtFullThrust = 5f;
+
+    [Header("Inertia")]
+    [Tooltip("Seconds to get from a standstill to full speed. Higher = a more sluggish, heavier feel.")]
+    public float accelerationSeconds = 1.2f;
+    [Tooltip("Seconds to come to a stop from full speed (letting go of the stick, or turning around).")]
+    public float brakeSeconds = 0.8f;
+    [Tooltip("When the stick points more than this many degrees away from the way the ship is flying, the ship first " +
+             "brakes down to a standstill and only then accelerates the new way. A smaller change is followed gradually.")]
+    [Range(5f, 170f)] public float turnBrakeAngle = 40f;
 
     [Tooltip("Falls back to Camera.main if left unset.")]
     public Camera battleCamera;
@@ -55,26 +64,58 @@ public class ShipMovement : MonoBehaviour
 
     public void SetInput(Vector2 direction) => inputDirection = direction;
 
+    /// <summary>Energy per second while moving at full thrust: the living engines' Energy Delta added up (so
+    /// a lost engine also costs less). If no engine has one set, the old Energy Per Second At Full Thrust is used.</summary>
+    private float MoveEnergyPerSecond
+    {
+        get
+        {
+            float fromEngines = grid.ComputeMoveEnergyPerSecond();
+            return fromEngines > 0f ? fromEngines : energyPerSecondAtFullThrust;
+        }
+    }
+
+    private ShipBody body; // added by RamCollision the first time an enemy ship touches ours
+
+    private Vector2 velocity;
+
+    /// <summary>Current velocity of the ship, in world units per second.</summary>
+    public Vector2 Velocity => velocity;
+
     private void Update()
     {
+        float dt = Time.deltaTime;
+
         // Cached per-frame rather than re-derived inside the early-returns below, so every engine's
         // burn effect correctly drops back to idle the instant the player lets go or runs out of
         // energy — not just while actually moving.
         float strength = identity.CombatActive ? Mathf.Clamp01(inputDirection.magnitude) : 0f;
+        float maxSpeed = GetMaxSpeed();
 
+        // What the stick asks for. Without energy there is no thrust (no speed asked for) — the ship just slows down.
+        Vector2 desired = Vector2.zero;
         if (strength >= 0.01f)
         {
-            float energyCost = energyPerSecondAtFullThrust * strength * Time.deltaTime;
+            float energyCost = MoveEnergyPerSecond * strength * dt;
             if (energy != null && !energy.TrySpend(energyCost, ShipEnergySystem.EnergyPriorityGroup.Movement))
-            {
-                strength = 0f; // out of power — hold position, engines ease back to idle
-            }
+                strength = 0f; // out of power — no thrust, engines ease back to idle
             else
-            {
-                float speed = GetMaxSpeed() * strength;
-                Vector3 delta = (Vector3)(inputDirection.normalized * speed * Time.deltaTime);
-                transform.position = ClampToView(transform.position + delta);
-            }
+                desired = inputDirection.normalized * maxSpeed * strength;
+        }
+
+        // Inertia: the velocity follows the stick gradually — see ShipInertia.
+        velocity = ShipInertia.Step(velocity, desired, maxSpeed, accelerationSeconds, brakeSeconds, turnBrakeAngle, dt);
+
+        if (velocity.sqrMagnitude > 0.000001f && dt > 0f)
+        {
+            Vector3 step = (Vector3)(velocity * dt);
+            if (body != null || TryGetComponent(out body)) step = body.FilterMove(step); // a collision with an enemy ship stops us / blocks the way into it
+
+            Vector3 before = transform.position;
+            transform.position = ClampToView(before + step);
+
+            // What really happened is the new velocity — a screen edge or another ship takes the speed away.
+            velocity = (Vector2)(transform.position - before) / dt;
         }
 
         // Disabled (last Cockpit or last Generator gone) means no crew left to run anything — engines go

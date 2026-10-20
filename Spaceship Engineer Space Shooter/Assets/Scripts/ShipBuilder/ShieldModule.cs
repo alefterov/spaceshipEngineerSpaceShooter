@@ -66,6 +66,10 @@ public class ShieldModule : ShipModule
     /// <summary>Whether the field is currently protecting — false while collapsed for lack of reserve.</summary>
     public bool IsUp => shieldUp && !IsDestroyed;
 
+    /// <summary>The shield only spends energy when it takes a hit (Energy Delta per hit, see HandleIncoming) and
+    /// to refill its reserve — so there is no steady per-second draw to show in the stats.</summary>
+    public override float EnergyPerSecondEstimate => 0f;
+
     /// <summary>Damage the shield can still absorb right now.</summary>
     public float Reserve { get; private set; }
 
@@ -73,7 +77,7 @@ public class ShieldModule : ShipModule
     {
         base.Awake();
         type = ModuleType.Shield;
-        energyDelta = -Mathf.Abs(energyDelta); // shields draw power, same convention as WeaponModule
+        energyDelta = -Mathf.Abs(energyDelta); // shields draw power: Energy Delta is what ONE absorbed hit costs
 
         energy = GetComponentInParent<ShipEnergySystem>();
         identity = GetComponentInParent<ShipIdentity>();
@@ -183,6 +187,11 @@ public class ShieldModule : ShipModule
             shieldUp = false; // not enough reserve — the field collapses and this hit goes through
             return;
         }
+
+        // Every absorbed hit also costs Energy Delta from the ship's energy pool. If the ship can't pay for it, the
+        // hit is not absorbed — it flies through to the blocks (the shield itself stays up).
+        float hitCost = Mathf.Abs(energyDelta);
+        if (energy != null && hitCost > 0f && !energy.TrySpend(hitCost, ShipEnergySystem.EnergyPriorityGroup.Defense)) return;
 
         Reserve -= damage;
         if (Reserve <= 0.01f) shieldUp = false; // drained to nothing by this very hit

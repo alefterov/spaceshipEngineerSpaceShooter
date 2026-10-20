@@ -18,11 +18,22 @@ public class ShipModule : MonoBehaviour
              "prefab; read by GhostBlockController to compute the dismantle refund.")]
     public int buildCost;
 
+    [Header("Resistances")]
+    [Tooltip("Share of LASER damage this block shrugs off, 0 to 1 — an energy armor block, say, 0.8 takes only a fifth of a beam's damage. 0 = none.")]
+    [Range(0f, 1f)] public float laserResistance = 0f;
+
     [Header("Stats")]
     public float maxHP = 20f;
     public float mass = 1f;
-    [Tooltip("Energy this module produces (generators) or consumes (weapons/shields) per second.")]
+    [Tooltip("Energy, with a sign: generators produce it (+, per second). Everything else spends it (−, enter the amount " +
+             "as a number, the sign is fixed automatically) — and WHEN depends on the block: a weapon, per SHOT; a shield, " +
+             "per HIT it absorbs; an engine, per second while the ship is MOVING.")]
     public float energyDelta = 0f;
+
+    /// <summary>Energy per second this block adds (+) or draws (−) on average — what the ship's stats panel and
+    /// energy balance show. For most blocks that is Energy Delta itself; blocks whose Energy Delta means something
+    /// else (a weapon's cost per shot, a shield's cost per hit) turn it into a per-second estimate.</summary>
+    public virtual float EnergyPerSecondEstimate => energyDelta;
 
     [Header("Grid placement (set by ShipGrid when placed)")]
     [Tooltip("All grid cells (in absolute ship-grid coordinates) this module occupies. " +
@@ -251,7 +262,9 @@ public enum ModuleType
     Shield = 4,
     Generator = 5,
     Cockpit = 6,
-    Repair = 7
+    Repair = 7,
+    /// <summary>NOT a block: only used as a missile target category (MissileTargetPriority) meaning "meteors".</summary>
+    Meteor = 8
 }
 
 /// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>

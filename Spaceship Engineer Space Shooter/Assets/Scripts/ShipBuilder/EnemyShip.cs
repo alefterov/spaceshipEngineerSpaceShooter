@@ -114,6 +114,24 @@ public class EnemyShip : MonoBehaviour
              "way down if that's where the player is.")]
     [Range(0.1f, 1f)] public float maneuverZoneHeightFraction = 0.4f;
 
+    [Header("Inertia")]
+    [Tooltip("Seconds to get from a standstill to full speed. Higher = a heavier, more sluggish ship.")]
+    public float accelerationSeconds = 1.2f;
+    [Tooltip("Seconds to come to a stop from full speed.")]
+    public float brakeSeconds = 0.8f;
+    [Tooltip("When it has to go more than this many degrees away from where it is heading, it first brakes to a standstill, " +
+             "then accelerates the new way. A smaller change is followed gradually.")]
+    [Range(5f, 170f)] public float turnBrakeAngle = 40f;
+
+    [Header("Breaking apart")]
+    [Tooltip("When destroyed blocks cut the ship in two, the part without the cockpit tears loose and becomes a " +
+             "separate lifeless object (see ShipSplitter / ShipFragment).")]
+    public bool splitsIntoFragments = true;
+    [Tooltip("World units per second a broken-off part drifts toward the player's ship.")]
+    public float fragmentDriftSpeed = 0.5f;
+    [Tooltip("The most a broken-off part turns per second (degrees); each one gets a random spin up to this, either way.")]
+    public float fragmentMaxSpinDegrees = 30f;
+
     [Header("Once disabled")]
     [Tooltip("World units per second this ship drifts toward Target once its last Generator or its " +
              "Cockpit is destroyed — overrides Route/the default behavior above entirely. A heavier hull " +
@@ -163,6 +181,7 @@ public class EnemyShip : MonoBehaviour
 
         // Collision damage against the player's ship — see RamCollision. Add one to the prefab yourself to tune it.
         if (!TryGetComponent<RamCollision>(out _)) gameObject.AddComponent<RamCollision>();
+        if (splitsIntoFragments && !TryGetComponent<ShipSplitter>(out _)) gameObject.AddComponent<ShipSplitter>();
     }
 
     private void OnEnable()
@@ -179,6 +198,54 @@ public class EnemyShip : MonoBehaviour
     }
 
     private void RefreshEngineList() => engines = GetComponentsInChildren<EngineModule>();
+
+    private ShipBody body;
+
+    /// <summary>Runs every self-propelled step through the ship's ShipBody, so a ship that has just collided with the
+    /// player's ship stops, and can't push on into it.</summary>
+    private Vector3 Filter(Vector3 step)
+    {
+        if (body == null) body = ShipBody.GetOrAdd(this);
+        return body.FilterMove(step);
+    }
+
+    private Vector2 velocity;
+
+    /// <summary>Current velocity of the ship, in world units per second.</summary>
+    public Vector2 Velocity => velocity;
+
+    /// <summary>Moves the ship one step toward `desired` velocity WITH inertia (see ShipInertia): it speeds up and slows
+    /// down gradually, and shedding the old speed comes before accelerating a new way. `accelReference` is the speed
+    /// the Acceleration / Brake times are measured against (default: the ship's top speed). `clampToZone` keeps it
+    /// inside its play zone; `hitSide` says it ran into a side wall. Returns how far it actually moved.</summary>
+    private Vector3 Drive(Vector2 desired, bool clampToZone = false, float accelReference = -1f)
+        => Drive(desired, clampToZone, out _, accelReference);
+
+    private Vector3 Drive(Vector2 desired, bool clampToZone, out bool hitSide, float accelReference = -1f)
+    {
+        hitSide = false;
+        float dt = Time.deltaTime;
+        if (dt <= 0f) return Vector3.zero;
+
+        float reference = accelReference > 0f ? accelReference : GetMaxSpeed();
+        velocity = ShipInertia.Step(velocity, desired, reference, accelerationSeconds, brakeSeconds, turnBrakeAngle, dt);
+
+        Vector3 before = transform.position;
+        Vector3 target = before + Filter((Vector3)(velocity * dt));
+
+        if (clampToZone)
+        {
+            Vector3 clamped = ClampToView(target);
+            hitSide = Mathf.Abs(clamped.x - target.x) > 0.0001f;
+            target = clamped;
+        }
+
+        transform.position = target;
+
+        // What really happened is the new velocity — a wall or another ship takes the speed away.
+        velocity = (Vector2)(target - before) / dt;
+        return target - before;
+    }
 
     private bool hadWeapons;
 
@@ -239,7 +306,9 @@ public class EnemyShip : MonoBehaviour
         float speed = GetMaxSpeed();
         bool moving = speed > 0.001f;
 
-        if (moving && energy != null && !energy.TrySpend(energyPerSecondAtFullThrust * Time.deltaTime, ShipEnergySystem.EnergyPriorityGroup.Movement))
+        float perSecond = grid.ComputeMoveEnergyPerSecond(); // the living engines' Energy Delta; falls back to the field below
+        if (perSecond <= 0f) perSecond = energyPerSecondAtFullThrust;
+        if (moving && energy != null && !energy.TrySpend(perSecond * Time.deltaTime, ShipEnergySystem.EnergyPriorityGroup.Movement))
         {
             speed = 0f;
             moving = false;
@@ -276,12 +345,15 @@ public class EnemyShip : MonoBehaviour
 
     private void UpdateDisabledDrift()
     {
-        if (target == null) return;
+        // A powerless hulk: keeps whatever speed it had, and gradually settles into a slow drift toward the target.
+        Vector2 desired = Vector2.zero;
+        if (target != null)
+        {
+            Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
+            if (toTarget.sqrMagnitude >= 0.0001f) desired = toTarget.normalized * disabledDriftSpeed;
+        }
 
-        Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
-        if (toTarget.sqrMagnitude < 0.0001f) return; // already there — nothing left to close
-
-        transform.position += (Vector3)(toTarget.normalized * disabledDriftSpeed * Time.deltaTime);
+        Drive(desired, accelReference: Mathf.Max(0.05f, disabledDriftSpeed));
     }
 
     // ---------- Entry: always from above, always inside the allowed width ----------
@@ -327,17 +399,14 @@ public class EnemyShip : MonoBehaviour
         Vector2 aim;
         if (targetIdentity != null && targetIdentity.TryGetNearestBlockPosition(from, out var block)) aim = block;
         else if (target != null && targetIdentity == null) aim = target.position;
-        else { ConsumeMoveSpeed(); return; } // the target has no blocks left — nothing to ram
+        else { ConsumeMoveSpeed(); Drive(Vector2.zero); return; } // the target has no blocks left — nothing to ram
 
         float speed = ConsumeMoveSpeed();
-        if (speed <= 0.001f) return;
-
         Vector2 toAim = aim - from;
         float distance = toAim.magnitude;
-        if (distance < 0.01f) return;
 
-        float step = Mathf.Min(speed * Time.deltaTime, distance);
-        transform.position += (Vector3)(toAim / distance * step);
+        // Full speed at the target — a ram does not slow down.
+        Drive(speed > 0.001f && distance >= 0.01f ? toAim / distance * speed : Vector2.zero);
     }
 
     // ---------- Default behavior: advance into view, then maneuver ----------
@@ -345,7 +414,7 @@ public class EnemyShip : MonoBehaviour
     private void UpdateApproaching()
     {
         float speed = ConsumeMoveSpeed();
-        transform.position += transform.up * speed * Time.deltaTime; // "up" is the fixed facing set in Start
+        Vector3 moved = Drive((Vector2)transform.up * speed); // "up" is the fixed facing set in Start
 
         if (!fullyInViewReached)
         {
@@ -357,7 +426,7 @@ public class EnemyShip : MonoBehaviour
             return;
         }
 
-        extraApproachRemaining -= speed * Time.deltaTime;
+        extraApproachRemaining -= moved.magnitude;
         if (extraApproachRemaining > 0f) return;
 
         state = State.Maneuvering;
@@ -405,13 +474,10 @@ public class EnemyShip : MonoBehaviour
     private void UpdateManeuvering()
     {
         float speed = ConsumeMoveSpeed();
-        Vector3 desired = transform.position + transform.right * maneuverDirection * speed * Time.deltaTime;
-        Vector3 clamped = ClampToView(desired);
+        Drive((Vector2)transform.right * maneuverDirection * speed, clampToZone: true, out bool hitSide);
 
-        // Got clamped along X — that's an edge, so turn around for next frame instead of pressing into it.
-        if (Mathf.Abs(clamped.x - desired.x) > 0.0001f) maneuverDirection = -maneuverDirection;
-
-        transform.position = clamped;
+        // Ran into the side wall: turn around — it brakes first (it has no speed left along X anyway), then sets off back.
+        if (hitSide) maneuverDirection = -maneuverDirection;
     }
 
     /// <summary>Clamps a candidate root position so the ship's actual built bounds stay fully inside its
@@ -446,7 +512,8 @@ public class EnemyShip : MonoBehaviour
         if (routeIndex >= route.Count)
         {
             if (ramsPlayer) state = State.Ramming; // route finished: charge
-            return; // otherwise holds position at the last point
+            else Drive(Vector2.zero);              // otherwise it comes to a stop at the last point
+            return;
         }
 
         var waypoint = route[routeIndex];
@@ -455,23 +522,29 @@ public class EnemyShip : MonoBehaviour
         if (holdTimer > 0f)
         {
             holdTimer -= Time.deltaTime;
+            Drive(Vector2.zero); // waiting: it brakes and holds
             return;
         }
 
         float speed = ConsumeMoveSpeed();
-        if (speed <= 0.001f) return; // out of power this frame — holds position, tries again next frame
 
         Vector2 toPoint = (Vector2)waypoint.point.position - (Vector2)transform.position;
         float distance = toPoint.magnitude;
 
-        if (distance <= speed * Time.deltaTime)
+        // Arrived: close enough, and slow enough that it won't just carry on past the point.
+        if (distance <= 0.2f && velocity.magnitude < Mathf.Max(0.3f, GetMaxSpeed() * 0.15f))
         {
-            transform.position = waypoint.point.position;
             holdTimer = waypoint.holdSeconds;
             routeIndex++;
             return;
         }
 
-        transform.position += (Vector3)(toPoint / distance * speed * Time.deltaTime);
+        // Out of power: no thrust (it coasts down). Otherwise head for the point, easing off early enough to stop on it:
+        // the speed from which it can still brake to a halt within the distance left.
+        float desiredSpeed = speed;
+        float brakeAcceleration = Mathf.Max(0.01f, GetMaxSpeed()) / Mathf.Max(0.05f, brakeSeconds);
+        desiredSpeed = Mathf.Min(desiredSpeed, Mathf.Sqrt(2f * brakeAcceleration * distance));
+
+        Drive(speed > 0.001f && distance > 0.0001f ? toPoint / distance * desiredSpeed : Vector2.zero);
     }
 }

@@ -190,9 +190,10 @@ MonoBehaviour:
   type: 2
   moduleId: kineticGun1_1x1
   buildCost: 50
+  laserResistance: 0
   maxHP: 50
   mass: 2
-  energyDelta: 1
+  energyDelta: -1
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000

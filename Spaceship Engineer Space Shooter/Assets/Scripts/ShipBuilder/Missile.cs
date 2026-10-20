@@ -17,8 +17,8 @@ using UnityEngine;
 /// shot (the Navigator's evasion perk) passes through the ship harmlessly.
 ///
 /// PREFAB: Rigidbody2D (any body type; gravity is switched off here), a trigger Collider2D, the sprite with
-/// its nose along +Y, and this component. Optional: a TrailRenderer (or a FadingTrail component to tune the
-/// generated one) and an Explosion Effect Prefab. Speed, damage and launch direction come from the launcher.
+/// its nose along +Y, and this component. Optional: a TrailRenderer of your own (otherwise the Trail settings below
+/// make one) and an Explosion Effect Prefab. Speed, damage and launch direction come from the launcher.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class Missile : MonoBehaviour, IShieldBlockable
@@ -41,6 +41,23 @@ public class Missile : MonoBehaviour, IShieldBlockable
     [Tooltip("Seconds until the spawned explosion is removed. Make it at least as long as the effect. 0 = never removed here.")]
     public float explosionEffectLifetime = 2f;
 
+    [Header("Trail")]
+    [Tooltip("Leaves a short fading trail behind the missile while it flies; when the missile ends, the trail fades away where " +
+             "it was. If the prefab already has its own TrailRenderer (a child, or the one assigned in ProjectileGlow) that " +
+             "one is used and its own settings are kept — only the fade-out after the end is added. Otherwise one is " +
+             "created from the values below.")]
+    public bool trailEnabled = true;
+    [Tooltip("How long a point of the trail lasts, in seconds — the trail's length.")]
+    [Min(0f)] public float trailTime = 0.6f;
+    [Tooltip("Trail width right behind the missile, in world units, and at its far tip.")]
+    public float trailStartWidth = 0.15f;
+    public float trailEndWidth = 0f;
+    [Tooltip("Trail color; it fades to transparent along its length. Taken from the prefab's ProjectileGlow color if it has one.")]
+    public Color trailColor = new(1f, 0.85f, 0.6f, 0.8f);
+    [Tooltip("Optional material (e.g. additive). Empty = the plain sprite material.")]
+    public Material trailMaterial;
+    public int trailSortingOrder = 0;
+
     [Header("As a target")]
     [Tooltip("Damage it takes before it is shot down. Point-defence shots deal their own damage per hit.")]
     public float hitPoints = 5f;
@@ -49,12 +66,15 @@ public class Missile : MonoBehaviour, IShieldBlockable
     private Faction owner = Faction.Player;
     private float damage = 10f;
     private WeaponClass weaponClass = WeaponClass.Missile;
+    private static readonly TargetKind[] DefaultAllowed = { TargetKind.Ship, TargetKind.Meteor, TargetKind.Torpedo };
     private IReadOnlyList<ModuleType> priority = MissileTargetPriority.DefaultCategories;
 
     private Rigidbody2D rb;
     private Targetable targetable;
     private FadingTrail trail;
-    private ShipModule target;
+    private ShipModule targetBlock;          // a ship block chosen by the priority list ...
+    private Targetable targetObject;         // ... or, when there is no ship block to hit, a meteor / torpedo
+    private IReadOnlyList<TargetKind> allowed = DefaultAllowed;
     private float age;
     private float retargetTimer;
     private bool finished;
@@ -62,16 +82,17 @@ public class Missile : MonoBehaviour, IShieldBlockable
     private bool harmless; // dodged — flies on through, doing nothing
 
     /// <summary>Called right after the launcher instantiates it.</summary>
-    public void Launch(Faction ownerFaction, float damageAmount, float flightSpeed, IReadOnlyList<ModuleType> targetPriority, WeaponClass launcherClass)
+    public void Launch(Faction ownerFaction, float damageAmount, float flightSpeed, IReadOnlyList<ModuleType> targetPriority, WeaponClass launcherClass, IReadOnlyList<TargetKind> allowedTargets)
     {
         owner = ownerFaction;
         damage = damageAmount;
         speed = flightSpeed;
         weaponClass = launcherClass;
         if (targetPriority != null) priority = targetPriority;
+        if (allowedTargets != null) allowed = allowedTargets;
 
         targetable.Configure(TargetKind.Missile, owner, hitPoints);
-        target = Pick();
+        Acquire();
     }
 
     private void Awake()
@@ -85,6 +106,7 @@ public class Missile : MonoBehaviour, IShieldBlockable
 
         trail = GetComponent<FadingTrail>();
         if (trail == null) trail = gameObject.AddComponent<FadingTrail>();
+        if (trailEnabled && trailTime > 0f) trail.Setup(trailTime, trailStartWidth, trailEndWidth, trailColor, trailMaterial, trailSortingOrder);
 
         // The explosion may be a child object of this prefab rather than a separate asset; it is only a template.
         if (explosionEffectPrefab != null && explosionEffectPrefab.transform.IsChildOf(transform))
@@ -107,17 +129,20 @@ public class Missile : MonoBehaviour, IShieldBlockable
 
     private void Steer()
     {
-        if (target == null || target.IsDestroyed)
+        // Re-pick only when the chosen target is gone (destroyed, or hit by something else).
+        if (!HasLiveTarget)
         {
             retargetTimer -= Time.deltaTime;
-            if (retargetTimer > 0f) return;
-
-            retargetTimer = 0.25f;
-            target = Pick();
-            if (target == null) return; // nothing left to chase — flies on straight
+            if (retargetTimer <= 0f)
+            {
+                retargetTimer = 0.25f;
+                Acquire();
+            }
         }
 
-        Vector2 toTarget = (Vector2)target.transform.position - (Vector2)transform.position;
+        if (!HasLiveTarget) return; // nothing left to chase — flies on straight
+
+        Vector2 toTarget = TargetPosition - (Vector2)transform.position;
         if (toTarget.sqrMagnitude < 0.0001f) return;
 
         float wanted = Mathf.Atan2(toTarget.y, toTarget.x) * Mathf.Rad2Deg - 90f; // the nose is +Y
@@ -126,7 +151,18 @@ public class Missile : MonoBehaviour, IShieldBlockable
         transform.rotation = Quaternion.Euler(0f, 0f, turned);
     }
 
-    private ShipModule Pick() => MissileTargeting.PickTarget(owner, priority, transform.position);
+    private bool HasLiveTarget
+        => (targetBlock != null && !targetBlock.IsDestroyed) || (targetObject != null && !targetObject.IsDestroyed);
+
+    private Vector2 TargetPosition
+        => targetBlock != null && !targetBlock.IsDestroyed ? (Vector2)targetBlock.transform.position : (Vector2)targetObject.transform.position;
+
+    /// <summary>Chooses what to chase: a ship block by the priority list (if ships are allowed targets and the
+    /// other side has any block left); otherwise the nearest hostile meteor / torpedo among the allowed kinds.</summary>
+    private void Acquire()
+    {
+        MissileTargeting.PickTarget(owner, priority, allowed, transform.position, out targetBlock, out targetObject);
+    }
 
     // ---------- Hits ----------
 
@@ -134,11 +170,24 @@ public class Missile : MonoBehaviour, IShieldBlockable
     {
         if (finished || harmless) return;
 
+        // A meteor (or torpedo...) in the way: the missile blows up on it, dealing its damage to that object.
+        var hitObject = other.GetComponent<Targetable>();
+        // A meteor can never be ignored, whatever the priority or allowed targets say.
+        if (hitObject != null && (MissileTargeting.IsValidObjectTarget(hitObject, owner, allowed)
+                                  || (hitObject.kind == TargetKind.Meteor && !hitObject.IsDestroyed)))
+        {
+            ExplodeOnObject(hitObject);
+            return;
+        }
+
         var block = other.GetComponent<ShipModule>();
         if (block == null || block.IsDestroyed) return;
 
         bool hostile = owner == Faction.Enemy ? other.CompareTag("PlayerShip") : other.CompareTag("EnemyShip");
         if (!hostile) return;
+
+        // Only a block of the top-priority kind is worth exploding on; anything else in the way is flown past.
+        if (!ShouldDetonateOn(block)) return;
 
         // The Navigator's evasion perk: an enemy missile may be dodged — rolled once, then it just passes through.
         if (owner == Faction.Enemy && TryEvade())
@@ -152,6 +201,19 @@ public class Missile : MonoBehaviour, IShieldBlockable
         Explode(block);
     }
 
+    /// <summary>Whether touching this enemy block should set the missile off. It does only if the block is of the
+    /// same kind as the block it is chasing — the highest-priority kind that still exists. Any other block it
+    /// brushes against is ignored and the missile flies on toward the real target. While chasing a meteor every
+    /// ship block is ignored. (Meteors themselves can never be ignored — see OnTriggerEnter2D.)</summary>
+    private bool ShouldDetonateOn(ShipModule block)
+    {
+        if (!HasLiveTarget) Acquire(); // the target just went; look again before deciding
+
+        if (targetBlock != null && !targetBlock.IsDestroyed) return block.type == targetBlock.type;
+        if (targetObject != null && !targetObject.IsDestroyed) return false;
+        return true; // nothing was chosen at all — hit whatever enemy block this is
+    }
+
     private bool TryEvade()
     {
         if (!evasionRolled)
@@ -161,6 +223,16 @@ public class Missile : MonoBehaviour, IShieldBlockable
             return data != null && data.RollCrewChance(CrewPerkType.EvadeBallisticWeapons);
         }
         return false;
+    }
+
+    private void ExplodeOnObject(Targetable hit)
+    {
+        if (finished) return;
+        finished = true;
+
+        hit.TakeDamage(damage);
+        SpawnExplosion();
+        Despawn();
     }
 
     private void Explode(ShipModule hit)

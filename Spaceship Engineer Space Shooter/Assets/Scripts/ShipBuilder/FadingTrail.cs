@@ -2,29 +2,21 @@ using UnityEngine;
 
 /// <summary>
 /// A short fading trail behind a moving object that, when the object ends, is cut loose and fades away where it
-/// was instead of vanishing with it. Uses the object's own TrailRenderer if it has one (child or same object);
-/// otherwise creates one from the settings below (color taken from a ProjectileGlow on the same object, if any).
-/// Call Detach() when the object is destroyed. Added automatically by Missile.
+/// was instead of vanishing with it. Not set up by hand: Missile adds it and feeds it the Trail settings from
+/// its own Inspector (Setup). Uses the object's own TrailRenderer if it has one (child or same object);
+/// otherwise creates one from those settings (color taken from a ProjectileGlow on the same object, if any).
+/// Call Detach() when the object is destroyed.
 /// </summary>
 public class FadingTrail : MonoBehaviour
 {
-    [Tooltip("How long a point of the trail lasts, in seconds — the trail's length.")]
-    [Min(0.01f)] public float time = 0.6f;
-    [Tooltip("Trail width right behind the object, in world units, and at its far tip.")]
-    public float startWidth = 0.15f;
-    public float endWidth = 0f;
-    [Tooltip("Trail color; it fades to transparent along its length. A ProjectileGlow color wins if present.")]
-    public Color color = new(1f, 0.85f, 0.6f, 0.8f);
-    [Tooltip("Optional material (e.g. additive). Empty = the plain sprite material.")]
-    public Material material;
-    public int sortingOrder = 0;
-
     private TrailRenderer trail;
 
-    private void Awake()
+    /// <summary>Creates the trail from the given settings, unless the object already has a TrailRenderer of its
+    /// own — that one is used as it is.</summary>
+    public void Setup(float time, float startWidth, float endWidth, Color color, Material material, int sortingOrder)
     {
         trail = GetComponentInChildren<TrailRenderer>();
-        if (trail != null) return; // the object's own trail keeps its own settings
+        if (trail != null) return;
 
         var glow = GetComponent<ProjectileGlow>();
         Color c = glow != null ? glow.color : color;

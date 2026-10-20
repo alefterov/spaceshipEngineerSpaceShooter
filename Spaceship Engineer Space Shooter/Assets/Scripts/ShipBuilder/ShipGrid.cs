@@ -410,6 +410,26 @@ public class ShipGrid : MonoBehaviour
         OnShipChanged?.Invoke();
     }
 
+    /// <summary>Takes a living block OUT of this ship without destroying it — it frees its cells and leaves this
+    /// ship's identity, and the caller carries it off (ShipSplitter hands it to a new fragment). Call
+    /// NotifyBlocksReleased once after releasing a batch.</summary>
+    public void ReleaseBlock(ShipModule module)
+    {
+        if (module == null) return;
+
+        identity.UnregisterBlock(module);
+        module.OnDestroyed -= HandleBlockDestroyed;
+        FreeCells(module);
+    }
+
+    /// <summary>Tells the ship it lost blocks through ReleaseBlock: stats refresh, and it is re-checked for having
+    /// lost its last cockpit / generator.</summary>
+    public void NotifyBlocksReleased()
+    {
+        OnShipChanged?.Invoke();
+        CheckShipDisabled();
+    }
+
     /// <summary>The block occupying a given grid cell, or null if it's empty.</summary>
     public ShipModule GetBlockAt(Vector2Int cell) => cells.GetValueOrDefault(cell);
 
@@ -534,7 +554,7 @@ public class ShipGrid : MonoBehaviour
     public float ComputeCurrentTotalHP() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.CurrentHP);
 
     /// <summary>Net energy — positive means surplus, negative means the ship is over budget.</summary>
-    public float ComputeEnergyBalance() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.energyDelta);
+    public float ComputeEnergyBalance() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.EnergyPerSecondEstimate);
 
     /// <summary>Total armor HP capacity — Armor-category blocks only.</summary>
     public float ComputeTotalArmor()
@@ -564,12 +584,16 @@ public class ShipGrid : MonoBehaviour
 
     /// <summary>Total energy output from generators — the positive half of ComputeEnergyBalance, split out.</summary>
     public float ComputeEnergyGeneration()
-        => Blocks.Where(m => !m.IsDestroyed && m.energyDelta > 0f).Sum(m => m.energyDelta);
+        => Blocks.Where(m => !m.IsDestroyed && m.EnergyPerSecondEstimate > 0f).Sum(m => m.EnergyPerSecondEstimate);
 
     /// <summary>Total energy draw from weapons/engines/shields, as a positive number — the negative
     /// half of ComputeEnergyBalance, split out and sign-flipped so it reads as a plain "cost".</summary>
     public float ComputeEnergyConsumption()
-        => Blocks.Where(m => !m.IsDestroyed && m.energyDelta < 0f).Sum(m => -m.energyDelta);
+        => Blocks.Where(m => !m.IsDestroyed && m.EnergyPerSecondEstimate < 0f).Sum(m => -m.EnergyPerSecondEstimate);
+    /// <summary>Energy per second the ship burns while moving at full thrust: the sum of its living engines'
+    /// Energy Delta. 0 if no engine has one set (then the mover's own fallback value is used).</summary>
+    public float ComputeMoveEnergyPerSecond()
+        => Blocks.OfType<EngineModule>().Where(e => !e.IsDestroyed).Sum(e => Mathf.Abs(e.energyDelta));
 
     // ---------- Save / load / procedural spawn (shared by player editor & enemy spawner) ----------
 
