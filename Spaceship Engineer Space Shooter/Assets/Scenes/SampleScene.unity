@@ -12284,6 +12284,7 @@ MonoBehaviour:
   cellSize: 1
   hangarColumns: 0
   hangarRows: 0
+  fallbackExplosionEffect: {fileID: 0}
   cellVisualPrefab: {fileID: 440694396213574733, guid: 6b2008c6daa5bbc4e8c514afc4ab5548, type: 3}
   buildGridColor: {r: 1, g: 1, b: 1, a: 1}
   roofSortingOrder: 20
@@ -42672,6 +42673,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2140364179}
   m_CullTransparentMesh: 1
+--- !u!1001 &6098257107473344274
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389270550833523967, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+      propertyPath: m_Name
+      value: PlasmaCircle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
 --- !u!1001 &8481860594919946632
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42785,3 +42843,4 @@ SceneRoots:
   - {fileID: 1649257565}
   - {fileID: 1695501117}
   - {fileID: 346637347}
+  - {fileID: 6098257107473344274}
