@@ -143,7 +143,7 @@ TextureImporter:
         width: 120
         height: 120
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -152,6 +152,28 @@ TextureImporter:
       bones: []
       spriteID: 9e8d3dacf29269a4ea334ad37487e2ab
       internalID: 1685403563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: survivalIcon_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 140
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c9c2d375541d904f840ea64fbf4eeac
+      internalID: 1689999343
       vertices: []
       indices: 
       edges: []
@@ -172,6 +194,7 @@ TextureImporter:
     nameFileIdTable:
       survivalIcon_0: -7063239967077295422
       survivalIcon_1: 1685403563
+      survivalIcon_2: 1689999343
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
