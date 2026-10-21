@@ -124,6 +124,22 @@ public class WeaponModule : ShipModule
     /// <summary>Average energy per second for the stats panel: one shot's cost per barrel, over the shot cycle.</summary>
     public override float EnergyPerSecondEstimate => -EnergyCostPerShot * BarrelCount / Mathf.Max(0.01f, ShotCycleSeconds);
 
+    /// <summary>Damage per second worked out from the block's own settings only — works on a PREFAB that was never
+    /// instantiated (level difficulty uses it). Ignores crew perks.</summary>
+    public virtual float NominalDamagePerSecond => projectileDamage * NominalBarrels / Mathf.Max(0.01f, cooldownSeconds);
+
+    /// <summary>How many barrels the block is set up with (at least 1).</summary>
+    protected int NominalBarrels
+    {
+        get
+        {
+            int count = 0;
+            foreach (var tip in muzzles) if (tip != null) count++;
+            if (count == 0 && muzzle != null) count = 1;
+            return Mathf.Max(1, count);
+        }
+    }
+
     public virtual float DamagePerSecond => projectileDamage * EffectiveDamageMultiplier * BarrelCount / Mathf.Max(0.01f, EffectiveCooldownSeconds);
 
     /// <summary>How many barrels this weapon has (1 for an ordinary gun).</summary>

@@ -21,12 +21,29 @@ public class LevelButtonView : MonoBehaviour
     [Tooltip("Shown only while this level is locked. The button itself also darkens automatically via " +
              "its own Disabled Color, since Button.interactable is set to false while locked.")]
     public GameObject lockIcon;
+    [Tooltip("The button stays clickable while locked (the info panel opens, only Play is disabled), so it is darkened by " +
+             "this colour instead of by Disabled Color. White = no darkening.")]
+    public Color lockedTint = new(0.5f, 0.5f, 0.5f, 1f);
     [Tooltip("Parent of the 3 star images — hidden entirely while locked (nothing to rate yet).")]
     public GameObject starRow;
     [Tooltip("Exactly 3, left to right.")]
     public Image[] stars = new Image[3];
     public Sprite filledStarSprite;
     public Sprite emptyStarSprite;
+
+    [Header("Confirmation")]
+    [Tooltip("The level info panel opened when this button is pressed; the battle starts only from its Play button. " +
+             "Found in the scene automatically if left empty. With no panel at all the level starts at once, as before.")]
+    public LevelInfoPanel infoPanel;
+
+    [Header("Path to the next level")]
+    [Tooltip("The picture of the path from this level to the next one. Fully visible once THIS level is completed, " +
+             "faint until then. Hidden entirely on the last level of a campaign (no Next Level set on its LevelDefinition).")]
+    public Image pathToNext;
+    [Range(0f, 1f), Tooltip("Alpha of the path once this level has been completed.")]
+    public float completedPathAlpha = 1f;
+    [Range(0f, 1f), Tooltip("Alpha of the path while this level has not been completed yet.")]
+    public float uncompletedPathAlpha = 0.2f;
 
     /// <summary>Fired right after the battle scene load is kicked off, for anything else that also
     /// wants to know which level was picked (this same info is also in PendingBattle.Level by then).</summary>
@@ -93,8 +110,14 @@ public class LevelButtonView : MonoBehaviour
 
         if (numberLabel != null) numberLabel.text = level.displayNumber.ToString();
         if (lockIcon != null) lockIcon.SetActive(!unlocked);
-        if (button != null) button.interactable = unlocked;
+        if (button != null)
+        {
+            button.interactable = true; // a locked level can still be opened to look at it
+            if (button.targetGraphic != null) button.targetGraphic.color = unlocked ? Color.white : lockedTint;
+        }
         if (starRow != null) starRow.SetActive(unlocked);
+
+        RefreshPath(earnedStars > 0);
 
         if (!unlocked) return; // locked — no rating to show at all
 
@@ -102,10 +125,35 @@ public class LevelButtonView : MonoBehaviour
             if (stars[i] != null) stars[i].sprite = i < earnedStars ? filledStarSprite : emptyStarSprite;
     }
 
+    /// <summary>The path to the next level: shown at Completed Path Alpha once this level is done, at Uncompleted
+    /// Path Alpha before that, and not at all on the last level.</summary>
+    private void RefreshPath(bool completed)
+    {
+        if (pathToNext == null) return;
+
+        bool hasNext = level.nextLevel != null;
+        pathToNext.gameObject.SetActive(hasNext);
+        if (!hasNext) return;
+
+        var color = pathToNext.color;
+        color.a = completed ? completedPathAlpha : uncompletedPathAlpha;
+        pathToNext.color = color;
+    }
+
     private void OnClicked()
     {
-        PendingBattle.Level = level;
+        if (infoPanel == null) infoPanel = FindFirstObjectByType<LevelInfoPanel>(FindObjectsInactive.Include);
+
+        // The level starts only when Play is pressed on the info panel. No panel in the scene: start straight away.
+        if (infoPanel != null) infoPanel.Open(level, GameDataManager.Instance != null && GameDataManager.Instance.IsLevelUnlocked(level));
+        else if (GameDataManager.Instance != null && GameDataManager.Instance.IsLevelUnlocked(level)) StartLevel(level);
+    }
+
+    /// <summary>Begins the battle for this level (called by the info panel's Play button).</summary>
+    public static void StartLevel(LevelDefinition chosen)
+    {
+        PendingBattle.Level = chosen;
         SceneManager.LoadScene(PendingBattle.BattleSceneName);
-        OnLevelSelected?.Invoke(level);
+        OnLevelSelected?.Invoke(chosen);
     }
 }

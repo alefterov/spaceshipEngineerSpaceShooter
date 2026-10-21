@@ -16,7 +16,7 @@ MonoBehaviour:
   displayNumber: 2
   prerequisite: {fileID: 11400000, guid: 2d2f32b641ce9e348bf785130c513fea, type: 2}
   nextLevel: {fileID: 11400000, guid: eacbe491c38b47d4c8e53b4885fa8ab9, type: 2}
-  background: {fileID: -7132766539568104575, guid: 6c75b43da3ba85f46b23dbebca4e182e, type: 3}
+  background: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
   waves:
   - enemies:
     - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
@@ -24,6 +24,7 @@ MonoBehaviour:
       spawnInterval: 5
       side: 0
       positionAlongEdge: 0.2
+      route: []
     delayAfterWave: 10
   - enemies:
     - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
@@ -31,4 +32,5 @@ MonoBehaviour:
       spawnInterval: 3
       side: 0
       positionAlongEdge: 0.395
+      route: []
     delayAfterWave: 10

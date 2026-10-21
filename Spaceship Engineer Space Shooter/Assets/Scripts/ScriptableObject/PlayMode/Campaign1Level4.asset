@@ -16,5 +16,5 @@ MonoBehaviour:
   displayNumber: 4
   prerequisite: {fileID: 11400000, guid: eacbe491c38b47d4c8e53b4885fa8ab9, type: 2}
   nextLevel: {fileID: 0}
-  background: {fileID: -7132766539568104575, guid: 6c75b43da3ba85f46b23dbebca4e182e, type: 3}
+  background: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
   waves: []

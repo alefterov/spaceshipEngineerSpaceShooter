@@ -102,8 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 9171068947655010196}
-  - component: {fileID: 5153420831474828212}
+  - component: {fileID: -5060806051734577656}
   m_Layer: 0
   m_Name: PlasmaGun_1x1
   m_TagString: Untagged
@@ -175,7 +174,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &9171068947655010196
+--- !u!114 &-5060806051734577656
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -184,15 +183,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 347b568066877694b8e4cd31274822d6, type: 3}
+  m_Script: {fileID: 11500000, guid: c79ccfea62186bf4e844f824d13a7eff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
+  m_EditorClassIdentifier: Assembly-CSharp::PlasmaWeapon
   type: 2
   moduleId: plasmaGun_1x1
   buildCost: 50
-  maxHP: 50
+  laserResistance: 0
+  maxHP: 40
   mass: 3
-  energyDelta: 5
+  energyDelta: -15
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000
@@ -203,41 +203,26 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   aiming: 0
   fireControl: 0
   weaponClass: 3
-  allowedTargets: 000000000200000004000000
+  allowedTargets: 0000000002000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
+  projectilePrefab: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+  muzzles:
+  - {fileID: 7553389974999812753}
   muzzle: {fileID: 0}
-  cooldownSeconds: 0.5
-  projectileDamage: 5
-  projectileSpeed: 16
-  range: 70
-  fireArcDegrees: 30
+  cooldownSeconds: 5
+  projectileDamage: 1
+  projectileSpeed: 4
+  range: 200
+  fireArcDegrees: 180
   topRoot: {fileID: 9174914285220350066}
-  turretPivot: {fileID: 9174914285220350066}
+  turretPivot: {fileID: 0}
   turretRotationSpeed: 180
---- !u!114 &5153420831474828212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
-  bodyRenderer: {fileID: 0}
-  markSprites: []
-  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
-  maxMarks: 16
-  markSize: {x: 0.15, y: 0.4}
-  clipToBlock: 1
-  sparksEffect: {fileID: 0}
-  fireEffect: {fileID: 0}
+  ballsPerShot: 1
+  ballSpacing: 0.8
 --- !u!1 &4713065175766498228
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,13 +247,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4713065175766498228}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: -0.29, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9174914285220350066}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!1 &6281750645506118479
 GameObject:
   m_ObjectHideFlags: 0
