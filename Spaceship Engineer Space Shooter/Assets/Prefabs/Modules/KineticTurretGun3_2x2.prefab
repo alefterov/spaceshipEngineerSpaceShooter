@@ -208,6 +208,9 @@ MonoBehaviour:
   idleAnimator: {fileID: 1643671066974087282}
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  rewardCredits: 5
+  rewardExperience: 0
   aiming: 1
   fireControl: 0
   weaponClass: 0
@@ -219,14 +222,15 @@ MonoBehaviour:
   - {fileID: 6001565823500937607}
   - {fileID: 4689460881649333531}
   muzzle: {fileID: 9088350872030205532}
-  cooldownSeconds: 1
+  cooldownSeconds: 7
   projectileDamage: 5
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
-  turretRotationSpeed: 180
+  turretRotationSpeed: 60
+  turretAimToleranceDegrees: 3
 --- !u!95 &1643671066974087282
 Animator:
   serializedVersion: 7

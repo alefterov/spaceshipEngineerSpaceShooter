@@ -104,6 +104,8 @@ public class ShipIdentity : MonoBehaviour
     public void SetCombatActive(bool active)
     {
         CombatActive = active;
+        foreach (var module in GetComponentsInChildren<ShipModule>(true))
+            module.SetInCombat(active); // idle animations are off for the battle, on again outside it
         foreach (var weapon in GetComponentsInChildren<WeaponModule>(true))
             weapon.SetCombatActive(active);
     }

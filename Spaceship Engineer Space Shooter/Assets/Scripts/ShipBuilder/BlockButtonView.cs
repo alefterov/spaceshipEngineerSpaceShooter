@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +17,18 @@ public class BlockButtonView : MonoBehaviour
              "Child object, inactive by default — enabled only while this button is selected.")]
     public GameObject selectionHighlight;
 
+    [Tooltip("Shows the block's build price (credits), shortened like every price: 1000 = 1k, 1 250 000 = 1.25m. The button no longer shows the " +
+             "block's name — that lives on the block card.")]
+    public TMP_Text costLabel;
+
     public RectTransform IconTransform => icon != null ? icon.rectTransform : null;
+
+    /// <summary>Writes the build price on the button (rounded for display only, like all prices).</summary>
+    public void SetPrice(int credits)
+    {
+        if (costLabel != null) costLabel.text = NumberFormat.Compact(credits);
+    }
+
 
     public void SetSelected(bool selected)
     {

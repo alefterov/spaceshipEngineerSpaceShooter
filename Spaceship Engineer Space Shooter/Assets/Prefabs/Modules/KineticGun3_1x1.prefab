@@ -205,6 +205,7 @@ MonoBehaviour:
   idleAnimator: {fileID: 3153761081599872217}
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
+  blastDamageToNeighbours: 1
   aiming: 0
   fireControl: 0
   weaponClass: 0
@@ -216,7 +217,7 @@ MonoBehaviour:
   - {fileID: 4237851930843496245}
   - {fileID: 3998265454005999307}
   muzzle: {fileID: 3813965180775659288}
-  cooldownSeconds: 0.5
+  cooldownSeconds: 3
   projectileDamage: 5
   projectileSpeed: 12
   range: 70

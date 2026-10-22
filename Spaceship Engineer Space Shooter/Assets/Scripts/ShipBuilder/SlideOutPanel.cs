@@ -28,13 +28,32 @@ public class SlideOutPanel : MonoBehaviour
 
     public bool IsShown { get; private set; }
 
-    private void Awake()
+    private bool initialized;
+
+    private void Awake() => Init();
+
+    // Idempotent: also called before Awake has run (a panel that was never active can still be told to hide).
+    private void Init()
     {
+        if (initialized) return;
+        initialized = true;
+
         rectTransform = (RectTransform)transform;
         hiddenX = rectTransform.anchoredPosition.x;
 
         if (showDistance == 0f) showDistance = rectTransform.rect.width;
         shownX = hiddenX + showDistance;
+    }
+
+    /// <summary>Puts the panel back at its hidden position AT ONCE, with no slide (e.g. when the whole screen it belongs
+    /// to is being closed). Safe on a panel that is switched off.</summary>
+    public void HideImmediate()
+    {
+        Init();
+        if (slideRoutine != null) StopCoroutine(slideRoutine);
+        slideRoutine = null;
+        IsShown = false;
+        SetX(hiddenX);
     }
 
     public void Show() => SlideTo(shownX, true);

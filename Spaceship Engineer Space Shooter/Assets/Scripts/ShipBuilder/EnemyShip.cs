@@ -131,9 +131,14 @@ public class EnemyShip : MonoBehaviour
     public float fragmentDriftSpeed = 0.5f;
     [Tooltip("The most a broken-off part turns per second (degrees); each one gets a random spin up to this, either way.")]
     public float fragmentMaxSpinDegrees = 30f;
+    [Tooltip("A broken-off part and a disabled ship drift in a random direction within this many degrees of straight down " +
+             "the screen, each at its own spin (up to Fragment Max Spin Degrees) — they do not home in on the player.")]
+    public float debrisDriftAngle = 20f;
+    [Tooltip("Debris (a disabled ship or a broken-off part) is removed once it is this many world units beyond the bottom or a side of the screen.")]
+    public float debrisDespawnMargin = 2f;
 
     [Header("Once disabled")]
-    [Tooltip("World units per second this ship drifts toward Target once its last Generator or its " +
+    [Tooltip("World units per second this ship drifts once its last Generator or its " +
              "Cockpit is destroyed — overrides Route/the default behavior above entirely. A heavier hull " +
              "can be given a slower drift.")]
     public float disabledDriftSpeed = 0.5f;
@@ -280,9 +285,16 @@ public class EnemyShip : MonoBehaviour
         identity.SetCombatActive(true); // starts fighting the instant it appears — no arrival intro like the player gets
     }
 
+    private Vector2 driftDirection = Vector2.down;
+    private float driftSpin;
+
     private void HandleDisabled(ShipIdentity _)
     {
         disabled = true;
+
+        // From now on it is debris: one random direction roughly down the screen and a spin of its own, kept for good.
+        driftDirection = ShipFragment.RandomDownDirection(debrisDriftAngle);
+        driftSpin = Random.Range(-fragmentMaxSpinDegrees, fragmentMaxSpinDegrees);
         identity.SetCombatActive(false); // no crew left to run the guns
         StopEngines();
     }
@@ -345,15 +357,12 @@ public class EnemyShip : MonoBehaviour
 
     private void UpdateDisabledDrift()
     {
-        // A powerless hulk: keeps whatever speed it had, and gradually settles into a slow drift toward the target.
-        Vector2 desired = Vector2.zero;
-        if (target != null)
-        {
-            Vector2 toTarget = (Vector2)target.position - (Vector2)transform.position;
-            if (toTarget.sqrMagnitude >= 0.0001f) desired = toTarget.normalized * disabledDriftSpeed;
-        }
+        // A powerless hulk: keeps whatever speed it had, and settles into a steady drift in its own direction
+        // (roughly down the screen) while turning slowly — it does not steer toward anything.
+        Drive(driftDirection * disabledDriftSpeed, accelReference: Mathf.Max(0.05f, disabledDriftSpeed));
+        transform.RotateAround(grid.GetShipWorldCenter(), Vector3.forward, driftSpin * Time.deltaTime); // spins about its own middle: the middle flies straight
 
-        Drive(desired, accelReference: Mathf.Max(0.05f, disabledDriftSpeed));
+        if (ShipFragment.HasLeftScreen(identity, debrisDespawnMargin)) Destroy(gameObject); // gone off the screen: stop counting as an enemy
     }
 
     // ---------- Entry: always from above, always inside the allowed width ----------

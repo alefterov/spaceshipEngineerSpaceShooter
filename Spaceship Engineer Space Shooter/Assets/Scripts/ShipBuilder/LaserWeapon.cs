@@ -50,6 +50,8 @@ public class LaserWeapon : WeaponModule
     protected override float ShotCycleSeconds => EffectiveCooldownSeconds + beamDuration;
 
     /// <summary>Sustained damage output for the stats panel: the damage of one beam spread over beam time + cooldown.</summary>
+    public override float NominalDamagePerShot => beamDamagePerSecond * beamDuration;
+
     public override float NominalDamagePerSecond
         => beamDamagePerSecond * beamDuration * NominalBarrels / Mathf.Max(0.01f, cooldownSeconds + beamDuration);
 

@@ -55,6 +55,11 @@ public class ShipSplitter : MonoBehaviour
         // The ship keeps the group with the cockpit, else the biggest one.
         var main = groups.FirstOrDefault(g => g.Any(b => b.type == ModuleType.Cockpit)) ?? groups.OrderByDescending(g => g.Count).First();
 
+        var unpowered = groups
+            .Where(g => !g.Any(b => b.type == ModuleType.Generator))
+            .SelectMany(g => g.Where(b => b.type == ModuleType.Cockpit))
+            .ToList();
+
         foreach (var group in groups)
         {
             if (group == main) continue;
@@ -64,6 +69,10 @@ public class ShipSplitter : MonoBehaviour
         }
 
         grid.NotifyBlocksReleased();
+
+        // A cockpit cut off from every generator cannot work: it blows up (and the blast spreads to its neighbours).
+        foreach (var cockpit in unpowered)
+            if (cockpit != null && !cockpit.IsDestroyed) cockpit.TakeDamage(float.MaxValue);
     }
 
     /// <summary>Living blocks grouped by touching.</summary>
@@ -129,8 +138,8 @@ public class ShipSplitter : MonoBehaviour
         foreach (var engine in blocks.OfType<EngineModule>()) engine.SetEffectRunning(false);
 
         var fragment = go.AddComponent<ShipFragment>();
-        fragment.Begin(enemy != null ? enemy.target : null, enemy != null ? enemy.fragmentDriftSpeed : 0.5f,
-                       enemy != null ? enemy.fragmentMaxSpinDegrees : 30f);
+        fragment.Begin(enemy != null ? enemy.fragmentDriftSpeed : 0.5f, enemy != null ? enemy.fragmentMaxSpinDegrees : 30f,
+                       enemy != null ? enemy.debrisDriftAngle : 20f, enemy != null ? enemy.debrisDespawnMargin : 2f);
 
         go.AddComponent<RamCollision>();
     }

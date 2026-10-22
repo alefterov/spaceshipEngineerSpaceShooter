@@ -206,10 +206,13 @@ MonoBehaviour:
   idleAnimator: {fileID: 1643671066974087282}
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  rewardCredits: 5
+  rewardExperience: 0
   aiming: 1
   fireControl: 0
   weaponClass: 0
-  allowedTargets: 000000000200000004000000
+  allowedTargets: 00000000020000000400000001000000
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: eac28cd5e78ff9c4393c5be74f6cc537, type: 3}
   muzzles: []
@@ -221,7 +224,8 @@ MonoBehaviour:
   fireArcDegrees: 360
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
-  turretRotationSpeed: 180
+  turretRotationSpeed: 135
+  turretAimToleranceDegrees: 3
 --- !u!95 &1643671066974087282
 Animator:
   serializedVersion: 7

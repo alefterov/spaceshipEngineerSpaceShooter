@@ -4,14 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// The info / confirmation panel for a level: pressing a level on the map (LevelButtonView) opens this instead of
-/// starting the battle. It shows the level's number, how many waves it has and how hard it is for the player's
-/// current ship (see LevelDifficulty), and the battle begins only when Play is pressed. A level that is still LOCKED
-/// can be opened too — to look at it — but its Play button is disabled.
+/// The info panel of the level map. It is part of the map screen: visible exactly while the map of levels is visible
+/// (LevelSelectPopup switches it together with the map — or put it inside the popup), and never on its own. It shows
+/// ONE level at a time: the number, how many waves it has and how hard it is for the player's current ship (see
+/// LevelDifficulty), and the battle begins only when Play is pressed.
 ///
-/// SETUP: put on the panel's root (it starts INACTIVE; level buttons find it by themselves, or you can assign it in
-/// their Info Panel field). Assign Play Button; everything else is optional. Each label keeps its text format in a
-/// field here ({0} is replaced by the value).
+/// WHICH LEVEL: when the map opens the panel shows the level the player should play next — the first level (by number)
+/// that has not been completed yet, or, once every level is completed, the last one. Pressing another level on the map
+/// (LevelButtonView) shows that one instead. A LOCKED level can be looked at too, but its Play button is disabled.
+///
+/// SETUP: put on the panel's root and assign Play Button; everything else is optional. Level buttons find the panel
+/// by themselves (or assign it in their Info Panel field). Give the map's LevelSelectPopup the panel in its Info Panel
+/// field so the two show and hide together. Each label keeps its text format in a field here ({0} is the value).
 /// </summary>
 public class LevelInfoPanel : MonoBehaviour
 {
@@ -24,8 +28,6 @@ public class LevelInfoPanel : MonoBehaviour
     public string wavesFormat = "Волн: {0}";
     [Tooltip("Starts the level. Disabled while the level is locked.")]
     public Button playButton;
-    [Tooltip("Optional: hides the panel without starting anything.")]
-    public Button closeButton;
     [Tooltip("Optional object (a note, a padlock) shown only when the level is locked.")]
     public GameObject lockedNote;
 
@@ -55,26 +57,55 @@ public class LevelInfoPanel : MonoBehaviour
              "controller if left empty.")]
     public BlockDatabase blockDatabase;
 
+
     private LevelDefinition level;
     private bool canPlay;
+    private bool shown;
 
     private void OnEnable()
     {
         if (playButton != null) playButton.onClick.AddListener(OnPlayClicked);
-        if (closeButton != null) closeButton.onClick.AddListener(Close);
+
+        // Every time the map opens: back to the level the player should play next.
+        shown = false;
+        ShowDefaultLevel();
+    }
+
+    private void Start()
+    {
+        // GameDataManager may not have existed yet during OnEnable.
+        if (!shown) ShowDefaultLevel();
     }
 
     private void OnDisable()
     {
         if (playButton != null) playButton.onClick.RemoveListener(OnPlayClicked);
-        if (closeButton != null) closeButton.onClick.RemoveListener(Close);
     }
 
-    /// <summary>Shows the panel for this level. `unlocked` = false still shows everything, but Play is disabled.</summary>
+    /// <summary>The first level (by number) not completed yet; once all are completed, the last one.</summary>
+    private void ShowDefaultLevel()
+    {
+        var data = GameDataManager.Instance;
+        if (data == null) return;
+
+        var levels = FindObjectsByType<LevelButtonView>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            .Select(b => b.level)
+            .Where(l => l != null)
+            .Distinct()
+            .OrderBy(l => l.displayNumber)
+            .ToList();
+        if (levels.Count == 0) return;
+
+        var pick = levels.FirstOrDefault(l => !data.IsLevelCompleted(l)) ?? levels[levels.Count - 1];
+        Open(pick, data.IsLevelUnlocked(pick));
+    }
+
+    /// <summary>Shows this level on the panel. `unlocked` = false still shows everything, but Play is disabled.</summary>
     public void Open(LevelDefinition levelToShow, bool unlocked)
     {
         level = levelToShow;
         canPlay = unlocked;
+        shown = true;
 
         if (levelLabel != null && level != null) levelLabel.text = string.Format(levelFormat, level.displayNumber);
         if (wavesLabel != null && level != null) wavesLabel.text = string.Format(wavesFormat, level.waves != null ? level.waves.Count : 0);
@@ -83,19 +114,12 @@ public class LevelInfoPanel : MonoBehaviour
         if (lockedNote != null) lockedNote.SetActive(!canPlay);
 
         ShowDifficulty();
-
-        gameObject.SetActive(true);
     }
-
-    public void Close() => gameObject.SetActive(false);
 
     private void OnPlayClicked()
     {
         if (level == null || !canPlay) return;
-
-        var chosen = level;
-        Close();
-        LevelButtonView.StartLevel(chosen);
+        LevelButtonView.StartLevel(level);
     }
 
     // ---------- Difficulty ----------

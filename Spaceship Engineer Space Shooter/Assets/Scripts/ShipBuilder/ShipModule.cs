@@ -82,6 +82,16 @@ public class ShipModule : MonoBehaviour
     public GameObject explosionEffectPrefab;
     [Tooltip("Seconds until the spawned explosion is removed. Make it at least as long as the effect. 0 = never removed by this script.")]
     public float explosionLifetime = 3f;
+    [Tooltip("When this block is destroyed it blows up and deals this much damage to every block touching it. Armor never " +
+             "does (it does not explode). 0 = no blast damage.")]
+    public float blastDamageToNeighbours = 1f;
+
+    [Header("Reward")]
+    [Tooltip("Credits the player earns when this block is destroyed while it belongs to an ENEMY ship — so every block of a " +
+             "destroyed enemy ship pays out. (Nothing for the player's own blocks.) Scaled by the usual battle multipliers.")]
+    public int rewardCredits = 5;
+    [Tooltip("Experience the player earns for the same.")]
+    public int rewardExperience = 0;
 
     // Sorting orders authored in the prefab are kept as OFFSETS, so ApplySortingOrders can shift a
     // whole group onto its layer while preserving the relative order inside it. Cached so repeated
@@ -101,6 +111,10 @@ public class ShipModule : MonoBehaviour
     protected virtual void Awake()
     {
         CurrentHP = maxHP;
+
+        // A block placed onto a ship that is already fighting starts with its idle animation off.
+        var ownShip = GetComponentInParent<ShipIdentity>();
+        if (ownShip != null) inCombat = ownShip.CombatActive;
 
         if (visualRoot == null) visualRoot = transform; // fallback for old single-cell prefabs without a child
 
@@ -141,9 +155,19 @@ public class ShipModule : MonoBehaviour
 
     private bool previewLook;
 
-    /// <summary>Subclasses can veto the idle animation even in the Preview look — e.g. a turret in battle,
-    /// where an animation keyed on its rotation would fight the code that aims it.</summary>
-    protected virtual bool IdleAnimationAllowed => true;
+    /// <summary>The idle animation plays only outside battle: during a fight every block's animator is off (a turret's
+    /// clip, for one, keys its rotation and would fight the code that aims it).</summary>
+    protected virtual bool IdleAnimationAllowed => !inCombat;
+
+    private bool inCombat;
+
+    /// <summary>Called when the ship's battle starts or ends (ShipIdentity.SetCombatActive): the idle animation is switched
+    /// off for the battle.</summary>
+    public void SetInCombat(bool active)
+    {
+        inCombat = active;
+        RefreshIdleAnimation();
+    }
 
     /// <summary>Re-applies "idle animation plays" = preview look AND the subclass allows it. Call after
     /// whatever IdleAnimationAllowed depends on changes.</summary>
@@ -232,7 +256,28 @@ public class ShipModule : MonoBehaviour
         // Subclasses (WeaponModule, EngineModule...) should override OnModuleDestroyed().
         OnModuleDestroyed();
 
+        BlastNeighbours();
+        PayReward();
+
         PlayDestructionEffect();
+    }
+    /// <summary>Destroying a block of an enemy ship earns the player its reward (see Reward Credits).</summary>
+    private void PayReward()
+    {
+        if (!CompareTag("EnemyShip") || (rewardCredits <= 0 && rewardExperience <= 0)) return;
+        BattleRewards.AddKill(rewardCredits, rewardExperience);
+    }
+
+
+    /// <summary>The explosion hurts the blocks next to this one (1 damage each by default) — every kind of block except
+    /// armor. A neighbour that dies of it explodes in turn, so a chain can run along the ship.</summary>
+    private void BlastNeighbours()
+    {
+        if (type == ModuleType.Armor || blastDamageToNeighbours <= 0f) return;
+
+        // The list is made first: damage can destroy blocks, which changes the ship's own list of blocks.
+        foreach (var neighbour in MissileTargeting.GetNeighbours(this))
+            if (neighbour != null && !neighbour.IsDestroyed) neighbour.TakeDamage(blastDamageToNeighbours);
     }
 
     /// <summary>Override in subclasses to stop the module's function (e.g. WeaponModule stops firing).</summary>

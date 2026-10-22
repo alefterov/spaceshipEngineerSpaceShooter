@@ -15,7 +15,7 @@ MonoBehaviour:
   id: generator_1x2
   displayName: Generator II
   icon: {fileID: -289057879429318319, guid: 5e5528ca7ab0e244f95941dd8632c28c, type: 3}
-  prefab: {fileID: 729449600381729954, guid: f741efb5c4d36ff4eb6b49f32b09e5b9, type: 3}
+  prefab: {fileID: 729449600381729954, guid: cdd33d6f3d0a19849a405dbdf1f4905a, type: 3}
   category: 4
   weaponClass: 0
   buildCost: 10

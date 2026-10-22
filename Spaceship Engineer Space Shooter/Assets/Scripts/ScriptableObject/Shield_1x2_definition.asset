@@ -15,7 +15,8 @@ MonoBehaviour:
   id: shield_1x2
   displayName: Shield II
   icon: {fileID: -542610010313566252, guid: 15ea7d2c5bc2ebd45a3bc1f3dc6c5841, type: 3}
-  prefab: {fileID: 729449600381729954, guid: 64be89ed3ae47584790e5df87669d103, type: 3}
+  prefab: {fileID: 729449600381729954, guid: 8acde72ef5b73a8439beb46f0a0b6bc3, type: 3}
+  enemyOnly: 0
   category: 5
   weaponClass: 0
   buildCost: 10

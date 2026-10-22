@@ -100,6 +100,9 @@ public class WeaponModule : ShipModule
              "high (e.g. 360) for point-defence turrets. If the target moves faster than this can track, " +
              "the weapon simply can't hit it.")]
     public float turretRotationSpeed = 180f;
+    [Tooltip("A turret fires only once its barrel points at the aim point within this many degrees (angle off the " +
+             "target) — while it is still swinging round to the target it holds fire. Smaller = it waits for a more exact lock.")]
+    [Min(0.1f)] public float turretAimToleranceDegrees = 3f;
 
     private readonly List<(SpriteRenderer renderer, int authoredOrder)> topRenderers = new();
 
@@ -126,6 +129,10 @@ public class WeaponModule : ShipModule
 
     /// <summary>Damage per second worked out from the block's own settings only — works on a PREFAB that was never
     /// instantiated (level difficulty uses it). Ignores crew perks.</summary>
+    /// <summary>Damage of one shot of one barrel, from the block's own settings (the block card shows it). A beam weapon
+    /// reports the whole beam.</summary>
+    public virtual float NominalDamagePerShot => projectileDamage;
+
     public virtual float NominalDamagePerSecond => projectileDamage * NominalBarrels / Mathf.Max(0.01f, cooldownSeconds);
 
     /// <summary>How many barrels the block is set up with (at least 1).</summary>
@@ -260,11 +267,6 @@ public class WeaponModule : ShipModule
         combatActive = active;
         RefreshIdleAnimation();
     }
-
-    /// <summary>A turret's idle animation rotates its pivot; the Animator writes that rotation after every
-    /// Update, overwriting the aiming code and freezing the barrel on whatever the animation says. So a
-    /// turret plays its idle animation only outside combat (menu preview) and lets the code aim in battle.</summary>
-    protected override bool IdleAnimationAllowed => !(combatActive && aiming == WeaponAiming.Turret);
 
     /// <summary>Called externally by the ship's PowerSystem when total energy runs out.</summary>
     public void SetPowered(bool powered) => poweredOn = powered;
@@ -405,10 +407,14 @@ public class WeaponModule : ShipModule
         }
     }
 
+    /// <summary>Whether the barrel points at the aim point closely enough to shoot. A FIXED weapon uses its firing arc; a
+    /// TURRET waits until it has finished aiming — it must be within Turret Aim Tolerance of the target, so it never fires
+    /// while still traversing toward it.</summary>
     private bool InFiringArc(Vector2 aimPoint)
     {
         Vector2 toAim = aimPoint - MuzzleCenter;
-        return Vector2.Angle(MuzzleForward, toAim) <= fireArcDegrees * 0.5f;
+        float allowed = aiming == WeaponAiming.Turret ? turretAimToleranceDegrees : fireArcDegrees * 0.5f;
+        return Vector2.Angle(MuzzleForward, toAim) <= allowed;
     }
 
     /// <summary>
@@ -464,16 +470,24 @@ public class WeaponModule : ShipModule
     {
         if (turretPivot == null) return;
 
+        // An idle animation that keys the turret's rotation would overwrite what we set here after every Update.
+        if (idleAnimator != null && idleAnimator.enabled) idleAnimator.enabled = false;
+
         Vector2 toAim = aimPoint - (Vector2)turretPivot.position;
         if (toAim.sqrMagnitude < 0.0001f) return;
 
-        // Rotate the pivot so the barrel's direction (pivot -> muzzles, see BarrelDirection) — not the
-        // pivot's own +Y — ends up on the aim point. Measured relative to the pivot, this works for any
-        // layout of the prefab, so the barrel always visibly swings toward the target.
-        Vector3 shootDirectionInPivot = Quaternion.Inverse(turretPivot.rotation) * (Vector3)BarrelDirection;
-        Quaternion desired = Quaternion.FromToRotation(shootDirectionInPivot, toAim);
-        turretPivot.rotation = Quaternion.RotateTowards(
-            turretPivot.rotation, desired, EffectiveTurretRotationSpeed * Time.deltaTime);
+        // Plain angles in the world plane: where the barrel points now (pivot -> muzzles, see BarrelDirection) against
+        // where it has to point. The turn is limited to Turret Rotation Speed degrees per second — never faster,
+        // however far off the target is.
+        Vector2 barrel = BarrelDirection;
+        float current = Mathf.Atan2(barrel.y, barrel.x) * Mathf.Rad2Deg;
+        float wanted = Mathf.Atan2(toAim.y, toAim.x) * Mathf.Rad2Deg;
+        float delta = Mathf.DeltaAngle(current, wanted);
+
+        float maxStep = EffectiveTurretRotationSpeed * Mathf.Min(Time.deltaTime, 0.1f);
+        float step = Mathf.Clamp(delta, -maxStep, maxStep);
+
+        turretPivot.Rotate(0f, 0f, step, Space.World);
     }
 
     /// <summary>Nearest engageable target within range, or null. A FIXED weapon can't turn, so it prefers the

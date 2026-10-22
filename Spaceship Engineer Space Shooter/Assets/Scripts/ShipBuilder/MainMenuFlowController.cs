@@ -42,6 +42,8 @@ public class MainMenuFlowController : MonoBehaviour
 
     private void Start()
     {
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+
         // GameDataManager already loaded the save file in its own Awake (runs before this Start,
         // as long as it lives in the same scene or a bootstrap scene loaded earlier).
         playerShip.SetHangarSize(GameDataManager.Instance.HangarColumns, GameDataManager.Instance.HangarRows); // restore any hangar upgrades bought previously
@@ -66,6 +68,8 @@ public class MainMenuFlowController : MonoBehaviour
     /// survival-specific setup comes later) should read that once it's in the battle scene.</summary>
     public void OnSurvivalPressed()
     {
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+
         gameModePopup.Close();
         PendingBattle.Level = null; // survival doesn't pick a campaign level — clears any stale one from an earlier attempt
         SceneManager.LoadScene(PendingBattle.BattleSceneName);
@@ -74,6 +78,8 @@ public class MainMenuFlowController : MonoBehaviour
     /// <summary>Wire to a "Build Ship" / "Ангар" button on the main menu.</summary>
     public void OnBuildShipPressed()
     {
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+
         mainMenuScreen.SetActive(false);
         builderScreen.SetActive(true);
 
@@ -120,6 +126,8 @@ public class MainMenuFlowController : MonoBehaviour
 
     private void ShowMainMenu()
     {
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+
         builderScreen.SetActive(false);
         mainMenuScreen.SetActive(true);
         buildModeController.ghost.gameObject.SetActive(false); // safety: never listen for taps outside the builder
