@@ -97,9 +97,10 @@ MonoBehaviour:
   type: 3
   moduleId: engine_3x3
   buildCost: 110
+  laserResistance: 0
   maxHP: 200
   mass: 10
-  energyDelta: 10
+  energyDelta: -10
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000
@@ -110,7 +111,9 @@ MonoBehaviour:
   roofRoot: {fileID: 4579919626324089469}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   thrustPower: 40
+  kind: 0
   thrustEffect: {fileID: 828817674342048638}
   idleEmissionRate: 20
   fullThrustEmissionRate: 30

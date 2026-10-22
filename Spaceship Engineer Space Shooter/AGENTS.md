@@ -2,7 +2,7 @@
 - Project name: Spaceship Engineer Space Shooter
 - Unity version: Unity 6000.5.10f1
 - Active game object:
-  - Name: LevelButtonPrefab (38)
+  - Name: EnemyEngineIon_1x1
   - Tag: Untagged
-  - Layer: UI
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

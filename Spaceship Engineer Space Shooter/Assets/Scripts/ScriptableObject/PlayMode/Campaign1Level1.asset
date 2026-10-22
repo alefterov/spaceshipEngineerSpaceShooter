@@ -33,8 +33,16 @@ MonoBehaviour:
       route: []
     delayAfterWave: 10
   - enemies:
-    - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
+    - enemyPrefab: {fileID: 7518618935520632737, guid: b60e021b9641f8c419678ab4e30a3f26, type: 3}
       count: 10
+      spawnInterval: 3
+      side: 0
+      positionAlongEdge: 0.395
+      route: []
+    delayAfterWave: 10
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: b60e021b9641f8c419678ab4e30a3f26, type: 3}
+      count: 1
       spawnInterval: 3
       side: 0
       positionAlongEdge: 0.395

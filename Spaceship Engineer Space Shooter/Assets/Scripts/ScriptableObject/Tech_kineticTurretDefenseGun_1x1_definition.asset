@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_kineticTurretDefenseGun_1x1_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: kinetic_turret_defense_gun_1x1
+  displayName: Defense Turret Gun I
+  icon: {fileID: -8748077818849655849, guid: 3899996f5812e9648a26818d9623a900, type: 3}
+  category: 6
+  prerequisite: {fileID: 11400000, guid: d685604f62a9b3f438b0297765104447, type: 2}
+  researchCost: 25
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 7d8fd0136f7c41542ac5268050f933c4, type: 2}

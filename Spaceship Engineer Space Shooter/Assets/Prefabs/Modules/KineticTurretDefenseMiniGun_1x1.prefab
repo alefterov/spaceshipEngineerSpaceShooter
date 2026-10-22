@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 1643671066974087282}
   - component: {fileID: 3084313088389128584}
   m_Layer: 0
-  m_Name: KineticTurretMiniGun_1x1
+  m_Name: KineticTurretDefenseMiniGun_1x1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -189,11 +189,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
-  moduleId: kineticGun_1x1
+  moduleId: kineticTurretDefenseMiniGun_1x1
   buildCost: 20
+  laserResistance: 0
   maxHP: 20
   mass: 1
-  energyDelta: 1
+  energyDelta: -1
   occupiedCells:
   - {x: 0, y: 0}
   cellShapes: 00000000
@@ -204,17 +205,20 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 1643671066974087282}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
   aiming: 1
   fireControl: 0
+  weaponClass: 0
   allowedTargets: 000000000200000004000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
+  projectilePrefab: {fileID: 9034744518351449050, guid: eac28cd5e78ff9c4393c5be74f6cc537, type: 3}
+  muzzles: []
   muzzle: {fileID: 9088350872030205532}
-  cooldownSeconds: 1
-  projectileDamage: 5
+  cooldownSeconds: 0.1
+  projectileDamage: 1
   projectileSpeed: 12
-  range: 50
-  fireArcDegrees: 30
+  range: 15
+  fireArcDegrees: 360
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 180
@@ -253,11 +257,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
   bodyRenderer: {fileID: 0}
-  pristineSprite: {fileID: 0}
-  lightDamageSprite: {fileID: 0}
-  moderateDamageSprite: {fileID: 0}
-  heavyDamageSprite: {fileID: 0}
-  criticalDamageSprite: {fileID: 0}
+  markSprites: []
+  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
+  maxMarks: 16
+  markSize: {x: 0.15, y: 0.4}
+  clipToBlock: 1
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &3283518797661143910
@@ -317,7 +321,7 @@ Transform:
   m_GameObject: {fileID: 6017249937601128599}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -372,7 +376,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5628704119742269869, guid: 848b567bed3c68c4d9a9e71f4074bb3b, type: 3}
+  m_Sprite: {fileID: -918301090487041842, guid: b080c70e361d0e1429c886f86b82811c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -410,7 +414,7 @@ Transform:
   m_GameObject: {fileID: 6182931849373065772}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.7, z: 0}
+  m_LocalPosition: {x: 0, y: -0.31, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -464,9 +468,9 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 7
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2698246831291938225, guid: 74d47549c4e731242bc1f13f5c047f68, type: 3}
+  m_Sprite: {fileID: -4654484741657231595, guid: 052830e183016a34a82abbb2ace2ae45, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -613,7 +617,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2699512214910817206, guid: e2e66f9e3b0cf91439bd6fe181fbd9a7, type: 3}
+  m_Sprite: {fileID: 5222077422220772214, guid: f2e96264fb404c34da566c4cb3d0b73c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

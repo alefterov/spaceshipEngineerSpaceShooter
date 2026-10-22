@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Turret Gun II
   icon: {fileID: 426649727142562439, guid: 80961a358f0ba8b42bdd4b636f4099f8, type: 3}
   category: 6
-  prerequisite: {fileID: 11400000, guid: d685604f62a9b3f438b0297765104447, type: 2}
+  prerequisite: {fileID: 11400000, guid: b4139af442ef8e94783239596edceef2, type: 2}
   researchCost: 30
   unlockedBlocks:
   - {fileID: 11400000, guid: 5dc7aad2611983242b0a13f4f0bdf877, type: 2}

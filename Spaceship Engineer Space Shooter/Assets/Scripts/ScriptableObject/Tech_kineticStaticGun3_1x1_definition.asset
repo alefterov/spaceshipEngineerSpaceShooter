@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Kinetic Gun III
   icon: {fileID: -8470880251923861391, guid: 8b30da00b14f3d946ae3d91b1bc1abb7, type: 3}
   category: 6
-  prerequisite: {fileID: 11400000, guid: 4841a94b5dfaa3e4b81ad11173cd19b6, type: 2}
+  prerequisite: {fileID: 11400000, guid: b4139af442ef8e94783239596edceef2, type: 2}
   researchCost: 40
   unlockedBlocks:
   - {fileID: 11400000, guid: bdf03d6a03ec3f74283ff7e2c64f6ae0, type: 2}
