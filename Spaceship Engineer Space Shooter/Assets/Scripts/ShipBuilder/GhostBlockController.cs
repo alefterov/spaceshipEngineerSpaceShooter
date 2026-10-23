@@ -44,6 +44,14 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     [Tooltip("Fraction of a block's build cost refunded when it's dismantled (0.8 = 80%).")]
     [Range(0f, 1f)] public float dismantleRefundFraction = 0.8f;
 
+    [Header("Sound")]
+    [Tooltip("Played when a block is built on the ship.")]
+    public AudioClip placeSound;
+    [Range(0f, 1f)] public float placeVolume = 1f;
+    [Tooltip("Played when a block is dismantled.")]
+    public AudioClip dismantleSound;
+    [Range(0f, 1f)] public float dismantleVolume = 1f;
+
     private GameObject ghostInstance;
     private Transform ghostVisualRoot; // cached before ShipModule (and its visualRoot ref) gets stripped
     private readonly List<SpriteRenderer> ghostRenderers = new();
@@ -110,6 +118,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         if (refund > 0) GameDataManager.Instance.AddCredits(refund);
 
         grid.DeleteBlock(target);
+        AudioManager.PlaySfx(dismantleSound, dismantleVolume);
     }
 
     // ---------- Selection (a tap on a palette button — see BlockButtonDragHandle.OnTap) ----------
@@ -219,6 +228,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         }
 
         grid.PlaceBlock(currentBlock, lastAnchor, lastShape, rotationSteps);
+        AudioManager.PlaySfx(placeSound, placeVolume);
 
         DestroyGhost();
         grid.ClearPlacementPreview();

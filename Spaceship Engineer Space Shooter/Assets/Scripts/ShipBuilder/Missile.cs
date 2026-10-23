@@ -33,6 +33,11 @@ public class Missile : MonoBehaviour, IShieldBlockable
     [Tooltip("Seconds until it self-destructs without a hit (fuel runs out).")]
     public float lifeTime = 10f;
 
+    [Header("Sound")]
+    [Tooltip("Played where the missile blows up (a hit, a shield, or being shot down).")]
+    public AudioClip explosionSound;
+    [Range(0f, 1f)] public float explosionVolume = 1f;
+
     [Header("Explosion")]
     [Tooltip("The block it hits takes the full damage; every block touching that block takes this share of it.")]
     [Range(0f, 1f)] public float neighbourDamageFraction = 0.1f;
@@ -277,6 +282,8 @@ public class Missile : MonoBehaviour, IShieldBlockable
 
     private void SpawnExplosion()
     {
+        AudioManager.PlaySfx(explosionSound, explosionVolume);
+
         if (explosionEffectPrefab == null) return;
 
         var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity); // unparented: it outlives the missile

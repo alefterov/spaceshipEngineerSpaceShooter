@@ -85,6 +85,9 @@ public class ShipModule : MonoBehaviour
     [Tooltip("When this block is destroyed it blows up and deals this much damage to every block touching it. Armor never " +
              "does (it does not explode). 0 = no blast damage.")]
     public float blastDamageToNeighbours = 1f;
+    [Tooltip("Sound of this block being destroyed.")]
+    public AudioClip destroySound;
+    [Range(0f, 1f)] public float destroyVolume = 1f;
 
     [Header("Reward")]
     [Tooltip("Credits the player earns when this block is destroyed while it belongs to an ENEMY ship — so every block of a " +
@@ -258,6 +261,7 @@ public class ShipModule : MonoBehaviour
 
         BlastNeighbours();
         PayReward();
+        AudioManager.PlaySfx(destroySound, destroyVolume);
 
         PlayDestructionEffect();
     }

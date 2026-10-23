@@ -62,6 +62,14 @@ public class Meteor : MonoBehaviour, IShieldBlockable
              "(see EnemySpawner); falls back to searching for it if left unset.")]
     public ShipGrid targetShip;
 
+    [Header("Sound")]
+    [Tooltip("Played when the meteor strikes a block of the ship.")]
+    public AudioClip impactSound;
+    [Range(0f, 1f)] public float impactVolume = 1f;
+    [Tooltip("Played when the meteor is destroyed (shot down, or stopped by a shield).")]
+    public AudioClip destroySound;
+    [Range(0f, 1f)] public float destroyVolume = 1f;
+
     private Rigidbody2D rb;
     private bool consumed;
 
@@ -109,6 +117,7 @@ public class Meteor : MonoBehaviour, IShieldBlockable
     {
         if (broken) return;
         broken = true;
+        AudioManager.PlaySfx(destroySound, destroyVolume);
 
         if (explosionEffectPrefab != null)
         {
@@ -189,6 +198,7 @@ public class Meteor : MonoBehaviour, IShieldBlockable
         // (a WorldToGrid on the meteor's own center would resolve to the wrong cell anyway, since its
         // collider is large enough to fire while its center is still outside the block it touched).
         hitModule.TakeDamage(damage);
+        AudioManager.PlaySfx(impactSound, impactVolume);
         consumed = true;
         Break(); // consumed on impact either way, lethal or not — explodes and breaks apart like any other destruction
     }

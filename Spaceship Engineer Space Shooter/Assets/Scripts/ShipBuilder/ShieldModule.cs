@@ -36,6 +36,11 @@ public class ShieldModule : ShipModule
     [Tooltip("After a collapse the shield stays down until its reserve has refilled to this fraction of Capacity.")]
     public float reactivateFraction = 0.25f;
 
+    [Header("Sound")]
+    [Tooltip("Played when the shield stops a hit.")]
+    public AudioClip absorbSound;
+    [Range(0f, 1f)] public float absorbVolume = 1f;
+
     [Header("Visuals (all optional)")]
     [Tooltip("The faint circle marking the protected area. Put a SpriteRenderer anywhere under this " +
              "prefab's Visual Root, centered on it. Its scale is set from Radius automatically — draw " +
@@ -200,6 +205,7 @@ public class ShieldModule : ShipModule
         Vector2 impactDirection = (Vector2)other.transform.position - center;
 
         hazard.AbsorbedByShield();
+        AudioManager.PlaySfx(absorbSound, absorbVolume);
         SpawnImpactArc(impactDirection);
     }
 

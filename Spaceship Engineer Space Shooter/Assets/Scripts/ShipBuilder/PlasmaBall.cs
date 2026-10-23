@@ -33,6 +33,17 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     [Tooltip("Seconds until the spawned explosion is removed. Make it at least as long as the effect. 0 = never removed here.")]
     public float explosionEffectLifetime = 2f;
 
+    [Header("Sound")]
+    [Tooltip("Loops for as long as the ball is flying.")]
+    public AudioClip flightSound;
+    [Range(0f, 1f)] public float flightVolume = 0.6f;
+    [Tooltip("Played each time the ball strikes a block with lightning.")]
+    public AudioClip lightningSound;
+    [Range(0f, 1f)] public float lightningVolume = 1f;
+    [Tooltip("Played when the ball blows up on a shield.")]
+    public AudioClip explosionSound;
+    [Range(0f, 1f)] public float explosionVolume = 1f;
+
     [Header("Lightning")]
     [Tooltip("Colour of the lightning.")]
     public Color lightningColor = new(0.55f, 0.85f, 1f, 1f);
@@ -82,6 +93,8 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
+
+        SfxLoop.Attach(gameObject, flightSound, flightVolume);
 
         // Only shields can feel the ball, through a trigger. Without any collider the shield could not see it.
         if (GetComponent<Collider2D>() == null)
@@ -147,6 +160,8 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
 
     private void Strike(ShipModule block)
     {
+        AudioManager.PlaySfx(lightningSound, lightningVolume);
+
         // The bolt runs from the ball's centre to the block's centre.
         PlasmaLightning.Spawn(new PlasmaLightning.Style
         {
@@ -181,6 +196,8 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     public void AbsorbedByShield()
     {
         if (finished) return;
+
+        AudioManager.PlaySfx(explosionSound, explosionVolume);
 
         if (explosionEffectPrefab != null)
         {

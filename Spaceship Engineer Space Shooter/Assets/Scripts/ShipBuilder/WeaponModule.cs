@@ -84,6 +84,13 @@ public class WeaponModule : ShipModule
              "has swung around. Smaller = more precise but fires later.")]
     public float fireArcDegrees = 30f;
 
+    [Header("Weapon — sound")]
+    [Tooltip("Sound of one shot (for a laser: the beam switching on; for a missile launcher: a launch; for plasma: the balls leaving). Every kind of weapon has its own.")]
+    public AudioClip fireSound;
+    [Range(0f, 1f)] public float fireVolume = 1f;
+    [Range(0f, 1f), Tooltip("Enemy ships fire this weapon at this share of the volume (many enemies at once would drown everything out).")]
+    public float enemyVolumeScale = 0.7f;
+
     [Header("Weapon — moving parts")]
     [Tooltip("Separate child holding the parts that move relative to the block's body — e.g. a turret's " +
              "tower and barrel. Always drawn ABOVE every block body (ShipGrid's top sorting order), " +
@@ -332,6 +339,7 @@ public class WeaponModule : ShipModule
             if (energy != null && !energy.TrySpend(EnergyCostPerShot, ShipEnergySystem.EnergyPriorityGroup.Weapons)) break;
 
             Spawn(barrels[i]);
+            AudioManager.PlaySfx(fireSound, fireVolume * (OwnFaction == Faction.Enemy ? enemyVolumeScale : 1f));
             barrelCooldowns[i] = ReloadAfterShot;
             fired = true;
 

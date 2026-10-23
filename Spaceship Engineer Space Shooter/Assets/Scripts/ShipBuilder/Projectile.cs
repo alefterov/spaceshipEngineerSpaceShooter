@@ -21,6 +21,11 @@ public class Projectile : MonoBehaviour, IShieldBlockable
              "the weapon's Range (see WeaponModule.Spawn).")]
     public float lifeTime = 4f;
 
+    [Header("Sound")]
+    [Tooltip("Played when the shot hits something (not when a shield stops it — the shield has its own sound — and not when it just runs out of range).")]
+    public AudioClip impactSound;
+    [Range(0f, 1f)] public float impactVolume = 1f;
+
     [Header("Impact")]
     [Tooltip("Quick particle effect spawned where the shot hits something or is stopped by a shield — " +
              "not when it simply runs out of range. A particle prefab, or a child object of this " +
@@ -62,7 +67,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     public void AbsorbedByShield()
     {
         consumed = true;
-        Break();
+        Break(playSound: false); // a shield stopped it: the shield makes the sound
     }
 
     private void Awake()
@@ -78,11 +83,13 @@ public class Projectile : MonoBehaviour, IShieldBlockable
 
     /// <summary>The shot's end when it hits something: the impact effect at the spot, and the shot is
     /// removed. Idempotent. Running out of range just vanishes (see Start) — that isn't a hit.</summary>
-    private void Break()
+    private void Break(bool playSound = true)
     {
         if (broken) return;
         broken = true;
         consumed = true;
+
+        if (playSound) AudioManager.PlaySfx(impactSound, impactVolume);
 
         if (impactEffectPrefab != null)
         {

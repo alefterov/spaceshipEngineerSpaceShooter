@@ -28,6 +28,11 @@ public class RamCollision : MonoBehaviour
     [Tooltip("Seconds between hits while two blocks stay in contact.")]
     [Min(0.05f)] public float tickSeconds = 0.5f;
 
+    [Header("Sound")]
+    [Tooltip("Played when two ships collide (the first moment of a fresh touch).")]
+    public AudioClip impactSound;
+    [Range(0f, 1f)] public float impactVolume = 1f;
+
     [Header("Impact")]
     [Tooltip("Seconds both ships are stopped dead after a fresh collision (their own engines can't move them).")]
     [Min(0f)] public float haltSeconds = 0.3f;
@@ -171,6 +176,7 @@ public class RamCollision : MonoBehaviour
 
         // 2) Remember the touch; a FRESH one (no contact a moment ago) is an impact: stop dead and get knocked back.
         bool impact = !body.InContact;
+        if (impact) AudioManager.PlaySfx(impactSound, impactVolume);
 
         body.RegisterContact(normal, contactMemorySeconds, impact, haltSeconds, normal * bounceSpeed * myShare, bounceDecay);
         playerBody.RegisterContact(-normal, contactMemorySeconds, impact, haltSeconds, -normal * bounceSpeed * theirShare, bounceDecay);
