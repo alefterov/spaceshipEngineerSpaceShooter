@@ -98,6 +98,7 @@ MonoBehaviour:
   type: 4
   moduleId: shield_2x2
   buildCost: 20
+  laserResistance: 0
   maxHP: 50
   mass: 4
   energyDelta: 0
@@ -112,10 +113,18 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 0.169
+  rewardCredits: 5
+  rewardExperience: 0
   radius: 7
   capacity: 100
   rechargePerSecond: 10
   reactivateFraction: 0.25
+  absorbSound: {fileID: 8300000, guid: 0f8c8ac458743f843adec31ebc59b888, type: 3}
+  absorbVolume: 0.311
   zoneRenderer: {fileID: 5961069768649543108}
   zoneAlpha: 0.608
   zoneFadeSpeed: 2

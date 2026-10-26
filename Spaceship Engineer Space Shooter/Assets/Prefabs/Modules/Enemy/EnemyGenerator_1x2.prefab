@@ -97,6 +97,7 @@ MonoBehaviour:
   type: 5
   moduleId: generatorMiddle_2x2
   buildCost: 30
+  laserResistance: 0
   maxHP: 50
   mass: 4
   energyDelta: 0
@@ -111,6 +112,12 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 0.198
+  rewardCredits: 5
+  rewardExperience: 0
   powerOutput: 10
   capacity: 200
 --- !u!114 &4140459331547520971

@@ -207,6 +207,8 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
+  destroySound: {fileID: 0}
+  destroyVolume: 1
   rewardCredits: 5
   rewardExperience: 0
   aiming: 0
@@ -222,6 +224,9 @@ MonoBehaviour:
   projectileSpeed: 16
   range: 70
   fireArcDegrees: 30
+  fireSound: {fileID: 0}
+  fireVolume: 1
+  enemyVolumeScale: 0.7
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 180
@@ -257,6 +262,8 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 0.282
   rewardCredits: 5
   rewardExperience: 0
   aiming: 0
@@ -272,6 +279,9 @@ MonoBehaviour:
   projectileSpeed: 12
   range: 12
   fireArcDegrees: 30
+  fireSound: {fileID: 8300000, guid: fb2da39af5453f149858e9e37b7d0d66, type: 3}
+  fireVolume: 0.2
+  enemyVolumeScale: 0.6
   topRoot: {fileID: 0}
   turretPivot: {fileID: 0}
   turretRotationSpeed: 180

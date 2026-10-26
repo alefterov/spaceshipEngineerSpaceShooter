@@ -190,6 +190,7 @@ MonoBehaviour:
   type: 2
   moduleId: plasmaGun_1x1
   buildCost: 100
+  laserResistance: 0
   maxHP: 150
   mass: 12
   energyDelta: 15
@@ -206,20 +207,32 @@ MonoBehaviour:
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 0}
+  destroyVolume: 1
+  rewardCredits: 5
+  rewardExperience: 0
   aiming: 0
   fireControl: 0
+  weaponClass: 0
   allowedTargets: 000000000200000004000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
+  projectilePrefab: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+  muzzles: []
   muzzle: {fileID: 0}
   cooldownSeconds: 0.5
   projectileDamage: 5
   projectileSpeed: 16
   range: 70
   fireArcDegrees: 30
+  fireSound: {fileID: 0}
+  fireVolume: 1
+  enemyVolumeScale: 0.7
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 180
+  turretAimToleranceDegrees: 3
 --- !u!114 &5153420831474828212
 MonoBehaviour:
   m_ObjectHideFlags: 0

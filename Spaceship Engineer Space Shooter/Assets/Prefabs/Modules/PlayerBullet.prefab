@@ -5070,6 +5070,8 @@ MonoBehaviour:
   owner: 0
   weaponClass: 0
   lifeTime: 5
+  impactSound: {fileID: 8300000, guid: 306bc48d6f0ec1f498ce4def70657b1e, type: 3}
+  impactVolume: 0.2
   impactEffectPrefab: {fileID: 3910864154725973254}
   impactEffectLifetime: 1
   trailEnabled: 1

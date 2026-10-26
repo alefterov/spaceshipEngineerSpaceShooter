@@ -104,7 +104,6 @@ GameObject:
   - component: {fileID: 935714196513268400}
   - component: {fileID: 9171068947655010196}
   - component: {fileID: 1643671066974087282}
-  - component: {fileID: 3084313088389128584}
   m_Layer: 0
   m_Name: KineticTurretGun2_2x2
   m_TagString: Untagged
@@ -210,6 +209,8 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 1
   rewardCredits: 5
   rewardExperience: 0
   aiming: 1
@@ -227,6 +228,9 @@ MonoBehaviour:
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30
+  fireSound: {fileID: 8300000, guid: 306bc48d6f0ec1f498ce4def70657b1e, type: 3}
+  fireVolume: 0.237
+  enemyVolumeScale: 0.7
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 60
@@ -253,26 +257,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &3084313088389128584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
-  bodyRenderer: {fileID: 0}
-  markSprites: []
-  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
-  maxMarks: 16
-  markSize: {x: 0.15, y: 0.4}
-  clipToBlock: 1
-  sparksEffect: {fileID: 0}
-  fireEffect: {fileID: 0}
 --- !u!1 &3283518797661143910
 GameObject:
   m_ObjectHideFlags: 0

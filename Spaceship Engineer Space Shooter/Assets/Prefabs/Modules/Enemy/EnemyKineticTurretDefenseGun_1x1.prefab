@@ -206,6 +206,10 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
+  destroySound: {fileID: 0}
+  destroyVolume: 1
+  rewardCredits: 5
+  rewardExperience: 0
   aiming: 1
   fireControl: 0
   weaponClass: 0
@@ -219,9 +223,13 @@ MonoBehaviour:
   projectileSpeed: 12
   range: 15
   fireArcDegrees: 360
+  fireSound: {fileID: 8300000, guid: 23c32f85cc3fb3840875dfbbf88c74bd, type: 3}
+  fireVolume: 0.153
+  enemyVolumeScale: 0.52
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 180
+  turretAimToleranceDegrees: 3
 --- !u!95 &1643671066974087282
 Animator:
   serializedVersion: 7

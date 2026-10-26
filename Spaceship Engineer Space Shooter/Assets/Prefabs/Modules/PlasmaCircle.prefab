@@ -723,6 +723,12 @@ MonoBehaviour:
   shieldDamageMultiplier: 10
   explosionEffectPrefab: {fileID: 0}
   explosionEffectLifetime: 2
+  flightSound: {fileID: 8300000, guid: 1977c1e927f117b459900d45ec90c0ed, type: 3}
+  flightVolume: 0.073
+  lightningSound: {fileID: 8300000, guid: e2ba8048cce9cb14d8ee0ffd1b3bad07, type: 3}
+  lightningVolume: 0.045
+  explosionSound: {fileID: 0}
+  explosionVolume: 1
   lightningColor: {r: 0.55, g: 0.85, b: 1, a: 1}
   lightningWidth: 0.08
   lightningHaloWidthMultiplier: 3

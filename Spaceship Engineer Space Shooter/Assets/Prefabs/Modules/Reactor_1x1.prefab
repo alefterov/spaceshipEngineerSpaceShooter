@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
   - component: {fileID: 8935889838259668942}
-  - component: {fileID: 4140459331547520971}
   m_Layer: 0
   m_Name: Reactor_1x1
   m_TagString: Untagged
@@ -97,6 +96,7 @@ MonoBehaviour:
   type: 5
   moduleId: reactor_1x1
   buildCost: 80
+  laserResistance: 0
   maxHP: 50
   mass: 2
   energyDelta: 0
@@ -110,28 +110,14 @@ MonoBehaviour:
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 1
+  rewardCredits: 5
+  rewardExperience: 0
   powerOutput: 25
   capacity: 400
---- !u!114 &4140459331547520971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
-  bodyRenderer: {fileID: 0}
-  markSprites: []
-  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
-  maxMarks: 16
-  markSize: {x: 0.15, y: 0.4}
-  clipToBlock: 1
-  sparksEffect: {fileID: 0}
-  fireEffect: {fileID: 0}
 --- !u!1 &790461595775913428
 GameObject:
   m_ObjectHideFlags: 0
