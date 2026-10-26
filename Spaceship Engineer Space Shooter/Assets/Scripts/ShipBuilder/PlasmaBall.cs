@@ -184,7 +184,8 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
             if (data != null && data.RollCrewChance(CrewPerkType.EvadeEnergyWeapons)) return;
         }
 
-        block.TakeDamage(damage);
+        float dealt = CriticalHit.Roll(owner, damage, out bool crit); // the Captain's crit perk: rolled for every strike
+        block.TakeDamage(dealt, crit);
     }
 
     // ---------- IShieldBlockable — a shield takes ten times the damage, and the ball explodes ----------

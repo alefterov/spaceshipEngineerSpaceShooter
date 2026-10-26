@@ -248,9 +248,11 @@ public class Missile : MonoBehaviour, IShieldBlockable
         // Who is next to the block is worked out BEFORE the damage — a destroyed block frees its cells.
         var neighbours = MissileTargeting.GetNeighbours(hit);
 
-        hit.TakeDamage(damage);
+        // The Captain's crit perk: one roll per missile — the neighbours feel the same, harder, blast.
+        float dealt = CriticalHit.Roll(owner, damage, out bool crit);
+        hit.TakeDamage(dealt, crit);
         foreach (var neighbour in neighbours)
-            if (neighbour != null) neighbour.TakeDamage(damage * neighbourDamageFraction);
+            if (neighbour != null) neighbour.TakeDamage(dealt * neighbourDamageFraction, crit);
 
         SpawnExplosion();
         Despawn();

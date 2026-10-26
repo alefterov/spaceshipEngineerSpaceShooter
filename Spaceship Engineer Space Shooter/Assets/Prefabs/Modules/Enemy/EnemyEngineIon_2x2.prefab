@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
   - component: {fileID: -8601134107536703365}
-  - component: {fileID: 3792144078380607541}
   m_Layer: 0
   m_Name: EnemyEngineIon_2x2
   m_TagString: Untagged
@@ -113,7 +112,7 @@ MonoBehaviour:
   visualRoot: {fileID: 8312644339215851625}
   roofRoot: {fileID: 4579919626324089469}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
@@ -125,26 +124,6 @@ MonoBehaviour:
   thrustEffect: {fileID: 828817674342048638}
   idleEmissionRate: 20
   fullThrustEmissionRate: 30
---- !u!114 &3792144078380607541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
-  bodyRenderer: {fileID: 0}
-  markSprites: []
-  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
-  maxMarks: 16
-  markSize: {x: 0.15, y: 0.4}
-  clipToBlock: 1
-  sparksEffect: {fileID: 0}
-  fireEffect: {fileID: 0}
 --- !u!1 &2155541892210680246
 GameObject:
   m_ObjectHideFlags: 0

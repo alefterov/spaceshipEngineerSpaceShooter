@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 18
   displayName: Armor Efficiency
   icon: {fileID: -1991478921, guid: 9475cd924beb2ad45821139eb058d7df, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

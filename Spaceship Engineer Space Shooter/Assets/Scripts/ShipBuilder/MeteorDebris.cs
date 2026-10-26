@@ -14,6 +14,15 @@ public class MeteorDebris : MonoBehaviour
     private float elapsed;
     private Color startColor;
     private Vector3 startScale;
+    private Gradient colorOverLife; // optional: replaces the plain fade — colour AND alpha over the debris' life
+
+    /// <summary>Same as Begin, but the debris takes its colour (and opacity) from `gradient` over its life, 0 = just thrown,
+    /// 1 = gone — e.g. glowing embers that cool from yellow to black and vanish.</summary>
+    public void BeginCooling(SpriteRenderer renderer, Vector2 velocity, float spinDegreesPerSecond, float delay, float fadeSeconds, Gradient gradient)
+    {
+        Begin(renderer, velocity, spinDegreesPerSecond, delay, fadeSeconds);
+        colorOverLife = gradient;
+    }
 
     public void Begin(SpriteRenderer renderer, Vector2 velocity, float spinDegreesPerSecond, float delay, float fadeSeconds)
     {
@@ -36,6 +45,13 @@ public class MeteorDebris : MonoBehaviour
         transform.position += (Vector3)(velocity * Time.deltaTime);
         transform.Rotate(0f, 0f, spin * Time.deltaTime);
         transform.localScale = startScale * Mathf.Lerp(1f, 0.6f, t);
+
+        if (colorOverLife != null)
+        {
+            sr.color = colorOverLife.Evaluate(t);
+            if (t >= 1f) Destroy(gameObject);
+            return;
+        }
 
         var c = startColor;
         c.a = startColor.a * (1f - t);

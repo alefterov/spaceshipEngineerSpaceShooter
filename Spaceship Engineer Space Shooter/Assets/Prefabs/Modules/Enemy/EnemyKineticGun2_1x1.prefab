@@ -202,7 +202,7 @@ MonoBehaviour:
   visualRoot: {fileID: 8868587245406197017}
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 3153761081599872217}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}

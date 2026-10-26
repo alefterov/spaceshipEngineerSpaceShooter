@@ -60,6 +60,10 @@ public class ShipGrid : MonoBehaviour
              "authored inside a prefab are kept as offsets from these bases.")]
     [FormerlySerializedAs("hullRoofSortingOrder")] public int roofSortingOrder = 20;
     public int topSortingOrder = 40;
+    [Tooltip("Weapons' moving parts overlap those of the weapons next to them. The higher a weapon is on the screen, the LOWER its layer, so " +
+             "the ones further down are drawn over the ones above. Neighbouring weapons are this many sorting orders apart — keep it larger " +
+             "than the spread of orders inside one weapon prefab.")]
+    public int weaponLayerStep = 10;
 
     private Transform previewRoot;
     private readonly List<GameObject> previewPool = new();
@@ -296,6 +300,28 @@ public class ShipGrid : MonoBehaviour
     };
 
     // ---------- Placement ----------
+    // The middle of a block (its visual root sits on its footprint's centre; a 2x2 block's own root is only its anchor cell).
+    private static float CenterY(ShipModule block) => (block.visualRoot != null ? block.visualRoot.position : block.transform.position).y;
+
+
+    /// <summary>Orders the moving parts of the ship's weapons by their place on the SCREEN: the higher a weapon is (world Y),
+    /// the lower its layer. Weapons in the same row share a layer. Done after blocks are placed, and again when the ship is
+    /// turned (an enemy ship faces down, which reverses what "higher" means).</summary>
+    public void RefreshWeaponLayers()
+    {
+        var weapons = Blocks.OfType<WeaponModule>().Where(w => w != null && !w.IsDestroyed)
+            .OrderByDescending(w => CenterY(w)).ToList();
+
+        int rank = -1;
+        float lastY = float.MaxValue;
+        foreach (var weapon in weapons)
+        {
+            float y = CenterY(weapon);
+            if (lastY - y > cellSize * 0.25f || rank < 0) rank++; // a new row down the screen
+            lastY = y;
+            weapon.SetLayerRank(rank, weaponLayerStep);
+        }
+    }
 
     public ShipModule PlaceBlock(BlockDefinition definition, Vector2Int anchor, List<BlockCell> rotatedCells, int rotationSteps)
     {
@@ -365,6 +391,7 @@ public class ShipGrid : MonoBehaviour
         identity.RegisterBlock(module);
         module.OnDestroyed += HandleBlockDestroyed;
 
+        RefreshWeaponLayers(); // a new weapon changes who is above whom
         OnShipChanged?.Invoke();
         return module;
     }

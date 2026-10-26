@@ -84,8 +84,9 @@ public class EnemySpawner : MonoBehaviour
         var waves = PendingBattle.Level != null ? PendingBattle.Level.waves : null;
         if (waves != null)
         {
-            foreach (var wave in waves)
+            for (int w = 0; w < waves.Count; w++)
             {
+                var wave = waves[w];
                 foreach (var entry in wave.enemies)
                 {
                     for (int i = 0; i < entry.count; i++)
@@ -95,7 +96,8 @@ public class EnemySpawner : MonoBehaviour
                     }
                 }
 
-                yield return new WaitForSeconds(wave.delayAfterWave);
+                // After the last wave there is nothing to wait for: the end-of-battle check starts right away.
+                if (w < waves.Count - 1) yield return new WaitForSeconds(wave.delayAfterWave);
             }
         }
 

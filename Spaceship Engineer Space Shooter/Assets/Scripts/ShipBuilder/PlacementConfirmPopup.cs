@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Checkmark/cross popup shown at the drop point once a dragged block is released over a valid
-/// cell (GhostBlockController.EndGridDrag). The player must explicitly confirm before the block
-/// is actually placed — releasing over an invalid cell never shows this, the ghost is just
-/// discarded instead.
+/// Checkmark/cross popup shown once a dragged block is released over a valid cell
+/// (GhostBlockController.EndGridDrag), and for a delete confirmation. The player must explicitly
+/// confirm before the block is actually placed — releasing over an invalid cell never shows this,
+/// the ghost is just discarded instead. The panel stays exactly where it is in the scene: it is
+/// switched on, and switched off again after either button.
 ///
-/// SETUP: a small UI panel with two buttons (confirm/cancel), living under the same Canvas as
-/// the rest of the builder UI, inactive by default. Assign panel/confirmButton/cancelButton/
-/// canvasRect in the Inspector; leave uiCamera empty for a Screen Space - Overlay canvas.
+/// SETUP: a small UI panel with two buttons (confirm/cancel), placed where you want it on the
+/// builder UI, inactive by default. Assign panel/confirmButton/cancelButton in the Inspector.
 /// </summary>
 public class PlacementConfirmPopup : MonoBehaviour
 {
@@ -21,10 +21,6 @@ public class PlacementConfirmPopup : MonoBehaviour
     public Button confirmButton;
     [Tooltip("Cross button — discards the ghost without placing it.")]
     public Button cancelButton;
-    [Tooltip("The Canvas' RectTransform the popup lives under — needed to convert a screen-space drop point into the popup's local position.")]
-    public RectTransform canvasRect;
-    [Tooltip("Leave empty for a Screen Space - Overlay canvas. Required for Screen Space - Camera / World Space canvases.")]
-    public Camera uiCamera;
 
     private Action onConfirm;
     private Action onCancel;
@@ -36,14 +32,12 @@ public class PlacementConfirmPopup : MonoBehaviour
         Hide();
     }
 
-    /// <summary>Shows the popup anchored at a screen-space point (e.g. the finger's last position).</summary>
-    public void Show(Vector2 screenPosition, Action confirm, Action cancel)
+    /// <summary>Shows the popup where it sits in the scene — it does not follow the drop point. It hides again after
+    /// either button.</summary>
+    public void Show(Action confirm, Action cancel)
     {
         onConfirm = confirm;
         onCancel = cancel;
-
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPosition, uiCamera, out var local))
-            panel.anchoredPosition = local;
 
         panel.gameObject.SetActive(true);
     }

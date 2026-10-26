@@ -111,6 +111,25 @@ public class ShipModule : MonoBehaviour
     // Fired once, when HP hits zero.
     public event Action<ShipModule> OnDestroyed;
 
+    private Collider2D bodyCollider;
+
+    /// <summary>The block's footprint in world space (its collider's bounds; one cell around the block's position if
+    /// the collider is unusable).</summary>
+    public Bounds WorldBounds
+    {
+        get
+        {
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            if (bodyCollider != null)
+            {
+                Bounds b = bodyCollider.bounds;
+                if (b.size.x > 0.001f && b.size.y > 0.001f) return b;
+            }
+
+            return new Bounds(transform.position, new Vector3(1f, 1f, 0f));
+        }
+    }
+
     protected virtual void Awake()
     {
         CurrentHP = maxHP;
@@ -210,16 +229,37 @@ public class ShipModule : MonoBehaviour
     /// Apply damage directly to THIS module only (called by the projectile/hit system
     /// after it resolves which module collider was actually struck).
     /// </summary>
+    private bool nextHitIsCrit;
+
+    /// <summary>A hit that may be critical: the damage number above the block turns red. The damage itself is whatever
+    /// the caller passes in — the crit multiplier is applied by the caller.</summary>
+    public void TakeDamage(float amount, bool crit)
+    {
+        nextHitIsCrit = crit;
+        TakeDamage(amount);
+        nextHitIsCrit = false;
+    }
+
     public virtual void TakeDamage(float amount)
     {
         if (IsDestroyed || amount <= 0f) return;
+
+        // An enemy ship is only vulnerable while it is completely inside the screen — one still flying in (or
+        // partly off it) takes no damage at all.
+        if (CompareTag("EnemyShip"))
+        {
+            var ownShip = GetComponentInParent<ShipIdentity>();
+            if (ownShip != null && ownShip.faction == Faction.Enemy && !ownShip.IsFullyInView()) return;
+        }
 
         // Crew ZeroDamageChance perk — blocks of the player's ship only: the hit simply does nothing.
         if (CompareTag("PlayerShip") && GameDataManager.Instance != null && GameDataManager.Instance.RollCrewChance(CrewPerkType.ZeroDamageChance))
             return;
 
+        float hpBefore = CurrentHP;
         CurrentHP = Mathf.Max(0f, CurrentHP - amount);
         OnDamaged?.Invoke(this, amount);
+        DamageNumbers.Report(this, hpBefore - CurrentHP, nextHitIsCrit); // the floating number above the block (battle scene)
 
         if (CurrentHP <= 0f)
         {
@@ -296,6 +336,9 @@ public class ShipModule : MonoBehaviour
             var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             if (explosionLifetime > 0f) UnityEngine.Object.Destroy(fx, explosionLifetime);
         }
+
+        var wear = GetComponentInChildren<BlockDamageVisual>(true);
+        if (wear != null) wear.SpawnShatter(); // the block bursts into shards that fly apart and fade
 
         UnityEngine.Object.Destroy(gameObject);
     }

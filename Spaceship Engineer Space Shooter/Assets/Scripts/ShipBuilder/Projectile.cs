@@ -182,7 +182,8 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         // shot flies on through the whole ship, harmlessly, instead of being re-rolled on every block.
         if (isPlayerModule && owner == ProjectileOwner.Enemy && TryEvade()) return false;
 
-        hitModule.TakeDamage(damage);
+        float dealt = CriticalHit.Roll(owner == ProjectileOwner.Player ? Faction.Player : Faction.Enemy, damage, out bool crit);
+        hitModule.TakeDamage(dealt, crit);
         return true;
     }
 

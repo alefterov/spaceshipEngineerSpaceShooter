@@ -216,12 +216,34 @@ public class WeaponModule : ShipModule
     }
 
     /// <summary>Body sprites at the roof layer (base behaviour), moving parts on top of every body.</summary>
+    private int topBaseCached = 40;
+    private int layerRank;      // 0 = highest on the screen among the ship's weapons; each step down puts it one layer step above
+    private int layerStep = 10;
+
     public override void ApplySortingOrders(int roofBase, int topBase)
     {
         base.ApplySortingOrders(roofBase, topBase);
 
+        topBaseCached = topBase;
+        ApplyTopOrders();
+    }
+
+    /// <summary>Sets this weapon's rank among its ship's weapons (see ShipGrid.RefreshWeaponLayers): the higher up the screen
+    /// a weapon is, the lower its layer, so a weapon further down is drawn over the ones above it. `step` is how many
+    /// sorting orders apart neighbouring ranks are — wider than the orders inside one weapon, so weapons never interleave.</summary>
+    public void SetLayerRank(int rank, int step)
+    {
+        if (rank == layerRank && step == layerStep) return;
+
+        layerRank = rank;
+        layerStep = Mathf.Max(1, step);
+        ApplyTopOrders();
+    }
+
+    private void ApplyTopOrders()
+    {
         foreach (var (renderer, authoredOrder) in topRenderers)
-            if (renderer != null) renderer.sortingOrder = topBase + authoredOrder;
+            if (renderer != null) renderer.sortingOrder = topBaseCached + layerRank * layerStep + authoredOrder;
     }
 
     /// <summary>Ticks every barrel's reload. Runs even out of combat, so every weapon starts a battle
@@ -327,6 +349,10 @@ public class WeaponModule : ShipModule
     protected bool FireIfReady(Vector2? aimPoint)
     {
         if (IsDestroyed || !poweredOn || (RequiresProjectilePrefab && projectilePrefab == null) || barrels.Count == 0) return false;
+
+        // An enemy ship attacks only once it is completely on the screen — the same condition under which it can be hurt.
+        if (OwnFaction == Faction.Enemy && identity != null && !identity.IsFullyInView()) return false;
+
         if (SalvoDelay > 0f && Time.time < nextShotTime) return false;
         if (aimPoint.HasValue && !InFiringArc(aimPoint.Value)) return false;
 
@@ -536,6 +562,9 @@ public class WeaponModule : ShipModule
     private bool CanEngage(Targetable candidate)
     {
         if (!allowedTargets.Contains(candidate.kind)) return false;
+
+        // A ship that has not fully come onto the screen can't be hurt yet — no point firing at it.
+        if (candidate.kind == TargetKind.Ship && candidate.faction == Faction.Enemy && !candidate.IsFullyInView) return false;
 
         // Meteors threaten everyone; everything else is only a target if it belongs to the other side.
         return candidate.kind == TargetKind.Meteor || candidate.faction != OwnFaction;

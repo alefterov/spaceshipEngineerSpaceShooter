@@ -30,8 +30,10 @@ public class LaserWeapon : WeaponModule
     public float beamWidth = 0.15f;
     [Tooltip("Seconds the beam takes to fade away after its time is up (damage has already stopped).")]
     public float fadeOutSeconds = 0.6f;
-    [Tooltip("The damage is applied in steps this many seconds apart (smaller = smoother, costs a little more).")]
-    [Min(0.02f)] public float damageTickSeconds = 0.1f;
+    [Tooltip("The beam hurts everything under it in steps this many seconds apart: the first at the moment it fires, then " +
+             "one every step. Each step deals Damage Per Second x this many seconds, so the total over the beam is the same " +
+             "whatever the step (1 = once a second).")]
+    [Min(0.02f)] public float damageTickSeconds = 1f;
 
     [Header("Look")]
     [Tooltip("The beam's colour — green by default. The halo around it uses the same colour.")]
@@ -43,6 +45,20 @@ public class LaserWeapon : WeaponModule
     [Tooltip("Optional material for the beam (e.g. an additive one for a stronger glow). Empty = the plain sprite material.")]
     public Material beamMaterial;
     public int beamSortingOrder = 20;
+
+    [Header("Animation")]
+    [Tooltip("Bright capsules of light that run along the beam, from the muzzle to its far end, over and over.")]
+    [Min(0)] public int capsuleCount = 6;
+    [Tooltip("Length of each capsule, in world units.")]
+    public float capsuleLength = 0.7f;
+    [Tooltip("How fast the capsules travel along the beam, in world units per second.")]
+    public float capsuleSpeed = 14f;
+    [Tooltip("A capsule is this many times thicker than the core of the beam.")]
+    public float capsuleWidthMultiplier = 1.7f;
+    [Range(0f, 0.8f), Tooltip("How much the glow and the core swell and flicker (0 = steady).")]
+    public float shimmerAmount = 0.25f;
+    [Tooltip("How fast the glow flickers, in beats per second.")]
+    public float shimmerSpeed = 16f;
 
     protected override bool RequiresProjectilePrefab => false;
 
@@ -65,10 +81,14 @@ public class LaserWeapon : WeaponModule
     {
         public LineRenderer core;
         public LineRenderer halo;
+        public readonly List<LineRenderer> capsules = new();
+        public float phase;        // how far the capsules have travelled (0..1 of the beam length, wraps)
+        public float alpha = 1f;
         public float activeLeft;   // seconds of damage still to come
         public float fadeLeft;     // seconds of fading still to come (after the damage)
         public float tickTimer;
         public bool evaded;        // dodged by the player's perk — draws, but deals nothing
+        public bool crit;          // this whole beam is a critical hit (rolled once per shot)
         public Transform tip;
         public bool Visible => activeLeft > 0f || fadeLeft > 0f;
     }
@@ -102,15 +122,16 @@ public class LaserWeapon : WeaponModule
         var beam = beams[index];
         beam.activeLeft = beamDuration;
         beam.fadeLeft = 0f;
-        beam.tickTimer = 0f;
+        beam.tickTimer = damageTickSeconds; // full: the first pulse of damage comes on the very next frame
 
         // The Navigator's laser/plasma evasion perk: one roll per beam fired at the player.
         var data = GameDataManager.Instance;
         beam.evaded = OwnFaction == Faction.Enemy && data != null && data.RollCrewChance(CrewPerkType.EvadeEnergyWeapons);
+        beam.crit = CriticalHit.Roll(OwnFaction); // the Captain's crit perk: one roll per beam, the whole beam hits harder
 
         SetBeamVisible(beam, true);
-        UpdateBeamShape(beam);
         SetAlpha(beam, 1f);
+        UpdateBeamShape(beam);
     }
 
     // ---------- Beams ----------
@@ -126,13 +147,17 @@ public class LaserWeapon : WeaponModule
             {
                 UpdateBeamShape(beam);
 
-                beam.activeLeft -= Time.deltaTime;
+                // One pulse of damage to every block under the beam each Damage Tick Seconds — the first right as it fires
+                // (the timer starts full). A pulse covers the next step; the last one only the time that is left.
                 beam.tickTimer += Time.deltaTime;
                 if (beam.tickTimer >= damageTickSeconds)
                 {
-                    DealDamage(beam, beam.tickTimer);
-                    beam.tickTimer = 0f;
+                    float covered = Mathf.Min(damageTickSeconds, beam.activeLeft);
+                    if (covered > 0.05f) DealDamage(beam, covered);
+                    beam.tickTimer -= damageTickSeconds;
                 }
+
+                beam.activeLeft -= Time.deltaTime;
 
                 if (beam.activeLeft <= 0f) beam.fadeLeft = Mathf.Max(0.0001f, fadeOutSeconds); // damage over — start fading
             }
@@ -185,7 +210,7 @@ public class LaserWeapon : WeaponModule
         float damage = beamDamagePerSecond * EffectiveDamageMultiplier * seconds;
 
         foreach (var block in hitModules)
-            if (block != null) block.TakeDamage(damage * (1f - block.laserResistance));
+            if (block != null) block.TakeDamage(damage * (1f - block.laserResistance) * (beam.crit ? CriticalHit.Multiplier : 1f), beam.crit);
 
         foreach (var thing in hitObjects)
             if (thing != null) thing.TakeDamage(damage);
@@ -209,6 +234,8 @@ public class LaserWeapon : WeaponModule
 
         beam.halo = CreateLine("LaserHalo", tip, beamSortingOrder);
         beam.core = CreateLine("LaserCore", tip, beamSortingOrder + 1);
+        for (int i = 0; i < capsuleCount; i++) beam.capsules.Add(CreateLine("LaserCapsule", tip, beamSortingOrder + 2));
+        beam.phase = Random.value;
 
         SetBeamVisible(beam, false);
         return beam;
@@ -233,8 +260,10 @@ public class LaserWeapon : WeaponModule
     {
         if (beam.tip == null) return;
 
+        float length = Length;
+        Vector3 forward = MuzzleForward;
         Vector3 start = beam.tip.position;
-        Vector3 end = start + (Vector3)(MuzzleForward * Length);
+        Vector3 end = start + forward * length;
 
         foreach (var line in new[] { beam.core, beam.halo })
         {
@@ -242,12 +271,49 @@ public class LaserWeapon : WeaponModule
             line.SetPosition(1, end);
         }
 
-        beam.core.startWidth = beam.core.endWidth = beamWidth;
-        beam.halo.startWidth = beam.halo.endWidth = beamWidth * haloWidthMultiplier;
+        // Shimmer: the glow swells and the core flickers, each on its own beat so it never looks regular.
+        float t = Time.time * shimmerSpeed;
+        float haloBeat = 1f + shimmerAmount * Mathf.Sin(t + beam.phase * 6f);
+        float coreBeat = 1f + shimmerAmount * 0.5f * Mathf.Sin(t * 1.7f + 1.3f);
+        beam.core.startWidth = beam.core.endWidth = beamWidth * coreBeat;
+        beam.halo.startWidth = beam.halo.endWidth = beamWidth * haloWidthMultiplier * haloBeat;
+
+        AnimateCapsules(beam, start, forward, length);
+    }
+
+    /// <summary>The capsules of light run from the muzzle to the end of the beam and start over; each fades in and out
+    /// at the two ends so they seem to come out of the gun and melt into the distance.</summary>
+    private void AnimateCapsules(Beam beam, Vector3 start, Vector3 forward, float length)
+    {
+        if (beam.capsules.Count == 0 || length <= 0.01f) return;
+
+        beam.phase = Mathf.Repeat(beam.phase + capsuleSpeed * Time.deltaTime / length, 1f);
+
+        Color bright = Color.Lerp(beamColor, Color.white, 0.85f);
+        float width = beamWidth * capsuleWidthMultiplier;
+
+        for (int i = 0; i < beam.capsules.Count; i++)
+        {
+            var capsule = beam.capsules[i];
+            float t = Mathf.Repeat(beam.phase + i / (float)beam.capsules.Count, 1f); // 0..1 along the beam
+            float centre = t * length;
+            float from = Mathf.Max(0f, centre - capsuleLength * 0.5f);
+            float to = Mathf.Min(length, centre + capsuleLength * 0.5f);
+
+            capsule.SetPosition(0, start + forward * from);
+            capsule.SetPosition(1, start + forward * to);
+            capsule.startWidth = capsule.endWidth = width;
+
+            float ends = Mathf.Sin(t * Mathf.PI); // 0 at both ends of the beam, 1 in the middle
+            Color color = bright;
+            color.a = beam.alpha * Mathf.Clamp01(ends * 1.6f);
+            capsule.startColor = capsule.endColor = color;
+        }
     }
 
     private void SetAlpha(Beam beam, float alpha)
     {
+        beam.alpha = alpha;
         Color core = Color.Lerp(beamColor, Color.white, 0.6f); // a hot, brighter centre
         core.a = alpha;
         beam.core.startColor = beam.core.endColor = core;
@@ -261,6 +327,7 @@ public class LaserWeapon : WeaponModule
     {
         beam.core.enabled = visible;
         beam.halo.enabled = visible;
+        foreach (var capsule in beam.capsules) capsule.enabled = visible;
     }
 
     protected override void OnModuleDestroyed()

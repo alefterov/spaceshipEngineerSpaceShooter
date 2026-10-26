@@ -204,7 +204,7 @@ MonoBehaviour:
   visualRoot: {fileID: 8868587245406197017}
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
   destroySound: {fileID: 0}
@@ -259,7 +259,7 @@ MonoBehaviour:
   visualRoot: {fileID: 0}
   roofRoot: {fileID: 0}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
@@ -291,12 +291,18 @@ MonoBehaviour:
   beamLength: 0
   beamWidth: 0.15
   fadeOutSeconds: 0.6
-  damageTickSeconds: 0.1
+  damageTickSeconds: 1
   beamColor: {r: 0.2, g: 1, b: 0.3, a: 1}
   haloWidthMultiplier: 3.5
   haloAlpha: 0.35
   beamMaterial: {fileID: 0}
   beamSortingOrder: 20
+  capsuleCount: 6
+  capsuleLength: 0.7
+  capsuleSpeed: 14
+  capsuleWidthMultiplier: 1.7
+  shimmerAmount: 0.25
+  shimmerSpeed: 16
 --- !u!1 &4713065175766498228
 GameObject:
   m_ObjectHideFlags: 0

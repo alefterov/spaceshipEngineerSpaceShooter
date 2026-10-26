@@ -85,11 +85,12 @@ public class BattleOutcomeController : MonoBehaviour
 
     private IEnumerator WaitForEnemiesCleared()
     {
-        // Not won while ANY enemy block is still alive (ShipIdentity.AnyEnemyBlocksAlive — a disabled wreck
-        // counts too), so the player keeps firing until the last enemy block is gone.
-        // Targetable.Active is every hazard currently alive (meteors now, missiles/etc. later) —
-        // "cleared" means none left, regardless of whether each one was shot down or just flew past.
-        while (!outcomeDecided && (Targetable.Active.Any(t => t.kind != TargetKind.Ship) || ShipIdentity.AnyEnemyBlocksAlive))
+        // Runs only once the LAST wave has been launched, so the level cannot end early. Victory = no enemy ship can
+        // fight any more: every enemy cockpit is destroyed or unpowered (no living generator on its ship/fragment) —
+        // the leftover blocks of such wrecks no longer matter (ShipIdentity.AnyEnemyShipOperational).
+        // Targetable.Active non-ship entries are hazards (meteors now, missiles/etc. later) — those must be gone too,
+        // regardless of whether each one was shot down or just flew past.
+        while (!outcomeDecided && (Targetable.Active.Any(t => t.kind != TargetKind.Ship) || ShipIdentity.AnyEnemyShipOperational))
             yield return null;
 
         if (!outcomeDecided) Win();

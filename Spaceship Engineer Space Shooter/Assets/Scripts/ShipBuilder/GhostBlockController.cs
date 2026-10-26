@@ -106,7 +106,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         if (target == null) return;
 
         if (confirmPopup != null)
-            confirmPopup.Show(eventData.position, () => ConfirmDelete(target), () => { });
+            confirmPopup.Show(() => ConfirmDelete(target), () => { });
         else
             ConfirmDelete(target); // no popup wired up yet — fall back to deleting immediately
     }
@@ -211,7 +211,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         }
 
         if (confirmPopup != null)
-            confirmPopup.Show(screenPos, ConfirmPlacement, CancelPlacement);
+            confirmPopup.Show(ConfirmPlacement, CancelPlacement);
         else
             ConfirmPlacement(); // no popup wired up yet — fall back to placing immediately
     }

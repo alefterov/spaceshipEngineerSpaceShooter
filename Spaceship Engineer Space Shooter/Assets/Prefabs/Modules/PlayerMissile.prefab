@@ -5110,7 +5110,7 @@ MonoBehaviour:
   speed: 4
   straightSeconds: 0.6
   turnRateDegreesPerSecond: 120
-  lifeTime: 16
+  lifeTime: 7
   explosionSound: {fileID: 8300000, guid: ac231cc8a126d754ea57f2a264a9cb6d, type: 3}
   explosionVolume: 0.2
   neighbourDamageFraction: 0.1

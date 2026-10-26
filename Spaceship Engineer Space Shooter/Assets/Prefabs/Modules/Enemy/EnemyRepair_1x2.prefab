@@ -111,7 +111,7 @@ MonoBehaviour:
   visualRoot: {fileID: 7616474015210035435}
   roofRoot: {fileID: 6848331705709069150}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
@@ -139,6 +139,40 @@ MonoBehaviour:
   maxMarks: 16
   markSize: {x: 0.15, y: 0.4}
   clipToBlock: 1
+  shatterCount: 18
+  shatterColors:
+    serializedVersion: 2
+    key0: {r: 1, g: 0.95, b: 0.25, a: 1}
+    key1: {r: 1, g: 0.55, b: 0.05, a: 1}
+    key2: {r: 0.85, g: 0.1, b: 0.05, a: 0}
+    key3: {r: 0.05, g: 0.03, b: 0.03, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 19661
+    ctime2: 39321
+    ctime3: 55705
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 45875
+    atime2: 65535
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 4
+    m_NumAlphaKeys: 3
+  shatterSpeed: {x: 0.75, y: 2}
+  shatterSpin: 400
+  shatterFadeSeconds: 1.2
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
 --- !u!1 &790461595775913428

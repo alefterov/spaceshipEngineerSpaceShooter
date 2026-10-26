@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 9
   displayName: Generator Efficiency
   icon: {fileID: 803015428, guid: 54dccddfdf13d7946afa1fbb8a17a897, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

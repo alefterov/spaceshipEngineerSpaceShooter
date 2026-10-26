@@ -35,6 +35,19 @@ public class BlockDamageVisual : MonoBehaviour
     [Tooltip("Clip marks to the body sprite's silhouette so they never show outside the block.")]
     public bool clipToBlock = true;
 
+    [Header("Destruction burst")]
+    [Tooltip("When the block is destroyed it bursts into this many shards — the same shapes as the damage marks — that fly apart and fade.")]
+    [Min(0)] public int shatterCount = 18;
+    [Tooltip("The shards are glowing embers: their colour runs along this gradient over their life (left = just thrown, right = gone), " +
+             "cooling from yellow through orange and red to black — its alpha makes them fade away at the end.")]
+    public Gradient shatterColors = CoolingEmbers();
+    [Tooltip("How fast the shards fly outward, in world units per second (a random value in this range for each).")]
+    public Vector2 shatterSpeed = new(0.75f, 2f);
+    [Tooltip("Most a shard spins, in degrees per second, either way.")]
+    public float shatterSpin = 400f;
+    [Tooltip("Seconds a shard takes to fade away completely while it flies.")]
+    public float shatterFadeSeconds = 1.2f;
+
     [Header("Effects (optional)")]
     [Tooltip("Shown at 50% HP or below.")]
     public GameObject sparksEffect;
@@ -173,6 +186,79 @@ public class BlockDamageVisual : MonoBehaviour
         if (clipToBlock) sr.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
 
         marks.Add(obj);
+    }
+
+    /// <summary>Embers cooling down: yellow, then orange, red, black — and gone.</summary>
+    private static Gradient CoolingEmbers()
+    {
+        var gradient = new Gradient();
+        gradient.SetKeys(
+            new[]
+            {
+                new GradientColorKey(new Color(1f, 0.95f, 0.25f), 0f),
+                new GradientColorKey(new Color(1f, 0.55f, 0.05f), 0.3f),
+                new GradientColorKey(new Color(0.85f, 0.1f, 0.05f), 0.6f),
+                new GradientColorKey(new Color(0.05f, 0.03f, 0.03f), 0.85f),
+            },
+            new[]
+            {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 0.7f),
+                new GradientAlphaKey(0f, 1f),
+            });
+        return gradient;
+    }
+
+    /// <summary>The block's death: a burst of shards, in the shapes of its damage marks, thrown out from its middle. They
+    /// are not tied to the block (which disappears at once), spin as they go and fade out. Called by ShipModule when
+    /// the block is destroyed.</summary>
+    public void SpawnShatter()
+    {
+        var body = ResolveBody();
+        if (body == null || body.sprite == null || shatterCount <= 0) return;
+        if (shatterColors == null) shatterColors = CoolingEmbers();
+
+        Bounds b = body.sprite.bounds;
+        Vector3 center = body.transform.TransformPoint(b.center);
+
+        for (int i = 0; i < shatterCount; i++)
+        {
+            var obj = new GameObject("Shard");
+            var sr = obj.AddComponent<SpriteRenderer>();
+
+            Vector3 scale;
+            if (markSprites != null && markSprites.Length > 0)
+            {
+                sr.sprite = markSprites[Random.Range(0, markSprites.Length)];
+                float s = Random.Range(markSize.x, markSize.y);
+                scale = new Vector3(s, s, 1f);
+            }
+            else
+            {
+                bool triangle = Random.value < 0.5f;
+                sr.sprite = triangle ? GeneratedSprites.Triangle : GeneratedSprites.Square;
+                float s = Random.Range(markSize.x, markSize.y);
+                scale = triangle
+                    ? new Vector3(s, s * Random.Range(0.6f, 1.4f), 1f)
+                    : new Vector3(s, s * Random.Range(0.12f, 0.4f), 1f);
+            }
+
+            // Starts somewhere inside the block's body, then flies straight away from its middle.
+            Vector3 local = new(Random.Range(b.min.x, b.max.x), Random.Range(b.min.y, b.max.y), 0f);
+            Vector3 world = body.transform.TransformPoint(local);
+            Vector2 outward = (Vector2)(world - center);
+            outward = outward.sqrMagnitude > 0.0001f ? outward.normalized : Random.insideUnitCircle.normalized;
+
+            obj.transform.SetPositionAndRotation(world, Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)));
+            obj.transform.localScale = scale * body.transform.lossyScale.x;
+
+            sr.color = shatterColors.Evaluate(0f);
+            sr.sortingLayerID = body.sortingLayerID;
+            sr.sortingOrder = body.sortingOrder + 3;
+
+            float speed = Random.Range(Mathf.Min(shatterSpeed.x, shatterSpeed.y), Mathf.Max(shatterSpeed.x, shatterSpeed.y));
+            obj.AddComponent<MeteorDebris>().BeginCooling(sr, outward * speed, Random.Range(-shatterSpin, shatterSpin), 0f, shatterFadeSeconds, shatterColors);
+        }
     }
 
     /// <summary>The default mark shapes, generated once and shared by every block.</summary>

@@ -49,6 +49,10 @@ public class Targetable : MonoBehaviour
     /// that is not a ship is always shootable. A ship with blocks left — even a disabled wreck — stays a target.</summary>
     public bool HasLiveBlocks => shipIdentity == null || shipIdentity.LiveBlockCount > 0;
 
+    /// <summary>False for a ship that is not completely on the screen (see ShipIdentity.IsFullyInView): it cannot be hurt
+    /// yet, so nothing aims at it. Everything that is not a ship is always true.</summary>
+    public bool IsFullyInView => shipIdentity == null || shipIdentity.IsFullyInView();
+
     /// <summary>Where a weapon at `from` should aim. For a ship: its NEAREST living block, so a damaged or
     /// disabled wreck is shot block by block instead of through a hole in its middle. Anything else, and a ship
     /// with no block left: AimPoint.</summary>

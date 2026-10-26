@@ -19,13 +19,13 @@ MonoBehaviour:
   background: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
   waves:
   - enemies:
-    - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
-      count: 5
-      spawnInterval: 5
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 81b3c138e33bd7d4c92f5ce2be6faedd, type: 3}
+      count: 1
+      spawnInterval: 10
       side: 0
       positionAlongEdge: 0.2
       route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+    - enemyPrefab: {fileID: 7518618935520632737, guid: fec2b15f5d8018943b29b760b95003b4, type: 3}
       count: 2
       spawnInterval: 5
       side: 0

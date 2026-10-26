@@ -499,6 +499,8 @@ public class GameDataManager : MonoBehaviour
     public int crewLevelCostExtraPerLevel = 15;
     [Range(0f, 1f), Tooltip("Upper limit for every CHANCE perk (zero damage, evasion...) after all crew bonuses are added — 0.75 = never above 75%.")]
     public float crewChanceCap = 0.75f;
+    [Min(1f), Tooltip("How many times a critical hit multiplies the damage (the Captain's Crit Chance perk decides how often it happens).")]
+    public float critDamageMultiplier = 2f;
     [Tooltip("Credits a rank-up (merge) costs, by the rank the member has NOW: element 0 = merging a rank 1 member into rank 2, element 1 = rank 2 into rank 3.")]
     public int[] crewMergeCosts = { 1000, 2000 };
 

@@ -18,8 +18,8 @@ public enum CrewPerkType
     ExperienceGain = 10,
     /// <summary>Credits earned from battle (BattleOutcomeController).</summary>
     CreditsGain = 11,
-    /// <summary>CHANCE of a critical hit. The mechanic itself isn't built yet — the perk is stored and shown,
-    /// nothing reads it so far.</summary>
+    /// <summary>CHANCE of a critical hit by the player's weapons (CriticalHit): the damage is multiplied by
+    /// GameDataManager.critDamageMultiplier.</summary>
     CritChance = 12,
     /// <summary>CHANCE that a hit on one of the player's blocks deals no damage at all (ShipModule.TakeDamage).</summary>
     ZeroDamageChance = 13,

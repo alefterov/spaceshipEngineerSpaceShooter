@@ -102,11 +102,10 @@ public class EnemyShip : MonoBehaviour
              "randomized between 0 and this many multiples of the ship's own size (0.5 = up to half its " +
              "length) — pure variety, so ships don't all stop at exactly the same depth.")]
     public float extraApproachFraction = 0.5f;
-    [Tooltip("Margin kept between the ship's own edge and the camera's edge — both where it settles " +
-             "once it stops approaching, and the bounds it maneuvers within afterward — as a fraction of " +
-             "the camera's visible WIDTH (0.05 = 5%), so it scales automatically with screen size/zoom " +
-             "instead of a fixed world-unit gap.")]
-    [Range(0f, 0.4f)] public float screenMarginFraction = 0.05f;
+    [Tooltip("Gap kept between the ship's own edge and the camera's edge — both where it enters and settles, and the " +
+             "bounds it maneuvers within afterward — measured in cells of the ship grid (1 = one cell). The ship " +
+             "therefore stays fully on the screen, near the left and right borders but never touching them.")]
+    [Min(0f)] public float edgeMarginCells = 1f;
     [Tooltip("How much of the camera's visible HEIGHT, measured down from the top edge, this ship is " +
              "allowed to occupy while approaching or maneuvering (0.4 = the top 40% of the screen) — it " +
              "never advances further down toward the player while it's still able to maneuver. Ignored " +
@@ -282,6 +281,8 @@ public class EnemyShip : MonoBehaviour
         state = hasRoute ? State.FollowingRoute : ramsPlayer ? State.Ramming : State.Approaching;
         if (state == State.Approaching) PlaceAtEntry();
 
+        grid.RefreshWeaponLayers(); // the ship now faces down: "higher on the screen" is the other way round than when it was built
+
         identity.SetCombatActive(true); // starts fighting the instant it appears — no arrival intro like the player gets
     }
 
@@ -444,8 +445,8 @@ public class EnemyShip : MonoBehaviour
     }
 
     /// <summary>The area this ship is allowed to occupy while APPROACHING or MANEUVERING (never while
-    /// disabled — UpdateDisabledDrift ignores this entirely): the full camera width, inset by Screen
-    /// Margin Fraction of that width on every side, but only the TOP Maneuver Zone Height Fraction of the
+    /// disabled — UpdateDisabledDrift ignores this entirely): the full camera width, inset by Edge
+    /// Margin Cells (ship grid cells) on every side, but only the TOP Maneuver Zone Height Fraction of the
     /// camera's height — so it settles and maneuvers up near the top of the screen and never advances
     /// further down toward the player while it's still able to maneuver under its own power. False (with
     /// min/max left at zero) if there's no camera to measure against.</summary>
@@ -456,7 +457,7 @@ public class EnemyShip : MonoBehaviour
 
         float halfHeight = cam.orthographicSize;
         float halfWidth = halfHeight * cam.aspect;
-        float margin = screenMarginFraction * (halfWidth * 2f); // fraction of the screen's WIDTH, kept as the margin on every side
+        float margin = edgeMarginCells * grid.cellSize; // a whole number of ship cells, kept on every side
         Vector3 camCenter = cam.transform.position;
         float top = camCenter.y + halfHeight;
 

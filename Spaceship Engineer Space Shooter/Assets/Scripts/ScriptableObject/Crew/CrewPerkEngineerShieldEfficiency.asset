@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 4
   displayName: Shield Efficiency
   icon: {fileID: 753412993, guid: 913063672a781c749869890a2a7260bc, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

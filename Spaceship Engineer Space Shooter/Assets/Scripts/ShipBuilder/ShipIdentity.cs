@@ -47,6 +47,69 @@ public class ShipIdentity : MonoBehaviour
     /// <summary>Every ship currently in the scene.</summary>
     public static IReadOnlyList<ShipIdentity> All => all;
 
+    private int viewCheckFrame = -1;
+    private bool viewCheckResult;
+
+    /// <summary>Whether the ship's living blocks lie completely inside the camera's view. Enemy ships can only be hurt (and
+    /// only get targeted) while this is true. With no camera to measure against it is true. A ship larger than the view
+    /// on an axis cannot fit on it, so that axis is not checked. Computed once per frame.</summary>
+    public bool IsFullyInView(Camera cam = null)
+    {
+        if (viewCheckFrame == Time.frameCount) return viewCheckResult;
+        viewCheckFrame = Time.frameCount;
+
+        if (cam == null) cam = Camera.main;
+        if (cam == null || !cam.orthographic || blocks.Count == 0) return viewCheckResult = true;
+
+        bool any = false;
+        Bounds total = default;
+        foreach (var block in blocks)
+        {
+            if (block == null || block.IsDestroyed) continue;
+
+            Bounds b = block.WorldBounds;
+            if (!any) { total = b; any = true; }
+            else total.Encapsulate(b);
+        }
+
+        if (!any) return viewCheckResult = true;
+
+        float halfHeight = cam.orthographicSize;
+        float halfWidth = halfHeight * cam.aspect;
+        Vector3 c = cam.transform.position;
+        const float tolerance = 0.02f; // a block resting exactly against the edge still counts as inside
+
+        bool xOk = total.size.x > halfWidth * 2f || (total.min.x >= c.x - halfWidth - tolerance && total.max.x <= c.x + halfWidth + tolerance);
+        bool yOk = total.size.y > halfHeight * 2f || (total.min.y >= c.y - halfHeight - tolerance && total.max.y <= c.y + halfHeight + tolerance);
+        return viewCheckResult = xOk && yOk;
+    }
+
+    /// <summary>True while any enemy ship can still fight: it has a living COCKPIT and a living GENERATOR to power it. A
+    /// ship whose cockpits are all destroyed, or which has no power left (even if most of its blocks survive), does not
+    /// count — nothing else on it matters for ending a battle. Broken-off fragments are judged the same way.</summary>
+    public static bool AnyEnemyShipOperational
+    {
+        get
+        {
+            foreach (var ship in all)
+            {
+                if (ship == null || ship.faction != Faction.Enemy) continue;
+
+                bool cockpit = false, generator = false;
+                foreach (var block in ship.blocks)
+                {
+                    if (block == null || block.IsDestroyed) continue;
+                    if (block.type == ModuleType.Cockpit) cockpit = true;
+                    else if (block.type == ModuleType.Generator) generator = true;
+                }
+
+                if (cockpit && generator) return true;
+            }
+
+            return false;
+        }
+    }
+
     /// <summary>True while any enemy ship in the scene still has at least one living block — wrecks included.
     /// A ship that lost its cockpit or generators is only "disabled": its remaining blocks still count.</summary>
     public static bool AnyEnemyBlocksAlive
