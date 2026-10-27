@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>The active abilities of the player's weapons, one per kind of weapon (see ActiveAbilitiesController).</summary>
 public enum WeaponAbility
 {
-    /// <summary>Ballistic guns (fixed mounts only, not turrets) fire Strength times faster.</summary>
+    /// <summary>Every kinetic (ballistic) weapon — guns, turrets and tower guns — fires Strength times faster.</summary>
     RapidFire = 0,
     /// <summary>Every missile launch is repeated once, Delay seconds later.</summary>
     MissileDoubleSalvo = 1,

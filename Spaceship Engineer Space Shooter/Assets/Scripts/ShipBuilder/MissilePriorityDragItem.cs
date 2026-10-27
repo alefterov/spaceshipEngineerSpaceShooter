@@ -1,68 +1,23 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 /// <summary>
-/// One draggable row of the missile target-priority window — drag it above or below another row to swap
-/// places. Works like PriorityDragItem (the energy window's rows): reordering swaps the SIBLING INDEX inside
-/// the controller's Priority Items Parent, which should be a layout group.
+/// One draggable row of a target-priority list (the missiles' or the tower guns' — the same row serves both). Drag it up or down: the other
+/// rows glide aside to make room and the row settles into the free place on release (the dragging itself is PriorityDragItemBase). The
+/// container of the rows must be a layout group; the order of the rows inside it is the priority.
 ///
-/// SETUP: put on each row, set Target Type to the block type this row stands for, and assign Controller to the
-/// scene's MissilePriorityController. A CanvasGroup and a LayoutElement are required on the same object
-/// (added automatically if missing).
+/// SETUP: put on each row, set Target Type to the block type this row stands for, and assign Controller to the controller of the list this
+/// row belongs to — a MissilePriorityController (missiles) or a BalistickPriorityController (tower guns). A CanvasGroup and a
+/// LayoutElement are required on the same object (added automatically if missing).
 /// </summary>
-[RequireComponent(typeof(CanvasGroup))]
-[RequireComponent(typeof(LayoutElement))]
-public class MissilePriorityDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class MissilePriorityDragItem : PriorityDragItemBase
 {
-    [Tooltip("Cockpit, Weapon (every kind of weapon), Generator, Shield, Engine, Repair or Armor. Other types are ignored.")]
+    [Tooltip("Cockpit, Weapon (every kind of weapon), Generator, Shield, Engine, Repair, Armor or Meteor. Other types are ignored.")]
     public ModuleType targetType = ModuleType.Weapon;
-    public MissilePriorityController controller;
+    [Tooltip("The list this row belongs to: a MissilePriorityController or a BalistickPriorityController.")]
+    public TargetPriorityController controller;
 
-    private RectTransform rect;
-    private CanvasGroup canvasGroup;
-    private LayoutElement layoutElement;
-    private Canvas canvas;
-
-    private void Awake()
+    protected override void OnOrderChanged()
     {
-        rect = (RectTransform)transform;
-        canvasGroup = GetComponent<CanvasGroup>();
-        layoutElement = GetComponent<LayoutElement>();
-        canvas = GetComponentInParent<Canvas>();
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        canvasGroup.blocksRaycasts = false; // let drops land on whatever sibling is underneath
-        layoutElement.ignoreLayout = true;  // detach from the layout group while dragging
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        rect.anchoredPosition += eventData.delta / (canvas != null ? canvas.scaleFactor : 1f);
-
-        // Swap with whichever other row the pointer is over, so the list reorders live as you drag.
-        Transform parent = transform.parent;
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            var sibling = parent.GetChild(i);
-            if (sibling == transform) continue;
-
-            if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)sibling, eventData.position, eventData.pressEventCamera))
-            {
-                transform.SetSiblingIndex(i);
-                break;
-            }
-        }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        canvasGroup.blocksRaycasts = true;
-        layoutElement.ignoreLayout = false; // the layout group snaps the row into its new slot
-        rect.anchoredPosition = Vector2.zero;
-
         if (controller != null) controller.SetOrderFromSiblingOrder();
     }
 }

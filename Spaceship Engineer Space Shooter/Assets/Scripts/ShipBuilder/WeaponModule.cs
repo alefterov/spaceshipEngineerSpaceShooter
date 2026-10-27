@@ -257,11 +257,11 @@ public class WeaponModule : ShipModule
 
     // ---------- Active abilities (see ActiveAbilitiesController) ----------
 
-    /// <summary>Whether the given active ability works on this weapon: Rapid Fire — ballistic guns on a fixed mount (not turrets);
-    /// the others — the weapons of their own kind.</summary>
+    /// <summary>Whether the given active ability works on this weapon: Rapid Fire — every kinetic (ballistic) weapon, guns and
+    /// turrets alike; the others — the weapons of their own kind.</summary>
     public bool SupportsAbility(WeaponAbility ability) => ability switch
     {
-        WeaponAbility.RapidFire => weaponClass == WeaponClass.Ballistic && aiming == WeaponAiming.Fixed,
+        WeaponAbility.RapidFire => weaponClass == WeaponClass.Ballistic,
         WeaponAbility.MissileDoubleSalvo => weaponClass == WeaponClass.Missile,
         WeaponAbility.PlasmaDoubleSalvo => weaponClass == WeaponClass.Plasma,
         WeaponAbility.LongLaser => weaponClass == WeaponClass.Laser,
@@ -300,10 +300,14 @@ public class WeaponModule : ShipModule
         if (!combatActive || IsDestroyed || !poweredOn) return;
         if (!ValidateSetup()) return;
 
-        var target = FindTarget();
+        // Tower guns of the player's ship go for the block types the player ranked in the priorities window; everything else
+        // just takes the nearest target.
+        Targetable target = null;
+        ShipModule focus = null;
+        if (!(IsTowerGun && OwnFaction == Faction.Player && TryPickByPriority(out target, out focus))) target = FindTarget();
         if (target == null) return;
 
-        Vector2 aimPoint = PredictAimPoint(target);
+        Vector2 aimPoint = PredictAimPoint(target, focus);
 
         if (aiming == WeaponAiming.Turret) AimTurretAt(aimPoint);
 
@@ -505,13 +509,14 @@ public class WeaponModule : ShipModule
     /// the shot and moving away). The turret's turn speed is not involved here — it only decides how fast the
     /// barrel can follow this point.
     /// </summary>
-    private Vector2 PredictAimPoint(Targetable target)
+    private Vector2 PredictAimPoint(Targetable target, ShipModule focus = null)
     {
         Vector2 origin = aiming == WeaponAiming.Turret && turretPivot != null
             ? (Vector2)turretPivot.position
             : barrels.Count > 0 ? MuzzleCenter : (Vector2)transform.position;
 
-        Vector2 position = target.AimPointFrom(origin);
+        // `focus` is the exact block the priority list picked; otherwise the target's nearest block.
+        Vector2 position = focus != null ? (Vector2)focus.transform.position : target.AimPointFrom(origin);
         if (!leadTarget || projectileSpeed <= 0.01f) return position;
         Vector2 d = position - origin;
         Vector2 v = target.Velocity;
@@ -602,6 +607,79 @@ public class WeaponModule : ShipModule
         }
 
         return nearestInArc != null ? nearestInArc : nearest;
+    }
+
+    // ---------- Tower guns: target priority ----------
+
+    /// <summary>A tower gun — the KineticTurretGun blocks (1x1 and 2x2): a ballistic gun that swings round on a turret and is not a
+    /// point-defence turret (the point-defence ones can shoot missiles, a tower gun cannot). Its targets follow the tower-gun priority
+    /// list (BalistickPriorityController); no other weapon uses that list.</summary>
+    public bool IsTowerGun
+        => weaponClass == WeaponClass.Ballistic && aiming == WeaponAiming.Turret && !allowedTargets.Contains(TargetKind.Missile);
+
+    private TowerTargetPriority towerPriority;
+    private static readonly float[] bestSqr = new float[9];
+    private static readonly ShipModule[] bestBlock = new ShipModule[9];
+    private static readonly Targetable[] bestTarget = new Targetable[9];
+
+    /// <summary>Goes down the tower-gun priority list and takes the nearest thing (within Range) of the first category that has
+    /// one: a living block in the battle zone of that type, or a meteor. False if nothing in range is on the list at all.</summary>
+    private bool TryPickByPriority(out Targetable target, out ShipModule block)
+    {
+        target = null;
+        block = null;
+
+        if (towerPriority == null) towerPriority = TowerTargetPriority.GetOrAdd(this);
+
+        for (int i = 0; i < bestSqr.Length; i++) { bestSqr[i] = float.MaxValue; bestBlock[i] = null; bestTarget[i] = null; }
+
+        Vector2 origin = transform.position;
+        float rangeSqr = range * range;
+
+        foreach (var ship in ShipIdentity.All)
+        {
+            if (ship == null || ship.faction == OwnFaction) continue;
+            if (!ship.TryGetComponent<Targetable>(out var shipTarget) || !CanEngage(shipTarget)) continue;
+
+            foreach (var candidate in ship.LiveBlocks)
+            {
+                if (candidate == null || candidate.IsDestroyed || !BattleZone.BlockInZone(candidate.WorldBounds)) continue;
+
+                int kind = (int)candidate.type;
+                if (kind <= 0 || kind >= bestSqr.Length) continue;
+
+                float sqr = ((Vector2)candidate.transform.position - origin).sqrMagnitude;
+                if (sqr > rangeSqr || sqr >= bestSqr[kind]) continue;
+
+                bestSqr[kind] = sqr;
+                bestBlock[kind] = candidate;
+                bestTarget[kind] = shipTarget;
+            }
+        }
+
+        int meteor = (int)ModuleType.Meteor;
+        foreach (var candidate in Targetable.Active)
+        {
+            if (candidate == null || candidate.IsDestroyed || candidate.kind != TargetKind.Meteor || !CanEngage(candidate)) continue;
+
+            float sqr = ((Vector2)candidate.transform.position - origin).sqrMagnitude;
+            if (sqr > rangeSqr || sqr >= bestSqr[meteor]) continue;
+
+            bestSqr[meteor] = sqr;
+            bestTarget[meteor] = candidate;
+        }
+
+        foreach (var category in towerPriority.Order)
+        {
+            int k = (int)category;
+            if (k <= 0 || k >= bestSqr.Length || bestTarget[k] == null) continue;
+
+            target = bestTarget[k];
+            block = bestBlock[k]; // null for a meteor
+            return true;
+        }
+
+        return false;
     }
 
     private bool CanEngage(Targetable candidate)

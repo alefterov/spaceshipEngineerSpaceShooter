@@ -8,7 +8,7 @@ using UnityEngine.UI;
 [Serializable]
 public class AbilitySlot
 {
-    [Tooltip("What this button does. Rapid Fire: ballistic guns (fixed mounts, not turrets) fire Strength times faster. Missile / " +
+    [Tooltip("What this button does. Rapid Fire: every kinetic (ballistic) weapon — guns, turrets and tower guns — fires Strength times faster. Missile / " +
              "Plasma Double Salvo: every launch is repeated once, Salvo Delay Seconds later. Long Laser: beams last Strength times longer.")]
     public WeaponAbility ability = WeaponAbility.RapidFire;
     public Button button;
@@ -34,8 +34,6 @@ public class AbilitySlot
     public TMP_Text timerLabel;
     [Tooltip("Switched on only while the ability works (a glow, a frame).")]
     public GameObject activeIndicator;
-    [Tooltip("Hide the button when the player's ship has no weapon this ability works on. Off = it only becomes unpressable.")]
-    public bool hideWithoutWeapons = true;
 
     [Header("Sound")]
     public AudioClip activateSound;
@@ -131,12 +129,8 @@ public class ActiveAbilitiesController : MonoBehaviour
         {
             if (slot.IsActive == false && WeaponAbilities.IsActive(slot.ability)) WeaponAbilities.End(slot.ability); // safety
 
-            if (slot.button != null)
-            {
-                if (slot.hideWithoutWeapons && slot.button.gameObject.activeSelf != slot.hasWeapons)
-                    slot.button.gameObject.SetActive(slot.hasWeapons);
-                slot.button.interactable = slot.IsReady && slot.hasWeapons;
-            }
+            // The button never disappears: it is pressable only while the ability is ready and the ship has a weapon it works on.
+            if (slot.button != null) slot.button.interactable = slot.IsReady && slot.hasWeapons;
 
             if (slot.activeIndicator != null && slot.activeIndicator.activeSelf != slot.IsActive)
                 slot.activeIndicator.SetActive(slot.IsActive);

@@ -3,90 +3,17 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// Which kind of block a ship's missiles go for first — the order of the block categories (Cockpit, Weapon,
-/// Generator, Shield, Engine, Repair, Armor, Meteor; Weapon means every kind of weapon), top = first. A
-/// missile picks the NEAREST block of the first category in this list that still has a living block on the
-/// other side; if there is none, it goes on to the next category, and if none of them exists any more (only
-/// block types missing from the list) it simply chases the nearest block. Same idea as the energy priority
-/// (ShipEnergySystem), with its own window (MissilePriorityController).
-///
-/// On the PLAYER'S ship the order is remembered between battles (GameData.missileTargetPriority) and edited in
-/// the window. On an enemy ship it is whatever is set in Default Order here (add the component to the enemy
-/// prefab to choose; otherwise the built-in default order is used). Added to a ship automatically by its first
-/// missile launcher.
+/// Which kind of block a ship's missiles go for first (see TargetPriority for how the order works). On the PLAYER'S ship the order is
+/// remembered between battles (GameData.missileTargetPriority) and edited in the priorities window. Added to a ship automatically by
+/// its first missile launcher.
 /// </summary>
-public class MissileTargetPriority : MonoBehaviour
+public class MissileTargetPriority : TargetPriority
 {
-    [Tooltip("Top = hit first. Any category left out is appended at the end, so every block type is always covered.")]
-    [SerializeField] private List<ModuleType> defaultOrder = new()
-    {
-        ModuleType.Cockpit, ModuleType.Weapon, ModuleType.Generator, ModuleType.Shield,
-        ModuleType.Engine, ModuleType.Repair, ModuleType.Armor, ModuleType.Meteor,
-    };
+    protected override IReadOnlyList<int> LoadSaved() => GameDataManager.Instance.SavedMissilePriority;
 
-    public static readonly ModuleType[] DefaultCategories =
-    {
-        ModuleType.Cockpit, ModuleType.Weapon, ModuleType.Generator, ModuleType.Shield,
-        ModuleType.Engine, ModuleType.Repair, ModuleType.Armor, ModuleType.Meteor,
-    };
+    protected override void SaveOrder(IEnumerable<ModuleType> newOrder) => GameDataManager.Instance.SaveMissilePriority(newOrder);
 
-    private List<ModuleType> order;
-
-    public IReadOnlyList<ModuleType> Order
-    {
-        get
-        {
-            if (order == null) Load();
-            return order;
-        }
-    }
-
-    private bool IsPlayerShip
-    {
-        get
-        {
-            var identity = GetComponent<ShipIdentity>();
-            return identity == null || identity.faction == Faction.Player;
-        }
-    }
-
-    private void Load()
-    {
-        order = Normalize(defaultOrder);
-
-        // The player's choice persists; an enemy ship just uses its prefab's Default Order.
-        var saved = IsPlayerShip && GameDataManager.Instance != null ? GameDataManager.Instance.SavedMissilePriority : null;
-        if (saved != null) order = Normalize(saved.Select(i => (ModuleType)i));
-    }
-
-    /// <summary>Replaces the order (the player's is saved too).</summary>
-    public void SetOrder(IEnumerable<ModuleType> newOrder)
-    {
-        order = Normalize(newOrder);
-        if (IsPlayerShip && GameDataManager.Instance != null) GameDataManager.Instance.SaveMissilePriority(order);
-    }
-
-    /// <summary>No repeats, only known categories, and every default category present (missing ones last).</summary>
-    private static List<ModuleType> Normalize(IEnumerable<ModuleType> source)
-    {
-        var result = new List<ModuleType>();
-        foreach (var t in source)
-            if (DefaultCategories.Contains(t) && !result.Contains(t)) result.Add(t);
-        foreach (var t in DefaultCategories)
-            if (!result.Contains(t)) result.Add(t);
-        return result;
-    }
-
-    /// <summary>The priority component of the ship this object belongs to, added if the ship has none.</summary>
-    public static MissileTargetPriority GetOrAdd(Component fromShipPart)
-    {
-        var existing = fromShipPart.GetComponentInParent<MissileTargetPriority>();
-        if (existing != null) return existing;
-
-        var identity = fromShipPart.GetComponentInParent<ShipIdentity>();
-        var host = identity != null ? identity.gameObject : fromShipPart.gameObject;
-        return host.AddComponent<MissileTargetPriority>();
-    }
+    public static MissileTargetPriority GetOrAdd(Component fromShipPart) => GetOrAdd<MissileTargetPriority>(fromShipPart);
 }
 
 /// <summary>Finding blocks for missiles to aim at.</summary>

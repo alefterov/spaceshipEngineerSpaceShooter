@@ -40,6 +40,9 @@ public class GameData
     [Tooltip("The player's missile target priority: ModuleType values, first = hit first. Empty until changed in the missile priority window.")]
     public List<int> missileTargetPriority = new();
 
+    [Tooltip("The player's tower-gun target priority: ModuleType values, first = shot first. Empty until changed in the priorities window.")]
+    public List<int> towerTargetPriority = new();
+
     [Tooltip("Battle credits-reward multiplier upgrade level. Bought with research points, see " +
              "GameDataManager.TryUpgradeCreditsMultiplier.")]
     public int creditsMultiplierLevel;

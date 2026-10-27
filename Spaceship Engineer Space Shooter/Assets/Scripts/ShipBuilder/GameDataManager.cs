@@ -705,6 +705,19 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
+    // ----- Tower-gun target priority (player) -----
+
+    /// <summary>The saved tower-gun target order (ModuleType values), or null if never changed.</summary>
+    public IReadOnlyList<int> SavedTowerPriority
+        => Current.towerTargetPriority != null && Current.towerTargetPriority.Count > 0 ? Current.towerTargetPriority : null;
+
+    /// <summary>Remembers the player's tower-gun target order and saves it right away.</summary>
+    public void SaveTowerPriority(IEnumerable<ModuleType> order)
+    {
+        Current.towerTargetPriority = order.Select(t => (int)t).ToList();
+        Save();
+    }
+
     // ----- Perks -----
 
     /// <summary>The coefficient (1 = no change) for one kind of ordinary perk, from every member standing
