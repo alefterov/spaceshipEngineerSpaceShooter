@@ -189,7 +189,7 @@ MonoBehaviour:
   moduleId: CockpitArmor_1x1
   buildCost: 20
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 5
   energyDelta: 0
   occupiedCells:

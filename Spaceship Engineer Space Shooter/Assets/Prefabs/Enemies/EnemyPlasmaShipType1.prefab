@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7518618935520632737
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1320678215299804510}
+  - component: {fileID: 2989659129041458587}
+  - component: {fileID: -3260090211810547486}
+  - component: {fileID: 434758431189146509}
+  m_Layer: 0
+  m_Name: EnemyPlasmaShipType1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1320678215299804510
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7518618935520632737}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2989659129041458587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7518618935520632737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e1c69e872f04094db575234b6a59320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipIdentity
+  faction: 1
+--- !u!114 &-3260090211810547486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7518618935520632737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc81d7d8be0048348925ca419e070f9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipGrid
+  width: 5
+  height: 5
+  cellSize: 1
+  hangarColumns: 0
+  hangarRows: 0
+  fallbackExplosionEffect: {fileID: 0}
+  cellVisualPrefab: {fileID: 0}
+  buildGridColor: {r: 1, g: 1, b: 1, a: 0.06}
+  roofSortingOrder: 20
+  topSortingOrder: 40
+--- !u!114 &434758431189146509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7518618935520632737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bae578366a466c4199a151d808f9666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyShip
+  blocks:
+  - block: {fileID: 11400000, guid: e4287e7fdeb88fc45993dabce99a2c3c, type: 2}
+    position: {x: 0, y: 2}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: 41c4e4fca73256c46a8b1fb217ef4f64, type: 2}
+    position: {x: -1, y: 1}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: 6c8e2e71b47666141bcb4f3bfe8a6055, type: 2}
+    position: {x: 0, y: 1}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: 41c4e4fca73256c46a8b1fb217ef4f64, type: 2}
+    position: {x: 1, y: 1}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: afd79db4637704842bbf8a2399a83d70, type: 2}
+    position: {x: 0, y: 0}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: 010533493f5b15343af5d9cbcd240ad3, type: 2}
+    position: {x: 0, y: -1}
+    rotationSteps: 0
+  - block: {fileID: 11400000, guid: 074456c2a3a86a4498b01d9f4f383473, type: 2}
+    position: {x: 0, y: -2}
+    rotationSteps: 0
+  faceDown: 1
+  route: []
+  speedMultiplier: 1
+  energyPerSecondAtFullThrust: 5
+  ramsPlayer: 0
+  ramWhenUnarmed: 1
+  battleCamera: {fileID: 0}
+  extraApproachFraction: 0.5
+  edgeMarginCells: 1
+  maneuverZoneHeightFraction: 0.4
+  accelerationSeconds: 1.2
+  brakeSeconds: 0.8
+  turnBrakeAngle: 40
+  splitsIntoFragments: 1
+  fragmentDriftSpeed: 0.5
+  fragmentMaxSpinDegrees: 30
+  disabledDriftSpeed: 0.5
+  target: {fileID: 0}

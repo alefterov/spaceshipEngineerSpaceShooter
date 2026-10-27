@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 9171068947655010196}
+  - component: {fileID: 8027704977851979020}
   m_Layer: 0
   m_Name: EnemyLaserGun_1x1
   m_TagString: Untagged
@@ -174,7 +174,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &9171068947655010196
+--- !u!114 &8027704977851979020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -183,14 +183,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 347b568066877694b8e4cd31274822d6, type: 3}
+  m_Script: {fileID: 11500000, guid: c240657810d09c24ab19d385c0127f67, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
+  m_EditorClassIdentifier: Assembly-CSharp::LaserWeapon
   type: 2
   moduleId: laserGun_1x1
-  buildCost: 60
+  buildCost: 100
   laserResistance: 0
-  maxHP: 40
+  maxHP: 200
   mass: 4
   energyDelta: 20
   occupiedCells:
@@ -207,21 +207,22 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 1
-  rewardCredits: 5
+  rewardCredits: 7
   rewardExperience: 0
   aiming: 0
   fireControl: 0
-  weaponClass: 0
+  weaponClass: 1
   allowedTargets: 000000000200000004000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
-  muzzles: []
+  projectilePrefab: {fileID: 0}
+  muzzles:
+  - {fileID: 7553389974999812753}
   muzzle: {fileID: 0}
-  cooldownSeconds: 0.5
-  projectileDamage: 5
-  projectileSpeed: 16
-  range: 70
-  fireArcDegrees: 30
+  cooldownSeconds: 5
+  projectileDamage: 1
+  projectileSpeed: 12
+  range: 200
+  fireArcDegrees: 180
   fireSound: {fileID: 8300000, guid: fb2da39af5453f149858e9e37b7d0d66, type: 3}
   fireVolume: 0.186
   enemyVolumeScale: 0.7
@@ -229,6 +230,23 @@ MonoBehaviour:
   turretPivot: {fileID: 9174914285220350066}
   turretRotationSpeed: 180
   turretAimToleranceDegrees: 3
+  beamDamagePerSecond: 23
+  beamDuration: 2
+  beamLength: 200
+  beamWidth: 0.1
+  fadeOutSeconds: 0.6
+  damageTickSeconds: 1
+  beamColor: {r: 0.2, g: 1, b: 0.3, a: 1}
+  haloWidthMultiplier: 3.5
+  haloAlpha: 0.35
+  beamMaterial: {fileID: 0}
+  beamSortingOrder: 20
+  capsuleCount: 6
+  capsuleLength: 0.7
+  capsuleSpeed: 14
+  capsuleWidthMultiplier: 1.7
+  shimmerAmount: 0.25
+  shimmerSpeed: 16
 --- !u!1 &4713065175766498228
 GameObject:
   m_ObjectHideFlags: 0

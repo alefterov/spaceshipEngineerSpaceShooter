@@ -102,8 +102,8 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 9171068947655010196}
   - component: {fileID: 5153420831474828212}
+  - component: {fileID: -6556744428689063635}
   m_Layer: 0
   m_Name: EnemyMissileModule2_1x1
   m_TagString: Untagged
@@ -176,61 +176,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &9171068947655010196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 347b568066877694b8e4cd31274822d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
-  type: 2
-  moduleId: missileModule2_1x1
-  buildCost: 200
-  laserResistance: 0
-  maxHP: 60
-  mass: 5
-  energyDelta: 2
-  occupiedCells:
-  - {x: 0, y: 0}
-  cellShapes: 00000000
-  anchorCell: {x: 0, y: 0}
-  rotationSteps: 0
-  isCore: 0
-  visualRoot: {fileID: 8868587245406197017}
-  roofRoot: {fileID: 5397670763440138059}
-  idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
-  explosionLifetime: 3
-  blastDamageToNeighbours: 1
-  destroySound: {fileID: 0}
-  destroyVolume: 1
-  rewardCredits: 5
-  rewardExperience: 0
-  aiming: 0
-  fireControl: 0
-  weaponClass: 0
-  allowedTargets: 000000000200000004000000
-  leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
-  muzzles: []
-  muzzle: {fileID: 0}
-  cooldownSeconds: 0.5
-  projectileDamage: 5
-  projectileSpeed: 16
-  range: 70
-  fireArcDegrees: 30
-  fireSound: {fileID: 8300000, guid: 8d9f69a476081ef45b87756a59c8bcd8, type: 3}
-  fireVolume: 0.198
-  enemyVolumeScale: 0.7
-  topRoot: {fileID: 9174914285220350066}
-  turretPivot: {fileID: 9174914285220350066}
-  turretRotationSpeed: 180
-  turretAimToleranceDegrees: 3
 --- !u!114 &5153420831474828212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,8 +194,102 @@ MonoBehaviour:
   maxMarks: 16
   markSize: {x: 0.15, y: 0.4}
   clipToBlock: 1
+  shatterCount: 18
+  shatterColors:
+    serializedVersion: 2
+    key0: {r: 1, g: 0.95, b: 0.25, a: 1}
+    key1: {r: 1, g: 0.55, b: 0.05, a: 1}
+    key2: {r: 0.85, g: 0.1, b: 0.05, a: 0}
+    key3: {r: 0.05, g: 0.03, b: 0.03, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 19661
+    ctime2: 39321
+    ctime3: 55705
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 45875
+    atime2: 65535
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 4
+    m_NumAlphaKeys: 3
+  shatterSpeed: {x: 0.75, y: 2}
+  shatterSpin: 400
+  shatterFadeSeconds: 1.2
   sparksEffect: {fileID: 0}
   fireEffect: {fileID: 0}
+--- !u!114 &-6556744428689063635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729449600381729954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac88ce28f7a594547b22d3b7177ffc2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MissileLauncher
+  type: 2
+  moduleId: missileModule2_1x1
+  buildCost: 200
+  laserResistance: 0
+  maxHP: 300
+  mass: 5
+  energyDelta: 2
+  occupiedCells:
+  - {x: 0, y: 0}
+  cellShapes: 00000000
+  anchorCell: {x: 0, y: 0}
+  rotationSteps: 0
+  isCore: 0
+  visualRoot: {fileID: 8868587245406197017}
+  roofRoot: {fileID: 5397670763440138059}
+  idleAnimator: {fileID: 0}
+  explosionEffectPrefab: {fileID: 0}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 0}
+  destroyVolume: 1
+  rewardCredits: 4
+  rewardExperience: 0
+  aiming: 0
+  fireControl: 0
+  weaponClass: 2
+  allowedTargets: 0000000002000000
+  leadTarget: 1
+  projectilePrefab: {fileID: 9034744518351449050, guid: 3a8461a8f72a98a4a99110f0dd15cf63, type: 3}
+  muzzles:
+  - {fileID: 7553389974999812753}
+  - {fileID: 4148844722715476509}
+  muzzle: {fileID: 0}
+  cooldownSeconds: 5
+  projectileDamage: 20
+  projectileSpeed: 6
+  range: 200
+  fireArcDegrees: 180
+  fireSound: {fileID: 8300000, guid: 8d9f69a476081ef45b87756a59c8bcd8, type: 3}
+  fireVolume: 0.198
+  enemyVolumeScale: 0.7
+  topRoot: {fileID: 9174914285220350066}
+  turretPivot: {fileID: 9174914285220350066}
+  turretRotationSpeed: 180
+  turretAimToleranceDegrees: 3
+  showLoadedBeforeSeconds: 1
+  loadedMissiles: []
+  launchDelaySeconds: 0.5
 --- !u!1 &1798932597594290614
 GameObject:
   m_ObjectHideFlags: 0

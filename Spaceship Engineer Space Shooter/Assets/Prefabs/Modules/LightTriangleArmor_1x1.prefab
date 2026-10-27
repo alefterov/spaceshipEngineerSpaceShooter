@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: light_triangle_armor_1x1
   buildCost: 10
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 1
   energyDelta: 0
   occupiedCells:

@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: repair_3x3
   buildCost: 150
   laserResistance: 0
-  maxHP: 200
+  maxHP: 1000
   mass: 10
   energyDelta: 0
   occupiedCells:
@@ -119,8 +119,8 @@ MonoBehaviour:
   destroyVolume: 1
   rewardCredits: 5
   rewardExperience: 0
-  repairPerSecond: 4
-  energyPerHp: 4
+  repairPerSecond: 12
+  energyPerHp: 0.7
   maxSimultaneousTargets: 3
 --- !u!1 &790461595775913428
 GameObject:

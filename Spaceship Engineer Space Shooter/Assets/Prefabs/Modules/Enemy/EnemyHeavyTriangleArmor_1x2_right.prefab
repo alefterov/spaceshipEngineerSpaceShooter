@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: heavy_triangle_armor_1x2_right
   buildCost: 100
   laserResistance: 0
-  maxHP: 350
+  maxHP: 1750
   mass: 8
   energyDelta: 0
   occupiedCells:
@@ -115,7 +115,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.147
-  rewardCredits: 5
+  rewardCredits: 18
   rewardExperience: 0
 --- !u!114 &-3729766247033474665
 MonoBehaviour:

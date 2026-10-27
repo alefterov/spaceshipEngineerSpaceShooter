@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: engineIon_3x3
   buildCost: 150
   laserResistance: 0
-  maxHP: 200
+  maxHP: 1000
   mass: 8
   energyDelta: -12
   occupiedCells:
@@ -117,7 +117,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.113
-  rewardCredits: 5
+  rewardCredits: 40
   rewardExperience: 0
   thrustPower: 60
   kind: 0

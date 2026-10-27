@@ -62,7 +62,14 @@ public class LaserWeapon : WeaponModule
 
     protected override bool RequiresProjectilePrefab => false;
 
-    protected override float ReloadAfterShot => EffectiveCooldownSeconds + beamDuration; // the cooldown runs from the beam's end
+    /// <summary>The beam time of a beam fired NOW: Beam Duration, times the Long Laser ability's strength while that is on
+    /// (player ships only).</summary>
+    private float CurrentBeamDuration
+        => OwnFaction == Faction.Player && SupportsAbility(WeaponAbility.LongLaser)
+            ? beamDuration * WeaponAbilities.Strength(WeaponAbility.LongLaser)
+            : beamDuration;
+
+    protected override float ReloadAfterShot => EffectiveCooldownSeconds + CurrentBeamDuration; // the cooldown runs from the beam's end
     protected override float ShotCycleSeconds => EffectiveCooldownSeconds + beamDuration;
 
     /// <summary>Sustained damage output for the stats panel: the damage of one beam spread over beam time + cooldown.</summary>
@@ -120,7 +127,7 @@ public class LaserWeapon : WeaponModule
         if (index < 0 || index >= beams.Count) return;
 
         var beam = beams[index];
-        beam.activeLeft = beamDuration;
+        beam.activeLeft = CurrentBeamDuration;
         beam.fadeLeft = 0f;
         beam.tickTimer = damageTickSeconds; // full: the first pulse of damage comes on the very next frame
 

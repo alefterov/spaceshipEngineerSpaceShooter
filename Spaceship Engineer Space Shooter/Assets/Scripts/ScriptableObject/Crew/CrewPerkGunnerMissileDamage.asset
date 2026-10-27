@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 20
   displayName: Missile Damage
   icon: {fileID: -1579382482, guid: 244f751a152571444a09e3f66e0078aa, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: missileModule_2x2
   buildCost: 600
   laserResistance: 0
-  maxHP: 160
+  maxHP: 800
   mass: 6
   energyDelta: -10
   occupiedCells:
@@ -219,7 +219,7 @@ MonoBehaviour:
   - {fileID: 7553389974999812753}
   muzzle: {fileID: 0}
   cooldownSeconds: 10
-  projectileDamage: 60
+  projectileDamage: 170
   projectileSpeed: 10
   range: 300
   fireArcDegrees: 180

@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: generatorBig_3x3
   buildCost: 55
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 8
   energyDelta: 0
   occupiedCells:

@@ -189,7 +189,7 @@ MonoBehaviour:
   moduleId: Cockpit_1x1
   buildCost: 0
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 1
   energyDelta: 0
   occupiedCells:

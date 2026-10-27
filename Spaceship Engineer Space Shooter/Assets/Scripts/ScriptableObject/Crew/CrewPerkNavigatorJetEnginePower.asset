@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 15
   displayName: Jet Engine Power
   icon: {fileID: -180412743, guid: df93b4c9524d3674792f522013d5856d, type: 3}
-  baseBonus: 0.5
-  bonusPerLevel: 0.25
+  baseBonus: 0.05
+  bonusPerLevel: 0.04

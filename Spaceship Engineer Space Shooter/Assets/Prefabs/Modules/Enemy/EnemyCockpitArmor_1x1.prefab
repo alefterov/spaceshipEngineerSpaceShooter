@@ -189,7 +189,7 @@ MonoBehaviour:
   moduleId: CockpitArmor_1x1
   buildCost: 20
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 5
   energyDelta: 0
   occupiedCells:
@@ -206,7 +206,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.124
-  rewardCredits: 5
+  rewardCredits: 14
   rewardExperience: 0
 --- !u!1 &5647317509968276246
 GameObject:

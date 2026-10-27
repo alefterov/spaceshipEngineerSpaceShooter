@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: kineticGun_1x1
   buildCost: 400
   laserResistance: 0
-  maxHP: 200
+  maxHP: 1000
   mass: 10
   energyDelta: -6
   occupiedCells:
@@ -219,7 +219,7 @@ MonoBehaviour:
   - {fileID: 3813965180775659288}
   muzzle: {fileID: 3813965180775659288}
   cooldownSeconds: 3
-  projectileDamage: 5
+  projectileDamage: 51
   projectileSpeed: 12
   range: 70
   fireArcDegrees: 30

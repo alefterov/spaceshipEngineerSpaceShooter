@@ -98,7 +98,7 @@ MonoBehaviour:
   moduleId: reactor_1x1
   buildCost: 80
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 2
   energyDelta: 0
   occupiedCells:
@@ -115,7 +115,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.169
-  rewardCredits: 5
+  rewardCredits: 10
   rewardExperience: 0
   powerOutput: 25
   capacity: 400

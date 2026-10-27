@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: plasmaGun_2x2
   buildCost: 1000
   laserResistance: 0
-  maxHP: 150
+  maxHP: 750
   mass: 12
   energyDelta: -25
   occupiedCells:
@@ -221,7 +221,7 @@ MonoBehaviour:
   - {fileID: 6479787981556474226}
   muzzle: {fileID: 0}
   cooldownSeconds: 5
-  projectileDamage: 1
+  projectileDamage: 6
   projectileSpeed: 4
   range: 200
   fireArcDegrees: 180

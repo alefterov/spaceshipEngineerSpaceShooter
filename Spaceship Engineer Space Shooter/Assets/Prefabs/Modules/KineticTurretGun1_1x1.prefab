@@ -191,7 +191,7 @@ MonoBehaviour:
   moduleId: kineticTurretGun1_1x1
   buildCost: 150
   laserResistance: 0
-  maxHP: 70
+  maxHP: 350
   mass: 4
   energyDelta: -2
   occupiedCells:
@@ -220,7 +220,7 @@ MonoBehaviour:
   - {fileID: 9088350872030205532}
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 4
-  projectileDamage: 5
+  projectileDamage: 14
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30

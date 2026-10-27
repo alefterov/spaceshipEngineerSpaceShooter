@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 22
   displayName: Plasma Damage
   icon: {fileID: 2134933552, guid: b87bd82459515e842a5cdeddba9f6836, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

@@ -98,8 +98,8 @@ MonoBehaviour:
   moduleId: reactorMiddle_2x2
   buildCost: 110
   laserResistance: 0
-  maxHP: 70
-  mass: 1
+  maxHP: 350
+  mass: 5
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -116,7 +116,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.169
-  rewardCredits: 5
+  rewardCredits: 24
   rewardExperience: 0
   powerOutput: 50
   capacity: 700

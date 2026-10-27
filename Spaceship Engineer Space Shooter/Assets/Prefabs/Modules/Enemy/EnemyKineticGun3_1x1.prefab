@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: kineticGun3_1x1
   buildCost: 150
   laserResistance: 0
-  maxHP: 150
+  maxHP: 750
   mass: 4
   energyDelta: -1
   occupiedCells:
@@ -207,7 +207,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.124
-  rewardCredits: 5
+  rewardCredits: 10
   rewardExperience: 0
   aiming: 0
   fireControl: 0
@@ -218,7 +218,7 @@ MonoBehaviour:
   muzzles: []
   muzzle: {fileID: 3813965180775659288}
   cooldownSeconds: 3
-  projectileDamage: 5
+  projectileDamage: 12
   projectileSpeed: 12
   range: 70
   fireArcDegrees: 30

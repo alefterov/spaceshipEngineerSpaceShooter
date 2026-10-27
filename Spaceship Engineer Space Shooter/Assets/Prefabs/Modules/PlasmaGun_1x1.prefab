@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: plasmaGun_1x1
   buildCost: 50
   laserResistance: 0
-  maxHP: 40
+  maxHP: 200
   mass: 3
   energyDelta: -15
   occupiedCells:
@@ -219,7 +219,7 @@ MonoBehaviour:
   - {fileID: 7553389974999812753}
   muzzle: {fileID: 0}
   cooldownSeconds: 5
-  projectileDamage: 1
+  projectileDamage: 10
   projectileSpeed: 4
   range: 200
   fireArcDegrees: 180

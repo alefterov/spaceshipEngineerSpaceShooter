@@ -13,10 +13,10 @@ public class ShipModule : MonoBehaviour
     public ModuleType type = ModuleType.Armor;
     public string moduleId = "block";
 
-    [Tooltip("Credits this block cost to build — always set from BlockDefinition.buildCost at " +
-             "placement time (ShipGrid.PlaceBlock), same as moduleId. Not meant to be hand-edited on the " +
-             "prefab; read by GhostBlockController to compute the dismantle refund.")]
-    public int buildCost;
+    /// <summary>Credits this block cost to build — set from BlockDefinition.buildCost at placement time (ShipGrid.PlaceBlock),
+    /// the ONE place a price is entered. Not saved on the prefab (so a stale number there can never be mistaken for the
+    /// price); read by GhostBlockController to compute the dismantle refund.</summary>
+    [System.NonSerialized] public int buildCost;
 
     [Header("Resistances")]
     [Tooltip("Share of LASER damage this block shrugs off, 0 to 1 — an energy armor block, say, 0.8 takes only a fifth of a beam's damage. 0 = none.")]
@@ -244,12 +244,12 @@ public class ShipModule : MonoBehaviour
     {
         if (IsDestroyed || amount <= 0f) return;
 
-        // An enemy ship is only vulnerable while it is completely inside the screen — one still flying in (or
-        // partly off it) takes no damage at all.
+        // A block of an enemy ship is only vulnerable while it is in the battle zone (see BattleZone): inside the screen, or just
+        // passing the top edge. The part of a ship that is still beyond the edge takes no damage.
         if (CompareTag("EnemyShip"))
         {
             var ownShip = GetComponentInParent<ShipIdentity>();
-            if (ownShip != null && ownShip.faction == Faction.Enemy && !ownShip.IsFullyInView()) return;
+            if (ownShip != null && ownShip.faction == Faction.Enemy && !BattleZone.BlockInZone(WorldBounds)) return;
         }
 
         // Crew ZeroDamageChance perk — blocks of the player's ship only: the hit simply does nothing.

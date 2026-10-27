@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: reactor_1x1
   buildCost: 80
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 2
   energyDelta: 0
   occupiedCells:

@@ -191,7 +191,7 @@ MonoBehaviour:
   moduleId: kineticTurretGun2_1x1
   buildCost: 200
   laserResistance: 0
-  maxHP: 120
+  maxHP: 600
   mass: 5
   energyDelta: -2
   occupiedCells:
@@ -208,7 +208,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 0}
   destroyVolume: 1
-  rewardCredits: 5
+  rewardCredits: 7
   rewardExperience: 0
   aiming: 1
   fireControl: 0
@@ -219,7 +219,7 @@ MonoBehaviour:
   muzzles: []
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 4
-  projectileDamage: 5
+  projectileDamage: 15
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30

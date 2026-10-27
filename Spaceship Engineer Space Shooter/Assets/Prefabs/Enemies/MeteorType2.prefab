@@ -271,7 +271,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Targetable
   kind: 0
   faction: 1
-  maxHP: 10
+  maxHP: 50
 --- !u!114 &4435903728870559063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,7 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22981ac510e2b8247ab4a3be799e1648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Meteor
-  damage: 20
+  damage: 40
   speed: 12
   creditReward: 5
   experienceReward: 5

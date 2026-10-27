@@ -97,8 +97,8 @@ MonoBehaviour:
   moduleId: reactorMiddle_2x2
   buildCost: 110
   laserResistance: 0
-  maxHP: 70
-  mass: 1
+  maxHP: 350
+  mass: 5
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}

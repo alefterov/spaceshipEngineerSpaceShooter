@@ -98,7 +98,7 @@ MonoBehaviour:
   moduleId: shield_3x3
   buildCost: 140
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 8
   energyDelta: 0
   occupiedCells:
@@ -121,8 +121,8 @@ MonoBehaviour:
   rewardCredits: 5
   rewardExperience: 0
   radius: 10
-  capacity: 200
-  rechargePerSecond: 15
+  capacity: 1000
+  rechargePerSecond: 16
   reactivateFraction: 0.25
   absorbSound: {fileID: 8300000, guid: 5b265c36c20dabb48bf8810a68b021b0, type: 3}
   absorbVolume: 0.277

@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 10
   displayName: Experiance  Gain
   icon: {fileID: -1089104622, guid: 85eac9dd22304654cae9f8179f378f32, type: 3}
-  baseBonus: 0.1
-  bonusPerLevel: 0.05
+  baseBonus: 0.05
+  bonusPerLevel: 0.03

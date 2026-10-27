@@ -97,8 +97,8 @@ MonoBehaviour:
   moduleId: reactorBig_3x3
   buildCost: 170
   laserResistance: 0
-  maxHP: 150
-  mass: 1
+  maxHP: 750
+  mass: 10
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}

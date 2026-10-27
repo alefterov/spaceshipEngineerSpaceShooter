@@ -84,6 +84,27 @@ public class ShipIdentity : MonoBehaviour
         return viewCheckResult = xOk && yOk;
     }
 
+    private int zoneCheckFrame = -1;
+    private bool zoneCheckResult;
+
+    /// <summary>Whether at least one living block of the ship is in the battle zone (see BattleZone) — the ship can be hurt and
+    /// is worth aiming at. Computed once per frame.</summary>
+    public bool AnyBlockInZone()
+    {
+        if (zoneCheckFrame == Time.frameCount) return zoneCheckResult;
+        zoneCheckFrame = Time.frameCount;
+
+        zoneCheckResult = false;
+        foreach (var block in blocks)
+        {
+            if (block == null || block.IsDestroyed || !BattleZone.BlockInZone(block.WorldBounds)) continue;
+            zoneCheckResult = true;
+            break;
+        }
+
+        return zoneCheckResult;
+    }
+
     /// <summary>True while any enemy ship can still fight: it has a living COCKPIT and a living GENERATOR to power it. A
     /// ship whose cockpits are all destroyed, or which has no power left (even if most of its blocks survive), does not
     /// count — nothing else on it matters for ending a battle. Broken-off fragments are judged the same way.</summary>
@@ -134,6 +155,7 @@ public class ShipIdentity : MonoBehaviour
         foreach (var block in blocks)
         {
             if (block == null || block.IsDestroyed) continue;
+            if (faction == Faction.Enemy && !BattleZone.BlockInZone(block.WorldBounds)) continue; // out of the zone it can't be hurt
 
             Vector2 p = block.transform.position;
             float sqr = (p - from).sqrMagnitude;

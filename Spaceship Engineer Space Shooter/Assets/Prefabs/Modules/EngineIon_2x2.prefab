@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: engineIon_3x3
   buildCost: 150
   laserResistance: 0
-  maxHP: 200
+  maxHP: 1000
   mass: 8
   energyDelta: -12
   occupiedCells:

@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 21
   displayName: Laser Damage
   icon: {fileID: 305640450, guid: 836102e08e02445418945fb70f1ccb94, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

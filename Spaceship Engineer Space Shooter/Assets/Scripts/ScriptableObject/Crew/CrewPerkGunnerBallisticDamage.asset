@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 19
   displayName: Ballistic Damage
   icon: {fileID: 1195457875689323247, guid: a2cc979c1faf0954cb0d636b642a7002, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

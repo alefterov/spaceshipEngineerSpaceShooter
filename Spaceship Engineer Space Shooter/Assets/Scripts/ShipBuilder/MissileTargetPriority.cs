@@ -102,13 +102,22 @@ public static class MissileTargeting
     public static void PickTarget(Faction owner, IReadOnlyList<ModuleType> order, IReadOnlyList<TargetKind> allowed,
         Vector2 from, out ShipModule block, out Targetable obj)
     {
+        // The battle zone first: only what is inside it is considered. Only when the zone holds nothing to hit at all does the
+        // missile look further afield (a ship still beyond the top edge, a meteor not yet in view).
+        PickTarget(owner, order, allowed, from, true, out block, out obj);
+        if (block == null && obj == null) PickTarget(owner, order, allowed, from, false, out block, out obj);
+    }
+
+    private static void PickTarget(Faction owner, IReadOnlyList<ModuleType> order, IReadOnlyList<TargetKind> allowed,
+        Vector2 from, bool zoneOnly, out ShipModule block, out Targetable obj)
+    {
         block = null;
         obj = null;
 
         bool ships = Contains(allowed, TargetKind.Ship);
         bool meteors = Contains(allowed, TargetKind.Meteor);
 
-        if (ships) CollectHostileBlocks(owner, scratch);
+        if (ships) CollectHostileBlocks(owner, scratch, zoneOnly);
         else scratch.Clear();
 
         foreach (var category in order)
@@ -117,7 +126,7 @@ public static class MissileTargeting
             {
                 if (!meteors) continue;
 
-                obj = NearestOfKind(owner, TargetKind.Meteor, from);
+                obj = NearestOfKind(owner, TargetKind.Meteor, from, zoneOnly);
                 if (obj != null) return;
                 continue;
             }
@@ -151,7 +160,7 @@ public static class MissileTargeting
             return;
         }
 
-        obj = NearestTargetable(owner, allowed, from, float.MaxValue);
+        obj = NearestTargetable(owner, allowed, from, float.MaxValue, zoneOnly);
     }
 
     private static bool Contains(IReadOnlyList<TargetKind> allowed, TargetKind kind)
@@ -160,7 +169,7 @@ public static class MissileTargeting
         return false;
     }
 
-    private static Targetable NearestOfKind(Faction owner, TargetKind kind, Vector2 from)
+    private static Targetable NearestOfKind(Faction owner, TargetKind kind, Vector2 from, bool zoneOnly)
     {
         Targetable best = null;
         float bestSqr = float.MaxValue;
@@ -169,6 +178,7 @@ public static class MissileTargeting
         {
             if (candidate == null || candidate.IsDestroyed || candidate.kind != kind) continue;
             if (kind != TargetKind.Meteor && candidate.faction == owner) continue;
+            if (zoneOnly && !BattleZone.PointInZone(candidate.transform.position)) continue;
 
             float sqr = ((Vector2)candidate.transform.position - from).sqrMagnitude;
             if (sqr >= bestSqr) continue;
@@ -180,7 +190,7 @@ public static class MissileTargeting
         return best;
     }
 
-    /// <summary>Whether any living block of the other side is within `range` of `from`.</summary>
+    /// <summary>Whether any living block of the other side that is in the battle zone is within `range` of `from`.</summary>
     public static bool AnyHostileWithin(Faction owner, Vector2 from, float range)
     {
         float rangeSqr = range * range;
@@ -189,14 +199,15 @@ public static class MissileTargeting
             if (ship == null || ship.faction == owner) continue;
 
             foreach (var block in ship.LiveBlocks)
-                if (block != null && !block.IsDestroyed && ((Vector2)block.transform.position - from).sqrMagnitude <= rangeSqr)
+                if (block != null && !block.IsDestroyed && ((Vector2)block.transform.position - from).sqrMagnitude <= rangeSqr
+                    && BattleZone.BlockInZone(block.WorldBounds))
                     return true;
         }
 
         return false;
     }
 
-    private static void CollectHostileBlocks(Faction owner, List<ShipModule> into)
+    private static void CollectHostileBlocks(Faction owner, List<ShipModule> into, bool zoneOnly)
     {
         into.Clear();
         foreach (var ship in ShipIdentity.All)
@@ -204,7 +215,7 @@ public static class MissileTargeting
             if (ship == null || ship.faction == owner) continue;
 
             foreach (var block in ship.LiveBlocks)
-                if (block != null && !block.IsDestroyed) into.Add(block);
+                if (block != null && !block.IsDestroyed && (!zoneOnly || BattleZone.BlockInZone(block.WorldBounds))) into.Add(block);
         }
     }
 
@@ -223,7 +234,7 @@ public static class MissileTargeting
     }
 
     /// <summary>The nearest meteor / torpedo / etc. (never a ship) a missile of `owner` may engage within `range`.</summary>
-    public static Targetable NearestTargetable(Faction owner, IReadOnlyList<TargetKind> allowed, Vector2 from, float range)
+    public static Targetable NearestTargetable(Faction owner, IReadOnlyList<TargetKind> allowed, Vector2 from, float range, bool zoneOnly = false)
     {
         Targetable best = null;
         float bestSqr = range >= float.MaxValue ? float.MaxValue : range * range;
@@ -231,6 +242,7 @@ public static class MissileTargeting
         foreach (var candidate in Targetable.Active)
         {
             if (!IsValidObjectTarget(candidate, owner, allowed)) continue;
+            if (zoneOnly && !BattleZone.PointInZone(candidate.transform.position)) continue;
 
             float sqr = ((Vector2)candidate.transform.position - from).sqrMagnitude;
             if (sqr > bestSqr) continue;

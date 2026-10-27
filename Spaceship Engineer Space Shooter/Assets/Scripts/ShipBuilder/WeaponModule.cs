@@ -250,8 +250,47 @@ public class WeaponModule : ShipModule
     /// ready to fire.</summary>
     protected void TickCooldowns()
     {
+        float step = Time.deltaTime * FireRateMultiplier;
         for (int i = 0; i < barrelCooldowns.Length; i++)
-            if (barrelCooldowns[i] > 0f) barrelCooldowns[i] -= Time.deltaTime;
+            if (barrelCooldowns[i] > 0f) barrelCooldowns[i] -= step;
+    }
+
+    // ---------- Active abilities (see ActiveAbilitiesController) ----------
+
+    /// <summary>Whether the given active ability works on this weapon: Rapid Fire — ballistic guns on a fixed mount (not turrets);
+    /// the others — the weapons of their own kind.</summary>
+    public bool SupportsAbility(WeaponAbility ability) => ability switch
+    {
+        WeaponAbility.RapidFire => weaponClass == WeaponClass.Ballistic && aiming == WeaponAiming.Fixed,
+        WeaponAbility.MissileDoubleSalvo => weaponClass == WeaponClass.Missile,
+        WeaponAbility.PlasmaDoubleSalvo => weaponClass == WeaponClass.Plasma,
+        WeaponAbility.LongLaser => weaponClass == WeaponClass.Laser,
+        _ => false,
+    };
+
+    /// <summary>1 normally; the Rapid Fire strength while that ability is on (reloading runs that many times faster). Player only.</summary>
+    protected float FireRateMultiplier
+        => OwnFaction == Faction.Player && SupportsAbility(WeaponAbility.RapidFire) ? WeaponAbilities.Strength(WeaponAbility.RapidFire) : 1f;
+
+    /// <summary>The double-salvo ability of this weapon, if its kind has one and the weapon is the player's.</summary>
+    private bool TryGetDoubleSalvo(out WeaponAbility ability)
+    {
+        ability = weaponClass == WeaponClass.Missile ? WeaponAbility.MissileDoubleSalvo : WeaponAbility.PlasmaDoubleSalvo;
+        return OwnFaction == Faction.Player && SupportsAbility(ability) && WeaponAbilities.IsActive(ability);
+    }
+
+    private readonly List<Transform> firedBarrels = new();
+
+    private System.Collections.IEnumerator RepeatShots(List<Transform> tips, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        foreach (var tip in tips)
+        {
+            if (IsDestroyed || tip == null) continue;
+            Spawn(tip);
+            AudioManager.PlaySfx(fireSound, fireVolume);
+        }
     }
 
     protected virtual void Update()
@@ -357,6 +396,7 @@ public class WeaponModule : ShipModule
         if (aimPoint.HasValue && !InFiringArc(aimPoint.Value)) return false;
 
         bool fired = false;
+        firedBarrels.Clear();
         for (int i = 0; i < barrels.Count; i++)
         {
             if (barrels[i] == null || barrelCooldowns[i] > 0f) continue;
@@ -368,6 +408,7 @@ public class WeaponModule : ShipModule
             AudioManager.PlaySfx(fireSound, fireVolume * (OwnFaction == Faction.Enemy ? enemyVolumeScale : 1f));
             barrelCooldowns[i] = ReloadAfterShot;
             fired = true;
+            firedBarrels.Add(barrels[i]);
 
             // One barrel at a time when the weapon staggers its shots: the next one has to wait.
             if (SalvoDelay > 0f)
@@ -376,6 +417,10 @@ public class WeaponModule : ShipModule
                 break;
             }
         }
+
+        // Double-salvo ability: the same barrels fire once more a moment later, at no extra energy or reload.
+        if (fired && TryGetDoubleSalvo(out var salvo))
+            StartCoroutine(RepeatShots(new List<Transform>(firedBarrels), WeaponAbilities.Delay(salvo)));
 
         return fired;
     }
@@ -563,8 +608,8 @@ public class WeaponModule : ShipModule
     {
         if (!allowedTargets.Contains(candidate.kind)) return false;
 
-        // A ship that has not fully come onto the screen can't be hurt yet — no point firing at it.
-        if (candidate.kind == TargetKind.Ship && candidate.faction == Faction.Enemy && !candidate.IsFullyInView) return false;
+        // A ship with no block in the battle zone yet can't be hurt — no point firing at it.
+        if (candidate.kind == TargetKind.Ship && candidate.faction == Faction.Enemy && !candidate.HasBlockInZone) return false;
 
         // Meteors threaten everyone; everything else is only a target if it belongs to the other side.
         return candidate.kind == TargetKind.Meteor || candidate.faction != OwnFaction;

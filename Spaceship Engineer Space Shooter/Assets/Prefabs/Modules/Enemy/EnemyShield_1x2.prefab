@@ -99,7 +99,7 @@ MonoBehaviour:
   moduleId: shield_2x2
   buildCost: 20
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 4
   energyDelta: 0
   occupiedCells:
@@ -117,11 +117,11 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.169
-  rewardCredits: 5
+  rewardCredits: 7
   rewardExperience: 0
   radius: 7
-  capacity: 100
-  rechargePerSecond: 10
+  capacity: 500
+  rechargePerSecond: 8
   reactivateFraction: 0.25
   absorbSound: {fileID: 8300000, guid: 0f8c8ac458743f843adec31ebc59b888, type: 3}
   absorbVolume: 0.311

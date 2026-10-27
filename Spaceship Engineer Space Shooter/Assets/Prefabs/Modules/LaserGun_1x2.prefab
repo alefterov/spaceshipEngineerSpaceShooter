@@ -191,7 +191,7 @@ MonoBehaviour:
   moduleId: laserGun_1x1
   buildCost: 100
   laserResistance: 0
-  maxHP: 120
+  maxHP: 600
   mass: 8
   energyDelta: -40
   occupiedCells:
@@ -286,7 +286,7 @@ MonoBehaviour:
   turretPivot: {fileID: 0}
   turretRotationSpeed: 180
   turretAimToleranceDegrees: 3
-  beamDamagePerSecond: 10
+  beamDamagePerSecond: 42
   beamDuration: 2
   beamLength: 0
   beamWidth: 0.15

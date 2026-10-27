@@ -67,7 +67,7 @@ public class MissileLauncher : WeaponModule
         // Launches only when there is something to hit within range: a ship block (if ships are allowed targets) or a
         // meteor / torpedo among the Allowed Targets.
         bool shipTargets = allowedTargets.Contains(TargetKind.Ship) && MissileTargeting.AnyHostileWithin(OwnFaction, MuzzleCenter, range);
-        if (!shipTargets && MissileTargeting.NearestTargetable(OwnFaction, allowedTargets, MuzzleCenter, range) == null) return;
+        if (!shipTargets && MissileTargeting.NearestTargetable(OwnFaction, allowedTargets, MuzzleCenter, range, true) == null) return;
 
         FireIfReady(null); // no aiming arc to check — the missile steers itself
     }

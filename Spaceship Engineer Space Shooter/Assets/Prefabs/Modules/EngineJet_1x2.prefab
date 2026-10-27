@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: engine_2x2
   buildCost: 55
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 4
   energyDelta: -3
   occupiedCells:

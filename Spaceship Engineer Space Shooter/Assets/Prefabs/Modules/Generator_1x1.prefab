@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: generator_1x1
   buildCost: 10
   laserResistance: 0
-  maxHP: 20
+  maxHP: 100
   mass: 2
   energyDelta: 0
   occupiedCells:

@@ -96,7 +96,7 @@ MonoBehaviour:
   moduleId: heavyArmor_1x1
   buildCost: 30
   laserResistance: 0
-  maxHP: 200
+  maxHP: 1000
   mass: 6
   energyDelta: 0
   occupiedCells:

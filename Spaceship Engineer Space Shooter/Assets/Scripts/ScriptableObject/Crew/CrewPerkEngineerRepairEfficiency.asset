@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 6
   displayName: Repair Efficiency
   icon: {fileID: 697724625, guid: ef7d21a8b37aaf14f8f86ad3cd32b166, type: 3}
-  baseBonus: 1
-  bonusPerLevel: 0.5
+  baseBonus: 0.05
+  bonusPerLevel: 0.05

@@ -98,8 +98,8 @@ MonoBehaviour:
   moduleId: reactorBig_3x3
   buildCost: 170
   laserResistance: 0
-  maxHP: 150
-  mass: 1
+  maxHP: 750
+  mass: 10
   energyDelta: 0
   occupiedCells:
   - {x: 0, y: 0}
@@ -118,7 +118,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.169
-  rewardCredits: 5
+  rewardCredits: 40
   rewardExperience: 0
   powerOutput: 80
   capacity: 1000

@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 11
   displayName: Credits Gain
   icon: {fileID: 2133254289, guid: fc871d2e28a66b344aa30b53aba374f8, type: 3}
-  baseBonus: 0.1
-  bonusPerLevel: 0.05
+  baseBonus: 0.02
+  bonusPerLevel: 0.015

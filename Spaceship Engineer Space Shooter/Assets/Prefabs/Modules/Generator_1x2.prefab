@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: generatorMiddle_2x2
   buildCost: 30
   laserResistance: 0
-  maxHP: 50
+  maxHP: 250
   mass: 4
   energyDelta: 0
   occupiedCells:

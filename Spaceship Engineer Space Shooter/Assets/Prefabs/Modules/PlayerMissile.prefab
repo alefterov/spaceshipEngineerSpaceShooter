@@ -5123,4 +5123,4 @@ MonoBehaviour:
   trailColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 0.59607846}
   trailMaterial: {fileID: 0}
   trailSortingOrder: 0
-  hitPoints: 5
+  hitPoints: 25

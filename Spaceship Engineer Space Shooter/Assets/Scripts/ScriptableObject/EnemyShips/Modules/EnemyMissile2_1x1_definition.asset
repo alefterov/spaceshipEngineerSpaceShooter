@@ -19,7 +19,7 @@ MonoBehaviour:
   enemyOnly: 1
   category: 2
   weaponClass: 2
-  buildCost: 10
+  buildCost: 180
   cells:
   - offset: {x: 0, y: 0}
     shape: 0

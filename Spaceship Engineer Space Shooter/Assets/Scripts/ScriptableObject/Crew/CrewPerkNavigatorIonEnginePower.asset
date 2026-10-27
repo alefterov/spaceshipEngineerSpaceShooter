@@ -15,5 +15,5 @@ MonoBehaviour:
   type: 14
   displayName: Ion Engine Power
   icon: {fileID: 152337369, guid: 5cff44312dc4e4a4399a98567e3d0a8a, type: 3}
-  baseBonus: 0.5
-  bonusPerLevel: 0.25
+  baseBonus: 0.05
+  bonusPerLevel: 0.04

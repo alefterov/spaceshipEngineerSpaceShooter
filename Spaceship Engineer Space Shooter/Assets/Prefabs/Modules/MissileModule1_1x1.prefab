@@ -190,7 +190,7 @@ MonoBehaviour:
   moduleId: missileModule1_1x1
   buildCost: 100
   laserResistance: 0
-  maxHP: 40
+  maxHP: 200
   mass: 4
   energyDelta: -5
   occupiedCells:

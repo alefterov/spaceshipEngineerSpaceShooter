@@ -18,7 +18,7 @@ MonoBehaviour:
   prefab: {fileID: 729449600381729954, guid: 98fce909a64fcb641bab126275cd3175, type: 3}
   category: 1
   weaponClass: 0
-  buildCost: 20
+  buildCost: 180
   cells:
   - offset: {x: 0, y: 0}
     shape: 1

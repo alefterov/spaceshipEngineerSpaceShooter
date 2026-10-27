@@ -98,7 +98,7 @@ MonoBehaviour:
   moduleId: repair_2x2
   buildCost: 66
   laserResistance: 0
-  maxHP: 100
+  maxHP: 500
   mass: 4
   energyDelta: 0
   occupiedCells:
@@ -116,10 +116,10 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.158
-  rewardCredits: 5
+  rewardCredits: 7
   rewardExperience: 0
-  repairPerSecond: 2
-  energyPerHp: 3
+  repairPerSecond: 6
+  energyPerHp: 0.6
   maxSimultaneousTargets: 2
 --- !u!114 &4140459331547520971
 MonoBehaviour:
