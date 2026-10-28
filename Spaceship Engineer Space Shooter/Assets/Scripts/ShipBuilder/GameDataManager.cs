@@ -81,10 +81,114 @@ public class GameDataManager : MonoBehaviour
             Current.hangarLevel = 0;
         }
 
+        GrantStarterKitIfNeeded();
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
         OnDataLoaded?.Invoke();
     }
+
+    // ---------- New game: starting technologies and ship ----------
+
+    [Header("New game")]
+    [Tooltip("Ids of the technologies (TechDefinition.id) that are already researched in a fresh game.")]
+    public List<string> starterTechIds = new()
+    {
+        "Cockpit_1x1", "generator_1x1", "engine_jet_1x1", "light_armor_1x1", "kinetic_static_gun1_1x1",
+    };
+    [Tooltip("The ship a fresh game starts with. Given only once, at the very first start (an existing ship is never replaced). " +
+             "Build the ship in the builder, save it, then use this component's menu (⋮) → \"Use saved ship as starter ship\".")]
+    public ShipLayout starterShip = DefaultStarterShip();
+    [Tooltip("Hangar columns / rows a fresh game starts with, on top of the builder's base grid. 0 = the plain base grid.")]
+    [Min(0)] public int starterHangarColumns = 0;
+    [Min(0)] public int starterHangarRows = 0;
+    [Tooltip("Size of the builder's base grid (the ShipGrid of the main scene, without hangar upgrades). \"Use saved ship as starter " +
+             "ship\" moves the ship to the middle of this grid plus the starter hangar, so it fits a new player's grid.")]
+    public Vector2Int builderBaseGridSize = new(5, 5);
+
+    /// <summary>Hands out the starting technologies and the starting ship, once per save. The ship only goes to a save that has
+    /// none yet, so an old save keeps the player's own ship.</summary>
+    private void GrantStarterKitIfNeeded()
+    {
+        if (Current.starterKitGranted) return;
+        Current.starterKitGranted = true;
+
+        foreach (var id in starterTechIds)
+            if (!string.IsNullOrEmpty(id) && !Current.researchedTechIds.Contains(id)) Current.researchedTechIds.Add(id);
+
+        if ((Current.playerShip == null || Current.playerShip.TotalEntries == 0) && starterShip != null && starterShip.TotalEntries > 0)
+        {
+            Current.playerShip = CopyLayout(starterShip);
+            Current.hangarColumns = Mathf.Max(Current.hangarColumns, starterHangarColumns); // room for the starter ship
+            Current.hangarRows = Mathf.Max(Current.hangarRows, starterHangarRows);
+        }
+
+        Save();
+    }
+
+    private static ShipLayout CopyLayout(ShipLayout source)
+    {
+        var copy = new ShipLayout();
+        foreach (var e in source.blocks)
+            copy.blocks.Add(new ShipLayout.Entry { blockId = e.blockId, anchorX = e.anchorX, anchorY = e.anchorY, rotationSteps = e.rotationSteps });
+        return copy;
+    }
+
+    /// <summary>The ship built in the editor and saved on 28.10 (CyberForgeStudio save) — the default starting ship. A 3 x 3 ship,
+    /// moved to the middle of the builder's 5 x 5 base grid.</summary>
+    private static ShipLayout DefaultStarterShip()
+    {
+        var layout = new ShipLayout();
+        void Add(string id, int x, int y, int rotation = 0)
+            => layout.blocks.Add(new ShipLayout.Entry { blockId = id, anchorX = x, anchorY = y, rotationSteps = rotation });
+
+        Add("Cockpit_1x1", 2, 1);
+        Add("generator_1x1", 2, 2);
+        Add("engine_jet_1x1", 3, 1);
+        Add("kinetic_static_gun1_1x1", 3, 2);
+        Add("light_armor_1x1", 2, 3);
+        Add("kinetic_static_gun1_1x1", 1, 2);
+        Add("light_triangle_armor_1x1", 3, 3, 3);
+        Add("light_triangle_armor_1x1", 1, 3);
+        Add("engine_jet_1x1", 1, 1);
+        return layout;
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Use saved ship as starter ship")]
+    private void UseSavedShipAsStarter()
+    {
+        var saved = SaveSystem.Load();
+        if (saved == null || saved.playerShip == null || saved.playerShip.TotalEntries == 0)
+        {
+            Debug.LogWarning("No saved ship found — build a ship in the builder and save it first.", this);
+            return;
+        }
+
+        UnityEditor.Undo.RecordObject(this, "Use saved ship as starter ship");
+        starterShip = CopyLayout(saved.playerShip);
+
+        // The save was built in the player's (possibly upgraded) grid: move the ship to the middle of a NEW player's grid.
+        int minX = starterShip.blocks.Min(b => b.anchorX), maxX = starterShip.blocks.Max(b => b.anchorX);
+        int minY = starterShip.blocks.Min(b => b.anchorY), maxY = starterShip.blocks.Max(b => b.anchorY);
+        int gridW = builderBaseGridSize.x + starterHangarColumns, gridH = builderBaseGridSize.y + starterHangarRows;
+        int shiftX = (gridW - (maxX - minX + 1)) / 2 - minX;
+        int shiftY = (gridH - (maxY - minY + 1)) / 2 - minY;
+        foreach (var b in starterShip.blocks) { b.anchorX += shiftX; b.anchorY += shiftY; }
+
+        UnityEditor.EditorUtility.SetDirty(this);
+        bool fits = maxX - minX + 1 <= gridW && maxY - minY + 1 <= gridH;
+        Debug.Log($"Starter ship set from the save: {starterShip.blocks.Count} blocks, {maxX - minX + 1} x {maxY - minY + 1} cells" +
+                  (fits ? "" : $" — DOES NOT FIT the new player's {gridW} x {gridH} grid, raise Starter Hangar Columns / Rows") +
+                  ". Save the scene to keep it.", this);
+    }
+
+    [ContextMenu("Delete save file (start as a new player)")]
+    private void DeleteSaveFile()
+    {
+        SaveSystem.DeleteSave();
+        Debug.Log("Save file deleted — the next Play starts a fresh game with the starter technologies and ship.", this);
+    }
+#endif
 
     public void Save() => SaveSystem.Save(Current);
 
@@ -503,6 +607,10 @@ public class GameDataManager : MonoBehaviour
     public float critDamageMultiplier = 2f;
     [Tooltip("Credits a rank-up (merge) costs, by the rank the member has NOW: element 0 = merging a rank 1 member into rank 2, element 1 = rank 2 into rank 3.")]
     public int[] crewMergeCosts = { 1000, 2000 };
+    [Tooltip("Played whenever a crew member is put into a slot or taken out of one (dragging it in or out, the button on its card) — " +
+             "only when something actually changes.")]
+    public AudioClip crewSlotSound;
+    [Range(0f, 1f)] public float crewSlotVolume = 1f;
 
     // Total bonus per CrewPerkType from the members in the slots, rebuilt whenever crew changes. Cached
     // because gameplay reads it every frame (weapons, movement) and recomputing from the save list there
@@ -560,6 +668,7 @@ public class GameDataManager : MonoBehaviour
         if (entry.instanceId == instanceId) return true; // already there — nothing to change
 
         entry.instanceId = instanceId;
+        AudioManager.PlaySfx(crewSlotSound, crewSlotVolume);
         CrewChanged();
         return true;
     }
@@ -568,6 +677,7 @@ public class GameDataManager : MonoBehaviour
     public void UnassignCrew(string instanceId)
     {
         if (!ClearSlotsHolding(instanceId)) return;
+        AudioManager.PlaySfx(crewSlotSound, crewSlotVolume);
         CrewChanged();
     }
 

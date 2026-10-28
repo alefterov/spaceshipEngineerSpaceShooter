@@ -188,7 +188,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: kineticGun3_1x1
-  buildCost: 150
   laserResistance: 0
   maxHP: 750
   mass: 4
@@ -215,7 +214,10 @@ MonoBehaviour:
   allowedTargets: 000000000200000004000000
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
-  muzzles: []
+  muzzles:
+  - {fileID: 3813965180775659288}
+  - {fileID: 4237851930843496245}
+  - {fileID: 3998265454005999307}
   muzzle: {fileID: 3813965180775659288}
   cooldownSeconds: 3
   projectileDamage: 12

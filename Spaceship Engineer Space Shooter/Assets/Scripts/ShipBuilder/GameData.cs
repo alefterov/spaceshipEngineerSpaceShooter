@@ -72,6 +72,8 @@ public class GameData
     [Tooltip("Set once the starting crew (CrewDatabase.starterCrew) has been handed out, so it's never " +
              "granted twice.")]
     public bool crewStarterGranted;
+    [Tooltip("Set once the starting technologies and ship (GameDataManager, New game) have been handed out, so it happens only at the very first start.")]
+    public bool starterKitGranted;
 
     public ShipLayout playerShip = new();
 }

@@ -63,7 +63,14 @@ public class BattleSequenceController : MonoBehaviour
     private void Start()
     {
         if (background != null && PendingBattle.Level != null && PendingBattle.Level.background != null)
+        {
             background.sprite = PendingBattle.Level.background;
+
+            // The level's backdrop goes onto THIS renderer — if it is switched off, the backdrop seen is some other object's.
+            if (!background.enabled || !background.gameObject.activeInHierarchy)
+                Debug.LogWarning($"Battle background: '{background.name}' is disabled, so the level's background can't be seen. " +
+                                 "Assign the SpriteRenderer that actually draws the backdrop to Background.", this);
+        }
 
         if (playerShipGrid != null && database != null)
         {

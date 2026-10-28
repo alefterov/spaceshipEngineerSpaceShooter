@@ -189,7 +189,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: kineticTurretGun3_1x1
-  buildCost: 9000
   laserResistance: 0
   maxHP: 2000
   mass: 20
@@ -219,7 +218,10 @@ MonoBehaviour:
   allowedTargets: 000000000200000004000000
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
-  muzzles: []
+  muzzles:
+  - {fileID: 9088350872030205532}
+  - {fileID: 6001565823500937607}
+  - {fileID: 4689460881649333531}
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 7
   projectileDamage: 49

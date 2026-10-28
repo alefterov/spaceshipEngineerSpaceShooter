@@ -124,6 +124,9 @@ public class ShipSplitter : MonoBehaviour
         var go = new GameObject("EnemyFragment");
         go.transform.SetPositionAndRotation(center, transform.rotation);
 
+        // Every broken-off piece is drawn on the one shared fragment layer, under all the ships.
+        go.AddComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder = EnemyShip.FragmentSortingOrder;
+
         var identity = go.AddComponent<ShipIdentity>();
         identity.faction = Faction.Enemy;
         identity.ApplyTagToRoot(); // Awake already ran as Player when the component was added — set the real side

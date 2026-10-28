@@ -189,7 +189,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: enemyKineticTurretDefenseMiniGun_1x1
-  buildCost: 20
   laserResistance: 0
   maxHP: 100
   mass: 1
@@ -216,7 +215,8 @@ MonoBehaviour:
   allowedTargets: 00000000020000000400000001000000
   leadTarget: 1
   projectilePrefab: {fileID: 9034744518351449050, guid: 6304c6fea96f2a94aaa38d826af34c35, type: 3}
-  muzzles: []
+  muzzles:
+  - {fileID: 9088350872030205532}
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 0.2
   projectileDamage: 1

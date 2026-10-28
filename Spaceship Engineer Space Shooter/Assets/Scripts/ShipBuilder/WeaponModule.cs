@@ -469,11 +469,14 @@ public class WeaponModule : ShipModule
         }
     }
 
-    /// <summary>The direction this weapon actually shoots in — just BarrelDirection. Enemy ships are
-    /// given a real, physical facing at spawn (EnemyShip rotates the whole ship root — see Face Down),
-    /// so no per-weapon correction is needed here; the muzzle's geometry already points the right way
-    /// for both factions.</summary>
-    protected Vector2 MuzzleForward => BarrelDirection;
+    /// <summary>The direction this weapon actually shoots in.
+    ///  - FIXED mount: strictly along the block's own facing (its Visual Root's +Y — straight up the ship for an unrotated
+    ///    block, so straight down the screen on an enemy ship, which EnemyShip turns round at spawn). Never at an angle, however
+    ///    the muzzles happen to sit relative to the pivot / Top Root in the prefab (an enemy gun with a Turret Pivot set used to
+    ///    shoot slanted because of that).
+    ///  - TURRET: BarrelDirection — wherever the swinging barrel points.</summary>
+    protected Vector2 MuzzleForward
+        => aiming == WeaponAiming.Fixed ? (Vector2)(visualRoot != null ? visualRoot.up : transform.up) : BarrelDirection;
 
     protected virtual void Spawn(Transform tip)
     {

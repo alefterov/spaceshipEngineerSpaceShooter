@@ -263,8 +263,35 @@ public class EnemyShip : MonoBehaviour
         else if (hadWeapons && ramWhenUnarmed && !disabled && state != State.Ramming) state = State.Ramming;
     }
 
+    // ---------- Drawing order: every enemy ship on a layer of its own ----------
+
+    /// <summary>Order in Layer of broken-off fragments: all of them share this one layer, under every ship.</summary>
+    public const int FragmentSortingOrder = 0;
+
+    private static readonly List<EnemyShip> living = new();
+    private UnityEngine.Rendering.SortingGroup sortingGroup;
+
+    /// <summary>Puts the whole ship into a SortingGroup, so its blocks are drawn together and never mix with another ship's.
+    /// A ship that arrives later is drawn above the ones already there: its Order in Layer is one more than the highest of the
+    /// ships still alive (1 for the first, never negative), so the numbers start again from 1 once the screen is clear.</summary>
+    private void AssignSortingLayer()
+    {
+        sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
+        if (sortingGroup == null) sortingGroup = gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+
+        int highest = FragmentSortingOrder;
+        foreach (var ship in living)
+            if (ship != null && ship != this && ship.sortingGroup != null) highest = Mathf.Max(highest, ship.sortingGroup.sortingOrder);
+
+        sortingGroup.sortingOrder = highest + 1;
+        if (!living.Contains(this)) living.Add(this);
+    }
+
+    private void OnDestroy() => living.Remove(this);
     private void Start()
     {
+        AssignSortingLayer();
+
         if (target == null)
         {
             var playerObj = GameObject.FindWithTag("PlayerShip");
