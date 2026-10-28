@@ -10021,8 +10021,8 @@ MonoBehaviour:
   crewChanceCap: 0.75
   critDamageMultiplier: 2
   crewMergeCosts: e8030000d0070000
-  crewSlotSound: {fileID: 0}
-  crewSlotVolume: 1
+  crewSlotSound: {fileID: 8300000, guid: cf38ecb4643ff3845aee14d6b1e5233a, type: 3}
+  crewSlotVolume: 0.237
 --- !u!1 &349793829
 GameObject:
   m_ObjectHideFlags: 0
@@ -49239,10 +49239,10 @@ MonoBehaviour:
   validColor: {r: 0.3, g: 0.65, b: 1, a: 1}
   invalidColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   dismantleRefundFraction: 0.8
-  placeSound: {fileID: 0}
-  placeVolume: 0.329
-  dismantleSound: {fileID: 0}
-  dismantleVolume: 0.334
+  placeSound: {fileID: 8300000, guid: b7f2d87d0066ea84da8ed0c62309f792, type: 3}
+  placeVolume: 0.153
+  dismantleSound: {fileID: 8300000, guid: 551496a1e6c983747a64788169472ce1, type: 3}
+  dismantleVolume: 0.153
 --- !u!114 &1750745211
 MonoBehaviour:
   m_ObjectHideFlags: 0
