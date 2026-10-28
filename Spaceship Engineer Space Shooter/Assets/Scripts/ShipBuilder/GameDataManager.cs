@@ -323,6 +323,11 @@ public class GameDataManager : MonoBehaviour
         return Current.researchPoints >= tech.researchCost;
     }
 
+    [Header("Research")]
+    [Tooltip("Played when a technology has been researched.")]
+    public AudioClip researchSound;
+    [Range(0f, 1f)] public float researchVolume = 1f;
+
     /// <summary>Spends points and marks the tech researched. Returns false and changes nothing if
     /// it's already researched, its prerequisite isn't met, or there aren't enough points (which
     /// also fires OnInsufficientResearchPoints in that last case specifically).</summary>
@@ -339,6 +344,7 @@ public class GameDataManager : MonoBehaviour
 
         Current.researchPoints -= tech.researchCost;
         Current.researchedTechIds.Add(tech.id);
+        AudioManager.PlaySfx(researchSound, researchVolume);
         OnResearchPointsChanged?.Invoke();
         OnTechResearched?.Invoke(tech.id);
         Save();

@@ -148,8 +148,15 @@ public class ActiveAbilitiesController : MonoBehaviour
             }
 
             if (slot.IsActive && !slot.drainWhileActive) fraction = 0f;
-            if (slot.gauge != null) slot.gauge.SetValue(Mathf.Clamp01(fraction), 1f);
-            if (slot.timerLabel != null) slot.timerLabel.text = remaining > 0f ? Mathf.CeilToInt(remaining).ToString() : "";
+
+            if (slot.gauge != null)
+            {
+                // No weapon of this kind on the ship: the ring is hidden completely (fillAmount 0, whatever Show Used says).
+                if (!slot.hasWeapons && !slot.IsActive && slot.gauge.fillImage != null) slot.gauge.fillImage.fillAmount = 0f;
+                else slot.gauge.SetValue(Mathf.Clamp01(fraction), 1f);
+            }
+            if (slot.timerLabel != null)
+                slot.timerLabel.text = remaining > 0f && (slot.hasWeapons || slot.IsActive) ? Mathf.CeilToInt(remaining).ToString() : "";
         }
     }
 

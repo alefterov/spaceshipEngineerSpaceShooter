@@ -25584,10 +25584,16 @@ MonoBehaviour:
   starRevealDelay: 0.3
   resultLabel: {fileID: 2018756722}
   victoryMessage: YOU WIN!
-  defeatMessage: YOU Lose!
+  defeatMessage: YOU LOSE!
   creditsEarnedLabel: {fileID: 630539977}
   creditsCountDuration: 2
   experienceBar: {fileID: 1103011938}
+  victorySound: {fileID: 8300000, guid: c8c645c8ca3852646843b179357c39ab, type: 3}
+  victoryVolume: 1
+  defeatSound: {fileID: 0}
+  defeatVolume: 1
+  starSound: {fileID: 8300000, guid: cf38ecb4643ff3845aee14d6b1e5233a, type: 3}
+  starVolume: 0.366
   nextLevelButton: {fileID: 1108348563}
 --- !u!114 &1413300178
 MonoBehaviour:

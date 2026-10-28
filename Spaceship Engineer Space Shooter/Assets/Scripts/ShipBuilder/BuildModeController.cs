@@ -32,6 +32,11 @@ public class BuildModeController : MonoBehaviour
 
     public BuildMode CurrentMode { get; private set; } = BuildMode.Cockpit;
 
+    /// <summary>Which Armor sub-tab is showing: BlockCategory.Armor (physical armor) or BlockCategory.Shield.</summary>
+    public BlockCategory ArmorSubTab { get; private set; } = BlockCategory.Armor;
+    /// <summary>Which weapon family the Weapons tab is narrowed to; null = every weapon is listed.</summary>
+    public WeaponClass? WeaponFilter { get; private set; }
+
     private bool blockSelected;
 
     private void Start()
@@ -85,14 +90,23 @@ public class BuildModeController : MonoBehaviour
         if (armorSubCategoryPanel != null) armorSubCategoryPanel.SetActive(mode == BuildMode.Armor);
         if (weaponSubCategoryPanel != null) weaponSubCategoryPanel.SetActive(mode == BuildMode.Weapons);
         palette.ShowForMode(mode);
+        ArmorSubTab = BlockCategory.Armor; // the Armor tab opens on physical armor
+        WeaponFilter = null;               // the Weapons tab opens on every weapon
     }
 
     // ---------- Sub-tabs ----------
     // Each ensures its parent tab is active first (so clicking a sub-tab works even if the player
     // hasn't pressed the parent tab yet), then narrows the palette.
 
-    public void ShowPhysicalArmor() { EnsureMode(BuildMode.Armor); palette.ShowForCategory(BlockCategory.Armor); }
-    public void ShowShields() { EnsureMode(BuildMode.Armor); palette.ShowForCategory(BlockCategory.Shield); }
+    public void ShowPhysicalArmor() => ShowArmorSubTab(BlockCategory.Armor);
+    public void ShowShields() => ShowArmorSubTab(BlockCategory.Shield);
+
+    private void ShowArmorSubTab(BlockCategory category)
+    {
+        EnsureMode(BuildMode.Armor);
+        palette.ShowForCategory(category);
+        ArmorSubTab = category;
+    }
 
     public void ShowBallisticWeapons() => ShowWeaponClass(WeaponClass.Ballistic);
     public void ShowLaserWeapons() => ShowWeaponClass(WeaponClass.Laser);
@@ -103,6 +117,7 @@ public class BuildModeController : MonoBehaviour
     {
         EnsureMode(BuildMode.Weapons);
         palette.ShowForWeaponClass(weaponClass);
+        WeaponFilter = weaponClass;
     }
 
     private void EnsureMode(BuildMode mode)

@@ -39,6 +39,17 @@ public class BattleResultPanel : MonoBehaviour
     [Tooltip("The account-level progress bar — optional; leave unassigned if the panel doesn't show one.")]
     public ExperienceBarView experienceBar;
 
+    [Header("Sound")]
+    [Tooltip("Played the moment the result panel opens after a win.")]
+    public AudioClip victorySound;
+    [Range(0f, 1f)] public float victoryVolume = 1f;
+    [Tooltip("Played the moment the result panel opens after a loss.")]
+    public AudioClip defeatSound;
+    [Range(0f, 1f)] public float defeatVolume = 1f;
+    [Tooltip("Played each time one of the earned stars lights up (once per star).")]
+    public AudioClip starSound;
+    [Range(0f, 1f)] public float starVolume = 1f;
+
     [Header("Buttons")]
     [Tooltip("Disabled on a loss, and on a win with no Next Level set on this LevelDefinition. Retry " +
              "and Home always work regardless — wire their OnClick directly, nothing to configure here.")]
@@ -54,6 +65,8 @@ public class BattleResultPanel : MonoBehaviour
         gameObject.SetActive(true);
 
         if (resultLabel != null) resultLabel.text = won ? victoryMessage : defeatMessage;
+        if (won) AudioManager.PlaySfx(victorySound, victoryVolume);
+        else AudioManager.PlaySfx(defeatSound, defeatVolume);
         if (nextLevelButton != null) nextLevelButton.interactable = won && hasNextLevel;
 
         if (revealRoutine != null) StopCoroutine(revealRoutine);
@@ -96,6 +109,7 @@ public class BattleResultPanel : MonoBehaviour
             if (i >= earnedStars || stars[i] == null) continue;
 
             stars[i].sprite = filledStarSprite;
+            AudioManager.PlaySfx(starSound, starVolume);
             yield return StartCoroutine(PunchScale(stars[i].transform));
         }
     }
