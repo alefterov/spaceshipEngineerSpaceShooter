@@ -119,6 +119,8 @@ public class CrewMemberData
     public string definitionId;
     public int rank = 1;
     public int level = 1;
+    /// <summary>Received but not looked at yet in the crew screen — lights the badge of the crew button (MainPanelBadges).</summary>
+    public bool isNew;
 }
 
 [System.Serializable]

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -16,8 +17,9 @@ using UnityEngine.InputSystem;
 ///
 /// SETUP: attach to the same full-screen UI Image that hosts GhostBlockController (the "input
 /// catcher" behind the palette/UI panels) — a finger only counts for camera control if it FIRST
-/// touched down inside that element's rect (checked once, when the finger appears), so gestures
-/// starting on the palette/buttons/etc. are naturally ignored without needing uGUI raycasts here.
+/// touched down on that element itself (checked once, when the finger appears): inside its rect AND with no other UI on top of it at
+/// that point. So a swipe starting on the builder panel, the palette, buttons etc. never moves the ship — only one starting on the
+/// open area where the ship is.
 ///
 /// Panning is clamped so the camera can wander at most PanMarginCells past the ship's own
 /// footprint (ShipGrid.OccupiedCellPositions — the same cells the outline traces), not the full
@@ -52,6 +54,10 @@ public class BuildCameraController : MonoBehaviour
     // Ground truth, rebuilt from scratch every frame: id (touchId, or -1 for mouse) -> current
     // screen position, for every pointer currently down that qualifies for camera control.
     private readonly Dictionary<int, Vector2> tracked = new();
+    // Fingers that went down on some other UI (a panel, a button): ignored until lifted, even if they slide onto the ship's area.
+    private readonly HashSet<int> rejected = new();
+    private readonly List<RaycastResult> uiHits = new();
+    private PointerEventData pointerData;
 
     private bool wasPinching;
     private float pinchStartDistance;
@@ -111,6 +117,7 @@ public class BuildCameraController : MonoBehaviour
     private Dictionary<int, Vector2> GatherQualifyingPointers()
     {
         var result = new Dictionary<int, Vector2>();
+        var pressed = new HashSet<int>();
 
         if (Touchscreen.current != null)
         {
@@ -120,6 +127,7 @@ public class BuildCameraController : MonoBehaviour
 
                 int id = touch.touchId.ReadValue();
                 Vector2 pos = touch.position.ReadValue();
+                pressed.Add(id);
                 if (Qualifies(id, pos)) result[id] = pos;
             }
         }
@@ -127,14 +135,39 @@ public class BuildCameraController : MonoBehaviour
         {
             const int mouseId = -1;
             Vector2 pos = Mouse.current.position.ReadValue();
+            pressed.Add(mouseId);
             if (Qualifies(mouseId, pos)) result[mouseId] = pos;
         }
 
+        rejected.RemoveWhere(id => !pressed.Contains(id)); // lifted: the next touch with that id is judged afresh
         return result;
     }
 
     private bool Qualifies(int id, Vector2 screenPos)
-        => tracked.ContainsKey(id) || RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPos, targetCamera);
+    {
+        if (tracked.ContainsKey(id)) return true;
+        if (rejected.Contains(id)) return false;
+
+        if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPos, targetCamera) && !IsOtherUIOnTop(screenPos)) return true;
+
+        rejected.Add(id);
+        return false;
+    }
+
+    /// <summary>Whether the topmost UI element under this screen point is something other than this input catcher (or its children) —
+    /// a panel, a button, the palette.</summary>
+    private bool IsOtherUIOnTop(Vector2 screenPos)
+    {
+        var events = EventSystem.current;
+        if (events == null) return false;
+
+        pointerData ??= new PointerEventData(events);
+        pointerData.position = screenPos;
+        uiHits.Clear();
+        events.RaycastAll(pointerData, uiHits); // sorted topmost first
+
+        return uiHits.Count > 0 && !uiHits[0].gameObject.transform.IsChildOf(transform);
+    }
 
     private void SyncTracked(Dictionary<int, Vector2> current)
     {

@@ -69,6 +69,13 @@ public class EnemySpawner : MonoBehaviour
              "edge for every individual spawn instead.")]
     public bool randomizePositionAlongEdge = true;
 
+    [Header("Waiting between ships")]
+    [Tooltip("On: when no enemy SHIP is left in the battle (all destroyed or disabled) while more ships are still to come, the next ship does " +
+             "not wait for its spawn interval or the pause between waves - it appears at once. Meteors always keep their timing.")]
+    public bool skipWaitWhenClear = true;
+    [Tooltip("The short pause (seconds) kept before that next ship appears. 0 = immediately.")]
+    [Min(0f)] public float clearScreenDelay = 0f;
+
     /// <summary>Fired once every wave has finished spawning everything it has. Doesn't by itself mean
     /// the battle is won — BattleOutcomeController still waits for the last spawned enemy to actually
     /// be cleared (Targetable.Active) before declaring victory.</summary>
@@ -84,24 +91,53 @@ public class EnemySpawner : MonoBehaviour
         var waves = PendingBattle.Level != null ? PendingBattle.Level.waves : null;
         if (waves != null)
         {
+            // Every spawn in order, with the time to wait after it: the entry's interval, plus the pause between waves after a wave's last spawn.
+            var steps = new List<(WaveEnemyEntry entry, float wait)>();
             for (int w = 0; w < waves.Count; w++)
             {
                 var wave = waves[w];
                 foreach (var entry in wave.enemies)
                 {
                     for (int i = 0; i < entry.count; i++)
-                    {
-                        SpawnEnemy(entry);
-                        if (entry.spawnInterval > 0f) yield return new WaitForSeconds(entry.spawnInterval);
-                    }
+                        steps.Add((entry, Mathf.Max(0f, entry.spawnInterval)));
                 }
 
-                // After the last wave there is nothing to wait for: the end-of-battle check starts right away.
-                if (w < waves.Count - 1) yield return new WaitForSeconds(wave.delayAfterWave);
+                if (w < waves.Count - 1 && steps.Count > 0)
+                {
+                    var last = steps[steps.Count - 1];
+                    steps[steps.Count - 1] = (last.entry, last.wait + Mathf.Max(0f, wave.delayAfterWave));
+                }
+            }
+
+            for (int k = 0; k < steps.Count; k++)
+            {
+                SpawnEnemy(steps[k].entry);
+
+                // Nothing more to spawn: nothing to wait for - the end-of-battle check starts right away.
+                if (k + 1 >= steps.Count || steps[k].wait <= 0f) continue;
+
+                yield return WaitForNext(steps[k].wait, IsShip(steps[k + 1].entry));
             }
         }
 
         OnAllWavesSpawned?.Invoke();
+    }
+
+    private static bool IsShip(WaveEnemyEntry entry) => entry.enemyPrefab != null && entry.enemyPrefab.TryGetComponent<EnemyShip>(out _);
+
+    /// <summary>Waits `seconds` - but if the next spawn is a ship and no enemy ship is left in the battle, stops waiting at once.</summary>
+    private IEnumerator WaitForNext(float seconds, bool nextIsShip)
+    {
+        for (float t = 0f; t < seconds; t += Time.deltaTime)
+        {
+            if (skipWaitWhenClear && nextIsShip && !ShipIdentity.AnyEnemyShipOperational)
+            {
+                if (clearScreenDelay > 0f) yield return new WaitForSeconds(clearScreenDelay);
+                yield break;
+            }
+
+            yield return null;
+        }
     }
 
     private void SpawnEnemy(WaveEnemyEntry entry)

@@ -33,6 +33,8 @@ public class MainMenuFlowController : MonoBehaviour
     public MessageToast messageToast;
     [Tooltip("Text shown by messageToast when a save is blocked for missing a cockpit.")]
     public string cockpitRequiredMessage = "Кокпит обязателен для сохранения корабля";
+    [Tooltip("Text shown by messageToast when a save is blocked because some blocks are not connected to the rest of the ship.")]
+    public string disconnectedBlocksMessage = "Все блоки должны быть соединены с кокпитом";
 
     [Header("Game mode selection")]
     [Tooltip("Popup listing game modes (Campaign, Survival, ...). Shown when Play is pressed.")]
@@ -102,6 +104,12 @@ public class MainMenuFlowController : MonoBehaviour
         if (!playerShip.HasCockpit)
         {
             if (messageToast != null) messageToast.Show(cockpitRequiredMessage);
+            return;
+        }
+
+        if (!playerShip.AreAllBlocksConnected())
+        {
+            if (messageToast != null) messageToast.Show(disconnectedBlocksMessage);
             return;
         }
 

@@ -24,6 +24,11 @@ public class BuildModeController : MonoBehaviour
     [Tooltip("Button color while delete mode is ON.")]
     public Color deleteActiveColor = new(1f, 0.35f, 0.35f);
     private Color deleteDefaultColor;
+    [Tooltip("The picture on the delete button — it turns red as well while delete mode is ON. Empty = the first child Image of the button.")]
+    public Graphic deleteIcon;
+    [Tooltip("Icon colour while delete mode is ON.")]
+    public Color deleteIconActiveColor = new(1f, 0.35f, 0.35f);
+    private Color deleteIconDefaultColor = Color.white;
 
     [Tooltip("Row of Armor / Shields sub-tab buttons — shown only while the Armor tab is active.")]
     public GameObject armorSubCategoryPanel;
@@ -44,6 +49,18 @@ public class BuildModeController : MonoBehaviour
         rotateButton.onClick.AddListener(RotateSelected);
         deleteButton.onClick.AddListener(ToggleDeleteMode);
         deleteDefaultColor = deleteButton.image.color;
+
+        if (deleteIcon == null)
+        {
+            foreach (var graphic in deleteButton.GetComponentsInChildren<Graphic>(true))
+            {
+                if (graphic.gameObject == deleteButton.gameObject) continue; // the button's own background
+                deleteIcon = graphic;
+                break;
+            }
+        }
+
+        if (deleteIcon != null) deleteIconDefaultColor = deleteIcon.color;
 
         // Deliberately NOT calling SetCockpitBuildMode() here. MainMenuFlowController.OnBuildShipPressed
         // already calls it explicitly every time the builder opens (including the first time) — if
@@ -172,6 +189,7 @@ public class BuildModeController : MonoBehaviour
         blockSelected = false; // selecting-a-block state and delete mode are mutually exclusive
         if (active) palette.ClearSelection();
         deleteButton.image.color = active ? deleteActiveColor : deleteDefaultColor;
+        if (deleteIcon != null) deleteIcon.color = active ? deleteIconActiveColor : deleteIconDefaultColor;
     }
 
     /// <summary>

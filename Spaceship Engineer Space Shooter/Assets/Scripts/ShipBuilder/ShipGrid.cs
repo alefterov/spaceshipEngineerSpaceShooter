@@ -88,6 +88,38 @@ public class ShipGrid : MonoBehaviour
     /// not allowed to be saved — see MainMenuFlowController.OnSaveShipPressed.</summary>
     public bool HasCockpit => Blocks.Any(m => m.type == ModuleType.Cockpit && !m.IsDestroyed);
 
+    /// <summary>Whether every block is joined to the others by touching (cell edge to cell edge) — the same rule that tears a ship into
+    /// fragments in battle (ShipSplitter). A ship that is not in one piece cannot be saved: it would fall apart when the battle starts.
+    /// With a cockpit present, this means every block is connected to the cockpit. An empty ship counts as connected.</summary>
+    public bool AreAllBlocksConnected()
+    {
+        var all = Blocks.Where(b => b != null && !b.IsDestroyed).ToList();
+        if (all.Count <= 1) return true;
+
+        var visited = new HashSet<ShipModule> { all[0] };
+        var queue = new Queue<ShipModule>();
+        queue.Enqueue(all[0]);
+        var offsets = new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+
+        while (queue.Count > 0)
+        {
+            var block = queue.Dequeue();
+            foreach (var cell in block.occupiedCells)
+            {
+                foreach (var offset in offsets)
+                {
+                    if (cells.TryGetValue(cell + offset, out var other) && other != null && !other.IsDestroyed && visited.Add(other))
+                        queue.Enqueue(other);
+                }
+            }
+        }
+
+        return visited.Count == all.Count;
+    }
+
+    /// <summary>The ship can be saved: it has a cockpit and all its blocks are in one piece.</summary>
+    public bool CanBeSaved => HasCockpit && AreAllBlocksConnected();
+
     /// <summary>Preview = main menu / battle look (idle animations play), Building = editor (they don't).
     /// Applied to every block immediately on placement.</summary>
     public ShipViewMode CurrentViewMode { get; private set; } = ShipViewMode.Building;

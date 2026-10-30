@@ -648,6 +648,7 @@ public class GameDataManager : MonoBehaviour
         if (definition == null) return null;
 
         var member = NewCrewMember(definition);
+        member.isNew = true;
         Current.crewMembers.Add(member);
         CrewChanged();
         return member.instanceId;
@@ -995,6 +996,50 @@ public class GameDataManager : MonoBehaviour
         Current.survivalBestWave = wave;
         Save();
         OnRewardsChanged?.Invoke();
+    }
+
+    // --- badges of the main panel buttons (MainPanelBadges) ---
+
+    /// <summary>Something in the rewards panel can be taken now: a reached level's reward or a finished task.</summary>
+    public bool HasClaimableRewards()
+    {
+        if (Current == null) return false;
+
+        int levels = playerLevelRewards != null ? Mathf.Min(Current.playerLevel, playerLevelRewards.Count) : 0;
+        for (int level = 1; level <= levels; level++)
+        {
+            if (CanClaimLevelReward(level)) return true;
+        }
+
+        if (taskDatabase != null)
+        {
+            foreach (var task in taskDatabase.tasks)
+            {
+                if (task != null && IsTaskComplete(task) && !IsTaskClaimed(task)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Some technology of this database can be researched right now (its prerequisite is done and there are enough points).</summary>
+    public bool CanResearchAny(TechDatabase techDatabase)
+        => Current != null && techDatabase != null && techDatabase.allTechs.Any(CanResearch);
+
+    /// <summary>Some crew member was received and not looked at in the crew screen yet.</summary>
+    public bool HasNewCrew => Current != null && Current.crewMembers.Any(m => m != null && m.isNew);
+
+    /// <summary>The player has seen the crew screen: no member counts as new anymore.</summary>
+    public void MarkCrewSeen()
+    {
+        if (!HasNewCrew) return;
+
+        foreach (var member in Current.crewMembers)
+        {
+            if (member != null) member.isNew = false;
+        }
+
+        Save();
     }
 
     // ----- Advertising -----

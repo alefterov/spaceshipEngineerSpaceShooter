@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// Attach to the BlockButton prefab (alongside BlockButtonView). Distinguishes a plain tap
@@ -23,9 +24,14 @@ using UnityEngine.EventSystems;
 /// second way to detect the release. Both funnel through ReleaseDrag(), which clears leftButtonRect
 /// on the first call — so if both fire normally for the same release (the usual case), the second
 /// one is a harmless no-op instead of a double-fire.
+///
+/// SCROLLING: because this button takes the drag, the palette's ScrollRect would never see a swipe that starts on a button. So the
+/// direction decides: a swipe within Drag Out Min..Max Angle (counted like on a clock face turned so 0° = right, 90° = straight up,
+/// 180° = left; 45..135 by default — up, towards the grid) drags the block out as before; any other direction is handed to the
+/// ScrollRect and scrolls the list.
 /// </summary>
 public class BlockButtonDragHandle : MonoBehaviour,
-    IPointerClickHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+    IPointerClickHandler, IPointerUpHandler, IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     /// <summary>Fired on a plain tap — finger never left this button's rect.</summary>
     public event Action OnTap;
@@ -36,10 +42,38 @@ public class BlockButtonDragHandle : MonoBehaviour,
     /// <summary>Fired on release, only if OnDragStarted fired earlier this gesture.</summary>
     public event Action<Vector2> OnDragReleased;
 
+    [Tooltip("Swipe directions that drag the block out onto the grid, in degrees: 0 = right, 90 = straight up, 180 = left, 270 = down. " +
+             "A swipe in any other direction scrolls the list instead.")]
+    [Range(0f, 360f)] public float dragOutMinAngle = 45f;
+    [Range(0f, 360f)] public float dragOutMaxAngle = 135f;
+
     private RectTransform rt;
     private bool leftButtonRect;
+    private ScrollRect scroll;
+    private bool scrolling; // this gesture scrolls the list instead of dragging the block
 
-    private void Awake() => rt = (RectTransform)transform;
+    private void Awake()
+    {
+        rt = (RectTransform)transform;
+        scroll = GetComponentInParent<ScrollRect>(true);
+    }
+
+    // Lets the list stop its glide the moment a finger touches it, as when touching the list itself.
+    public void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        if (scroll != null) scroll.OnInitializePotentialDrag(eventData);
+    }
+
+    /// <summary>Whether the swipe so far should scroll the list: it goes outside the drag-out angle range.</summary>
+    private bool IsAlongScroll(PointerEventData eventData)
+    {
+        if (scroll == null || !scroll.isActiveAndEnabled) return false;
+
+        Vector2 moved = eventData.position - eventData.pressPosition;
+        float angle = Mathf.Atan2(moved.y, moved.x) * Mathf.Rad2Deg;
+        if (angle < 0f) angle += 360f;
+        return angle < dragOutMinAngle || angle > dragOutMaxAngle;
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -52,24 +86,49 @@ public class BlockButtonDragHandle : MonoBehaviour,
     public void OnBeginDrag(PointerEventData eventData)
     {
         leftButtonRect = false;
+        scrolling = IsAlongScroll(eventData);
+        if (scrolling)
+        {
+            scroll.OnBeginDrag(eventData);
+            return;
+        }
+
         CheckLeftRect(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (scrolling)
+        {
+            scroll.OnDrag(eventData);
+            return;
+        }
+
         if (!leftButtonRect) CheckLeftRect(eventData);
         if (leftButtonRect) OnDragMoved?.Invoke(eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (EndScroll(eventData)) return;
         if (leftButtonRect) ReleaseDrag(eventData.position);
     }
 
     // Backup path for OnEndDrag — see the class doc comment for why this exists.
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (EndScroll(eventData)) return;
         if (leftButtonRect) ReleaseDrag(eventData.position);
+    }
+
+    /// <summary>Ends a scrolling gesture (from OnPointerUp or OnEndDrag, whichever comes first). False if this gesture was not scrolling.</summary>
+    private bool EndScroll(PointerEventData eventData)
+    {
+        if (!scrolling) return false;
+
+        scrolling = false;
+        scroll.OnEndDrag(eventData);
+        return true;
     }
 
     private void ReleaseDrag(Vector2 screenPos)
