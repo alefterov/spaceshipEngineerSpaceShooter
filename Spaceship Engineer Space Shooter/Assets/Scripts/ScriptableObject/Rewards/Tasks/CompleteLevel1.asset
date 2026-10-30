@@ -23,6 +23,8 @@ MonoBehaviour:
   rewards:
   - type: 0
     amount: 200
+  - type: 4
+    amount: 1
   reward:
     type: 0
     amount: 0
