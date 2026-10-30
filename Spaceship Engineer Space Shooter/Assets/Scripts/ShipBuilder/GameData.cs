@@ -74,6 +74,15 @@ public class GameData
     public bool crewStarterGranted;
     [Tooltip("Set once the starting technologies and ship (GameDataManager, New game) have been handed out, so it happens only at the very first start.")]
     public bool starterKitGranted;
+    [Tooltip("The \"No ads\" purchase: when true the banner and the full-screen ads between battles are never shown (AdsManager). Rewarded videos stay available.")]
+    public bool adsRemoved;
+
+    [Tooltip("Player levels whose reward has already been taken (rewards panel, level bar).")]
+    public List<int> claimedLevelRewards = new();
+    [Tooltip("Progress and claimed state of every task that has any (rewards panel). A List — JsonUtility cannot save a Dictionary.")]
+    public List<TaskStateEntry> taskStates = new();
+    [Tooltip("The best wave reached in survival mode so far (for the survival tasks).")]
+    public int survivalBestWave;
 
     public ShipLayout playerShip = new();
 }
@@ -83,6 +92,15 @@ public class ResourceEntry
 {
     public string id;
     public int amount;
+}
+
+/// <summary>The saved state of one task: how far it has got and whether its reward was taken.</summary>
+[System.Serializable]
+public class TaskStateEntry
+{
+    public string id;
+    public int progress;
+    public bool claimed;
 }
 
 [System.Serializable]

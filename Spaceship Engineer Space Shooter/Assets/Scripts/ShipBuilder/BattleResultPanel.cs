@@ -39,6 +39,13 @@ public class BattleResultPanel : MonoBehaviour
     [Tooltip("The account-level progress bar — optional; leave unassigned if the panel doesn't show one.")]
     public ExperienceBarView experienceBar;
 
+    [Header("Double the reward (rewarded video)")]
+    [Tooltip("Optional. Pressing it plays a rewarded video, and if it is watched to the end the credits of this battle are paid a second time. " +
+             "Pressable once per battle, only while there is something to double and a video is ready.")]
+    public Button doubleRewardButton;
+    [Tooltip("Optional: shows what the button gives, e.g. \"x2\".")]
+    public TMP_Text doubleRewardLabel;
+
     [Header("Sound")]
     [Tooltip("Played the moment the result panel opens after a win.")]
     public AudioClip victorySound;
@@ -57,12 +64,21 @@ public class BattleResultPanel : MonoBehaviour
 
     private Coroutine revealRoutine;
     private Coroutine creditsRoutine;
+    private int creditsShown;
+    private bool doubled;
+    private bool waitingForAd;
 
     /// <summary>experienceSteps drives the level-up bar — see GameDataManager.AddExperience. Always has
     /// at least one entry (a zero-length one if nothing was earned), so the bar is safe to always play.</summary>
     public void ShowResult(bool won, int earnedStars, bool hasNextLevel, int creditsEarned, List<GameDataManager.ExperienceGainStep> experienceSteps)
     {
         gameObject.SetActive(true);
+
+        creditsShown = creditsEarned;
+        doubled = false;
+        waitingForAd = false;
+        if (doubleRewardLabel != null) doubleRewardLabel.text = "x2";
+        RefreshDoubleButton();
 
         if (resultLabel != null) resultLabel.text = won ? victoryMessage : defeatMessage;
         if (won) AudioManager.PlaySfx(victorySound, victoryVolume);
@@ -80,6 +96,58 @@ public class BattleResultPanel : MonoBehaviour
 
         if (experienceBar != null && experienceSteps != null && experienceSteps.Count > 0)
             experienceBar.PlaySteps(experienceSteps);
+    }
+
+    private void OnEnable()
+    {
+        if (doubleRewardButton != null) doubleRewardButton.onClick.AddListener(OnDoubleRewardPressed);
+    }
+
+    private void OnDisable()
+    {
+        if (doubleRewardButton != null) doubleRewardButton.onClick.RemoveListener(OnDoubleRewardPressed);
+    }
+
+    private void Update()
+    {
+        if (doubleRewardButton != null && gameObject.activeInHierarchy) RefreshDoubleButton();
+    }
+
+    private void RefreshDoubleButton()
+    {
+        if (doubleRewardButton == null) return;
+        doubleRewardButton.interactable = !doubled && !waitingForAd && creditsShown > 0
+            && AdsManager.Instance != null && AdsManager.Instance.IsRewardedReady;
+    }
+
+    private void OnDoubleRewardPressed()
+    {
+        if (doubled || waitingForAd || creditsShown <= 0 || AdsManager.Instance == null) return;
+        waitingForAd = true;
+        RefreshDoubleButton();
+
+        AdsManager.Instance.ShowRewarded(
+            onRewarded: () =>
+            {
+                waitingForAd = false;
+                doubled = true;
+
+                // The battle's credits were already paid once: this is the second payment, so the total shown is twice as much.
+                GameDataManager.Instance?.AddCredits(creditsShown);
+                creditsShown *= 2;
+                if (creditsEarnedLabel != null)
+                {
+                    if (creditsRoutine != null) StopCoroutine(creditsRoutine);
+                    creditsEarnedLabel.text = NumberFormat.Compact(creditsShown);
+                }
+
+                RefreshDoubleButton();
+            },
+            onFailed: () =>
+            {
+                waitingForAd = false;
+                RefreshDoubleButton();
+            });
     }
 
     private IEnumerator CountUpCredits(int target)

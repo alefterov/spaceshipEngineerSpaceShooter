@@ -25588,6 +25588,8 @@ MonoBehaviour:
   creditsEarnedLabel: {fileID: 630539977}
   creditsCountDuration: 2
   experienceBar: {fileID: 1103011938}
+  doubleRewardButton: {fileID: 814798264}
+  doubleRewardLabel: {fileID: 1899684766}
   victorySound: {fileID: 8300000, guid: c8c645c8ca3852646843b179357c39ab, type: 3}
   victoryVolume: 1
   defeatSound: {fileID: 0}

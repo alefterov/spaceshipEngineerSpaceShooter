@@ -100,6 +100,7 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (outcomeDecided) return;
         outcomeDecided = true;
+        if (AdsManager.Instance != null) AdsManager.Instance.NotifyBattleFinished(); // the ad between battles is shown when the next scene opens
 
         if (enemySpawner != null) enemySpawner.StopWaves(); // no new waves against an already-lost player — existing enemies keep going regardless
         if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(false); // stops responding to the joystick AND stops its weapons firing
@@ -117,6 +118,7 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (outcomeDecided) return;
         outcomeDecided = true;
+        if (AdsManager.Instance != null) AdsManager.Instance.NotifyBattleFinished(); // the ad between battles is shown when the next scene opens
 
         float currentHP = playerShipGrid != null ? playerShipGrid.ComputeCurrentTotalHP() : 0f;
         float ratio = startingHP > 0f ? currentHP / startingHP : 0f;

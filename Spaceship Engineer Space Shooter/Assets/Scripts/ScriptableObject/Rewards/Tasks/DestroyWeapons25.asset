@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e1871b7caa074fb276f94424fbc4d, type: 3}
+  m_Name: DestroyWeapons25
+  m_EditorClassIdentifier: Assembly-CSharp::TaskDefinition
+  id: DestroyWeapons25
+  title: 
+  kind: 0
+  anyBlockType: 0
+  blockType: 2
+  targetCount: 25
+  level: {fileID: 0}
+  targetWave: 10
+  rewards:
+  - type: 0
+    amount: 300
+  reward:
+    type: 0
+    amount: 0

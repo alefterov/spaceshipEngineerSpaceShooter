@@ -15,6 +15,54 @@ MonoBehaviour:
   id: campaign_1_level_4
   displayNumber: 4
   prerequisite: {fileID: 11400000, guid: eacbe491c38b47d4c8e53b4885fa8ab9, type: 2}
-  nextLevel: {fileID: 0}
+  nextLevel: {fileID: 11400000, guid: 1eaca519a3c2d130383ce11f09c78caf, type: 2}
   background: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
-  waves: []
+  waves:
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 5b73574b9a191e94b8190b7f6c76650a, type: 3}
+      count: 1
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.59
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+      count: 1
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.65
+      route: []
+    delayAfterWave: 8.2
+  - enemies:
+    - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
+      count: 2
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.65
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+      count: 1
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.7
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 5b73574b9a191e94b8190b7f6c76650a, type: 3}
+      count: 1
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.16
+      route: []
+    delayAfterWave: 8.2
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 5b73574b9a191e94b8190b7f6c76650a, type: 3}
+      count: 1
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.15
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+      count: 2
+      spawnInterval: 16.31
+      side: 0
+      positionAlongEdge: 0.4
+      route: []
+    delayAfterWave: 5

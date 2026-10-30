@@ -1,0 +1,316 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2269b3e165f6e248b257775ca92a910, type: 3}
+  m_Name: PlayerLevelRewards
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerLevelRewards
+  levels:
+  - rewards:
+    - type: 3
+      amount: 10
+  - rewards:
+    - type: 0
+      amount: 70
+  - rewards:
+    - type: 0
+      amount: 160
+  - rewards:
+    - type: 2
+      amount: 90
+  - rewards:
+    - type: 0
+      amount: 200
+  - rewards:
+    - type: 2
+      amount: 110
+  - rewards:
+    - type: 0
+      amount: 240
+  - rewards:
+    - type: 2
+      amount: 130
+  - rewards:
+    - type: 0
+      amount: 280
+  - rewards:
+    - type: 1
+      amount: 7
+  - rewards:
+    - type: 0
+      amount: 320
+  - rewards:
+    - type: 2
+      amount: 170
+  - rewards:
+    - type: 0
+      amount: 360
+  - rewards:
+    - type: 2
+      amount: 190
+  - rewards:
+    - type: 0
+      amount: 400
+  - rewards:
+    - type: 2
+      amount: 210
+  - rewards:
+    - type: 0
+      amount: 440
+  - rewards:
+    - type: 2
+      amount: 230
+  - rewards:
+    - type: 0
+      amount: 480
+  - rewards:
+    - type: 1
+      amount: 9
+  - rewards:
+    - type: 0
+      amount: 520
+  - rewards:
+    - type: 2
+      amount: 270
+  - rewards:
+    - type: 0
+      amount: 560
+  - rewards:
+    - type: 2
+      amount: 290
+  - rewards:
+    - type: 3
+      amount: 15
+  - rewards:
+    - type: 2
+      amount: 310
+  - rewards:
+    - type: 0
+      amount: 640
+  - rewards:
+    - type: 2
+      amount: 330
+  - rewards:
+    - type: 0
+      amount: 680
+  - rewards:
+    - type: 1
+      amount: 11
+  - rewards:
+    - type: 0
+      amount: 720
+  - rewards:
+    - type: 2
+      amount: 370
+  - rewards:
+    - type: 0
+      amount: 760
+  - rewards:
+    - type: 2
+      amount: 390
+  - rewards:
+    - type: 0
+      amount: 800
+  - rewards:
+    - type: 2
+      amount: 410
+  - rewards:
+    - type: 0
+      amount: 840
+  - rewards:
+    - type: 2
+      amount: 430
+  - rewards:
+    - type: 0
+      amount: 880
+  - rewards:
+    - type: 1
+      amount: 13
+  - rewards:
+    - type: 0
+      amount: 920
+  - rewards:
+    - type: 2
+      amount: 470
+  - rewards:
+    - type: 0
+      amount: 960
+  - rewards:
+    - type: 2
+      amount: 490
+  - rewards:
+    - type: 0
+      amount: 1000
+  - rewards:
+    - type: 2
+      amount: 510
+  - rewards:
+    - type: 0
+      amount: 1040
+  - rewards:
+    - type: 2
+      amount: 530
+  - rewards:
+    - type: 0
+      amount: 1080
+  - rewards:
+    - type: 3
+      amount: 20
+  - rewards:
+    - type: 0
+      amount: 1120
+  - rewards:
+    - type: 2
+      amount: 570
+  - rewards:
+    - type: 0
+      amount: 1160
+  - rewards:
+    - type: 2
+      amount: 590
+  - rewards:
+    - type: 0
+      amount: 1200
+  - rewards:
+    - type: 2
+      amount: 610
+  - rewards:
+    - type: 0
+      amount: 1240
+  - rewards:
+    - type: 2
+      amount: 630
+  - rewards:
+    - type: 0
+      amount: 1280
+  - rewards:
+    - type: 1
+      amount: 17
+  - rewards:
+    - type: 0
+      amount: 1320
+  - rewards:
+    - type: 2
+      amount: 670
+  - rewards:
+    - type: 0
+      amount: 1360
+  - rewards:
+    - type: 2
+      amount: 690
+  - rewards:
+    - type: 0
+      amount: 1400
+  - rewards:
+    - type: 2
+      amount: 710
+  - rewards:
+    - type: 0
+      amount: 1440
+  - rewards:
+    - type: 2
+      amount: 730
+  - rewards:
+    - type: 0
+      amount: 1480
+  - rewards:
+    - type: 1
+      amount: 19
+  - rewards:
+    - type: 0
+      amount: 1520
+  - rewards:
+    - type: 2
+      amount: 770
+  - rewards:
+    - type: 0
+      amount: 1560
+  - rewards:
+    - type: 2
+      amount: 790
+  - rewards:
+    - type: 3
+      amount: 25
+  - rewards:
+    - type: 2
+      amount: 810
+  - rewards:
+    - type: 0
+      amount: 1640
+  - rewards:
+    - type: 2
+      amount: 830
+  - rewards:
+    - type: 0
+      amount: 1680
+  - rewards:
+    - type: 1
+      amount: 21
+  - rewards:
+    - type: 0
+      amount: 1720
+  - rewards:
+    - type: 2
+      amount: 870
+  - rewards:
+    - type: 0
+      amount: 1760
+  - rewards:
+    - type: 2
+      amount: 890
+  - rewards:
+    - type: 0
+      amount: 1800
+  - rewards:
+    - type: 2
+      amount: 910
+  - rewards:
+    - type: 0
+      amount: 1840
+  - rewards:
+    - type: 2
+      amount: 930
+  - rewards:
+    - type: 0
+      amount: 1880
+  - rewards:
+    - type: 1
+      amount: 23
+  - rewards:
+    - type: 0
+      amount: 1920
+  - rewards:
+    - type: 2
+      amount: 970
+  - rewards:
+    - type: 0
+      amount: 1960
+  - rewards:
+    - type: 2
+      amount: 990
+  - rewards:
+    - type: 0
+      amount: 2000
+  - rewards:
+    - type: 2
+      amount: 1010
+  - rewards:
+    - type: 0
+      amount: 2040
+  - rewards:
+    - type: 2
+      amount: 1030
+  - rewards:
+    - type: 0
+      amount: 2080
+  - rewards:
+    - type: 3
+      amount: 30
+  rewards: []

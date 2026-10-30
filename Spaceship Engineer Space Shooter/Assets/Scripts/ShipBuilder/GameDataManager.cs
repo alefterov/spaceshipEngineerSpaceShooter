@@ -834,6 +834,181 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
+    // ----- Rewards and tasks -----
+
+    [Header("Rewards and tasks")]
+    [Tooltip("The reward for each player level (the level bar of the rewards panel).")]
+    public PlayerLevelRewards playerLevelRewards;
+    [Tooltip("All the tasks of the rewards panel.")]
+    public TaskDatabase taskDatabase;
+    [Tooltip("Played when the player takes a reward (a level's or a task's).")]
+    public AudioClip rewardClaimSound;
+    [Range(0f, 1f)] public float rewardClaimVolume = 1f;
+
+    /// <summary>Fired when a reward was taken or a task made progress — the rewards panel refreshes itself on this.</summary>
+    public event Action OnRewardsChanged;
+
+    /// <summary>Gives the player a reward of any kind.</summary>
+    public void GrantReward(RewardData reward)
+    {
+        if (reward.amount <= 0) return;
+
+        switch (reward.type)
+        {
+            case RewardType.Credits: AddCredits(reward.amount); Save(); break; // AddCredits alone does not save: the builder can revert it
+            case RewardType.Coins: AddCoins(reward.amount); break;
+            case RewardType.Experience: AddExperience(reward.amount); break;
+            case RewardType.ResearchPoints: AddResearchPoints(reward.amount); break;
+            case RewardType.RandomCrewCard: GrantRandomCrewCards(reward.amount); break;
+        }
+    }
+
+    /// <summary>Gives several rewards at once (a level's or a task's).</summary>
+    public void GrantRewards(IReadOnlyList<RewardData> rewards)
+    {
+        if (rewards == null) return;
+        foreach (var reward in rewards) GrantReward(reward);
+    }
+
+    /// <summary>Gives the player random crew cards: rank 1, level 1 copies of random members of the Crew Database.</summary>
+    public void GrantRandomCrewCards(int count)
+    {
+        var members = crewDatabase != null ? crewDatabase.allMembers : null;
+        if (members == null || members.Count == 0)
+        {
+            Debug.LogWarning("GameDataManager: no Crew Database (or it is empty) - the crew card reward cannot be given.", this);
+            return;
+        }
+
+        var received = new List<CrewMemberData>();
+        for (int i = 0; i < count; i++)
+        {
+            var definition = members[UnityEngine.Random.Range(0, members.Count)];
+            if (definition == null) continue;
+
+            var member = GetCrewMember(AddCrewMember(definition));
+            if (member != null) received.Add(member);
+        }
+
+        if (received.Count > 0) OnCrewCardsGranted?.Invoke(received);
+    }
+
+    /// <summary>Fired with the cards just received as a reward - the crew card window (CrewCardRewardPopup) shows them.</summary>
+    public event Action<IReadOnlyList<CrewMemberData>> OnCrewCardsGranted;
+
+    // --- player level rewards ---
+
+    public IReadOnlyList<RewardData> GetLevelRewards(int level)
+        => playerLevelRewards != null ? playerLevelRewards.GetRewards(level) : System.Array.Empty<RewardData>();
+
+    public bool IsLevelRewardClaimed(int level) => Current.claimedLevelRewards.Contains(level);
+
+    /// <summary>The level is reached, has rewards, and they have not been taken yet.</summary>
+    public bool CanClaimLevelReward(int level)
+        => level >= 1 && Current.playerLevel >= level && !IsLevelRewardClaimed(level) && GetLevelRewards(level).Any(r => r.amount > 0);
+
+    public bool TryClaimLevelReward(int level)
+    {
+        if (!CanClaimLevelReward(level)) return false;
+
+        Current.claimedLevelRewards.Add(level);
+        GrantRewards(GetLevelRewards(level));
+        AudioManager.PlaySfx(rewardClaimSound, rewardClaimVolume);
+        Save();
+        OnRewardsChanged?.Invoke();
+        return true;
+    }
+
+    // --- tasks ---
+
+    private TaskStateEntry GetTaskState(string id, bool create)
+    {
+        var state = Current.taskStates.FirstOrDefault(s => s.id == id);
+        if (state == null && create)
+        {
+            state = new TaskStateEntry { id = id };
+            Current.taskStates.Add(state);
+        }
+
+        return state;
+    }
+
+    /// <summary>How far a task has got, never above its target.</summary>
+    public int GetTaskProgress(TaskDefinition task)
+    {
+        if (task == null) return 0;
+
+        int value = task.kind switch
+        {
+            TaskKind.DestroyBlocks => GetTaskState(task.id, false)?.progress ?? 0,
+            TaskKind.CompleteCampaignLevel => task.level != null && GetStars(task.level) > 0 ? 1 : 0,
+            TaskKind.SurvivalWave => Current.survivalBestWave,
+            _ => 0,
+        };
+
+        return Mathf.Clamp(value, 0, task.TargetValue);
+    }
+
+    public bool IsTaskComplete(TaskDefinition task) => task != null && GetTaskProgress(task) >= task.TargetValue;
+
+    public bool IsTaskClaimed(TaskDefinition task) => task != null && (GetTaskState(task.id, false)?.claimed ?? false);
+
+    public bool TryClaimTask(TaskDefinition task)
+    {
+        if (task == null || !IsTaskComplete(task) || IsTaskClaimed(task)) return false;
+
+        GetTaskState(task.id, true).claimed = true;
+        GrantRewards(task.Rewards);
+        AudioManager.PlaySfx(rewardClaimSound, rewardClaimVolume);
+        Save();
+        OnRewardsChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>An enemy block was destroyed (called by ShipModule) — counts for every Destroy Blocks task it fits. Saved with the next save
+    /// (the end of the battle), not on every kill.</summary>
+    public void RecordBlockDestroyed(ModuleType type)
+    {
+        if (taskDatabase == null) return;
+
+        bool changed = false;
+        foreach (var task in taskDatabase.tasks)
+        {
+            if (task == null || task.kind != TaskKind.DestroyBlocks) continue;
+            if (!task.anyBlockType && task.blockType != type) continue;
+
+            var state = GetTaskState(task.id, true);
+            if (state.claimed || state.progress >= task.TargetValue) continue;
+
+            state.progress++;
+            changed = true;
+        }
+
+        if (changed) OnRewardsChanged?.Invoke();
+    }
+
+    /// <summary>The player has reached a wave in survival mode (called by the survival mode when it exists). Keeps the best.</summary>
+    public void RecordSurvivalWave(int wave)
+    {
+        if (wave <= Current.survivalBestWave) return;
+
+        Current.survivalBestWave = wave;
+        Save();
+        OnRewardsChanged?.Invoke();
+    }
+
+    // ----- Advertising -----
+
+    /// <summary>Whether the player has bought "No ads": no banner and no ads between battles (rewarded videos stay).</summary>
+    public bool AdsRemoved => Current != null && Current.adsRemoved;
+
+    /// <summary>Marks "No ads" as bought (or takes it back) and saves — call it from the purchase code.</summary>
+    public void SetAdsRemoved(bool removed)
+    {
+        Current.adsRemoved = removed;
+        Save();
+    }
+
     // ----- Perks -----
 
     /// <summary>The coefficient (1 = no change) for one kind of ordinary perk, from every member standing

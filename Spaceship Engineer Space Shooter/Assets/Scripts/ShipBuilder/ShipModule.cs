@@ -308,7 +308,12 @@ public class ShipModule : MonoBehaviour
     /// <summary>Destroying a block of an enemy ship earns the player its reward (see Reward Credits).</summary>
     private void PayReward()
     {
-        if (!CompareTag("EnemyShip") || (rewardCredits <= 0 && rewardExperience <= 0)) return;
+        if (!CompareTag("EnemyShip")) return;
+
+        // The tasks of the rewards panel ("destroy 50 weapon blocks") count every enemy block, paid or not.
+        if (GameDataManager.Instance != null) GameDataManager.Instance.RecordBlockDestroyed(type);
+
+        if (rewardCredits <= 0 && rewardExperience <= 0) return;
         BattleRewards.AddKill(rewardCredits, rewardExperience);
     }
 
