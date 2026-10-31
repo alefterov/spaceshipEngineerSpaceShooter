@@ -76,6 +76,12 @@ public class GameData
     public bool starterKitGranted;
     [Tooltip("The \"No ads\" purchase: when true the banner and the full-screen ads between battles are never shown (AdsManager). Rewarded videos stay available.")]
     public bool adsRemoved;
+    [Tooltip("The premium purchase (shop): no ads, battle credits and experience x2.")]
+    public bool premium;
+    [Tooltip("Ids of the shop products bought once (premium...) — their buttons show \"bought\".")]
+    public List<string> ownedShopProducts = new();
+    [Tooltip("Transaction ids of the real-money purchases already given out, so a purchase the store sends again is never given twice.")]
+    public List<string> processedOrders = new();
 
     [Tooltip("Player levels whose reward has already been taken (rewards panel, level bar).")]
     public List<int> claimedLevelRewards = new();

@@ -1054,6 +1054,87 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
+    // ----- Shop -----
+
+    [Header("Shop")]
+    [Tooltip("How many times the premium multiplies the credits and experience of every battle.")]
+    [Min(1f)] public float premiumRewardMultiplier = 2f;
+    [Tooltip("Played when a shop purchase has been given out.")]
+    public AudioClip shopPurchaseSound;
+    [Range(0f, 1f)] public float shopPurchaseVolume = 1f;
+
+    /// <summary>Fired after a shop purchase was given out (or a bought-once product restored) — shop buttons refresh on this.</summary>
+    public event Action OnShopChanged;
+
+    /// <summary>The player has the premium: no ads, battle credits and experience x Premium Reward Multiplier.</summary>
+    public bool IsPremium => Current != null && Current.premium;
+
+    /// <summary>The multiplier of battle credits and experience: Premium Reward Multiplier with the premium, otherwise 1.</summary>
+    public float PremiumRewardMultiplier => IsPremium ? premiumRewardMultiplier : 1f;
+
+    /// <summary>A bought-once product (premium...) that the player already has.</summary>
+    public bool IsShopProductOwned(ShopProduct product)
+        => product != null && product.IsOneTime && Current != null && Current.ownedShopProducts.Contains(product.id);
+
+    /// <summary>Buys a coin-priced product: spends its price and gives it out. False (nothing spent) if not enough coins — that also fires
+    /// OnInsufficientCoins — or the product is real-money / already owned.</summary>
+    public bool TryBuyWithCoins(ShopProduct product)
+    {
+        if (product == null || product.IsRealMoney || IsShopProductOwned(product)) return false;
+        if (!SpendCoins(product.coinPrice)) return false;
+
+        GrantShopProduct(product);
+        return true;
+    }
+
+    /// <summary>Gives out a bought product: its rewards, the premium if it has it, and marks a bought-once product owned. Saves.</summary>
+    public void GrantShopProduct(ShopProduct product)
+    {
+        if (product == null) return;
+
+        GrantRewards(product.rewards);
+        ApplyShopEntitlement(product);
+        AudioManager.PlaySfx(shopPurchaseSound, shopPurchaseVolume);
+        Save();
+        OnShopChanged?.Invoke();
+    }
+
+    /// <summary>A bought-once product the store says the player owns (after reinstalling, on another phone): gives back what it keeps —
+    /// the premium, the "bought" state — but NOT its one-time rewards again.</summary>
+    public void RestoreShopProduct(ShopProduct product)
+    {
+        if (product == null || !product.IsOneTime || IsShopProductOwned(product)) return;
+
+        ApplyShopEntitlement(product);
+        Save();
+        OnShopChanged?.Invoke();
+    }
+
+    private void ApplyShopEntitlement(ShopProduct product)
+    {
+        if (product.grantsPremium)
+        {
+            Current.premium = true;
+            Current.adsRemoved = true;
+        }
+
+        if (product.IsOneTime && !Current.ownedShopProducts.Contains(product.id)) Current.ownedShopProducts.Add(product.id);
+    }
+
+    /// <summary>Whether this store transaction has already been given out.</summary>
+    public bool IsOrderProcessed(string transactionId)
+        => !string.IsNullOrEmpty(transactionId) && Current != null && Current.processedOrders.Contains(transactionId);
+
+    /// <summary>Remembers a store transaction as given out, and saves. Keeps the last 200.</summary>
+    public void MarkOrderProcessed(string transactionId)
+    {
+        if (string.IsNullOrEmpty(transactionId) || IsOrderProcessed(transactionId)) return;
+
+        Current.processedOrders.Add(transactionId);
+        if (Current.processedOrders.Count > 200) Current.processedOrders.RemoveAt(0);
+        Save();
+    }
+
     // ----- Perks -----
 
     /// <summary>The coefficient (1 = no change) for one kind of ordinary perk, from every member standing

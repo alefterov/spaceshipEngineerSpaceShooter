@@ -169,7 +169,8 @@ public class BattleOutcomeController : MonoBehaviour
     };
 
     private static int ScaleCredits(int amount)
-        => Mathf.RoundToInt(amount * GameDataManager.Instance.GetCreditsMultiplier() * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.CreditsGain));
+        => Mathf.RoundToInt(amount * GameDataManager.Instance.GetCreditsMultiplier() * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.CreditsGain)
+                            * GameDataManager.Instance.PremiumRewardMultiplier);
 
     /// <summary>Actually grants the credits/experience computed above and returns the experience-bar
     /// animation steps for the result panel. Experience is scaled by the crew ExperienceGain perk here,
@@ -178,7 +179,8 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (credits > 0) GameDataManager.Instance.AddCredits(credits);
 
-        int scaledExperience = Mathf.RoundToInt(experience * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ExperienceGain));
+        int scaledExperience = Mathf.RoundToInt(experience * GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ExperienceGain)
+                                                * GameDataManager.Instance.PremiumRewardMultiplier);
         return GameDataManager.Instance.AddExperience(scaledExperience);
     }
 
