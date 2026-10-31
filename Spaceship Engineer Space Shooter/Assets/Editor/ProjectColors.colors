@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 12323, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.ColorPresetLibrary
-  m_Presets: []
+  m_Presets:
+  - m_Name: 
+    m_Color: {r: 0.7294118, g: 0.9490196, b: 1, a: 1}
+  - m_Name: 
+    m_Color: {r: 0.7294118, g: 0.9490196, b: 1, a: 1}
