@@ -695,9 +695,9 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: ADMOB_SDK
-    Standalone: ADMOB_SDK
-    iPhone: ADMOB_SDK
+    Android: ADMOB_SDK;IAP_SDK
+    Standalone: ADMOB_SDK;IAP_SDK
+    iPhone: ADMOB_SDK;IAP_SDK
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

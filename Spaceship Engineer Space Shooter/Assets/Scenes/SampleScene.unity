@@ -49658,6 +49658,40 @@ MonoBehaviour:
   cardPrefab: {fileID: 8699053144036400592, guid: 312ea5e419f9b6d4a88ea8465a7988ca, type: 3}
   closeButton: {fileID: 318823498}
   cardScale: 2.4
+  preferredOverlap: 0.3
+  maxOverlap: 0.9
+  anglePerCard: 4
+  maxAngle: 15
+  arcDrop: 40
+  edgePadding: 20
+  appearInterval: 0.08
+  moveSharpness: 9
+  startScale: 0.7
+  flashSeconds: 1
+  flashCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -3
+      outSlope: -3
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   visibleSeconds: 2
   animator: {fileID: 318823497}
   showTrigger: Show
@@ -49921,6 +49955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrewRandomGrantKey
   key: 30
+  cardsPerPress: 9
   onlyWhileActive: {fileID: 0}
 --- !u!114 &1649257568
 MonoBehaviour:
@@ -64948,15 +64983,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d8840f420c27b4d4090c88dec2c525ae, type: 2}
+  m_sharedMaterial: {fileID: -8265249748871927013, guid: d8840f420c27b4d4090c88dec2c525ae, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4279045543
-  m_fontColor: {r: 0.654088, g: 0.051421877, b: 0.051421877, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

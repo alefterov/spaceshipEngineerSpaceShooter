@@ -18,11 +18,17 @@ public struct RewardData
 {
     public RewardType type;
     [Min(0)] public int amount;
+    [Tooltip("Random Crew Card only: the rank of the cards given (1-3). 0 counts as 1.")]
+    [Range(0, CrewMemberDefinition.MaxRank)] public int crewRank;
 
-    public RewardData(RewardType type, int amount)
+    /// <summary>The rank of the crew cards this reward gives: Crew Rank, at least 1.</summary>
+    public int CrewRank => Mathf.Clamp(crewRank, 1, CrewMemberDefinition.MaxRank);
+
+    public RewardData(RewardType type, int amount, int crewRank = 1)
     {
         this.type = type;
         this.amount = amount;
+        this.crewRank = crewRank;
     }
 }
 

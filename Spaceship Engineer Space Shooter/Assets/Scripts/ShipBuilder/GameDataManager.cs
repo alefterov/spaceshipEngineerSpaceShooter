@@ -641,13 +641,14 @@ public class GameDataManager : MonoBehaviour
     public bool IsCrewAssigned(string instanceId)
         => !string.IsNullOrEmpty(instanceId) && Current.crewSlots.Any(s => s.instanceId == instanceId);
 
-    /// <summary>Gives the player a fresh copy (rank 1, level 1) of this crew member, unassigned. Call from
+    /// <summary>Gives the player a fresh copy (level 1, of this rank — 1 unless given) of this crew member, unassigned. Call from
     /// whatever hands crew out — shop, loot, rewards. Returns the new copy's instanceId.</summary>
-    public string AddCrewMember(CrewMemberDefinition definition)
+    public string AddCrewMember(CrewMemberDefinition definition, int rank = 1)
     {
         if (definition == null) return null;
 
         var member = NewCrewMember(definition);
+        member.rank = Mathf.Clamp(rank, 1, CrewMemberDefinition.MaxRank);
         member.isNew = true;
         Current.crewMembers.Add(member);
         CrewChanged();
@@ -860,7 +861,7 @@ public class GameDataManager : MonoBehaviour
             case RewardType.Coins: AddCoins(reward.amount); break;
             case RewardType.Experience: AddExperience(reward.amount); break;
             case RewardType.ResearchPoints: AddResearchPoints(reward.amount); break;
-            case RewardType.RandomCrewCard: GrantRandomCrewCards(reward.amount); break;
+            case RewardType.RandomCrewCard: GrantRandomCrewCards(reward.amount, reward.CrewRank); break;
         }
     }
 
@@ -871,8 +872,8 @@ public class GameDataManager : MonoBehaviour
         foreach (var reward in rewards) GrantReward(reward);
     }
 
-    /// <summary>Gives the player random crew cards: rank 1, level 1 copies of random members of the Crew Database.</summary>
-    public void GrantRandomCrewCards(int count)
+    /// <summary>Gives the player random crew cards: level 1 copies of random members of the Crew Database, of this rank (1-3).</summary>
+    public void GrantRandomCrewCards(int count, int rank = 1)
     {
         var members = crewDatabase != null ? crewDatabase.allMembers : null;
         if (members == null || members.Count == 0)
@@ -887,7 +888,7 @@ public class GameDataManager : MonoBehaviour
             var definition = members[UnityEngine.Random.Range(0, members.Count)];
             if (definition == null) continue;
 
-            var member = GetCrewMember(AddCrewMember(definition));
+            var member = GetCrewMember(AddCrewMember(definition, rank));
             if (member != null) received.Add(member);
         }
 
