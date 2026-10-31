@@ -23,4 +23,5 @@ MonoBehaviour:
   rewards:
   - type: 0
     amount: 100000
+    crewRank: 0
   grantsPremium: 0

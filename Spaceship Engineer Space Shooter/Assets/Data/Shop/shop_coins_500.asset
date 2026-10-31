@@ -17,10 +17,11 @@ MonoBehaviour:
   icon: {fileID: 0}
   payment: 1
   coinPrice: 100
-  storeProductId: coins_500
+  storeProductId: shop_coins_500
   storeType: 0
   fallbackPriceText: $4.49
   rewards:
   - type: 1
-    amount: 5500
+    amount: 500
+    crewRank: 0
   grantsPremium: 0

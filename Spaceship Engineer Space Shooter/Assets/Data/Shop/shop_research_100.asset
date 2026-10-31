@@ -22,5 +22,6 @@ MonoBehaviour:
   fallbackPriceText: $0.99
   rewards:
   - type: 3
-    amount: 500
+    amount: 100
+    crewRank: 0
   grantsPremium: 0
