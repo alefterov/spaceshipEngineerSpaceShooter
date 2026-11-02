@@ -69,6 +69,7 @@ MonoBehaviour:
   buildGridColor: {r: 1, g: 1, b: 1, a: 0.06}
   roofSortingOrder: 20
   topSortingOrder: 40
+  weaponLayerStep: 10
 --- !u!114 &434758431189146509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,14 +92,8 @@ MonoBehaviour:
   - block: {fileID: 11400000, guid: 41c4e4fca73256c46a8b1fb217ef4f64, type: 2}
     position: {x: 1, y: 1}
     rotationSteps: 0
-  - block: {fileID: 11400000, guid: a7b5147f0abf4954480fe8362df6c4ff, type: 2}
-    position: {x: -1, y: 0}
-    rotationSteps: 0
   - block: {fileID: 11400000, guid: afd79db4637704842bbf8a2399a83d70, type: 2}
     position: {x: 0, y: 0}
-    rotationSteps: 0
-  - block: {fileID: 11400000, guid: a7b5147f0abf4954480fe8362df6c4ff, type: 2}
-    position: {x: 1, y: 0}
     rotationSteps: 0
   - block: {fileID: 11400000, guid: 010533493f5b15343af5d9cbcd240ad3, type: 2}
     position: {x: 0, y: -1}
@@ -122,5 +117,7 @@ MonoBehaviour:
   splitsIntoFragments: 1
   fragmentDriftSpeed: 0.5
   fragmentMaxSpinDegrees: 30
+  debrisDriftAngle: 20
+  debrisDespawnMargin: 2
   disabledDriftSpeed: 0.5
   target: {fileID: 0}

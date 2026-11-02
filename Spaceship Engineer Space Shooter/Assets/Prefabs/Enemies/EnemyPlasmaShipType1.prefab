@@ -69,6 +69,7 @@ MonoBehaviour:
   buildGridColor: {r: 1, g: 1, b: 1, a: 0.06}
   roofSortingOrder: 20
   topSortingOrder: 40
+  weaponLayerStep: 10
 --- !u!114 &434758431189146509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,7 +83,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShip
   blocks:
-  - block: {fileID: 11400000, guid: e4287e7fdeb88fc45993dabce99a2c3c, type: 2}
+  - block: {fileID: 11400000, guid: 41c4e4fca73256c46a8b1fb217ef4f64, type: 2}
     position: {x: 0, y: 2}
     rotationSteps: 0
   - block: {fileID: 11400000, guid: 41c4e4fca73256c46a8b1fb217ef4f64, type: 2}
@@ -119,5 +120,7 @@ MonoBehaviour:
   splitsIntoFragments: 1
   fragmentDriftSpeed: 0.5
   fragmentMaxSpinDegrees: 30
+  debrisDriftAngle: 20
+  debrisDespawnMargin: 2
   disabledDriftSpeed: 0.5
   target: {fileID: 0}
