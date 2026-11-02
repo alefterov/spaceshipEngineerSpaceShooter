@@ -12,8 +12,9 @@ using UnityEngine;
 /// ShipEnergySystem (an enemy ship) refills for free.
 ///
 /// When the reserve can't cover a hit the shield collapses: the area goes fully transparent, that hit and
-/// every following one are ignored (they fly through and damage blocks as if there were no shield), and
-/// it only comes back once the reserve has refilled to Reactivate Fraction of Capacity.
+/// every following one are ignored (they fly through and damage blocks as if there were no shield). The
+/// reserve then does not refill at all for Collapse Cooldown seconds, and the shield only comes back once the
+/// reserve has refilled to Reactivate Fraction of Capacity.
 ///
 /// The protected area's trigger collider is generated in Awake — the prefab only needs the optional
 /// sprites below. The area is centered on the block's own visual center and works for any block shape.
@@ -35,6 +36,8 @@ public class ShieldModule : ShipModule
     [Range(0f, 1f)]
     [Tooltip("After a collapse the shield stays down until its reserve has refilled to this fraction of Capacity.")]
     public float reactivateFraction = 0.25f;
+    [Tooltip("After the shield is broken through (collapses), seconds before its reserve starts refilling at all.")]
+    [Min(0f)] public float collapseCooldown = 5f;
 
     [Header("Sound")]
     [Tooltip("Played when the shield stops a hit.")]
@@ -63,6 +66,7 @@ public class ShieldModule : ShipModule
     private Transform zoneRoot;
     private Collider2D zoneCollider;
     private bool shieldUp = true;
+    private float rechargeResumeTime; // Time.time before which the reserve does not refill (the cooldown after a collapse)
     private int topBase = 40;
     private int zoneAuthoredOrder;
 
@@ -166,7 +170,7 @@ public class ShieldModule : ShipModule
     private void Recharge()
     {
         float missing = capacity - Reserve;
-        if (missing <= 0f || rechargePerSecond <= 0f) return;
+        if (missing <= 0f || rechargePerSecond <= 0f || Time.time < rechargeResumeTime) return;
 
         float wanted = Mathf.Min(missing, rechargePerSecond * Time.deltaTime);
         if (energy != null)
@@ -189,7 +193,7 @@ public class ShieldModule : ShipModule
         float damage = hazard.ImpactDamage;
         if (Reserve < damage)
         {
-            shieldUp = false; // not enough reserve — the field collapses and this hit goes through
+            Collapse(); // not enough reserve — the field collapses and this hit goes through
             return;
         }
 
@@ -199,7 +203,7 @@ public class ShieldModule : ShipModule
         if (energy != null && hitCost > 0f && !energy.TrySpend(hitCost, ShipEnergySystem.EnergyPriorityGroup.Defense)) return;
 
         Reserve -= damage;
-        if (Reserve <= 0.01f) shieldUp = false; // drained to nothing by this very hit
+        if (Reserve <= 0.01f) Collapse(); // drained to nothing by this very hit
 
         Vector2 center = zoneRoot.position;
         Vector2 impactDirection = (Vector2)other.transform.position - center;
@@ -207,6 +211,13 @@ public class ShieldModule : ShipModule
         hazard.AbsorbedByShield();
         AudioManager.PlaySfx(absorbSound, absorbVolume);
         SpawnImpactArc(impactDirection);
+    }
+
+    /// <summary>The field goes down, and the reserve stays as it is for Collapse Cooldown seconds.</summary>
+    private void Collapse()
+    {
+        shieldUp = false;
+        rechargeResumeTime = Time.time + collapseCooldown;
     }
 
     private void SpawnImpactArc(Vector2 towardImpact)

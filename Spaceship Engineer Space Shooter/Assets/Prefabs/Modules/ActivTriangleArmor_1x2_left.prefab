@@ -96,7 +96,7 @@ MonoBehaviour:
   moduleId: activ_triangle_armor_1x2_left
   buildCost: 10
   laserResistance: 0
-  maxHP: 20
+  maxHP: 10
   mass: 1
   energyDelta: 0
   occupiedCells:

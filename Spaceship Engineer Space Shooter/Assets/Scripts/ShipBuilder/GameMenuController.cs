@@ -41,7 +41,6 @@ public class GameMenuController : MonoBehaviour
     [Tooltip("In the battle scene the game stops while the menu is open.")]
     public bool pauseInBattle = true;
 
-    private float savedTimeScale = 1f;
     private bool paused;
 
     /// <summary>Whether this is the battle scene (the one PendingBattle loads).</summary>
@@ -86,9 +85,8 @@ public class GameMenuController : MonoBehaviour
 
         menuPanel.SetActive(true);
 
-        if (pauseInBattle && InBattleScene && !paused)
+        if (pauseInBattle && InBattleScene && !paused && Time.timeScale > 0f) // already paused by another window: leave that one in charge
         {
-            savedTimeScale = Time.timeScale;
             Time.timeScale = 0f;
             paused = true;
         }
@@ -130,7 +128,7 @@ public class GameMenuController : MonoBehaviour
     {
         if (!paused) return;
 
-        Time.timeScale = savedTimeScale;
+        Time.timeScale = GameSpeed.SceneScale; // the chosen battle speed, even if it was changed while paused
         paused = false;
     }
 }

@@ -64,7 +64,6 @@ public class ShipPrioritiesWindow : MonoBehaviour
     private int selected;
     private bool wantOpen;
     private float windowAlpha;
-    private float savedTimeScale = 1f;
     private bool paused;
 
     public bool IsOpen => wantOpen;
@@ -148,9 +147,8 @@ public class ShipPrioritiesWindow : MonoBehaviour
         window.SetActive(true);
         foreach (var category in categories) category.content?.RefreshPanel(); // every tab shows the real current order
 
-        if (!paused)
+        if (!paused && Time.timeScale > 0f) // already paused by another window: leave that one in charge
         {
-            savedTimeScale = Time.timeScale;
             Time.timeScale = 0f;
             paused = true;
         }
@@ -189,7 +187,7 @@ public class ShipPrioritiesWindow : MonoBehaviour
     private void Resume()
     {
         if (!paused) return;
-        Time.timeScale = savedTimeScale;
+        Time.timeScale = GameSpeed.SceneScale; // the chosen battle speed, even if it was changed while paused
         paused = false;
     }
 

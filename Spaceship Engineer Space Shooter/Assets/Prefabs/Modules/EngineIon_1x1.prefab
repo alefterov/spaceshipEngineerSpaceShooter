@@ -116,7 +116,7 @@ MonoBehaviour:
   destroyVolume: 0.345
   rewardCredits: 5
   rewardExperience: 0
-  thrustPower: 10
+  thrustPower: 15
   kind: 1
   thrustEffect: {fileID: 828817674342048638}
   idleEmissionRate: 10

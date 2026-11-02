@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38f8b5f61de4be24a8bc5b03bcd0ec93, type: 3}
+  m_Name: SurvivalDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::SurvivalDefinition
+  ships:
+  - {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+  - {fileID: 7518618935520632737, guid: 2440beaefa6c296513f59ff56f585e3f, type: 3}
+  - {fileID: 7518618935520632737, guid: 5b73574b9a191e94b8190b7f6c76650a, type: 3}
+  - {fileID: 7518618935520632737, guid: 44e19686fa0316494feeb71b8d91f96a, type: 3}
+  - {fileID: 7518618935520632737, guid: b60e021b9641f8c419678ab4e30a3f26, type: 3}
+  - {fileID: 7518618935520632737, guid: 7e15ef14125ddf5ec4aff8291f40a89d, type: 3}
+  - {fileID: 7518618935520632737, guid: 1536b069d20975a41bca75ea8f15a880, type: 3}
+  - {fileID: 7518618935520632737, guid: b2b613e874ac07d46ab0ccab11e89cc2, type: 3}
+  - {fileID: 7518618935520632737, guid: 4caa3626e5f522d4dbc38d993e849972, type: 3}
+  - {fileID: 7518618935520632737, guid: dc26848d99bbb234b88392d6ae608316, type: 3}
+  - {fileID: 7518618935520632737, guid: a1d3e0d231d7bac41b1566463b885026, type: 3}
+  - {fileID: 7518618935520632737, guid: c420f917205095541a9aa56624404b61, type: 3}
+  - {fileID: 7518618935520632737, guid: c468de51c41bf82488d7ceebf91e21e8, type: 3}
+  - {fileID: 7518618935520632737, guid: fec2b15f5d8018943b29b760b95003b4, type: 3}
+  - {fileID: 7518618935520632737, guid: 243e4898fa5ad5ca93d9a45697893c29, type: 3}
+  - {fileID: 7518618935520632737, guid: 920774c915919b6f4b1a8670d5f919a0, type: 3}
+  - {fileID: 7518618935520632737, guid: 486aaf483a0b8a8499a6da68f76006bf, type: 3}
+  - {fileID: 7518618935520632737, guid: 81b3c138e33bd7d4c92f5ce2be6faedd, type: 3}
+  - {fileID: 7518618935520632737, guid: 02b69e64587cd374a85e03d704dce7e2, type: 3}
+  - {fileID: 7518618935520632737, guid: 670eecec38dd95143bd7f12bc2c66d19, type: 3}
+  - {fileID: 7518618935520632737, guid: e7f2c30988c9d9148854f4f75cc34928, type: 3}
+  firstInterval: 15
+  minInterval: 5
+  minIntervalWave: 50
+  wavePause: 30
+  coinsPerWave: 10
+  side: 0

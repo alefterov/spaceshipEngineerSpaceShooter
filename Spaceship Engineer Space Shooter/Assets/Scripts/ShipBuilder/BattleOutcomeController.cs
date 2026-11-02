@@ -105,6 +105,15 @@ public class BattleOutcomeController : MonoBehaviour
         if (enemySpawner != null) enemySpawner.StopWaves(); // no new waves against an already-lost player — existing enemies keep going regardless
         if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(false); // stops responding to the joystick AND stops its weapons firing
 
+        // Survival always ends with the ship lost — that is how far the player got, not a failure: kills are paid in full.
+        if (enemySpawner != null && enemySpawner.IsSurvival)
+        {
+            int survivalCredits = ScaleCredits(BattleRewards.Credits);
+            var survivalSteps = AwardRewards(survivalCredits, BattleRewards.Experience);
+            if (resultPanel != null) resultPanel.ShowSurvivalResult(enemySpawner.CurrentWave, enemySpawner.SurvivalCoinsEarned, survivalCredits, survivalSteps);
+            return;
+        }
+
         int killCredits = Half(BattleRewards.Credits); // losing halves both credits and experience earned from kills
         int killExperience = Half(BattleRewards.Experience);
 

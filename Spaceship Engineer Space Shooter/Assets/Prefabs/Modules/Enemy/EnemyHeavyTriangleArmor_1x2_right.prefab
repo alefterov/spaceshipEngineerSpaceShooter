@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: heavy_triangle_armor_1x2_right
   buildCost: 100
   laserResistance: 0
-  maxHP: 1750
+  maxHP: 875
   mass: 8
   energyDelta: 0
   occupiedCells:

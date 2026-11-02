@@ -19,90 +19,90 @@ MonoBehaviour:
   background: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
   waves:
   - enemies:
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 7e15ef14125ddf5ec4aff8291f40a89d, type: 3}
+    - enemyPrefab: {fileID: 7518618935520632737, guid: fec2b15f5d8018943b29b760b95003b4, type: 3}
       count: 1
-      spawnInterval: 8.99
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.34
+      positionAlongEdge: 0.57
       route: []
     - enemyPrefab: {fileID: 7518618935520632737, guid: 2440beaefa6c296513f59ff56f585e3f, type: 3}
       count: 1
-      spawnInterval: 8.99
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.63
+      positionAlongEdge: 0.2
       route: []
     delayAfterWave: 10.3
   - enemies:
     - enemyPrefab: {fileID: 5902393320243942255, guid: 61ff86cccb5b8784bbfb79dafab61eb6, type: 3}
       count: 5
-      spawnInterval: 8.99
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.5
+      positionAlongEdge: 0.29
       route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 44e19686fa0316494feeb71b8d91f96a, type: 3}
-      count: 3
-      spawnInterval: 8.99
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 920774c915919b6f4b1a8670d5f919a0, type: 3}
+      count: 1
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.52
+      positionAlongEdge: 0.29
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 2440beaefa6c296513f59ff56f585e3f, type: 3}
+      count: 1
+      spawnInterval: 5.41
+      side: 0
+      positionAlongEdge: 0.25
       route: []
     delayAfterWave: 10.3
   - enemies:
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 81b3c138e33bd7d4c92f5ce2be6faedd, type: 3}
-      count: 1
-      spawnInterval: 8.99
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 243e4898fa5ad5ca93d9a45697893c29, type: 3}
+      count: 3
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.84
-      route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: fec2b15f5d8018943b29b760b95003b4, type: 3}
-      count: 1
-      spawnInterval: 8.99
-      side: 0
-      positionAlongEdge: 0.44
+      positionAlongEdge: 0.36
       route: []
     delayAfterWave: 10.3
   - enemies:
     - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
       count: 5
-      spawnInterval: 8.99
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.58
-      route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 7e15ef14125ddf5ec4aff8291f40a89d, type: 3}
-      count: 1
-      spawnInterval: 8.99
-      side: 0
-      positionAlongEdge: 0.6
-      route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 44e19686fa0316494feeb71b8d91f96a, type: 3}
-      count: 1
-      spawnInterval: 8.99
-      side: 0
-      positionAlongEdge: 0.75
-      route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
-      count: 3
-      spawnInterval: 8.99
-      side: 0
-      positionAlongEdge: 0.68
+      positionAlongEdge: 0.78
       route: []
     - enemyPrefab: {fileID: 7518618935520632737, guid: 920774c915919b6f4b1a8670d5f919a0, type: 3}
-      count: 2
-      spawnInterval: 8.99
+      count: 1
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.44
+      positionAlongEdge: 0.24
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: dc26848d99bbb234b88392d6ae608316, type: 3}
+      count: 1
+      spawnInterval: 5.41
+      side: 0
+      positionAlongEdge: 0.17
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 243e4898fa5ad5ca93d9a45697893c29, type: 3}
+      count: 1
+      spawnInterval: 5.41
+      side: 0
+      positionAlongEdge: 0.66
       route: []
     delayAfterWave: 10.3
   - enemies:
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 81b3c138e33bd7d4c92f5ce2be6faedd, type: 3}
-      count: 2
-      spawnInterval: 8.99
+    - enemyPrefab: {fileID: 7518618935520632737, guid: dc26848d99bbb234b88392d6ae608316, type: 3}
+      count: 1
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.63
+      positionAlongEdge: 0.18
       route: []
-    - enemyPrefab: {fileID: 7518618935520632737, guid: 5b73574b9a191e94b8190b7f6c76650a, type: 3}
-      count: 3
-      spawnInterval: 8.99
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 243e4898fa5ad5ca93d9a45697893c29, type: 3}
+      count: 1
+      spawnInterval: 5.41
       side: 0
-      positionAlongEdge: 0.63
+      positionAlongEdge: 0.58
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c420f917205095541a9aa56624404b61, type: 3}
+      count: 2
+      spawnInterval: 5.41
+      side: 0
+      positionAlongEdge: 0.28
       route: []
     delayAfterWave: 5

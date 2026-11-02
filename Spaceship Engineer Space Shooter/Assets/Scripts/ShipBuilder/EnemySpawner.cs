@@ -55,6 +55,9 @@ public class Wave
 ///
 /// Meteors are the exception to the per-entry side: each flies a random top-edge-to-bottom-edge line.
 ///
+/// SURVIVAL: with no campaign level chosen (PendingBattle.Level == null) and a Survival definition assigned, it plays survival mode
+/// instead — endless waves, see SurvivalDefinition.
+///
 /// Wire BattleSequenceController.OnBattleStart to StartWaves() so nothing spawns before the
 /// arrival/countdown intro finishes.
 /// </summary>
@@ -76,6 +79,30 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("The short pause (seconds) kept before that next ship appears. 0 = immediately.")]
     [Min(0f)] public float clearScreenDelay = 0f;
 
+    [Header("Survival (no campaign level chosen)")]
+    [Tooltip("The survival mode's ships and timing. Used when the battle is started from the Survival button.")]
+    public SurvivalDefinition survival;
+
+    /// <summary>This battle is survival mode.</summary>
+    public bool IsSurvival => PendingBattle.Level == null && survival != null;
+    /// <summary>The wave being played, 1-based (0 before the first) — in a campaign level and in survival.</summary>
+    public int CurrentWave { get; private set; }
+    /// <summary>Campaign: how many waves the level has (0 in survival — it has no end).</summary>
+    public int TotalWaves { get; private set; }
+    /// <summary>Campaign: the waves left, the current one included — the last wave shows 1 (0 in survival).</summary>
+    public int WavesLeft => TotalWaves > 0 ? Mathf.Max(0, TotalWaves - CurrentWave + 1) : 0;
+    /// <summary>Survival: coins paid for the waves that are over, this battle.</summary>
+    public int SurvivalCoinsEarned { get; private set; }
+    /// <summary>Survival: a wave has started (its number).</summary>
+    public event Action<int> OnSurvivalWaveStarted;
+    /// <summary>Survival: a wave is over (its number, the coins paid for it).</summary>
+    public event Action<int, int> OnSurvivalWaveCompleted;
+
+    /// <summary>Seconds left until the next enemy comes (0 while nothing is being waited for) — for a countdown gauge.</summary>
+    public float WaitRemaining { get; private set; }
+    /// <summary>The full length of the current wait (to show WaitRemaining as a fraction).</summary>
+    public float WaitDuration { get; private set; }
+
     /// <summary>Fired once every wave has finished spawning everything it has. Doesn't by itself mean
     /// the battle is won — BattleOutcomeController still waits for the last spawned enemy to actually
     /// be cleared (Targetable.Active) before declaring victory.</summary>
@@ -83,7 +110,7 @@ public class EnemySpawner : MonoBehaviour
 
     private Coroutine wavesRoutine;
 
-    public void StartWaves() => wavesRoutine = StartCoroutine(RunWaves());
+    public void StartWaves() => wavesRoutine = StartCoroutine(IsSurvival ? RunSurvival() : RunWaves());
     public void StopWaves() { if (wavesRoutine != null) StopCoroutine(wavesRoutine); }
 
     private IEnumerator RunWaves()
@@ -92,31 +119,33 @@ public class EnemySpawner : MonoBehaviour
         if (waves != null)
         {
             // Every spawn in order, with the time to wait after it: the entry's interval, plus the pause between waves after a wave's last spawn.
-            var steps = new List<(WaveEnemyEntry entry, float wait)>();
+            var steps = new List<(WaveEnemyEntry entry, float wait, int wave)>();
             for (int w = 0; w < waves.Count; w++)
             {
                 var wave = waves[w];
                 foreach (var entry in wave.enemies)
                 {
                     for (int i = 0; i < entry.count; i++)
-                        steps.Add((entry, Mathf.Max(0f, entry.spawnInterval)));
+                        steps.Add((entry, Mathf.Max(0f, entry.spawnInterval), w + 1));
                 }
 
                 if (w < waves.Count - 1 && steps.Count > 0)
                 {
                     var last = steps[steps.Count - 1];
-                    steps[steps.Count - 1] = (last.entry, last.wait + Mathf.Max(0f, wave.delayAfterWave));
+                    steps[steps.Count - 1] = (last.entry, last.wait + Mathf.Max(0f, wave.delayAfterWave), last.wave);
                 }
             }
 
+            TotalWaves = waves.Count;
             for (int k = 0; k < steps.Count; k++)
             {
+                CurrentWave = steps[k].wave;
                 SpawnEnemy(steps[k].entry);
 
                 // Nothing more to spawn: nothing to wait for - the end-of-battle check starts right away.
                 if (k + 1 >= steps.Count || steps[k].wait <= 0f) continue;
 
-                yield return WaitForNext(steps[k].wait, IsShip(steps[k + 1].entry));
+                yield return WaitForNext(steps[k].wait, IsShip(steps[k + 1].entry), skipWaitWhenClear);
             }
         }
 
@@ -125,18 +154,61 @@ public class EnemySpawner : MonoBehaviour
 
     private static bool IsShip(WaveEnemyEntry entry) => entry.enemyPrefab != null && entry.enemyPrefab.TryGetComponent<EnemyShip>(out _);
 
-    /// <summary>Waits `seconds` - but if the next spawn is a ship and no enemy ship is left in the battle, stops waiting at once.</summary>
-    private IEnumerator WaitForNext(float seconds, bool nextIsShip)
+    /// <summary>Waits `seconds` - but if skipWhenClear, the next spawn is a ship and no enemy ship is left in the battle, stops waiting at
+    /// once. Keeps WaitRemaining / WaitDuration up to date for a countdown gauge.</summary>
+    private IEnumerator WaitForNext(float seconds, bool nextIsShip, bool skipWhenClear)
     {
+        WaitDuration = seconds;
         for (float t = 0f; t < seconds; t += Time.deltaTime)
         {
-            if (skipWaitWhenClear && nextIsShip && !ShipIdentity.AnyEnemyShipOperational)
+            WaitRemaining = seconds - t;
+            if (skipWhenClear && nextIsShip && !ShipIdentity.AnyEnemyShipOperational)
             {
                 if (clearScreenDelay > 0f) yield return new WaitForSeconds(clearScreenDelay);
-                yield break;
+                break;
             }
 
             yield return null;
+        }
+
+        WaitRemaining = 0f;
+    }
+
+    /// <summary>Survival mode: endless waves, each one ship bigger (see SurvivalDefinition), until the battle is lost (StopWaves).</summary>
+    private IEnumerator RunSurvival()
+    {
+        var data = GameDataManager.Instance;
+        int wave = data != null ? Mathf.Max(1, data.GetSurvivalStartLevel()) : 1;
+        SurvivalCoinsEarned = 0;
+
+        if (survival.ShipsForWave(1).Count == 0)
+        {
+            Debug.LogWarning("EnemySpawner: the Survival definition has no ships.", this);
+            yield break;
+        }
+
+        while (true)
+        {
+            CurrentWave = wave;
+            if (data != null) data.RecordSurvivalWave(wave);
+            OnSurvivalWaveStarted?.Invoke(wave);
+
+            var ships = survival.ShipsForWave(wave);
+            float interval = survival.IntervalForWave(wave);
+            for (int i = 0; i < ships.Count; i++)
+            {
+                SpawnEnemy(new WaveEnemyEntry { enemyPrefab = ships[i], count = 1, side = survival.side });
+                if (i + 1 < ships.Count) yield return WaitForNext(interval, true, skipWaitWhenClear);
+            }
+
+            // The next wave: after Wave Pause, or as soon as the player has destroyed every enemy ship.
+            yield return WaitForNext(survival.wavePause, true, true);
+
+            int coins = survival.CoinsForWave(wave);
+            if (coins > 0 && data != null) data.AddCoins(coins);
+            SurvivalCoinsEarned += coins;
+            OnSurvivalWaveCompleted?.Invoke(wave, coins);
+            wave++;
         }
     }
 

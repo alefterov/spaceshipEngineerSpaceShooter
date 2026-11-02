@@ -79,6 +79,10 @@ public class EnemyShip : MonoBehaviour
              "ShipMovement.speedMultiplier. Drives approach, route travel AND the default maneuver below " +
              "— everything this ship does under its own power uses this one real speed.")]
     public float speedMultiplier = 1f;
+    [Tooltip("How many times faster than its normal (thrust / mass) speed the ship flies while ENTERING the screen, before it starts " +
+             "to maneuver. Still follows the engines and weight: a heavy ship enters slower than a light one, just twice as fast as it " +
+             "would otherwise.")]
+    [Min(0.1f)] public float approachSpeedMultiplier = 2f;
     [Tooltip("Energy spent per second while under way — same convention as ShipMovement." +
              "energyPerSecondAtFullThrust. Out of energy simply means the ship holds position, same " +
              "\"doesn't limp\" rule the player's own ship follows.")]
@@ -450,8 +454,9 @@ public class EnemyShip : MonoBehaviour
 
     private void UpdateApproaching()
     {
-        float speed = ConsumeMoveSpeed();
-        Vector3 moved = Drive((Vector2)transform.up * speed); // "up" is the fixed facing set in Start
+        float speed = ConsumeMoveSpeed() * approachSpeedMultiplier;
+        // Measured against the faster speed, so it still reaches it in Acceleration Seconds.
+        Vector3 moved = Drive((Vector2)transform.up * speed, accelReference: Mathf.Max(0.05f, speed)); // "up" is the fixed facing set in Start
 
         if (!fullyInViewReached)
         {

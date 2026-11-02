@@ -122,7 +122,7 @@ MonoBehaviour:
   rewardExperience: 0
   radius: 10
   capacity: 1000
-  rechargePerSecond: 16
+  rechargePerSecond: 8
   reactivateFraction: 0.25
   absorbSound: {fileID: 8300000, guid: 5b265c36c20dabb48bf8810a68b021b0, type: 3}
   absorbVolume: 0.277

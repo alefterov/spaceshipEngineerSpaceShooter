@@ -157,6 +157,7 @@ public class BuildPaletteUI : MonoBehaviour
             return;
         }
 
+        view.Block = block;
         if (view.icon != null && block.icon != null) view.icon.sprite = block.icon;
         view.SetSelected(false);
 

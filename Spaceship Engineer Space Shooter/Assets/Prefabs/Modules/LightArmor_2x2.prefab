@@ -97,7 +97,7 @@ MonoBehaviour:
   moduleId: lightarmor_2x2
   buildCost: 20
   laserResistance: 0
-  maxHP: 20
+  maxHP: 10
   mass: 1
   energyDelta: 0
   occupiedCells:

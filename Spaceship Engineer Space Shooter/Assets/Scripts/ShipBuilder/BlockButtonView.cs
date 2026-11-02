@@ -23,6 +23,9 @@ public class BlockButtonView : MonoBehaviour
 
     public RectTransform IconTransform => icon != null ? icon.rectTransform : null;
 
+    /// <summary>The block this button builds (set by BuildPaletteUI) — the tutorial finds the button by it.</summary>
+    public BlockDefinition Block { get; set; }
+
     /// <summary>Writes the build price on the button (rounded for display only, like all prices).</summary>
     public void SetPrice(int credits)
     {

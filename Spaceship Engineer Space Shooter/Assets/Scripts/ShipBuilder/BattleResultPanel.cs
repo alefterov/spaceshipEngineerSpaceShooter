@@ -30,6 +30,14 @@ public class BattleResultPanel : MonoBehaviour
     public TMP_Text resultLabel;
     public string victoryMessage = "Поздравляем, победили!";
     public string defeatMessage = "Вы проиграли";
+    [Tooltip("Survival mode's message. {0} = the wave reached.")]
+    public string survivalMessageFormat = "Волна {0}";
+
+    [Header("Survival")]
+    [Tooltip("Optional: the coins paid for survival waves this battle.")]
+    public TMP_Text coinsEarnedLabel;
+    [Tooltip("Optional: shown only after a survival battle (hidden after a campaign level) — e.g. the coins row.")]
+    public GameObject survivalOnly;
 
     [Header("Rewards")]
     [Tooltip("Total credits earned this battle (kills + level-completion bonus, already scaled) — " +
@@ -73,6 +81,7 @@ public class BattleResultPanel : MonoBehaviour
     public void ShowResult(bool won, int earnedStars, bool hasNextLevel, int creditsEarned, List<GameDataManager.ExperienceGainStep> experienceSteps)
     {
         gameObject.SetActive(true);
+        if (survivalOnly != null) survivalOnly.SetActive(false);
 
         creditsShown = creditsEarned;
         doubled = false;
@@ -96,6 +105,17 @@ public class BattleResultPanel : MonoBehaviour
 
         if (experienceBar != null && experienceSteps != null && experienceSteps.Count > 0)
             experienceBar.PlaySteps(experienceSteps);
+    }
+
+    /// <summary>The end of a survival battle: the wave reached instead of win/loss, empty stars, no Next Level, the credits and experience
+    /// of the kills, and the coins of the waves.</summary>
+    public void ShowSurvivalResult(int waveReached, int coinsEarned, int creditsEarned, List<GameDataManager.ExperienceGainStep> experienceSteps)
+    {
+        ShowResult(won: false, earnedStars: 0, hasNextLevel: false, creditsEarned, experienceSteps);
+
+        if (resultLabel != null) resultLabel.text = string.Format(survivalMessageFormat, waveReached);
+        if (coinsEarnedLabel != null) coinsEarnedLabel.text = NumberFormat.Compact(coinsEarned);
+        if (survivalOnly != null) survivalOnly.SetActive(true);
     }
 
     private void OnEnable()

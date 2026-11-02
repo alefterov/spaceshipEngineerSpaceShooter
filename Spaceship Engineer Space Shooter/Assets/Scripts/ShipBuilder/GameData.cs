@@ -83,6 +83,11 @@ public class GameData
     [Tooltip("Transaction ids of the real-money purchases already given out, so a purchase the store sends again is never given twice.")]
     public List<string> processedOrders = new();
 
+    [Tooltip("Ids of the tutorial steps already done (TutorialController).")]
+    public List<string> tutorialDoneSteps = new();
+    [Tooltip("The player ticked \"Don't show the tutorial again\".")]
+    public bool tutorialOff;
+
     [Tooltip("Player levels whose reward has already been taken (rewards panel, level bar).")]
     public List<int> claimedLevelRewards = new();
     [Tooltip("Progress and claimed state of every task that has any (rewards panel). A List — JsonUtility cannot save a Dictionary.")]

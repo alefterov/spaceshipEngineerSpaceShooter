@@ -81,6 +81,9 @@ public class GameDataManager : MonoBehaviour
             Current.hangarLevel = 0;
         }
 
+        // The tutorial is for a first game: a save that has already played battles (from before the tutorial existed) skips it.
+        if (Current.tutorialDoneSteps.Count == 0 && !Current.tutorialOff && Current.levelStars.Count > 0) Current.tutorialOff = true;
+
         GrantStarterKitIfNeeded();
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
@@ -146,7 +149,7 @@ public class GameDataManager : MonoBehaviour
         Add("engine_jet_1x1", 3, 1);
         Add("kinetic_static_gun1_1x1", 3, 2);
         Add("light_armor_1x1", 2, 3);
-        Add("kinetic_static_gun1_1x1", 1, 2);
+        // (1, 2) is left free: the tutorial has the player build the second gun there.
         Add("light_triangle_armor_1x1", 3, 3, 3);
         Add("light_triangle_armor_1x1", 1, 3);
         Add("engine_jet_1x1", 1, 1);
@@ -1133,6 +1136,36 @@ public class GameDataManager : MonoBehaviour
 
         Current.processedOrders.Add(transactionId);
         if (Current.processedOrders.Count > 200) Current.processedOrders.RemoveAt(0);
+        Save();
+    }
+
+    // ----- Tutorial -----
+
+    /// <summary>The player switched the tutorial off for good.</summary>
+    public bool TutorialOff => Current != null && Current.tutorialOff;
+
+    public void SetTutorialOff(bool off)
+    {
+        Current.tutorialOff = off;
+        Save();
+    }
+
+    /// <summary>Testing: the tutorial starts over (in Play mode, from this component's ⋮ menu).</summary>
+    [ContextMenu("Reset tutorial")]
+    public void ResetTutorial()
+    {
+        if (Current == null) return;
+        Current.tutorialDoneSteps.Clear();
+        Current.tutorialOff = false;
+        Save();
+    }
+
+    public bool IsTutorialStepDone(string id) => Current != null && Current.tutorialDoneSteps.Contains(id);
+
+    public void MarkTutorialStepDone(string id)
+    {
+        if (string.IsNullOrEmpty(id) || IsTutorialStepDone(id)) return;
+        Current.tutorialDoneSteps.Add(id);
         Save();
     }
 

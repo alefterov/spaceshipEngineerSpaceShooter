@@ -21,24 +21,24 @@ MonoBehaviour:
   - enemies:
     - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
       count: 1
-      spawnInterval: 25
+      spawnInterval: 10
       side: 0
-      positionAlongEdge: 0.26
+      positionAlongEdge: 0.57
+      route: []
+    delayAfterWave: 8.05
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
+      count: 1
+      spawnInterval: 10
+      side: 0
+      positionAlongEdge: 0.43
       route: []
     delayAfterWave: 8.05
   - enemies:
     - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
       count: 2
-      spawnInterval: 25
+      spawnInterval: 10
       side: 0
-      positionAlongEdge: 0.59
-      route: []
-    delayAfterWave: 8.05
-  - enemies:
-    - enemyPrefab: {fileID: 7518618935520632737, guid: c387ed0fb061aa648a289b6397e31adb, type: 3}
-      count: 2
-      spawnInterval: 25
-      side: 0
-      positionAlongEdge: 0.46
+      positionAlongEdge: 0.2
       route: []
     delayAfterWave: 5
