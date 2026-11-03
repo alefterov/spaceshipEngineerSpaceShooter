@@ -188,10 +188,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlasmaWeapon
   type: 2
   moduleId: plasmaGun_2x2
-  buildCost: 1000
   laserResistance: 0
   maxHP: 750
-  mass: 12
+  mass: 10
   energyDelta: -25
   occupiedCells:
   - {x: 0, y: 0}
@@ -217,8 +216,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
   muzzles:
   - {fileID: 7553389974999812753}
-  - {fileID: 270716369202547511}
-  - {fileID: 6479787981556474226}
   muzzle: {fileID: 0}
   cooldownSeconds: 5
   projectileDamage: 6
@@ -228,7 +225,7 @@ MonoBehaviour:
   fireSound: {fileID: 0}
   fireVolume: 1
   enemyVolumeScale: 0.7
-  topRoot: {fileID: 9174914285220350066, guid: f25306061e91382469b3d7c5bc2b0dd8, type: 3}
+  topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 0}
   turretRotationSpeed: 180
   turretAimToleranceDegrees: 3

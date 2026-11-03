@@ -219,8 +219,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
   muzzles:
   - {fileID: 7553389974999812753}
-  - {fileID: 270716369202547511}
-  - {fileID: 6479787981556474226}
   muzzle: {fileID: 0}
   cooldownSeconds: 5
   projectileDamage: 6

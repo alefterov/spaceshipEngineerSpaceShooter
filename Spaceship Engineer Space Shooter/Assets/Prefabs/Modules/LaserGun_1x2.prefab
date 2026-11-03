@@ -189,9 +189,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: laserGun_1x1
-  buildCost: 100
   laserResistance: 0
-  maxHP: 600
+  maxHP: 400
   mass: 8
   energyDelta: -40
   occupiedCells:
@@ -245,7 +244,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LaserWeapon
   type: 1
   moduleId: block
-  buildCost: 0
   laserResistance: 0
   maxHP: 20
   mass: 1

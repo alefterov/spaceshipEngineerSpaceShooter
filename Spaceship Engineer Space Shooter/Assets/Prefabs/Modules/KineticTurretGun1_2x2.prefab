@@ -190,7 +190,7 @@ MonoBehaviour:
   type: 2
   moduleId: kineticTurretGun1_1x1
   laserResistance: 0
-  maxHP: 1250
+  maxHP: 600
   mass: 15
   energyDelta: -4
   occupiedCells:
@@ -231,7 +231,7 @@ MonoBehaviour:
   enemyVolumeScale: 0.7
   topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 9174914285220350066}
-  turretRotationSpeed: 60
+  turretRotationSpeed: 30
   turretAimToleranceDegrees: 3
 --- !u!95 &1643671066974087282
 Animator:
@@ -243,7 +243,7 @@ Animator:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d7c56a654805cc948a39a4045db4b73d, type: 2}
+  m_Controller: {fileID: 9100000, guid: 54fd61fcc1c04214fad9513b4a22ce20, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -280,7 +280,7 @@ Transform:
   m_GameObject: {fileID: 3283518797661143910}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -0.2, z: 0}
+  m_LocalPosition: {x: 0, y: -0.56, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

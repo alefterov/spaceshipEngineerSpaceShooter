@@ -4908,7 +4908,7 @@ GameObject:
   - component: {fileID: 518751064677342987}
   - component: {fileID: 3584084802737505302}
   m_Layer: 0
-  m_Name: EnemyBigGunBullet 1
+  m_Name: EnemyBigGunBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4924,7 +4924,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.3}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6503903905876095883}
@@ -5075,8 +5075,8 @@ MonoBehaviour:
   impactEffectPrefab: {fileID: 3910864154725973254}
   impactEffectLifetime: 1
   trailEnabled: 1
-  trailTime: 0.12
-  trailStartWidth: 0.1
+  trailTime: 0.32
+  trailStartWidth: 0.2
   trailEndWidth: 0
   trailColor: {r: 1, g: 0.8, b: 0.4, a: 0.9}
   trailMaterial: {fileID: 0}

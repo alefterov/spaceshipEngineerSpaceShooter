@@ -95,7 +95,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EngineModule
   type: 3
   moduleId: engineIon_1x1
-  buildCost: 30
   laserResistance: 0
   maxHP: 100
   mass: 1
