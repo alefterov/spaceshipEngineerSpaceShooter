@@ -181,9 +181,9 @@ public class LevelInfoPanel : MonoBehaviour
 
         var data = GameDataManager.Instance;
         var db = blockDatabase != null ? blockDatabase : menu != null ? menu.database : null;
-        if (data == null || db == null || data.Current.playerShip == null) return System.Array.Empty<ShipModule>();
+        if (data == null || db == null || data.Current == null || data.Fleet.Count == 0) return System.Array.Empty<ShipModule>();
 
-        var layout = data.Current.playerShip;
+        var layout = data.SelectedShip.layout;
         return layout.hull.Concat(layout.modules).Concat(layout.blocks)
             .Select(entry => db.GetById(entry.blockId))
             .Where(def => def != null && def.prefab != null)

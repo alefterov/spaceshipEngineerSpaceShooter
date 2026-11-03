@@ -48,6 +48,7 @@ public class MainMenuFlowController : MonoBehaviour
 
         // GameDataManager already loaded the save file in its own Awake (runs before this Start,
         // as long as it lives in the same scene or a bootstrap scene loaded earlier).
+        GameDataManager.Instance.ResetFocus(); // the main menu shows the ship that goes into battle
         playerShip.SetHangarSize(GameDataManager.Instance.HangarColumns, GameDataManager.Instance.HangarRows); // restore any hangar upgrades bought previously
         GameDataManager.Instance.LoadShip(playerShip, database);
         GameDataManager.Instance.BeginBuildSession(); // baseline for RevertCredits, in case Build is entered before any Save
@@ -132,8 +133,30 @@ public class MainMenuFlowController : MonoBehaviour
         ShowMainMenu();
     }
 
+    /// <summary>Shows a ship of the fleet in the main scene (its grid and blocks) and makes it the one the builder and the hangar upgrades
+    /// work on — the fleet panel calls this for every slide.</summary>
+    public void ShowFleetShip(int index)
+    {
+        var data = GameDataManager.Instance;
+        if (data == null) return;
+
+        index = Mathf.Clamp(index, 0, data.Fleet.Count - 1);
+        data.ShowFleetShip(playerShip, database, index); // the grid first: the focus change below refreshes what shows its size
+        data.FocusShip(index);
+        playerShip.SetViewMode(ShipViewMode.Preview);
+        if (cameraController != null) cameraController.FrameShip();
+    }
+
     private void ShowMainMenu()
     {
+        // Back from building another ship of the fleet without saving it: the menu shows the ship that goes into battle again.
+        var data = GameDataManager.Instance;
+        if (data != null && data.FocusedShipIndex != data.SelectedShipIndex)
+        {
+            data.ShowFleetShip(playerShip, database, data.SelectedShipIndex);
+            data.ResetFocus();
+        }
+
         if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
 
         builderScreen.SetActive(false);

@@ -85,6 +85,7 @@ public class GameDataManager : MonoBehaviour
         if (Current.tutorialDoneSteps.Count == 0 && !Current.tutorialOff && Current.levelStars.Count > 0) Current.tutorialOff = true;
 
         GrantStarterKitIfNeeded();
+        EnsureFleet();
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
         OnDataLoaded?.Invoke();
@@ -161,14 +162,17 @@ public class GameDataManager : MonoBehaviour
     private void UseSavedShipAsStarter()
     {
         var saved = SaveSystem.Load();
-        if (saved == null || saved.playerShip == null || saved.playerShip.TotalEntries == 0)
+        var savedLayout = saved == null ? null
+            : saved.fleet != null && saved.fleet.Count > 0 ? saved.fleet[Mathf.Clamp(saved.selectedShip, 0, saved.fleet.Count - 1)].layout
+            : saved.playerShip;
+        if (savedLayout == null || savedLayout.TotalEntries == 0)
         {
             Debug.LogWarning("No saved ship found — build a ship in the builder and save it first.", this);
             return;
         }
 
         UnityEditor.Undo.RecordObject(this, "Use saved ship as starter ship");
-        starterShip = CopyLayout(saved.playerShip);
+        starterShip = CopyLayout(savedLayout);
 
         // The save was built in the player's (possibly upgraded) grid: move the ship to the middle of a NEW player's grid.
         int minX = starterShip.blocks.Min(b => b.anchorX), maxX = starterShip.blocks.Max(b => b.anchorX);
@@ -202,8 +206,11 @@ public class GameDataManager : MonoBehaviour
     /// this session as the new "safe" point.</summary>
     public void SaveShip(ShipGrid grid)
     {
-        Current.playerShip = grid.ExportLayout();
+        // The ship built is the one the fleet panel shows (normally the selected one); saving it also makes it the ship for battle.
+        FocusedShip.layout = grid.ExportLayout();
+        Current.selectedShip = FocusedShipIndex;
         Save();
+        OnFleetChanged?.Invoke();
         creditsAtSessionStart = Current.credits;
     }
 
@@ -214,8 +221,9 @@ public class GameDataManager : MonoBehaviour
     /// </summary>
     public void LoadShip(ShipGrid grid, BlockDatabase database)
     {
-        if (Current.playerShip == null || Current.playerShip.TotalEntries == 0) return;
-        grid.BuildFromLayout(Current.playerShip, database, Faction.Player);
+        var layout = SelectedShip.layout;
+        if (layout == null || layout.TotalEntries == 0) return;
+        grid.BuildFromLayout(layout, database, Faction.Player);
     }
 
     /// <summary>Call when entering the ship builder — remembers the current credits as the point
@@ -234,7 +242,7 @@ public class GameDataManager : MonoBehaviour
     /// </summary>
     public void RevertShip(ShipGrid grid, BlockDatabase database)
     {
-        grid.BuildFromLayout(Current.playerShip, database, Faction.Player);
+        grid.BuildFromLayout(FocusedShip.layout, database, Faction.Player);
     }
 
     /// <summary>Call alongside RevertShip when leaving the builder without saving — undoes any
@@ -246,7 +254,134 @@ public class GameDataManager : MonoBehaviour
         OnCreditsChanged?.Invoke();
     }
 
-    public bool HasSavedShip => Current.playerShip != null && Current.playerShip.TotalEntries > 0;
+    public bool HasSavedShip => SelectedShip.layout != null && SelectedShip.layout.TotalEntries > 0;
+
+    // ---------- Fleet ----------
+    // The player's ships. The SELECTED one goes into battle. The FOCUSED one is the one being looked at / built / upgraded in the main
+    // scene (the fleet panel's slide); it is the selected one except while the fleet panel shows another. Hangar upgrades and the builder
+    // work on the focused ship; saving it in the builder makes it the selected one.
+
+    [Header("Fleet")]
+    [Tooltip("What a new hangar (an extra ship) is paid with: Credits, Coins or Research Points.")]
+    public RewardType fleetShipCurrency = RewardType.Credits;
+    [Tooltip("Price of every new hangar (every new ship).")]
+    [Min(0)] public int fleetShipCost = 10000;
+    [Tooltip("Name of a new ship; {0} = its number in the fleet.")]
+    public string fleetShipNameFormat = "Ship {0}";
+
+    /// <summary>A ship was bought, renamed, selected, saved, or another ship is focused.</summary>
+    public event Action OnFleetChanged;
+
+    public IReadOnlyList<FleetShipData> Fleet => Current.fleet;
+    public int FleetCapacity => Mathf.Max(1, Current.fleetCapacity);
+    public bool CanAddFleetShip => Current.fleet.Count < FleetCapacity;
+
+    public int SelectedShipIndex => Mathf.Clamp(Current.selectedShip, 0, Mathf.Max(0, Current.fleet.Count - 1));
+    public FleetShipData SelectedShip => Current.fleet[SelectedShipIndex];
+
+    /// <summary>The ship looked at / built in the main scene — not saved: it is the selected one at every start.</summary>
+    public int FocusedShipIndex { get; private set; }
+    public FleetShipData FocusedShip => Current.fleet[Mathf.Clamp(FocusedShipIndex, 0, Current.fleet.Count - 1)];
+
+    /// <summary>The price of the next hangar (the next ship).</summary>
+    public int NextFleetShipCost => fleetShipCost;
+
+    /// <summary>Old saves: the single ship (and its hangar upgrades) becomes the first ship of the fleet. A new game: the starter ship.</summary>
+    private void EnsureFleet()
+    {
+        if (Current.fleet.Count > 0)
+        {
+            FocusedShipIndex = SelectedShipIndex;
+            return;
+        }
+
+        Current.fleet.Add(new FleetShipData
+        {
+            name = string.Format(fleetShipNameFormat, 1),
+            layout = Current.playerShip != null ? CopyLayout(Current.playerShip) : new ShipLayout(),
+            hangarColumns = Current.hangarColumns,
+            hangarRows = Current.hangarRows,
+        });
+        Current.selectedShip = 0;
+        FocusedShipIndex = 0;
+        Save();
+    }
+
+    /// <summary>Looks at / works on another ship of the fleet (the fleet panel's slide).</summary>
+    public void FocusShip(int index)
+    {
+        FocusedShipIndex = Mathf.Clamp(index, 0, Current.fleet.Count - 1);
+        OnFleetChanged?.Invoke();
+        OnHangarLevelChanged?.Invoke(); // the hangar upgrade buttons show this ship's grid and prices now
+    }
+
+    /// <summary>Back to the ship that goes into battle.</summary>
+    public void ResetFocus() => FocusShip(SelectedShipIndex);
+
+    /// <summary>This ship goes into battle from now on.</summary>
+    public void SelectShip(int index)
+    {
+        Current.selectedShip = Mathf.Clamp(index, 0, Current.fleet.Count - 1);
+        Save();
+        OnFleetChanged?.Invoke();
+    }
+
+    public void RenameShip(int index, string newName)
+    {
+        if (index < 0 || index >= Current.fleet.Count) return;
+        newName = string.IsNullOrWhiteSpace(newName) ? string.Format(fleetShipNameFormat, index + 1) : newName.Trim();
+        if (Current.fleet[index].name == newName) return;
+
+        Current.fleet[index].name = newName;
+        Save();
+        OnFleetChanged?.Invoke();
+    }
+
+    /// <summary>Buys a new hangar: a new ship (the starter ship, on a fresh 5 x 5 grid) joins the fleet. False if the fleet is full or the
+    /// player cannot pay (that also fires the matching "insufficient" event).</summary>
+    public bool TryBuyFleetShip(out int newIndex)
+    {
+        newIndex = -1;
+        if (!CanAddFleetShip) return false;
+
+        int cost = NextFleetShipCost;
+        switch (fleetShipCurrency)
+        {
+            case RewardType.Coins:
+                if (!SpendCoins(cost)) return false;
+                break;
+            case RewardType.ResearchPoints:
+                if (Current.researchPoints < cost) { OnInsufficientResearchPoints?.Invoke(); return false; }
+                Current.researchPoints -= cost;
+                OnResearchPointsChanged?.Invoke();
+                break;
+            default:
+                if (!SpendCredits(cost)) return false;
+                creditsAtSessionStart = Current.credits; // a purchase, not a build: leaving the builder later must not give it back
+                break;
+        }
+
+        Current.fleet.Add(new FleetShipData
+        {
+            name = string.Format(fleetShipNameFormat, Current.fleet.Count + 1),
+            layout = starterShip != null ? CopyLayout(starterShip) : new ShipLayout(),
+            hangarColumns = starterHangarColumns,
+            hangarRows = starterHangarRows,
+        });
+        newIndex = Current.fleet.Count - 1;
+        Save();
+        OnFleetChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>Shows a ship of the fleet on a grid: its hangar size and its blocks.</summary>
+    public void ShowFleetShip(ShipGrid grid, BlockDatabase database, int index)
+    {
+        if (grid == null || index < 0 || index >= Current.fleet.Count) return;
+        var ship = Current.fleet[index];
+        grid.SetHangarSize(ship.hangarColumns, ship.hangarRows);
+        grid.BuildFromLayout(ship.layout, database, Faction.Player);
+    }
 
     // ---------- Credits ----------
     // Soft currency spent on building/repairing. Deliberately NOT auto-saved on every change —
@@ -382,14 +517,15 @@ public class GameDataManager : MonoBehaviour
     [Tooltip("Extra research-point cost added per row already bought.")]
     public int hangarRowCostPerLevel = 100;
 
-    public int HangarColumns => Current.hangarColumns;
-    public int HangarRows => Current.hangarRows;
+    /// <summary>The focused ship's own hangar upgrades.</summary>
+    public int HangarColumns => FocusedShip.hangarColumns;
+    public int HangarRows => FocusedShip.hangarRows;
 
     /// <summary>Price of the next column.</summary>
-    public int GetHangarColumnUpgradeCost() => hangarColumnBaseCost + Current.hangarColumns * hangarColumnCostPerLevel;
+    public int GetHangarColumnUpgradeCost() => hangarColumnBaseCost + FocusedShip.hangarColumns * hangarColumnCostPerLevel;
 
     /// <summary>Price of the next row.</summary>
-    public int GetHangarRowUpgradeCost() => hangarRowBaseCost + Current.hangarRows * hangarRowCostPerLevel;
+    public int GetHangarRowUpgradeCost() => hangarRowBaseCost + FocusedShip.hangarRows * hangarRowCostPerLevel;
 
     public bool CanUpgradeHangarColumn() => Current.researchPoints >= GetHangarColumnUpgradeCost();
     public bool CanUpgradeHangarRow() => Current.researchPoints >= GetHangarRowUpgradeCost();
@@ -412,10 +548,11 @@ public class GameDataManager : MonoBehaviour
         }
 
         Current.researchPoints -= cost;
-        if (addColumn) Current.hangarColumns++;
-        else Current.hangarRows++;
+        var ship = FocusedShip;
+        if (addColumn) ship.hangarColumns++;
+        else ship.hangarRows++;
 
-        if (grid != null) grid.SetHangarSize(Current.hangarColumns, Current.hangarRows);
+        if (grid != null) grid.SetHangarSize(ship.hangarColumns, ship.hangarRows);
         OnResearchPointsChanged?.Invoke();
         OnHangarLevelChanged?.Invoke();
         Save();

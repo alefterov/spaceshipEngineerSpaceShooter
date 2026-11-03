@@ -148,7 +148,7 @@ public class SaveShipButtonController : MonoBehaviour
     private bool DiffersFromSaved()
     {
         var data = GameDataManager.Instance;
-        var saved = data != null && data.Current != null ? data.Current.playerShip : null;
+        var saved = data != null && data.Current != null && data.Fleet.Count > 0 ? data.FocusedShip.layout : null;
 
         var now = Describe(grid.ExportLayout());
         var then = Describe(saved);

@@ -95,7 +95,26 @@ public class GameData
     [Tooltip("The best wave reached in survival mode so far (for the survival tasks).")]
     public int survivalBestWave;
 
+    [Tooltip("OLD SAVES ONLY: the single ship before the fleet existed. Moved into Fleet (as its first ship) when loaded.")]
     public ShipLayout playerShip = new();
+
+    [Tooltip("The player's ships (the fleet). Each has its own name, blocks and hangar upgrades.")]
+    public List<FleetShipData> fleet = new();
+    [Tooltip("Index in Fleet of the ship that goes into battle.")]
+    public int selectedShip;
+    [Tooltip("How many ships the fleet can hold.")]
+    public int fleetCapacity = 3;
+}
+
+/// <summary>One ship of the player's fleet: its name, its blocks and its own hangar (grid) upgrades.</summary>
+[System.Serializable]
+public class FleetShipData
+{
+    public string name = "Ship";
+    public ShipLayout layout = new();
+    [Tooltip("Columns / rows bought for THIS ship's grid, on top of the base grid. Their prices grow with this ship's own count.")]
+    public int hangarColumns;
+    public int hangarRows;
 }
 
 [System.Serializable]
