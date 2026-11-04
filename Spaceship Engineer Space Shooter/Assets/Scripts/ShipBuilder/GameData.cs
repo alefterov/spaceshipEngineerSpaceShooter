@@ -14,7 +14,7 @@ public class GameData
     public int saveVersion = 1;
 
     [Tooltip("Soft currency — earned in-game, spent on building/repairing modules. Starting grant for a fresh save.")]
-    public int credits = 1000;
+    public int credits = 3000;
     [Tooltip("Premium currency — purchasable with real money. Not spent on anything yet.")]
     public int coins;
     public List<ResourceEntry> resources = new();

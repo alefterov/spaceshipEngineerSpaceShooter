@@ -20,6 +20,8 @@ public class BattleResultPanel : MonoBehaviour
     [Header("Stars")]
     [Tooltip("Exactly 3, left to right.")]
     public Image[] stars = new Image[3];
+    [Tooltip("Optional: the object holding the stars (e.g. StarsPanel), hidden after a survival battle. Empty = the stars' common parent.")]
+    public GameObject starsRoot;
     public Sprite filledStarSprite;
     public Sprite emptyStarSprite;
     [Tooltip("Seconds between each star revealing, on a win.")]
@@ -82,6 +84,7 @@ public class BattleResultPanel : MonoBehaviour
     {
         gameObject.SetActive(true);
         if (survivalOnly != null) survivalOnly.SetActive(false);
+        SetStarsVisible(true);
 
         creditsShown = creditsEarned;
         doubled = false;
@@ -116,6 +119,17 @@ public class BattleResultPanel : MonoBehaviour
         if (resultLabel != null) resultLabel.text = string.Format(survivalMessageFormat, waveReached);
         if (coinsEarnedLabel != null) coinsEarnedLabel.text = NumberFormat.Compact(coinsEarned);
         if (survivalOnly != null) survivalOnly.SetActive(true);
+        SetStarsVisible(false); // survival has no stars
+    }
+
+    private void SetStarsVisible(bool visible)
+    {
+        var root = starsRoot;
+        if (root == null && stars.Length > 0 && stars[0] != null && stars[0].transform.parent != null && stars[0].transform.parent != transform)
+            root = stars[0].transform.parent.gameObject;
+
+        if (root != null) root.SetActive(visible);
+        else foreach (var star in stars) if (star != null) star.gameObject.SetActive(visible);
     }
 
     private void OnEnable()

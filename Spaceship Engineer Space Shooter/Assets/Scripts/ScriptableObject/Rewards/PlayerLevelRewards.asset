@@ -18,70 +18,70 @@ MonoBehaviour:
       amount: 10
   - rewards:
     - type: 0
-      amount: 70
+      amount: 700
   - rewards:
     - type: 0
-      amount: 160
+      amount: 1600
   - rewards:
     - type: 2
       amount: 90
   - rewards:
     - type: 0
-      amount: 200
+      amount: 2000
   - rewards:
     - type: 2
       amount: 110
   - rewards:
     - type: 0
-      amount: 240
+      amount: 2400
   - rewards:
     - type: 2
       amount: 130
   - rewards:
     - type: 0
-      amount: 280
+      amount: 2800
   - rewards:
     - type: 1
       amount: 7
   - rewards:
     - type: 0
-      amount: 320
+      amount: 3200
   - rewards:
     - type: 2
       amount: 170
   - rewards:
     - type: 0
-      amount: 360
+      amount: 3600
   - rewards:
     - type: 2
       amount: 190
   - rewards:
     - type: 0
-      amount: 400
+      amount: 4000
   - rewards:
     - type: 2
       amount: 210
   - rewards:
     - type: 0
-      amount: 440
+      amount: 4400
   - rewards:
     - type: 2
       amount: 230
   - rewards:
     - type: 0
-      amount: 480
+      amount: 4800
   - rewards:
     - type: 1
       amount: 9
   - rewards:
     - type: 0
-      amount: 520
+      amount: 5200
   - rewards:
     - type: 2
       amount: 270
   - rewards:
     - type: 0
-      amount: 560
+      amount: 5600
   - rewards:
     - type: 2
       amount: 290
@@ -93,145 +93,145 @@ MonoBehaviour:
       amount: 310
   - rewards:
     - type: 0
-      amount: 640
+      amount: 6400
   - rewards:
     - type: 2
       amount: 330
   - rewards:
     - type: 0
-      amount: 680
+      amount: 6800
   - rewards:
     - type: 1
       amount: 11
   - rewards:
     - type: 0
-      amount: 720
+      amount: 7200
   - rewards:
     - type: 2
       amount: 370
   - rewards:
     - type: 0
-      amount: 760
+      amount: 7600
   - rewards:
     - type: 2
       amount: 390
   - rewards:
     - type: 0
-      amount: 800
+      amount: 8000
   - rewards:
     - type: 2
       amount: 410
   - rewards:
     - type: 0
-      amount: 840
+      amount: 8400
   - rewards:
     - type: 2
       amount: 430
   - rewards:
     - type: 0
-      amount: 880
+      amount: 8800
   - rewards:
     - type: 1
       amount: 13
   - rewards:
     - type: 0
-      amount: 920
+      amount: 9200
   - rewards:
     - type: 2
       amount: 470
   - rewards:
     - type: 0
-      amount: 960
+      amount: 9600
   - rewards:
     - type: 2
       amount: 490
   - rewards:
     - type: 0
-      amount: 1000
+      amount: 10000
   - rewards:
     - type: 2
       amount: 510
   - rewards:
     - type: 0
-      amount: 1040
+      amount: 10400
   - rewards:
     - type: 2
       amount: 530
   - rewards:
     - type: 0
-      amount: 1080
+      amount: 10800
   - rewards:
     - type: 3
       amount: 20
   - rewards:
     - type: 0
-      amount: 1120
+      amount: 11200
   - rewards:
     - type: 2
       amount: 570
   - rewards:
     - type: 0
-      amount: 1160
+      amount: 11600
   - rewards:
     - type: 2
       amount: 590
   - rewards:
     - type: 0
-      amount: 1200
+      amount: 12000
   - rewards:
     - type: 2
       amount: 610
   - rewards:
     - type: 0
-      amount: 1240
+      amount: 12400
   - rewards:
     - type: 2
       amount: 630
   - rewards:
     - type: 0
-      amount: 1280
+      amount: 12800
   - rewards:
     - type: 1
       amount: 17
   - rewards:
     - type: 0
-      amount: 1320
+      amount: 13200
   - rewards:
     - type: 2
       amount: 670
   - rewards:
     - type: 0
-      amount: 1360
+      amount: 13600
   - rewards:
     - type: 2
       amount: 690
   - rewards:
     - type: 0
-      amount: 1400
+      amount: 14000
   - rewards:
     - type: 2
       amount: 710
   - rewards:
     - type: 0
-      amount: 1440
+      amount: 14400
   - rewards:
     - type: 2
       amount: 730
   - rewards:
     - type: 0
-      amount: 1480
+      amount: 14800
   - rewards:
     - type: 1
       amount: 19
   - rewards:
     - type: 0
-      amount: 1520
+      amount: 15200
   - rewards:
     - type: 2
       amount: 770
   - rewards:
     - type: 0
-      amount: 1560
+      amount: 15600
   - rewards:
     - type: 2
       amount: 790
@@ -243,73 +243,73 @@ MonoBehaviour:
       amount: 810
   - rewards:
     - type: 0
-      amount: 1640
+      amount: 16400
   - rewards:
     - type: 2
       amount: 830
   - rewards:
     - type: 0
-      amount: 1680
+      amount: 16800
   - rewards:
     - type: 1
       amount: 21
   - rewards:
     - type: 0
-      amount: 1720
+      amount: 17200
   - rewards:
     - type: 2
       amount: 870
   - rewards:
     - type: 0
-      amount: 1760
+      amount: 17600
   - rewards:
     - type: 2
       amount: 890
   - rewards:
     - type: 0
-      amount: 1800
+      amount: 18000
   - rewards:
     - type: 2
       amount: 910
   - rewards:
     - type: 0
-      amount: 1840
+      amount: 18400
   - rewards:
     - type: 2
       amount: 930
   - rewards:
     - type: 0
-      amount: 1880
+      amount: 18800
   - rewards:
     - type: 1
       amount: 23
   - rewards:
     - type: 0
-      amount: 1920
+      amount: 19200
   - rewards:
     - type: 2
       amount: 970
   - rewards:
     - type: 0
-      amount: 1960
+      amount: 19600
   - rewards:
     - type: 2
       amount: 990
   - rewards:
     - type: 0
-      amount: 2000
+      amount: 20000
   - rewards:
     - type: 2
       amount: 1010
   - rewards:
     - type: 0
-      amount: 2040
+      amount: 20400
   - rewards:
     - type: 2
       amount: 1030
   - rewards:
     - type: 0
-      amount: 2080
+      amount: 20800
   - rewards:
     - type: 3
       amount: 30

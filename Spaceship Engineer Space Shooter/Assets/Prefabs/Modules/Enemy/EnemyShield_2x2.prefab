@@ -97,7 +97,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShieldModule
   type: 4
   moduleId: shield_3x3
-  buildCost: 140
   laserResistance: 0
   maxHP: 500
   mass: 8
@@ -119,12 +118,13 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.169
-  rewardCredits: 24
+  rewardCredits: 20
   rewardExperience: 0
   radius: 10
   capacity: 1000
   rechargePerSecond: 8
   reactivateFraction: 0.25
+  collapseCooldown: 5
   absorbSound: {fileID: 8300000, guid: 0f8c8ac458743f843adec31ebc59b888, type: 3}
   absorbVolume: 0.311
   zoneRenderer: {fileID: 5961069768649543108}

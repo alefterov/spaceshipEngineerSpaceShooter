@@ -20,8 +20,8 @@ public class TaskItemView : MonoBehaviour
     public Button claimButton;
     [Tooltip("Optional text on the claim button.")]
     public TMP_Text claimLabel;
-    public string claimText = "Забрать";
-    public string claimedText = "Получено";
+    public string claimText = "Claim";
+    public string claimedText = "Claimed";
     [Tooltip("Shown only once the reward has been taken.")]
     public GameObject claimedMark;
     [Range(0f, 1f)] public float claimedAlpha = 0.6f;

@@ -262,7 +262,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 0}
   destroyVolume: 1
-  rewardCredits: 1
+  rewardCredits: 5
   rewardExperience: 0
   aiming: 0
   fireControl: 0

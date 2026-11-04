@@ -23169,7 +23169,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7132766539568104575, guid: 6c75b43da3ba85f46b23dbebca4e182e, type: 3}
+  m_Sprite: {fileID: -2781977813188780017, guid: 0c1adbdf18a82c54aa70ec4917161e6c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -24827,6 +24827,7 @@ MonoBehaviour:
     target: {fileID: 2079698705}
     blockId: 
     level: {fileID: 0}
+    tech: {fileID: 0}
     startWhen: 2
     requireActive: {fileID: 0}
     completeWhen: 5
@@ -26363,6 +26364,7 @@ MonoBehaviour:
   - {fileID: 730941170}
   - {fileID: 672054605}
   - {fileID: 1976303694}
+  starsRoot: {fileID: 0}
   filledStarSprite: {fileID: 8651833703008436197, guid: ca15f9336ec795b40986e761e73bc32e, type: 3}
   emptyStarSprite: {fileID: 2402848213755455393, guid: 7e5f39c7aa93aae459abc37c6697e1fd, type: 3}
   starRevealDelay: 0.3

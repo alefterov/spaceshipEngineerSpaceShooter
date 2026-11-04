@@ -77,7 +77,7 @@ public class PlayerLevelRewards : ScriptableObject
         if (level % 25 == 0) list.Add(new RewardData(RewardType.ResearchPoints, 10 + level / 5));
         else if (level % 10 == 0) list.Add(new RewardData(RewardType.Coins, 5 + level / 10 * 2));
         else if (level % 2 == 0) list.Add(new RewardData(RewardType.Experience, 50 + level * 10));
-        else list.Add(new RewardData(RewardType.Credits, 100 + level * 20));
+        else list.Add(new RewardData(RewardType.Credits, (100 + level * 20) * 10));
 
         if (level % 5 == 0) list.Add(new RewardData(RewardType.RandomCrewCard, level % 20 == 0 ? 2 : 1));
         return list;

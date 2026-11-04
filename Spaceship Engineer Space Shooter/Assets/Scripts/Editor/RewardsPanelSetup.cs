@@ -585,15 +585,15 @@ public static class RewardsPanelSetup
         RewardData R(RewardType type, int amount) => new RewardData(type, amount);
         System.Collections.Generic.List<RewardData> L(params RewardData[] items) => new System.Collections.Generic.List<RewardData>(items);
 
-        Add("DestroyWeapons25", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Weapon; t.targetCount = 25; t.rewards = L(R(RewardType.Credits, 300)); });
-        Add("DestroyArmor50", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Armor; t.targetCount = 50; t.rewards = L(R(RewardType.Experience, 150), R(RewardType.Credits, 200)); });
+        Add("DestroyWeapons25", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Weapon; t.targetCount = 25; t.rewards = L(R(RewardType.Credits, 1500)); });
+        Add("DestroyArmor50", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Armor; t.targetCount = 50; t.rewards = L(R(RewardType.Experience, 150), R(RewardType.Credits, 1000)); });
         Add("DestroyGenerators20", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Generator; t.targetCount = 20; t.rewards = L(R(RewardType.Coins, 5), R(RewardType.RandomCrewCard, 1)); });
         Add("DestroyCockpits10", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = false; t.blockType = ModuleType.Cockpit; t.targetCount = 10; t.rewards = L(R(RewardType.ResearchPoints, 5)); });
-        Add("DestroyAny200", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = true; t.targetCount = 200; t.rewards = L(R(RewardType.Credits, 1000), R(RewardType.RandomCrewCard, 1)); });
-        Add("CompleteLevel1", t => { t.kind = TaskKind.CompleteCampaignLevel; t.level = Level(1); t.rewards = L(R(RewardType.Credits, 200)); });
+        Add("DestroyAny200", t => { t.kind = TaskKind.DestroyBlocks; t.anyBlockType = true; t.targetCount = 200; t.rewards = L(R(RewardType.Credits, 5000), R(RewardType.RandomCrewCard, 1)); });
+        Add("CompleteLevel1", t => { t.kind = TaskKind.CompleteCampaignLevel; t.level = Level(1); t.rewards = L(R(RewardType.Credits, 1000)); });
         Add("CompleteLevel5", t => { t.kind = TaskKind.CompleteCampaignLevel; t.level = Level(5); t.rewards = L(R(RewardType.Experience, 200), R(RewardType.RandomCrewCard, 1)); });
-        Add("CompleteLevel10", t => { t.kind = TaskKind.CompleteCampaignLevel; t.level = Level(10); t.rewards = L(R(RewardType.Coins, 10), R(RewardType.Credits, 500), R(RewardType.RandomCrewCard, 1)); });
-        Add("SurvivalWave5", t => { t.kind = TaskKind.SurvivalWave; t.targetWave = 5; t.rewards = L(R(RewardType.Credits, 500)); });
+        Add("CompleteLevel10", t => { t.kind = TaskKind.CompleteCampaignLevel; t.level = Level(10); t.rewards = L(R(RewardType.Coins, 10), R(RewardType.Credits, 2500), R(RewardType.RandomCrewCard, 1)); });
+        Add("SurvivalWave5", t => { t.kind = TaskKind.SurvivalWave; t.targetWave = 5; t.rewards = L(R(RewardType.Credits, 2500)); });
         Add("SurvivalWave10", t => { t.kind = TaskKind.SurvivalWave; t.targetWave = 10; t.rewards = L(R(RewardType.Coins, 10), R(RewardType.RandomCrewCard, 2)); });
 
         EditorUtility.SetDirty(database);

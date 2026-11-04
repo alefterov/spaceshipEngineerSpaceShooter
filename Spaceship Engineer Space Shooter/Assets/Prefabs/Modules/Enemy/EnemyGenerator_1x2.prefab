@@ -116,7 +116,7 @@ MonoBehaviour:
   blastDamageToNeighbours: 1
   destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
   destroyVolume: 0.198
-  rewardCredits: 1
+  rewardCredits: 10
   rewardExperience: 0
   powerOutput: 10
   capacity: 200

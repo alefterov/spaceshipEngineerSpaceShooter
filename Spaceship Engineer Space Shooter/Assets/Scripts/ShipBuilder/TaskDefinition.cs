@@ -70,25 +70,34 @@ public class TaskDefinition : ScriptableObject
         {
             case TaskKind.DestroyBlocks:
                 return anyBlockType
-                    ? $"Уничтожьте {targetCount} блоков противника"
-                    : $"Уничтожьте {targetCount} блоков {BlockTypeName(blockType)}";
+                    ? $"Destroy {targetCount} enemy blocks"
+                    : $"Destroy {targetCount} enemy {BlockTypeName(blockType)} blocks";
             case TaskKind.CompleteCampaignLevel:
-                return level != null ? $"Пройдите уровень {level.displayNumber} кампании" : "Пройдите уровень кампании";
+                if (level == null) return "Complete a campaign level";
+                int campaign = CampaignNumber(level);
+                return campaign > 0 ? $"Complete level {level.displayNumber} of campaign {campaign}" : $"Complete campaign level {level.displayNumber}";
             default:
-                return $"Достигните {targetWave} волны в режиме выживания";
+                return $"Reach wave {targetWave} in survival mode";
         }
+    }
+
+    /// <summary>The campaign a level belongs to, from its id ("campaign_2_level_10" = 2); 0 if the id does not say.</summary>
+    private static int CampaignNumber(LevelDefinition level)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(level.id ?? "", @"campaign_(\d+)_");
+        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
     }
 
     private static string BlockTypeName(ModuleType type) => type switch
     {
-        ModuleType.Armor => "брони",
-        ModuleType.Weapon => "оружия",
-        ModuleType.Engine => "двигателей",
-        ModuleType.Shield => "щитов",
-        ModuleType.Generator => "генераторов",
-        ModuleType.Cockpit => "кокпитов",
-        ModuleType.Repair => "ремонта",
-        _ => "этого типа",
+        ModuleType.Armor => "armor",
+        ModuleType.Weapon => "weapon",
+        ModuleType.Engine => "engine",
+        ModuleType.Shield => "shield",
+        ModuleType.Generator => "generator",
+        ModuleType.Cockpit => "cockpit",
+        ModuleType.Repair => "repair",
+        _ => "",
     };
 
     private void OnValidate()

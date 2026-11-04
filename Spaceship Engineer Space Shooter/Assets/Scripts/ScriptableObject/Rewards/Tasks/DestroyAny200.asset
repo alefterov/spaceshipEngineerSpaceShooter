@@ -22,7 +22,7 @@ MonoBehaviour:
   targetWave: 10
   rewards:
   - type: 0
-    amount: 1000
+    amount: 5000
   reward:
     type: 0
     amount: 0

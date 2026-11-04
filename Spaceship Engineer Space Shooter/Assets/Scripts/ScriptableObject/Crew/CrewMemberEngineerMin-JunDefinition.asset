@@ -23,4 +23,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b815d9b99bb885b41bbee5fdf6ed1a92, type: 2}
   - {fileID: 11400000, guid: e49001b5d2557c640913869042b04dcb, type: 2}
   - {fileID: 11400000, guid: f7c52f890b83bd9489a3c02dccad903d, type: 2}
-  levelUpBaseCost: 100
+  levelUpBaseCost: 200

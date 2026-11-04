@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52db1c63fa7ec6c48900b73a5a530fd8, type: 3}
+  m_Name: Campaign3Level21
+  m_EditorClassIdentifier: Assembly-CSharp::LevelDefinition
+  id: campaign_3_level_21
+  displayNumber: 21
+  prerequisite: {fileID: 11400000, guid: 0ae26081bb32212e46a0e65256eabe25, type: 2}
+  nextLevel: {fileID: 11400000, guid: e6f2de53ff3e6b9458f8e1cf25a313af, type: 2}
+  background: {fileID: -9121062281661299182, guid: cb33b677c7167d94187666a79cd9a468, type: 3}
+  waves:
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 0d241899fe0145327efa9400b413eb0e, type: 3}
+      count: 2
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.61
+      route: []
+    delayAfterWave: 9.05
+  - enemies:
+    - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
+      count: 4
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.6
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 0d241899fe0145327efa9400b413eb0e, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.2
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 28c2e940cdd229724e27a0aa7e64b39a, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.76
+      route: []
+    delayAfterWave: 9.05
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: bead2082cde05c166fac146e2bf1f263, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.24
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 4f2c1d540359732fd7090182de0d0bfc, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.62
+      route: []
+    delayAfterWave: 9.05
+  - enemies:
+    - enemyPrefab: {fileID: 5902393320243942255, guid: 319a028e338f6024aa7145ed3f8079a0, type: 3}
+      count: 4
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.76
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: bead2082cde05c166fac146e2bf1f263, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.58
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: 4f2c1d540359732fd7090182de0d0bfc, type: 3}
+      count: 2
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.78
+      route: []
+    delayAfterWave: 9.05
+  - enemies:
+    - enemyPrefab: {fileID: 7518618935520632737, guid: a67c72d5bf05f68c31d0044a4570984d, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.22
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: bcc473e69295a975cd4baff2cbb8107d, type: 3}
+      count: 2
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.35
+      route: []
+    delayAfterWave: 9.05
+  - enemies:
+    - enemyPrefab: {fileID: 5902393320243942255, guid: 61ff86cccb5b8784bbfb79dafab61eb6, type: 3}
+      count: 4
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.66
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: bead2082cde05c166fac146e2bf1f263, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.52
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: a67c72d5bf05f68c31d0044a4570984d, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.62
+      route: []
+    - enemyPrefab: {fileID: 7518618935520632737, guid: bcc473e69295a975cd4baff2cbb8107d, type: 3}
+      count: 1
+      spawnInterval: 5.93
+      side: 0
+      positionAlongEdge: 0.67
+      route: []
+    delayAfterWave: 5

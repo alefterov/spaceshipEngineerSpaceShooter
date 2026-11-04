@@ -746,13 +746,13 @@ public class GameDataManager : MonoBehaviour
     [Tooltip("Resolves saved crew members back to their definitions, and holds the starting crew. Required.")]
     public CrewDatabase crewDatabase;
     [Tooltip("Level-up price = (the member's Level Up Base Cost x its current level + current level x this) x its rank — rank 2 pays double and rank 3 triple, since more perks level up at once.")]
-    public int crewLevelCostExtraPerLevel = 15;
+    public int crewLevelCostExtraPerLevel = 30;
     [Range(0f, 1f), Tooltip("Upper limit for every CHANCE perk (zero damage, evasion...) after all crew bonuses are added — 0.75 = never above 75%.")]
     public float crewChanceCap = 0.75f;
     [Min(1f), Tooltip("How many times a critical hit multiplies the damage (the Captain's Crit Chance perk decides how often it happens).")]
     public float critDamageMultiplier = 2f;
     [Tooltip("Credits a rank-up (merge) costs, by the rank the member has NOW: element 0 = merging a rank 1 member into rank 2, element 1 = rank 2 into rank 3.")]
-    public int[] crewMergeCosts = { 1000, 2000 };
+    public int[] crewMergeCosts = { 2000, 4000 };
     [Tooltip("Played whenever a crew member is put into a slot or taken out of one (dragging it in or out, the button on its card) — " +
              "only when something actually changes.")]
     public AudioClip crewSlotSound;
