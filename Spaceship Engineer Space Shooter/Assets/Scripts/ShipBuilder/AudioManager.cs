@@ -5,19 +5,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-/// <summary>
-/// The game's sound: one music channel (with cross-fades between tracks) and a pool of effect voices, so many
-/// sounds can play at once. It has TWO volumes, saved on the device and set by the sliders of the settings menu
-/// (AudioSettingsPanel): Music Volume and Sfx Volume.
-///
-/// HOW SOUNDS GET HERE: every sound is an AudioClip you drop into a field in the Inspector — the field sits on the
-/// thing that makes the sound (a weapon's Fire Sound, a shield's Absorb Sound, a meteor's Impact Sound, the Place
-/// Sound of the builder...). Those objects just call AudioManager.PlaySfx(clip, volume); this class mixes it with the
-/// Sfx Volume. Music: put a SceneMusic in each scene. Button clicks: Button Click Clip here, played for EVERY button.
-///
-/// SETUP: put one AudioManager on an object in the first scene that loads (the main menu). It survives scene changes.
-/// (If none exists one is created on first use, but then it has no Button Click Clip.)
-/// </summary>
 public class AudioManager : MonoBehaviour
 {
     private const string MusicKey = "audio.music";
@@ -59,7 +46,6 @@ public class AudioManager : MonoBehaviour
     public float MusicVolume { get; private set; }
     public float SfxVolume { get; private set; }
 
-    /// <summary>Raised when either volume changes (looping sounds follow it).</summary>
     public static event Action OnVolumesChanged;
 
     private AudioSource[] voices;
@@ -69,15 +55,13 @@ public class AudioManager : MonoBehaviour
     private class MusicChannel
     {
         public AudioSource source;
-        public float level;       // fade level 0..1
-        public float clipVolume;  // the level the track was asked to play at
+        public float level;
+        public float clipVolume;
     }
 
     private MusicChannel channelA, channelB, channelNow;
     private AudioClip currentMusic;
     private float fadeSeconds = 1f;
-
-    // ---------- Setup ----------
 
     private void Awake()
     {
@@ -109,13 +93,11 @@ public class AudioManager : MonoBehaviour
         var source = go.AddComponent<AudioSource>();
         source.playOnAwake = false;
         source.loop = loop;
-        source.spatialBlend = 0f; // 2D game — no positional sound
+        source.spatialBlend = 0f;
         return source;
     }
 
     private void OnApplicationQuit() => quitting = true;
-
-    // ---------- Volumes ----------
 
     public void SetMusicVolume(float value)
     {
@@ -131,9 +113,6 @@ public class AudioManager : MonoBehaviour
         OnVolumesChanged?.Invoke();
     }
 
-    // ---------- Effects ----------
-
-    /// <summary>Plays a one-shot effect at `volume` (0-1) times the Sfx Volume. Safe with a null clip (does nothing).</summary>
     public static void PlaySfx(AudioClip clip, float volume = 1f)
     {
         if (clip == null) return;
@@ -149,7 +128,6 @@ public class AudioManager : MonoBehaviour
         if (lastStarted.TryGetValue(clip, out float last) && now - last < minRepeatInterval) return;
         lastStarted[clip] = now;
 
-        // A free voice, else the one that started longest ago.
         int chosen = 0;
         float oldest = float.MaxValue;
         for (int i = 0; i < voices.Length; i++)
@@ -167,10 +145,6 @@ public class AudioManager : MonoBehaviour
         voiceStarted[chosen] = now;
     }
 
-    // ---------- Music ----------
-
-    /// <summary>Starts a music track, cross-fading from the current one over `fade` seconds. The track that is already
-    /// playing is left alone (only its level is updated).</summary>
     public void PlayMusic(AudioClip clip, float volume = 1f, float fade = 1f)
     {
         if (clip == null) return;
@@ -193,7 +167,6 @@ public class AudioManager : MonoBehaviour
         fadeSeconds = Mathf.Max(0.01f, fade);
     }
 
-    /// <summary>Fades the music out and stops it.</summary>
     public void StopMusic(float fade = 1f)
     {
         channelNow = null;
@@ -210,8 +183,6 @@ public class AudioManager : MonoBehaviour
         DetectButtonClick();
     }
 
-    /// <summary>The current track fades up to full, the others fade down and stop — and every level follows the music
-    /// volume setting at once.</summary>
     private void UpdateChannel(MusicChannel channel)
     {
         if (!channel.source.isPlaying) return;
@@ -223,10 +194,6 @@ public class AudioManager : MonoBehaviour
         if (target <= 0f && channel.level <= 0f) channel.source.Stop();
     }
 
-    // ---------- Buttons ----------
-
-    /// <summary>One click sound for EVERY button, including ones created at run time: when a press lands on an enabled
-    /// UI Button the sound plays. (Add SilentButton to a button to leave it out.)</summary>
     private void DetectButtonClick()
     {
         if (buttonClickClip == null) return;
@@ -243,7 +210,6 @@ public class AudioManager : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            // The topmost thing that wants the press decides: a button anywhere up its parents.
             var button = hit.gameObject.GetComponentInParent<Button>();
             if (button == null) continue;
 

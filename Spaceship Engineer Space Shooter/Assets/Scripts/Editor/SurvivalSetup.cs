@@ -4,12 +4,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Tools > Ship Builder > Create Survival Definition: makes (or refreshes) Assets/Data/Survival/SurvivalDefinition.asset with every enemy
-/// ship of Prefabs/Enemies except the bosses, sorted from the weakest to the strongest. Strength = the square root of (the HP of all its
-/// blocks x the damage per second of all its weapons) — a rough measure: reorder the list by hand if a ship feels out of place (running the
-/// menu again sorts it anew). If the battle scene is open, the definition is also handed to its EnemySpawner.
-/// </summary>
 public static class SurvivalSetup
 {
     private const string Folder = "Assets/Data/Survival";
@@ -23,7 +17,7 @@ public static class SurvivalSetup
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
             if (prefab == null || prefab.name.Contains("Boss")) continue;
-            if (!prefab.TryGetComponent<EnemyShip>(out var ship)) continue; // meteors and the like
+            if (!prefab.TryGetComponent<EnemyShip>(out var ship)) continue;
 
             ships.Add((prefab, Strength(ship)));
         }
@@ -57,15 +51,10 @@ public static class SurvivalSetup
             EditorUtility.SetDirty(spawner);
         }
 
-        Debug.Log("SurvivalSetup: survival ships, weakest first:\n" +
-                  string.Join("\n", ships.OrderBy(s => s.strength).Select((s, i) => $"{i + 1}. {s.prefab.name}  (strength {s.strength:0})")));
         Selection.activeObject = definition;
         EditorGUIUtility.PingObject(definition);
     }
 
-    /// <summary>The specialised ships, weakest class first (by their prefab names): every ship of a class counts as stronger than every
-    /// ship of the classes before it — the formula underrates plasma, whose lightning hits several blocks at once. Within a class the
-    /// computed order stays.</summary>
     private static readonly string[] ClassOrder = { "RammingShip", "MissileShip", "LaserShip", "PlasmaShip" };
 
     private static void ApplyClassRanking(List<(GameObject prefab, float strength)> ships)
@@ -97,10 +86,9 @@ public static class SurvivalSetup
             if (module == null) continue;
 
             hp += module.maxHP;
-            if (module is WeaponModule weapon) dps += weapon.NominalDamagePerSecond; // each weapon kind's own formula (beams, plasma balls...)
+            if (module is WeaponModule weapon) dps += weapon.NominalDamagePerSecond;
         }
 
-        // How long it survives x how hard it hits, brought back to a readable scale.
         return Mathf.Sqrt(hp * Mathf.Max(1f, dps));
     }
 }

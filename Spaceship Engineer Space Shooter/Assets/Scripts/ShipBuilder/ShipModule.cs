@@ -1,11 +1,6 @@
 using UnityEngine;
 using System;
 
-/// <summary>
-/// Base component for any block of a ship (armor, weapon, engine, shield, generator, cockpit).
-/// Attach this to every placeable block prefab. Every block owns its own HP and is destroyed
-/// individually — that is the core of "точечный урон по модулям".
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class ShipModule : MonoBehaviour
 {
@@ -13,9 +8,6 @@ public class ShipModule : MonoBehaviour
     public ModuleType type = ModuleType.Armor;
     public string moduleId = "block";
 
-    /// <summary>Credits this block cost to build — set from BlockDefinition.buildCost at placement time (ShipGrid.PlaceBlock),
-    /// the ONE place a price is entered. Not saved on the prefab (so a stale number there can never be mistaken for the
-    /// price); read by GhostBlockController to compute the dismantle refund.</summary>
     [System.NonSerialized] public int buildCost;
 
     [Header("Resistances")]
@@ -30,9 +22,6 @@ public class ShipModule : MonoBehaviour
              "per HIT it absorbs; an engine, per second while the ship is MOVING.")]
     public float energyDelta = 0f;
 
-    /// <summary>Energy per second this block adds (+) or draws (−) on average — what the ship's stats panel and
-    /// energy balance show. For most blocks that is Energy Delta itself; blocks whose Energy Delta means something
-    /// else (a weapon's cost per shot, a shield's cost per hit) turn it into a per-second estimate.</summary>
     public virtual float EnergyPerSecondEstimate => energyDelta;
 
     [Header("Grid placement (set by ShipGrid when placed)")]
@@ -96,25 +85,17 @@ public class ShipModule : MonoBehaviour
     [Tooltip("Experience the player earns for the same.")]
     public int rewardExperience = 0;
 
-    // Sorting orders authored in the prefab are kept as OFFSETS, so ApplySortingOrders can shift a
-    // whole group onto its layer while preserving the relative order inside it. Cached so repeated
-    // calls can't compound.
     private readonly System.Collections.Generic.List<(SpriteRenderer renderer, int authoredOrder)> roofRenderers = new();
 
     public float CurrentHP { get; private set; }
     public bool IsDestroyed { get; private set; }
 
-    // Fired when this module takes damage — UI/VFX can subscribe.
     public event Action<ShipModule, float> OnDamaged;
-    // Fired when this module is healed (e.g. by a RepairModule) — BlockDamageVisual removes marks on this.
     public event Action<ShipModule, float> OnHealed;
-    // Fired once, when HP hits zero.
     public event Action<ShipModule> OnDestroyed;
 
     private Collider2D bodyCollider;
 
-    /// <summary>The block's footprint in world space (its collider's bounds; one cell around the block's position if
-    /// the collider is unusable).</summary>
     public Bounds WorldBounds
     {
         get
@@ -134,19 +115,15 @@ public class ShipModule : MonoBehaviour
     {
         CurrentHP = maxHP;
 
-        // A block placed onto a ship that is already fighting starts with its idle animation off.
         var ownShip = GetComponentInParent<ShipIdentity>();
         if (ownShip != null) inCombat = ownShip.CombatActive;
 
-        if (visualRoot == null) visualRoot = transform; // fallback for old single-cell prefabs without a child
+        if (visualRoot == null) visualRoot = transform;
 
         CacheRenderers(roofRoot, roofRenderers);
 
-        SetIdleAnimationPlaying(false); // safe default until something explicitly turns it on
+        SetIdleAnimationPlaying(false);
 
-        // Every block shows wear: a prefab's own BlockDamageVisual keeps its tuned settings but is
-        // switched on (the old sprite-tier version was left disabled on most prefabs); one with none gets
-        // a default instance.
         var wear = GetComponentInChildren<BlockDamageVisual>(true);
         if (wear == null) gameObject.AddComponent<BlockDamageVisual>();
         else wear.enabled = true;
@@ -162,13 +139,6 @@ public class ShipModule : MonoBehaviour
             into.Add((renderer, renderer.sortingOrder));
     }
 
-    /// <summary>
-    /// Turns idle animation off in Building mode — the builder is the one context it should never play
-    /// in — and on in Preview (the closed look shown in the main menu and in battle — see ShipGrid's own
-    /// doc comment on CurrentViewMode). Called by ShipGrid.SetViewMode/PlaceBlock. Nothing is shown/hidden
-    /// any more: a block's body is always visible. Virtual so EngineModule can also stop/start its burn
-    /// effect here — it shouldn't so much as idle while sitting in the builder.
-    /// </summary>
     public virtual void ApplyViewMode(ShipViewMode mode)
     {
         previewLook = mode == ShipViewMode.Preview;
@@ -177,62 +147,39 @@ public class ShipModule : MonoBehaviour
 
     private bool previewLook;
 
-    /// <summary>The idle animation plays only outside battle: during a fight every block's animator is off (a turret's
-    /// clip, for one, keys its rotation and would fight the code that aims it).</summary>
     protected virtual bool IdleAnimationAllowed => !inCombat;
 
     private bool inCombat;
 
-    /// <summary>Called when the ship's battle starts or ends (ShipIdentity.SetCombatActive): the idle animation is switched
-    /// off for the battle.</summary>
     public void SetInCombat(bool active)
     {
         inCombat = active;
         RefreshIdleAnimation();
     }
 
-    /// <summary>Re-applies "idle animation plays" = preview look AND the subclass allows it. Call after
-    /// whatever IdleAnimationAllowed depends on changes.</summary>
     protected void RefreshIdleAnimation() => SetIdleAnimationPlaying(previewLook && IdleAnimationAllowed);
 
-    /// <summary>
-    /// Puts this block's sprites on their render layer. Called by ShipGrid at placement time. Sorting
-    /// orders authored in the prefab act as offsets from roofBase. Weapons override this to also place
-    /// their separate moving parts (see WeaponModule.topRoot) on topBase, above every block body.
-    /// </summary>
     public virtual void ApplySortingOrders(int roofBase, int topBase)
     {
         foreach (var (renderer, authoredOrder) in roofRenderers)
             if (renderer != null) renderer.sortingOrder = roofBase + authoredOrder;
     }
 
-    /// <summary>Called on the build ghost right before its gameplay scripts are stripped — override to
-    /// hide anything that only makes sense on a real placed block (e.g. a shield's coverage circle).</summary>
     public virtual void PrepareAsGhost() { }
 
-    /// <summary>Turns this block's idle/ambient animation on or off. Safe to call even when no
-    /// idleAnimator is assigned (most blocks won't have one) — a no-op in that case.</summary>
     public void SetIdleAnimationPlaying(bool playing)
     {
         if (idleAnimator != null) idleAnimator.enabled = playing;
     }
 
-    /// <summary>Shape of a specific occupied cell — Square if this cell (or the whole block, for
-    /// anything placed before triangular shapes existed) has no explicit entry.</summary>
     public CellShape GetCellShape(Vector2Int cell)
     {
         int index = occupiedCells.IndexOf(cell);
         return index >= 0 && index < cellShapes.Count ? cellShapes[index] : CellShape.Square;
     }
 
-    /// <summary>
-    /// Apply damage directly to THIS module only (called by the projectile/hit system
-    /// after it resolves which module collider was actually struck).
-    /// </summary>
     private bool nextHitIsCrit;
 
-    /// <summary>A hit that may be critical: the damage number above the block turns red. The damage itself is whatever
-    /// the caller passes in — the crit multiplier is applied by the caller.</summary>
     public void TakeDamage(float amount, bool crit)
     {
         nextHitIsCrit = crit;
@@ -244,22 +191,19 @@ public class ShipModule : MonoBehaviour
     {
         if (IsDestroyed || amount <= 0f) return;
 
-        // A block of an enemy ship is only vulnerable while it is in the battle zone (see BattleZone): inside the screen, or just
-        // passing the top edge. The part of a ship that is still beyond the edge takes no damage.
         if (CompareTag("EnemyShip"))
         {
             var ownShip = GetComponentInParent<ShipIdentity>();
             if (ownShip != null && ownShip.faction == Faction.Enemy && !BattleZone.BlockInZone(WorldBounds)) return;
         }
 
-        // Crew ZeroDamageChance perk — blocks of the player's ship only: the hit simply does nothing.
         if (CompareTag("PlayerShip") && GameDataManager.Instance != null && GameDataManager.Instance.RollCrewChance(CrewPerkType.ZeroDamageChance))
             return;
 
         float hpBefore = CurrentHP;
         CurrentHP = Mathf.Max(0f, CurrentHP - amount);
         OnDamaged?.Invoke(this, amount);
-        DamageNumbers.Report(this, hpBefore - CurrentHP, nextHitIsCrit); // the floating number above the block (battle scene)
+        DamageNumbers.Report(this, hpBefore - CurrentHP, nextHitIsCrit);
 
         if (CurrentHP <= 0f)
         {
@@ -267,8 +211,6 @@ public class ShipModule : MonoBehaviour
         }
     }
 
-    /// <summary>Restores HP, e.g. from a RepairModule — symmetric to TakeDamage. A no-op once destroyed
-    /// (a wreck isn't repaired back to life) or if it's already at full HP.</summary>
     public void Heal(float amount)
     {
         if (IsDestroyed || amount <= 0f) return;
@@ -278,9 +220,6 @@ public class ShipModule : MonoBehaviour
         if (CurrentHP > before) OnHealed?.Invoke(this, CurrentHP - before);
     }
 
-    /// <summary>Scales maxHP (and tops CurrentHP back up to match, since this only ever runs once, right
-    /// after a fresh block is placed) — e.g. the crew ArmorEfficiency perk, applied by ShipGrid.
-    /// PlaceBlock for the player's own ships only. A no-op for a 1x multiplier.</summary>
     public void ApplyMaxHpMultiplier(float multiplier)
     {
         if (Mathf.Approximately(multiplier, 1f) || multiplier <= 0f) return;
@@ -295,8 +234,6 @@ public class ShipModule : MonoBehaviour
 
         OnDestroyed?.Invoke(this);
 
-        // Disable functional behaviour (weapon firing, engine thrust, shield, etc.)
-        // Subclasses (WeaponModule, EngineModule...) should override OnModuleDestroyed().
         OnModuleDestroyed();
 
         BlastNeighbours();
@@ -305,35 +242,26 @@ public class ShipModule : MonoBehaviour
 
         PlayDestructionEffect();
     }
-    /// <summary>Destroying a block of an enemy ship earns the player its reward (see Reward Credits).</summary>
     private void PayReward()
     {
         if (!CompareTag("EnemyShip")) return;
 
-        // The tasks of the rewards panel ("destroy 50 weapon blocks") count every enemy block, paid or not.
         if (GameDataManager.Instance != null) GameDataManager.Instance.RecordBlockDestroyed(type);
 
         if (rewardCredits <= 0 && rewardExperience <= 0) return;
         BattleRewards.AddKill(rewardCredits, rewardExperience);
     }
 
-
-    /// <summary>The explosion hurts the blocks next to this one (1 damage each by default) — every kind of block except
-    /// armor. A neighbour that dies of it explodes in turn, so a chain can run along the ship.</summary>
     private void BlastNeighbours()
     {
         if (type == ModuleType.Armor || blastDamageToNeighbours <= 0f) return;
 
-        // The list is made first: damage can destroy blocks, which changes the ship's own list of blocks.
         foreach (var neighbour in MissileTargeting.GetNeighbours(this))
             if (neighbour != null && !neighbour.IsDestroyed) neighbour.TakeDamage(blastDamageToNeighbours);
     }
 
-    /// <summary>Override in subclasses to stop the module's function (e.g. WeaponModule stops firing).</summary>
     protected virtual void OnModuleDestroyed() { }
 
-    /// <summary>Spawns the explosion VFX (if assigned) and removes the block immediately — it
-    /// disappears rather than detaching as drifting/falling debris under gravity.</summary>
     protected virtual void PlayDestructionEffect()
     {
         if (explosionEffectPrefab != null)
@@ -343,14 +271,12 @@ public class ShipModule : MonoBehaviour
         }
 
         var wear = GetComponentInChildren<BlockDamageVisual>(true);
-        if (wear != null) wear.SpawnShatter(); // the block bursts into shards that fly apart and fade
+        if (wear != null) wear.SpawnShatter();
 
         UnityEngine.Object.Destroy(gameObject);
     }
 }
 
-// Explicit values keep already-serialized prefabs/assets pointing at the same entries now that Hull
-// (was 0) no longer exists.
 public enum ModuleType
 {
     Armor = 1,
@@ -360,11 +286,9 @@ public enum ModuleType
     Generator = 5,
     Cockpit = 6,
     Repair = 7,
-    /// <summary>NOT a block: only used as a missile target category (MissileTargetPriority) meaning "meteors".</summary>
     Meteor = 8
 }
 
-/// <summary>Preview = closed/finished look (main menu), Building = exposed internals (editor).</summary>
 public enum ShipViewMode
 {
     Preview,

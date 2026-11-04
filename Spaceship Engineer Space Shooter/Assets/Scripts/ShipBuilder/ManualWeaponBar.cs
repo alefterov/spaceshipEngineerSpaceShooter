@@ -1,13 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Spawns one ManualWeaponButton per manually-fired weapon type the player actually built — same
-/// pattern as BuildPaletteUI does for block buttons. A weapon type the ship doesn't carry simply
-/// produces no button, so "the button only exists if that weapon is on the ship" falls out for free.
-///
-/// SETUP: put this on the battle HUD's button container and enable that HUD only in battle mode —
-/// this bar knows nothing about combat state, it just mirrors whatever the ship carries.
-/// </summary>
 public class ManualWeaponBar : MonoBehaviour
 {
     [Header("References")]

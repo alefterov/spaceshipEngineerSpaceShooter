@@ -1,7 +1,5 @@
 using UnityEngine;
 
-/// <summary>Fades an impact arc's sprites from their starting alpha to nothing, then destroys it. Added
-/// by ShieldModule to each arc it spawns; never attach by hand.</summary>
 public class ShieldImpactFade : MonoBehaviour
 {
     private SpriteRenderer[] renderers;

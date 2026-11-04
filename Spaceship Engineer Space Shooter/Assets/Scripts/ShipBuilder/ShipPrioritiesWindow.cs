@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>One tab of the priorities window: its button, the icon on the button and the panel that is shown for it.</summary>
 [Serializable]
 public class PriorityCategory
 {
@@ -21,20 +20,6 @@ public class PriorityCategory
     [NonSerialized] public float iconAlpha;
 }
 
-/// <summary>
-/// The ship-settings window of the battle: one window, opened by the Open Button (ShipSettingPriorityButton), with a tab for each kind of
-/// priority — energy distribution, missile targets, tower-gun targets. Pressing a category button switches the content of the window;
-/// the active category's icon is fully opaque, the others are dimmed. Everything fades smoothly: the window opening and closing, the
-/// tab content crossfading, the icons brightening and dimming.
-///
-/// Opening the window PAUSES the battle (Time.timeScale = 0) — a deliberate tactical pause, as the separate windows used to do; closing it
-/// restores the previous speed. Each tab's rows save their order on every drop, so the changes work at once, even while paused.
-///
-/// SETUP: put on an object that is always active (the canvas, say) — NOT on the window itself. Assign Window (the window's root object,
-/// started inactive or not — it is hidden at start), Open Button and Close Button, and fill Categories with one entry per tab (Button,
-/// Icon, Panel). A panel carries an EnergyPriorityController or a MissilePriorityController (Kind = Missiles or Tower Guns); the panels
-/// all sit in the same place inside the window.
-/// </summary>
 public class ShipPrioritiesWindow : MonoBehaviour
 {
     [Header("Window")]
@@ -145,9 +130,9 @@ public class ShipPrioritiesWindow : MonoBehaviour
         if (startCategory >= 0) SelectImmediately(Mathf.Clamp(startCategory, 0, Mathf.Max(0, categories.Count - 1)));
 
         window.SetActive(true);
-        foreach (var category in categories) category.content?.RefreshPanel(); // every tab shows the real current order
+        foreach (var category in categories) category.content?.RefreshPanel();
 
-        if (!paused && Time.timeScale > 0f) // already paused by another window: leave that one in charge
+        if (!paused && Time.timeScale > 0f)
         {
             Time.timeScale = 0f;
             paused = true;
@@ -158,10 +143,9 @@ public class ShipPrioritiesWindow : MonoBehaviour
     {
         if (!wantOpen) return;
         wantOpen = false;
-        Resume(); // the battle goes on while the window fades away
+        Resume();
     }
 
-    /// <summary>Shows another tab (the content crossfades).</summary>
     public void Select(int index)
     {
         if (index < 0 || index >= categories.Count || index == selected) return;
@@ -187,7 +171,7 @@ public class ShipPrioritiesWindow : MonoBehaviour
     private void Resume()
     {
         if (!paused) return;
-        Time.timeScale = GameSpeed.SceneScale; // the chosen battle speed, even if it was changed while paused
+        Time.timeScale = GameSpeed.SceneScale;
         paused = false;
     }
 
@@ -195,9 +179,8 @@ public class ShipPrioritiesWindow : MonoBehaviour
     {
         if (window == null) return;
 
-        float dt = Time.unscaledDeltaTime; // the battle is paused, the window still has to move
+        float dt = Time.unscaledDeltaTime;
 
-        // The window itself.
         windowAlpha = Mathf.MoveTowards(windowAlpha, wantOpen ? 1f : 0f, dt / windowFadeSeconds);
         windowGroup.alpha = windowAlpha;
         windowGroup.blocksRaycasts = wantOpen;
@@ -206,7 +189,6 @@ public class ShipPrioritiesWindow : MonoBehaviour
 
         if (!window.activeSelf) return;
 
-        // The tabs: the chosen one fades in, the others out, so the content changes smoothly.
         for (int i = 0; i < categories.Count; i++)
         {
             var category = categories[i];
@@ -222,7 +204,7 @@ public class ShipPrioritiesWindow : MonoBehaviour
                 if (category.panel.activeSelf != visible) category.panel.SetActive(visible);
 
                 category.group.alpha = category.panelAlpha;
-                category.group.blocksRaycasts = isSelected; // only the active tab takes touches
+                category.group.blocksRaycasts = isSelected;
                 category.group.interactable = isSelected;
             }
         }

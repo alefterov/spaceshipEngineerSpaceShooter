@@ -1,20 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// A ball of plasma, fired by a PlasmaWeapon. It flies straight along its Y axis (its "up"), and it does NOT
-/// collide with enemy ships — it passes over them. What hurts is its field: every enemy block inside Strike Radius
-/// gets struck by lightning from the ball's centre to the block's centre — right when the block enters the radius,
-/// then once every Strike Interval Seconds for as long as it stays inside. The bolt appears together with the
-/// damage (the block takes Damage at that moment).
-///
-/// Against a SHIELD it behaves differently: touching a shield's field costs the shield Damage x Shield Damage
-/// Multiplier (10 by default) and the ball explodes there.
-///
-/// PREFAB: the ball's sprite/glow, optionally a trigger Collider2D (only the shields feel it — one is added if missing)
-/// and a Rigidbody2D (added if missing), and this component. Speed, damage and lifetime come from the weapon.
-/// Lightning look is set here (Lightning group).
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlasmaBall : MonoBehaviour, IShieldBlockable
 {
@@ -64,7 +50,6 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     public Material lightningMaterial;
     public int lightningSortingOrder = 25;
 
-    // Set by the weapon
     private Faction owner = Faction.Player;
     private float damage = 10f;
     private float speed = 5f;
@@ -72,13 +57,11 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     private Rigidbody2D rb;
     private bool finished;
 
-    // Next time each block may be struck again. A block that leaves the field is forgotten, so re-entering strikes at once.
     private readonly Dictionary<ShipModule, float> nextStrike = new();
     private readonly List<ShipModule> seen = new();
     private readonly List<ShipModule> forget = new();
     private readonly List<ShipModule> toStrike = new();
 
-    /// <summary>Called right after the weapon instantiates the ball.</summary>
     public void Launch(Faction ownerFaction, float strikeDamage, float flightSpeed, float lifetimeSeconds)
     {
         owner = ownerFaction;
@@ -96,7 +79,6 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
 
         SfxLoop.Attach(gameObject, flightSound, flightVolume);
 
-        // Only shields can feel the ball, through a trigger. Without any collider the shield could not see it.
         if (GetComponent<Collider2D>() == null)
         {
             var circle = gameObject.AddComponent<CircleCollider2D>();
@@ -115,8 +97,6 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
         rb.linearVelocity = transform.up * speed;
         Scan();
     }
-
-    // ---------- The field ----------
 
     private void Scan()
     {
@@ -140,21 +120,19 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
                 if (nextStrike.TryGetValue(block, out float due) && Time.time < due) continue;
 
                 nextStrike[block] = Time.time + strikeIntervalSeconds;
-                toStrike.Add(block); // struck after the loop: a strike can destroy a block, which changes the very list we are walking
+                toStrike.Add(block);
             }
         }
 
         foreach (var block in toStrike)
             if (block != null && !block.IsDestroyed) Strike(block);
 
-        // Blocks that left the field (or were destroyed) are forgotten.
         forget.Clear();
         foreach (var pair in nextStrike)
             if (pair.Key == null || !seen.Contains(pair.Key)) forget.Add(pair.Key);
         foreach (var block in forget) nextStrike.Remove(block);
     }
 
-    /// <summary>The middle of a block (its visual root sits on its footprint's centre; the plain root is only its anchor cell).</summary>
     private static Vector3 BlockCenter(ShipModule block)
         => block.visualRoot != null ? block.visualRoot.position : block.transform.position;
 
@@ -162,7 +140,6 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
     {
         AudioManager.PlaySfx(lightningSound, lightningVolume);
 
-        // The bolt runs from the ball's centre to the block's centre.
         PlasmaLightning.Spawn(new PlasmaLightning.Style
         {
             color = lightningColor,
@@ -177,18 +154,15 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
             sortingOrder = lightningSortingOrder,
         }, transform, block.visualRoot != null ? block.visualRoot : block.transform);
 
-        // The Navigator's laser/plasma evasion perk can make a bolt miss the player's ship.
         if (owner == Faction.Enemy)
         {
             var data = GameDataManager.Instance;
             if (data != null && data.RollCrewChance(CrewPerkType.EvadeEnergyWeapons)) return;
         }
 
-        float dealt = CriticalHit.Roll(owner, damage, out bool crit); // the Captain's crit perk: rolled for every strike
+        float dealt = CriticalHit.Roll(owner, damage, out bool crit);
         block.TakeDamage(dealt, crit);
     }
-
-    // ---------- IShieldBlockable — a shield takes ten times the damage, and the ball explodes ----------
 
     public float ImpactDamage => damage * shieldDamageMultiplier;
     public bool IsConsumed => finished;
@@ -202,7 +176,7 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
 
         if (explosionEffectPrefab != null)
         {
-            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity); // unparented: it outlives the ball
+            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             fx.SetActive(true);
             if (explosionEffectLifetime > 0f) Destroy(fx, explosionEffectLifetime);
         }

@@ -7,17 +7,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-/// <summary>
-/// Tools > Ship Builder > Create Tutorial: builds the tutorial of the OPEN scene — its own canvas over everything (dimming strips, the
-/// finger, the hint window with its text, close button and "Don't show the tutorial again" toggle) and a TutorialController with the
-/// default steps of that scene, their targets found by themselves:
-///  - main scene: welcome + open the builder -> Weapons -> drag the gun -> Save -> leave the builder -> Play -> Campaign -> Solar System
-///    -> level 1 -> Play; later, once a task is done: open Rewards -> Claim; once there are enough research points for shields: open
-///    Research -> research the shield. Also takes one gun off the starter ship (the one the
-///    tutorial has the player build).
-///  - battle scene: steer with the joystick.
-/// Running it again keeps the UI (restyled or not) and only writes the steps anew. Texts are English.
-/// </summary>
 public static class TutorialSetup
 {
     private const string GunId = "kinetic_static_gun1_1x1";
@@ -47,12 +36,7 @@ public static class TutorialSetup
         EditorSceneManager.MarkSceneDirty(controller.gameObject.scene);
         Selection.activeObject = controller.gameObject;
         var missing = controller.steps.Where(s => s.targetKind == TutorialTargetKind.Object && s.target == null).Select(s => s.id).ToList();
-        Debug.Log($"TutorialSetup: {controller.steps.Count} steps in '{controller.gameObject.scene.name}'." +
-                  (missing.Count > 0 ? $" Targets NOT found (assign them by hand): {string.Join(", ", missing)}." : " Every target found.") +
-                  " Give the finger (TutorialCanvas/Root/Finger) your icon and put its pivot on the fingertip.");
     }
-
-    // ---------- steps ----------
 
     private static List<TutorialStep> MainSteps()
     {
@@ -101,7 +85,6 @@ public static class TutorialSetup
                     targetKind = TutorialTargetKind.Object, requireActive = selector != null && selector.selectionRoot != null ? selector.selectionRoot : levels,
                     completeWhen = TutorialComplete.ObjectActive, watchObject = firstCampaign?.panel,
                     text = "Select the first star system." },
-            // Choosing a campaign already opens the level info panel (CampaignSelector.ShowCampaign): only the tap itself says level 1 was chosen.
             new() { id = "choose_level", targetKind = TutorialTargetKind.LevelButton, level = level1, requireActive = firstCampaign?.panel,
                     completeWhen = TutorialComplete.TargetTapped,
                     text = "Tap level 1." },
@@ -153,7 +136,6 @@ public static class TutorialSetup
     private static RectTransform Named(string name)
         => Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include).FirstOrDefault(t => t.name.Trim() == name);
 
-    /// <summary>The starter ship of a new game misses one gun — the tutorial has the player build it.</summary>
     private static void RemoveStarterGun()
     {
         var data = Object.FindAnyObjectByType<GameDataManager>(FindObjectsInactive.Include);
@@ -166,22 +148,19 @@ public static class TutorialSetup
         int guns = 0;
         for (int i = 0; i < blocks.arraySize; i++)
             if (blocks.GetArrayElementAtIndex(i).FindPropertyRelative("blockId").stringValue == GunId) guns++;
-        if (guns < 2) return; // already done (or a ship of your own)
+        if (guns < 2) return;
 
         for (int i = blocks.arraySize - 1; i >= 0; i--)
         {
             var entry = blocks.GetArrayElementAtIndex(i);
             if (entry.FindPropertyRelative("blockId").stringValue != GunId) continue;
             blocks.DeleteArrayElementAtIndex(i);
-            Debug.Log("TutorialSetup: took one gun off the starter ship (GameDataManager > Starter Ship) — the tutorial has the player build it. " +
-                      "Only new games are affected.");
+
             break;
         }
 
         so.ApplyModifiedProperties();
     }
-
-    // ---------- UI ----------
 
     private static TutorialController BuildUi()
     {
@@ -193,9 +172,8 @@ public static class TutorialSetup
         canvasObject.layer = LayerMask.NameToLayer("UI");
         var canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 500; // over every other canvas
+        canvas.sortingOrder = 500;
 
-        // Same scaling as the game's own UI.
         var scaler = canvasObject.GetComponent<CanvasScaler>();
         var gameScaler = Object.FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include).FirstOrDefault(s => s != scaler);
         if (gameScaler != null)
@@ -220,21 +198,19 @@ public static class TutorialSetup
         {
             blockers[i] = Rect(names[i], root);
             var image = blockers[i].gameObject.AddComponent<Image>();
-            image.color = new Color(0f, 0f, 0f, 0.55f); // raycast target: blocks the taps outside the target
+            image.color = new Color(0f, 0f, 0f, 0.55f);
             blockers[i].gameObject.SetActive(false);
         }
 
-        // The finger: a placeholder picture — give it your icon.
         var fingerRect = Rect("Finger", root);
         fingerRect.sizeDelta = new Vector2(120, 120);
-        fingerRect.pivot = new Vector2(0.3f, 0.9f); // fingertip near the top-left of the picture — move it to your icon's tip
+        fingerRect.pivot = new Vector2(0.3f, 0.9f);
         var fingerImage = fingerRect.gameObject.AddComponent<Image>();
         fingerImage.raycastTarget = false;
         fingerImage.color = new Color(1f, 1f, 1f, 0.9f);
         var finger = fingerRect.gameObject.AddComponent<TutorialFinger>();
         fingerRect.gameObject.SetActive(false);
 
-        // The hint window.
         var window = Rect("HintWindow", root);
         window.sizeDelta = new Vector2(900, 340);
         var windowImage = window.gameObject.AddComponent<Image>();

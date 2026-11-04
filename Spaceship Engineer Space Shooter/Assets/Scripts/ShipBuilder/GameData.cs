@@ -1,12 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Single root object for the whole save file — everything the player has
-/// (ship build, credits, resources) lives here so there's exactly one JSON file
-/// to read/write. Uses JsonUtility, so every field must be public and every
-/// nested type must be [System.Serializable] (no Dictionary — see ResourceEntry).
-/// </summary>
 [System.Serializable]
 public class GameData
 {
@@ -106,7 +100,6 @@ public class GameData
     public int fleetCapacity = 3;
 }
 
-/// <summary>One ship of the player's fleet: its name, its blocks and its own hangar (grid) upgrades.</summary>
 [System.Serializable]
 public class FleetShipData
 {
@@ -124,7 +117,6 @@ public class ResourceEntry
     public int amount;
 }
 
-/// <summary>The saved state of one task: how far it has got and whether its reward was taken.</summary>
 [System.Serializable]
 public class TaskStateEntry
 {
@@ -140,8 +132,6 @@ public class LevelStarEntry
     public int stars;
 }
 
-/// <summary>One crew member the player owns: a copy of some CrewMemberDefinition with its own rank (1-3)
-/// and level. instanceId is unique per copy — two copies of the same definition are told apart by it.</summary>
 [System.Serializable]
 public class CrewMemberData
 {
@@ -149,7 +139,6 @@ public class CrewMemberData
     public string definitionId;
     public int rank = 1;
     public int level = 1;
-    /// <summary>Received but not looked at yet in the crew screen — lights the badge of the crew button (MainPanelBadges).</summary>
     public bool isNew;
 }
 

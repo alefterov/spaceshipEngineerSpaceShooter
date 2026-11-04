@@ -1,11 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// One bolt of lightning, drawn procedurally: a jagged line from a start to an end, with a wider, fainter line
-/// under it for the glow. The jags are re-rolled every Flicker Seconds so it crackles, and it fades out over its
-/// Lifetime. Both ends follow their transforms (the ball, the block) for as long as those exist, and stay where they
-/// were if one disappears. Created by PlasmaBall (Strike); removes itself when done.
-/// </summary>
 public class PlasmaLightning : MonoBehaviour
 {
     public struct Style
@@ -14,8 +8,8 @@ public class PlasmaLightning : MonoBehaviour
         public float width;
         public float haloWidthMultiplier;
         public float haloAlpha;
-        public float segmentLength;   // roughly how long each straight piece is
-        public float jaggedness;      // the most a point is pushed sideways, in world units
+        public float segmentLength;
+        public float jaggedness;
         public float lifetime;
         public float flickerSeconds;
         public Material material;
@@ -43,7 +37,6 @@ public class PlasmaLightning : MonoBehaviour
         }
     }
 
-    /// <summary>Creates a bolt between two transforms.</summary>
     public static void Spawn(Style style, Transform from, Transform to)
     {
         var go = new GameObject("PlasmaLightning");
@@ -98,7 +91,6 @@ public class PlasmaLightning : MonoBehaviour
         SetAlpha(1f - age / Mathf.Max(0.01f, style.lifetime));
     }
 
-    /// <summary>Re-rolls the jagged shape (the crackle).</summary>
     private void Redraw()
     {
         nextFlicker = Time.time + Mathf.Max(0.01f, style.flickerSeconds);
@@ -120,7 +112,6 @@ public class PlasmaLightning : MonoBehaviour
             float t = i / (float)pieces;
             Vector3 point = Vector3.Lerp(a, b, t);
 
-            // The ends stay exactly on the ball and the block; the push is biggest in the middle.
             if (i > 0 && i < pieces)
                 point += side * (Random.Range(-1f, 1f) * style.jaggedness * Mathf.Sin(t * Mathf.PI));
 
@@ -129,7 +120,6 @@ public class PlasmaLightning : MonoBehaviour
         }
     }
 
-    /// <summary>Between re-rolls, keeps just the two ends glued to what they are attached to.</summary>
     private void FollowEnds()
     {
         int last = core.positionCount - 1;
@@ -143,7 +133,7 @@ public class PlasmaLightning : MonoBehaviour
 
     private void SetAlpha(float alpha)
     {
-        Color coreColor = Color.Lerp(style.color, Color.white, 0.6f); // a hot white-ish centre
+        Color coreColor = Color.Lerp(style.color, Color.white, 0.6f);
         coreColor.a = alpha;
         core.startColor = core.endColor = coreColor;
 

@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Single point of access to the player's save data. Loads GameData once at game start
-/// (Awake, before any scene logic needs it), keeps it in memory, and persists to disk
-/// through SaveSystem whenever something changes.
-/// Put this on a bootstrap object in your very first scene, marked DontDestroyOnLoad.
-/// </summary>
 public class GameDataManager : MonoBehaviour
 {
     public static GameDataManager Instance { get; private set; }
@@ -19,29 +13,17 @@ public class GameDataManager : MonoBehaviour
     public event Action OnCreditsChanged;
     public event Action OnCoinsChanged;
     public event Action<string> OnResourceChanged;
-    // Fired on a failed spend attempt (not enough of that currency) — UI (CurrencyDisplay) uses
-    // these to trigger its "can't afford it" pulse; distinct from OnCreditsChanged/OnCoinsChanged,
-    // which fire on every successful change, not on rejections.
     public event Action OnInsufficientCredits;
     public event Action OnInsufficientCoins;
     public event Action OnResearchPointsChanged;
     public event Action OnInsufficientResearchPoints;
-    /// <summary>Fired with the researched tech's id right after TryResearch succeeds — e.g. so a
-    /// TechNodeView can refresh itself when a DIFFERENT node's research just unlocked it.</summary>
     public event Action<string> OnTechResearched;
     public event Action OnHangarLevelChanged;
     public event Action OnCreditsMultiplierLevelChanged;
     public event Action OnSurvivalStartLevelChanged;
-    /// <summary>Fired with the level's id right after SetLevelStars actually changes something — e.g.
-    /// so a LevelButtonView can refresh itself, or a neighboring level's lock/unlock state if it was
-    /// gated on this one being completed.</summary>
     public event Action<string> OnLevelStarsChanged;
-    /// <summary>Fired whenever AddExperience actually changes playerExperience/playerLevel (a zero-xp
-    /// call is a no-op and doesn't fire this).</summary>
     public event Action OnExperienceChanged;
 
-    // Credits as they stood at the last save (or at BeginBuildSession, if nothing's been saved
-    // since) — what RevertCredits() rolls back to on an unsaved exit from the builder.
     private int creditsAtSessionStart;
 
     [Header("Number display")]
@@ -66,14 +48,10 @@ public class GameDataManager : MonoBehaviour
         LoadOrCreate();
     }
 
-    // ---------- Load / Save ----------
-
-    /// <summary>Loads the save file, or creates a fresh empty GameData if none exists (first launch).</summary>
     public void LoadOrCreate()
     {
         Current = SaveSystem.Load() ?? new GameData();
 
-        // An old save counted one combined hangar level (a row AND a column each): convert it once.
         if (Current.hangarLevel > 0)
         {
             Current.hangarColumns += Current.hangarLevel;
@@ -81,7 +59,6 @@ public class GameDataManager : MonoBehaviour
             Current.hangarLevel = 0;
         }
 
-        // The tutorial is for a first game: a save that has already played battles (from before the tutorial existed) skips it.
         if (Current.tutorialDoneSteps.Count == 0 && !Current.tutorialOff && Current.levelStars.Count > 0) Current.tutorialOff = true;
 
         GrantStarterKitIfNeeded();
@@ -90,8 +67,6 @@ public class GameDataManager : MonoBehaviour
         RebuildPerkBonuses();
         OnDataLoaded?.Invoke();
     }
-
-    // ---------- New game: starting technologies and ship ----------
 
     [Header("New game")]
     [Tooltip("Ids of the technologies (TechDefinition.id) that are already researched in a fresh game.")]
@@ -109,8 +84,6 @@ public class GameDataManager : MonoBehaviour
              "ship\" moves the ship to the middle of this grid plus the starter hangar, so it fits a new player's grid.")]
     public Vector2Int builderBaseGridSize = new(5, 5);
 
-    /// <summary>Hands out the starting technologies and the starting ship, once per save. The ship only goes to a save that has
-    /// none yet, so an old save keeps the player's own ship.</summary>
     private void GrantStarterKitIfNeeded()
     {
         if (Current.starterKitGranted) return;
@@ -122,7 +95,7 @@ public class GameDataManager : MonoBehaviour
         if ((Current.playerShip == null || Current.playerShip.TotalEntries == 0) && starterShip != null && starterShip.TotalEntries > 0)
         {
             Current.playerShip = CopyLayout(starterShip);
-            Current.hangarColumns = Mathf.Max(Current.hangarColumns, starterHangarColumns); // room for the starter ship
+            Current.hangarColumns = Mathf.Max(Current.hangarColumns, starterHangarColumns);
             Current.hangarRows = Mathf.Max(Current.hangarRows, starterHangarRows);
         }
 
@@ -137,8 +110,6 @@ public class GameDataManager : MonoBehaviour
         return copy;
     }
 
-    /// <summary>The ship built in the editor and saved on 28.10 (CyberForgeStudio save) — the default starting ship. A 3 x 3 ship,
-    /// moved to the middle of the builder's 5 x 5 base grid.</summary>
     private static ShipLayout DefaultStarterShip()
     {
         var layout = new ShipLayout();
@@ -150,7 +121,6 @@ public class GameDataManager : MonoBehaviour
         Add("engine_jet_1x1", 3, 1);
         Add("kinetic_static_gun1_1x1", 3, 2);
         Add("light_armor_1x1", 2, 3);
-        // (1, 2) is left free: the tutorial has the player build the second gun there.
         Add("light_triangle_armor_1x1", 3, 3, 3);
         Add("light_triangle_armor_1x1", 1, 3);
         Add("engine_jet_1x1", 1, 1);
@@ -174,7 +144,6 @@ public class GameDataManager : MonoBehaviour
         UnityEditor.Undo.RecordObject(this, "Use saved ship as starter ship");
         starterShip = CopyLayout(savedLayout);
 
-        // The save was built in the player's (possibly upgraded) grid: move the ship to the middle of a NEW player's grid.
         int minX = starterShip.blocks.Min(b => b.anchorX), maxX = starterShip.blocks.Max(b => b.anchorX);
         int minY = starterShip.blocks.Min(b => b.anchorY), maxY = starterShip.blocks.Max(b => b.anchorY);
         int gridW = builderBaseGridSize.x + starterHangarColumns, gridH = builderBaseGridSize.y + starterHangarRows;
@@ -184,29 +153,19 @@ public class GameDataManager : MonoBehaviour
 
         UnityEditor.EditorUtility.SetDirty(this);
         bool fits = maxX - minX + 1 <= gridW && maxY - minY + 1 <= gridH;
-        Debug.Log($"Starter ship set from the save: {starterShip.blocks.Count} blocks, {maxX - minX + 1} x {maxY - minY + 1} cells" +
-                  (fits ? "" : $" — DOES NOT FIT the new player's {gridW} x {gridH} grid, raise Starter Hangar Columns / Rows") +
-                  ". Save the scene to keep it.", this);
     }
 
     [ContextMenu("Delete save file (start as a new player)")]
     private void DeleteSaveFile()
     {
         SaveSystem.DeleteSave();
-        Debug.Log("Save file deleted — the next Play starts a fresh game with the starter technologies and ship.", this);
     }
 #endif
 
     public void Save() => SaveSystem.Save(Current);
 
-    // ---------- Ship build ----------
-
-    /// <summary>Call from the ship editor's "Save" / "Confirm build" button. Also becomes the new
-    /// baseline RevertCredits() rolls back to — saving locks in whatever was spent/refunded so far
-    /// this session as the new "safe" point.</summary>
     public void SaveShip(ShipGrid grid)
     {
-        // The ship built is the one the fleet panel shows (normally the selected one); saving it also makes it the ship for battle.
         FocusedShip.layout = grid.ExportLayout();
         Current.selectedShip = FocusedShipIndex;
         Save();
@@ -214,11 +173,6 @@ public class GameDataManager : MonoBehaviour
         creditsAtSessionStart = Current.credits;
     }
 
-    /// <summary>
-    /// Call once when the editor scene opens (or at game start if the ship
-    /// is built directly in the bootstrap flow) to restore the saved build.
-    /// Does nothing if the player has never saved a ship yet.
-    /// </summary>
     public void LoadShip(ShipGrid grid, BlockDatabase database)
     {
         var layout = SelectedShip.layout;
@@ -226,28 +180,16 @@ public class GameDataManager : MonoBehaviour
         grid.BuildFromLayout(layout, database, Faction.Player);
     }
 
-    /// <summary>Call when entering the ship builder — remembers the current credits as the point
-    /// RevertCredits() rolls back to if the player leaves without saving. Also call once at game
-    /// start alongside LoadShip, so the very first build session has a correct baseline.</summary>
     public void BeginBuildSession()
     {
         creditsAtSessionStart = Current.credits;
     }
 
-    /// <summary>
-    /// Call from the builder's "Close"/"Exit" button — throws away whatever was placed/deleted
-    /// this session by rebuilding the grid from the last SAVED layout, discarding anything since.
-    /// Unlike LoadShip, this always rebuilds — including clearing the grid back to empty if the
-    /// player has never saved a ship yet, so a first-time, never-saved build gets fully discarded too.
-    /// </summary>
     public void RevertShip(ShipGrid grid, BlockDatabase database)
     {
         grid.BuildFromLayout(FocusedShip.layout, database, Faction.Player);
     }
 
-    /// <summary>Call alongside RevertShip when leaving the builder without saving — undoes any
-    /// credits spent on building or refunded from dismantling this session, back to whatever they
-    /// were at BeginBuildSession (or the last SaveShip, whichever is more recent).</summary>
     public void RevertCredits()
     {
         Current.credits = creditsAtSessionStart;
@@ -255,11 +197,6 @@ public class GameDataManager : MonoBehaviour
     }
 
     public bool HasSavedShip => SelectedShip.layout != null && SelectedShip.layout.TotalEntries > 0;
-
-    // ---------- Fleet ----------
-    // The player's ships. The SELECTED one goes into battle. The FOCUSED one is the one being looked at / built / upgraded in the main
-    // scene (the fleet panel's slide); it is the selected one except while the fleet panel shows another. Hangar upgrades and the builder
-    // work on the focused ship; saving it in the builder makes it the selected one.
 
     [Header("Fleet")]
     [Tooltip("What a new hangar (an extra ship) is paid with: Credits, Coins or Research Points.")]
@@ -269,7 +206,6 @@ public class GameDataManager : MonoBehaviour
     [Tooltip("Name of a new ship; {0} = its number in the fleet.")]
     public string fleetShipNameFormat = "Ship {0}";
 
-    /// <summary>A ship was bought, renamed, selected, saved, or another ship is focused.</summary>
     public event Action OnFleetChanged;
 
     public IReadOnlyList<FleetShipData> Fleet => Current.fleet;
@@ -279,14 +215,11 @@ public class GameDataManager : MonoBehaviour
     public int SelectedShipIndex => Mathf.Clamp(Current.selectedShip, 0, Mathf.Max(0, Current.fleet.Count - 1));
     public FleetShipData SelectedShip => Current.fleet[SelectedShipIndex];
 
-    /// <summary>The ship looked at / built in the main scene — not saved: it is the selected one at every start.</summary>
     public int FocusedShipIndex { get; private set; }
     public FleetShipData FocusedShip => Current.fleet[Mathf.Clamp(FocusedShipIndex, 0, Current.fleet.Count - 1)];
 
-    /// <summary>The price of the next hangar (the next ship).</summary>
     public int NextFleetShipCost => fleetShipCost;
 
-    /// <summary>Old saves: the single ship (and its hangar upgrades) becomes the first ship of the fleet. A new game: the starter ship.</summary>
     private void EnsureFleet()
     {
         if (Current.fleet.Count > 0)
@@ -307,18 +240,15 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    /// <summary>Looks at / works on another ship of the fleet (the fleet panel's slide).</summary>
     public void FocusShip(int index)
     {
         FocusedShipIndex = Mathf.Clamp(index, 0, Current.fleet.Count - 1);
         OnFleetChanged?.Invoke();
-        OnHangarLevelChanged?.Invoke(); // the hangar upgrade buttons show this ship's grid and prices now
+        OnHangarLevelChanged?.Invoke();
     }
 
-    /// <summary>Back to the ship that goes into battle.</summary>
     public void ResetFocus() => FocusShip(SelectedShipIndex);
 
-    /// <summary>This ship goes into battle from now on.</summary>
     public void SelectShip(int index)
     {
         Current.selectedShip = Mathf.Clamp(index, 0, Current.fleet.Count - 1);
@@ -337,8 +267,6 @@ public class GameDataManager : MonoBehaviour
         OnFleetChanged?.Invoke();
     }
 
-    /// <summary>Buys a new hangar: a new ship (the starter ship, on a fresh 5 x 5 grid) joins the fleet. False if the fleet is full or the
-    /// player cannot pay (that also fires the matching "insufficient" event).</summary>
     public bool TryBuyFleetShip(out int newIndex)
     {
         newIndex = -1;
@@ -357,7 +285,7 @@ public class GameDataManager : MonoBehaviour
                 break;
             default:
                 if (!SpendCredits(cost)) return false;
-                creditsAtSessionStart = Current.credits; // a purchase, not a build: leaving the builder later must not give it back
+                creditsAtSessionStart = Current.credits;
                 break;
         }
 
@@ -374,7 +302,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Shows a ship of the fleet on a grid: its hangar size and its blocks.</summary>
     public void ShowFleetShip(ShipGrid grid, BlockDatabase database, int index)
     {
         if (grid == null || index < 0 || index >= Current.fleet.Count) return;
@@ -382,11 +309,6 @@ public class GameDataManager : MonoBehaviour
         grid.SetHangarSize(ship.hangarColumns, ship.hangarRows);
         grid.BuildFromLayout(ship.layout, database, Faction.Player);
     }
-
-    // ---------- Credits ----------
-    // Soft currency spent on building/repairing. Deliberately NOT auto-saved on every change —
-    // building/dismantling happens continuously during a session and must stay revertible
-    // (RevertCredits) until the player explicitly saves (SaveShip persists it to disk).
 
     public int Credits => Current.credits;
 
@@ -396,7 +318,6 @@ public class GameDataManager : MonoBehaviour
         OnCreditsChanged?.Invoke();
     }
 
-    /// <summary>Returns false (and spends nothing) if the player can't afford it.</summary>
     public bool SpendCredits(int amount)
     {
         if (Current.credits < amount) { NotifyInsufficientCredits(); return false; }
@@ -405,15 +326,7 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Fires OnInsufficientCredits — e.g. CurrencyDisplay's "can't afford it" pulse. C# events
-    /// can only be raised from inside their declaring class, so callers that detect an affordability
-    /// failure themselves (GhostBlockController, when a drag-drop is rejected on cost) go through this
-    /// instead of SpendCredits, which they never actually call in that case.</summary>
     public void NotifyInsufficientCredits() => OnInsufficientCredits?.Invoke();
-
-    // ---------- Coins (premium currency, purchased with real money) ----------
-    // Unlike credits, these ARE saved immediately — a real-money purchase should never be lost by
-    // exiting the builder without saving, so they're not part of the build-session revert at all.
 
     public int Coins => Current.coins;
 
@@ -424,7 +337,6 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    /// <summary>Returns false (and spends nothing) if the player doesn't have enough coins.</summary>
     public bool SpendCoins(int amount)
     {
         if (Current.coins < amount) { NotifyInsufficientCoins(); return false; }
@@ -434,12 +346,7 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Fires OnInsufficientCoins — see NotifyInsufficientCredits for why this wrapper exists.</summary>
     public void NotifyInsufficientCoins() => OnInsufficientCoins?.Invoke();
-
-    // ---------- Research points & technologies ----------
-    // Research is meta-progression, not tied to any one build session — spending is saved
-    // immediately (like coins), never reverted by exiting the builder without saving.
 
     public int ResearchPoints => Current.researchPoints;
 
@@ -452,8 +359,6 @@ public class GameDataManager : MonoBehaviour
 
     public bool IsTechResearched(TechDefinition tech) => tech != null && Current.researchedTechIds.Contains(tech.id);
 
-    /// <summary>True if this tech isn't researched yet, its prerequisite (if any) is, and the player
-    /// currently has enough points — i.e. TryResearch would succeed right now.</summary>
     public bool CanResearch(TechDefinition tech)
     {
         if (tech == null || IsTechResearched(tech)) return false;
@@ -466,9 +371,6 @@ public class GameDataManager : MonoBehaviour
     public AudioClip researchSound;
     [Range(0f, 1f)] public float researchVolume = 1f;
 
-    /// <summary>Spends points and marks the tech researched. Returns false and changes nothing if
-    /// it's already researched, its prerequisite isn't met, or there aren't enough points (which
-    /// also fires OnInsufficientResearchPoints in that last case specifically).</summary>
     public bool TryResearch(TechDefinition tech)
     {
         if (tech == null || IsTechResearched(tech)) return false;
@@ -489,21 +391,11 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Whether a block can currently be built — true if no tech gates it, or that tech has
-    /// been researched. BuildPaletteUI uses this (via its optional TechDatabase field) to hide
-    /// blocks the player hasn't unlocked yet.</summary>
     public bool IsBlockUnlocked(BlockDefinition block, TechDatabase techDatabase)
     {
         var tech = techDatabase != null ? techDatabase.GetTechForBlock(block) : null;
         return tech == null || IsTechResearched(tech);
     }
-
-    // ---------- Hangar (build grid) upgrades ----------
-    // Two separate purchases with their OWN prices: one adds a COLUMN to the ship's buildable grid, the other
-    // a ROW (see ShipGrid.SetHangarSize). Each has its own base cost and its own growth per purchase, and
-    // each price depends only on how many upgrades of THAT kind were bought. Paid with research points, same
-    // currency and immediate-persistence semantics as researching a technology — not part of the revertible
-    // build-session state.
 
     [Header("Hangar upgrade cost — columns")]
     [Tooltip("Research-point cost of the first column upgrade.")]
@@ -517,25 +409,18 @@ public class GameDataManager : MonoBehaviour
     [Tooltip("Extra research-point cost added per row already bought.")]
     public int hangarRowCostPerLevel = 100;
 
-    /// <summary>The focused ship's own hangar upgrades.</summary>
     public int HangarColumns => FocusedShip.hangarColumns;
     public int HangarRows => FocusedShip.hangarRows;
 
-    /// <summary>Price of the next column.</summary>
     public int GetHangarColumnUpgradeCost() => hangarColumnBaseCost + FocusedShip.hangarColumns * hangarColumnCostPerLevel;
 
-    /// <summary>Price of the next row.</summary>
     public int GetHangarRowUpgradeCost() => hangarRowBaseCost + FocusedShip.hangarRows * hangarRowCostPerLevel;
 
     public bool CanUpgradeHangarColumn() => Current.researchPoints >= GetHangarColumnUpgradeCost();
     public bool CanUpgradeHangarRow() => Current.researchPoints >= GetHangarRowUpgradeCost();
 
-    /// <summary>Spends research points to add one column to the given grid's buildable area. Returns false
-    /// (and changes nothing) if there aren't enough points, firing OnInsufficientResearchPoints the same way
-    /// TryResearch does.</summary>
     public bool TryUpgradeHangarColumn(ShipGrid grid) => TryUpgradeHangar(grid, addColumn: true);
 
-    /// <summary>Same as TryUpgradeHangarColumn, but adds a row.</summary>
     public bool TryUpgradeHangarRow(ShipGrid grid) => TryUpgradeHangar(grid, addColumn: false);
 
     private bool TryUpgradeHangar(ShipGrid grid, bool addColumn)
@@ -558,10 +443,6 @@ public class GameDataManager : MonoBehaviour
         Save();
         return true;
     }
-
-    // ---------- Battle credits-reward multiplier upgrade ----------
-    // Multiplies whatever credits a battle would award — the battle-reward code (not written yet)
-    // should call GetCreditsMultiplier() and scale its base reward by it.
 
     [Header("Battle credits multiplier upgrade")]
     public int creditsMultiplierUpgradeBaseCost = 200;
@@ -587,10 +468,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    // ---------- Survival-mode starting-level upgrade ----------
-    // Raises the level survival mode (not written yet) begins at — that mode's start-up code should
-    // call GetSurvivalStartLevel() for its initial difficulty level.
-
     [Header("Survival start level upgrade")]
     public int survivalStartLevelUpgradeBaseCost = 200;
     public int survivalStartLevelUpgradeCostPerLevel = 100;
@@ -613,11 +490,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    // ---------- Campaign levels ----------
-    // A level is unlocked once its prerequisite (if any) has been completed — see LevelDefinition.
-    // Star rating (0-3) is tracked separately and only ever improves; a repeat clear with fewer stars
-    // than a previous best doesn't overwrite it.
-
     public int GetStars(LevelDefinition level)
     {
         if (level == null) return 0;
@@ -630,9 +502,6 @@ public class GameDataManager : MonoBehaviour
     public bool IsLevelUnlocked(LevelDefinition level)
         => level != null && (level.prerequisite == null || IsLevelCompleted(level.prerequisite));
 
-    /// <summary>Records a level's result. Call once a battle (not implemented yet) resolves — the
-    /// battle-end code should pass however many of 3 stars the player earned. A no-op if that's not
-    /// better than the level's existing best.</summary>
     public void SetLevelStars(LevelDefinition level, int stars)
     {
         if (level == null) return;
@@ -644,18 +513,13 @@ public class GameDataManager : MonoBehaviour
         }
         else
         {
-            if (stars <= entry.stars) return; // not an improvement — nothing to save or notify
+            if (stars <= entry.stars) return;
             entry.stars = stars;
         }
 
         OnLevelStarsChanged?.Invoke(level.id);
         Save();
     }
-
-    // ---------- Player level & experience ----------
-    // Meta-progression separate from the ship: earned from battle rewards (BattleOutcomeController) and
-    // shown on the result panel's level-up bar (ExperienceBarView). Persisted immediately, like coins/
-    // research — never part of the build-session revert.
 
     [Header("Player level curve")]
     [Tooltip("Every player starts at level 0. This is the experience required to advance from level 0 to level 1.")]
@@ -673,26 +537,15 @@ public class GameDataManager : MonoBehaviour
     public int PlayerLevel => Current.playerLevel;
     public int PlayerExperience => Current.playerExperience;
 
-    /// <summary>Experience needed to advance FROM this level to the next.</summary>
     public int GetExperienceRequiredForLevel(int level)
         => Mathf.Max(1, Mathf.RoundToInt(baseExperiencePerLevel * Mathf.Pow(experienceGrowthPerLevel, Mathf.Max(0, level))));
 
-    /// <summary>One level's worth of an experience gain — how full the bar was before and after, and how
-    /// much that level needed in total. A single big gain can span several of these (one per level it
-    /// rolled past) — see ExperienceBarView.PlaySteps, which animates through them in order.</summary>
     public struct ExperienceGainStep
     {
         public int level;
         public int startXp, endXp, xpRequired;
     }
 
-    /// <summary>
-    /// Adds experience, leveling up (possibly more than once) if it fills the current level's bar — each
-    /// level-up also grants researchPointsPerLevel research points. Returns the sequence of per-level
-    /// steps the gain passed through — ALWAYS at least one entry (a zero-length step at the player's
-    /// current standing) even when amount is 0 or negative, so a caller can use the same result to just
-    /// show the current position with nothing to animate.
-    /// </summary>
     public List<ExperienceGainStep> AddExperience(int amount)
     {
         var steps = new List<ExperienceGainStep>();
@@ -712,7 +565,7 @@ public class GameDataManager : MonoBehaviour
 
             steps.Add(new ExperienceGainStep { level = level, startXp = startXp, endXp = Current.playerExperience, xpRequired = required });
 
-            if (Current.playerExperience < required) break; // didn't fill this level — nothing left to carry over anyway
+            if (Current.playerExperience < required) break;
 
             Current.playerExperience = 0;
             Current.playerLevel++;
@@ -730,16 +583,6 @@ public class GameDataManager : MonoBehaviour
         return steps;
     }
 
-    // ---------- Ship's crew ----------
-    // The player owns crew MEMBERS (CrewMemberData — a copy of some CrewMemberDefinition with its own rank
-    // and level). Up to 4 of them stand in the 4 slots, one per CrewRole. ONLY members standing in a slot
-    // count: their unlocked perks (the Nth perk in the definition unlocks at rank N) feed the player's ship through
-    // GetCrewPerkMultiplier, scaled by the member's level. A member can be levelled up with credits only
-    // while standing in a slot; two copies of the same definition and rank can be merged into a higher
-    // rank (TryMergeCrew) — which resets the level and unlocks the next perk; the ranked-up member stays in its slot.
-
-    /// <summary>Fired after ANY crew change — a member added/removed, moved between slot and collection,
-    /// levelled up or ranked up. Crew UI rebuilds itself on this.</summary>
     public event Action OnCrewChanged;
 
     [Header("Crew")]
@@ -758,9 +601,6 @@ public class GameDataManager : MonoBehaviour
     public AudioClip crewSlotSound;
     [Range(0f, 1f)] public float crewSlotVolume = 1f;
 
-    // Total bonus per CrewPerkType from the members in the slots, rebuilt whenever crew changes. Cached
-    // because gameplay reads it every frame (weapons, movement) and recomputing from the save list there
-    // would mean list scans per weapon per frame.
     private readonly float[] perkBonus = new float[32];
 
     public IReadOnlyList<CrewMemberData> CrewMembers => Current.crewMembers;
@@ -771,7 +611,6 @@ public class GameDataManager : MonoBehaviour
     public CrewMemberDefinition GetCrewDefinition(CrewMemberData member)
         => member == null || crewDatabase == null ? null : crewDatabase.GetById(member.definitionId);
 
-    /// <summary>The member currently standing in this slot, or null if it's empty.</summary>
     public CrewMemberData GetAssignedMember(CrewRole slot)
     {
         var entry = Current.crewSlots.FirstOrDefault(s => s.role == slot);
@@ -781,8 +620,6 @@ public class GameDataManager : MonoBehaviour
     public bool IsCrewAssigned(string instanceId)
         => !string.IsNullOrEmpty(instanceId) && Current.crewSlots.Any(s => s.instanceId == instanceId);
 
-    /// <summary>Gives the player a fresh copy (level 1, of this rank — 1 unless given) of this crew member, unassigned. Call from
-    /// whatever hands crew out — shop, loot, rewards. Returns the new copy's instanceId.</summary>
     public string AddCrewMember(CrewMemberDefinition definition, int rank = 1)
     {
         if (definition == null) return null;
@@ -798,8 +635,6 @@ public class GameDataManager : MonoBehaviour
     private static CrewMemberData NewCrewMember(CrewMemberDefinition definition)
         => new() { instanceId = Guid.NewGuid().ToString("N"), definitionId = definition.id, rank = 1, level = 1 };
 
-    /// <summary>Puts a member into the slot of its own specialty, replacing whoever stood there (who simply
-    /// goes back to the collection). False if the member doesn't exist or belongs to a different specialty.</summary>
     public bool TryAssignToSlot(string instanceId, CrewRole slot)
     {
         var member = GetCrewMember(instanceId);
@@ -813,7 +648,7 @@ public class GameDataManager : MonoBehaviour
             Current.crewSlots.Add(entry);
         }
 
-        if (entry.instanceId == instanceId) return true; // already there — nothing to change
+        if (entry.instanceId == instanceId) return true;
 
         entry.instanceId = instanceId;
         AudioManager.PlaySfx(crewSlotSound, crewSlotVolume);
@@ -821,7 +656,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Takes a member out of its slot, back to the collection. No-op if it wasn't in one.</summary>
     public void UnassignCrew(string instanceId)
     {
         if (!ClearSlotsHolding(instanceId)) return;
@@ -841,10 +675,6 @@ public class GameDataManager : MonoBehaviour
         return changed;
     }
 
-    // ----- Level-up -----
-
-    /// <summary>Price of this member's NEXT level: (Level Up Base Cost x current level, plus current level
-    /// x Crew Level Cost Extra Per Level) x the member's rank.</summary>
     public int GetCrewLevelUpCost(CrewMemberData member)
     {
         var definition = GetCrewDefinition(member);
@@ -854,9 +684,6 @@ public class GameDataManager : MonoBehaviour
 
     public bool CanAffordCrewLevelUp(CrewMemberData member) => member != null && Current.credits >= GetCrewLevelUpCost(member);
 
-    /// <summary>Spends credits to raise a member's level by one. Only members standing in a slot can be
-    /// levelled. Returns false (spending nothing, and firing OnInsufficientCredits when it was the money
-    /// that was missing) if it can't.</summary>
     public bool TryLevelUpCrew(string instanceId)
     {
         var member = GetCrewMember(instanceId);
@@ -877,15 +704,8 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    // ----- Merge (rank-up) -----
-    // Only a member standing in a slot can be ranked up. It is fed two spare copies from the collection — the
-    // exact same kind at the exact same rank — and STAYS in its slot with the new rank.
-
     public bool CanRankUpCrew(CrewMemberData member) => member != null && member.rank < CrewMemberDefinition.MaxRank;
 
-    /// <summary>Whether `candidate` may be fed to `target` in a merge: a different copy of the exact same
-    /// definition (same kind, therefore same specialty) at the exact same rank, sitting in the collection
-    /// (not in a slot).</summary>
     public bool CanBeMergeFodder(CrewMemberData target, CrewMemberData candidate)
         => target != null && candidate != null
            && candidate.instanceId != target.instanceId
@@ -893,18 +713,12 @@ public class GameDataManager : MonoBehaviour
            && candidate.rank == target.rank
            && !IsCrewAssigned(candidate.instanceId);
 
-    /// <summary>Every spare copy that could be fed to `target`, lowest level first (the ones that cost the
-    /// least to lose).</summary>
     public List<CrewMemberData> GetMergeCandidates(CrewMemberData target)
         => Current.crewMembers.Where(m => CanBeMergeFodder(target, m)).OrderBy(m => m.level).ToList();
 
-    /// <summary>Whether the rank-up button should be usable: the member stands in a slot, isn't at the top
-    /// rank, and at least two spare copies exist.</summary>
     public bool CanMergeCrew(CrewMemberData member)
         => CanRankUpCrew(member) && IsCrewAssigned(member.instanceId) && GetMergeCandidates(member).Count >= 2;
 
-    /// <summary>Credits it costs to rank this member up (from Crew Merge Costs, by its current rank). The
-    /// last entry is reused if the list is shorter than the number of ranks.</summary>
     public int GetCrewMergeCost(CrewMemberData member)
     {
         if (member == null || crewMergeCosts == null || crewMergeCosts.Length == 0) return 0;
@@ -913,13 +727,6 @@ public class GameDataManager : MonoBehaviour
 
     public bool CanAffordCrewMerge(CrewMemberData member) => member != null && Current.credits >= GetCrewMergeCost(member);
 
-    /// <summary>
-    /// "Crossing": consumes the two fodder copies and raises the target one rank — its level resets to 1
-    /// (the levels bought so far are lost), the next perk unlocks, and its portrait swaps to the new rank's.
-    /// The target STAYS in its slot. False, changing nothing, if the target isn't in a slot, is already max
-    /// rank, either fodder doesn't match, or the credits (GetCrewMergeCost) are missing — in that last case
-    /// OnInsufficientCredits fires. Spends the credits on success.
-    /// </summary>
     public bool TryMergeCrew(string targetId, string fodderAId, string fodderBId)
     {
         var target = GetCrewMember(targetId);
@@ -950,33 +757,23 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    // ----- Missile target priority (player) -----
-
-    /// <summary>The saved missile target order (ModuleType values), or null if never changed.</summary>
     public IReadOnlyList<int> SavedMissilePriority
         => Current.missileTargetPriority != null && Current.missileTargetPriority.Count > 0 ? Current.missileTargetPriority : null;
 
-    /// <summary>Remembers the player's missile target order and saves it right away.</summary>
     public void SaveMissilePriority(IEnumerable<ModuleType> order)
     {
         Current.missileTargetPriority = order.Select(t => (int)t).ToList();
         Save();
     }
 
-    // ----- Tower-gun target priority (player) -----
-
-    /// <summary>The saved tower-gun target order (ModuleType values), or null if never changed.</summary>
     public IReadOnlyList<int> SavedTowerPriority
         => Current.towerTargetPriority != null && Current.towerTargetPriority.Count > 0 ? Current.towerTargetPriority : null;
 
-    /// <summary>Remembers the player's tower-gun target order and saves it right away.</summary>
     public void SaveTowerPriority(IEnumerable<ModuleType> order)
     {
         Current.towerTargetPriority = order.Select(t => (int)t).ToList();
         Save();
     }
-
-    // ----- Rewards and tasks -----
 
     [Header("Rewards and tasks")]
     [Tooltip("The reward for each player level (the level bar of the rewards panel).")]
@@ -987,17 +784,15 @@ public class GameDataManager : MonoBehaviour
     public AudioClip rewardClaimSound;
     [Range(0f, 1f)] public float rewardClaimVolume = 1f;
 
-    /// <summary>Fired when a reward was taken or a task made progress — the rewards panel refreshes itself on this.</summary>
     public event Action OnRewardsChanged;
 
-    /// <summary>Gives the player a reward of any kind.</summary>
     public void GrantReward(RewardData reward)
     {
         if (reward.amount <= 0) return;
 
         switch (reward.type)
         {
-            case RewardType.Credits: AddCredits(reward.amount); Save(); break; // AddCredits alone does not save: the builder can revert it
+            case RewardType.Credits: AddCredits(reward.amount); Save(); break;
             case RewardType.Coins: AddCoins(reward.amount); break;
             case RewardType.Experience: AddExperience(reward.amount); break;
             case RewardType.ResearchPoints: AddResearchPoints(reward.amount); break;
@@ -1005,14 +800,12 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
-    /// <summary>Gives several rewards at once (a level's or a task's).</summary>
     public void GrantRewards(IReadOnlyList<RewardData> rewards)
     {
         if (rewards == null) return;
         foreach (var reward in rewards) GrantReward(reward);
     }
 
-    /// <summary>Gives the player random crew cards: level 1 copies of random members of the Crew Database, of this rank (1-3).</summary>
     public void GrantRandomCrewCards(int count, int rank = 1)
     {
         var members = crewDatabase != null ? crewDatabase.allMembers : null;
@@ -1035,17 +828,13 @@ public class GameDataManager : MonoBehaviour
         if (received.Count > 0) OnCrewCardsGranted?.Invoke(received);
     }
 
-    /// <summary>Fired with the cards just received as a reward - the crew card window (CrewCardRewardPopup) shows them.</summary>
     public event Action<IReadOnlyList<CrewMemberData>> OnCrewCardsGranted;
-
-    // --- player level rewards ---
 
     public IReadOnlyList<RewardData> GetLevelRewards(int level)
         => playerLevelRewards != null ? playerLevelRewards.GetRewards(level) : System.Array.Empty<RewardData>();
 
     public bool IsLevelRewardClaimed(int level) => Current.claimedLevelRewards.Contains(level);
 
-    /// <summary>The level is reached, has rewards, and they have not been taken yet.</summary>
     public bool CanClaimLevelReward(int level)
         => level >= 1 && Current.playerLevel >= level && !IsLevelRewardClaimed(level) && GetLevelRewards(level).Any(r => r.amount > 0);
 
@@ -1061,8 +850,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    // --- tasks ---
-
     private TaskStateEntry GetTaskState(string id, bool create)
     {
         var state = Current.taskStates.FirstOrDefault(s => s.id == id);
@@ -1075,7 +862,6 @@ public class GameDataManager : MonoBehaviour
         return state;
     }
 
-    /// <summary>How far a task has got, never above its target.</summary>
     public int GetTaskProgress(TaskDefinition task)
     {
         if (task == null) return 0;
@@ -1107,8 +893,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>An enemy block was destroyed (called by ShipModule) — counts for every Destroy Blocks task it fits. Saved with the next save
-    /// (the end of the battle), not on every kill.</summary>
     public void RecordBlockDestroyed(ModuleType type)
     {
         if (taskDatabase == null) return;
@@ -1129,7 +913,6 @@ public class GameDataManager : MonoBehaviour
         if (changed) OnRewardsChanged?.Invoke();
     }
 
-    /// <summary>The player has reached a wave in survival mode (called by the survival mode when it exists). Keeps the best.</summary>
     public void RecordSurvivalWave(int wave)
     {
         if (wave <= Current.survivalBestWave) return;
@@ -1139,9 +922,6 @@ public class GameDataManager : MonoBehaviour
         OnRewardsChanged?.Invoke();
     }
 
-    // --- badges of the main panel buttons (MainPanelBadges) ---
-
-    /// <summary>Something in the rewards panel can be taken now: a reached level's reward or a finished task.</summary>
     public bool HasClaimableRewards()
     {
         if (Current == null) return false;
@@ -1163,14 +943,11 @@ public class GameDataManager : MonoBehaviour
         return false;
     }
 
-    /// <summary>Some technology of this database can be researched right now (its prerequisite is done and there are enough points).</summary>
     public bool CanResearchAny(TechDatabase techDatabase)
         => Current != null && techDatabase != null && techDatabase.allTechs.Any(CanResearch);
 
-    /// <summary>Some crew member was received and not looked at in the crew screen yet.</summary>
     public bool HasNewCrew => Current != null && Current.crewMembers.Any(m => m != null && m.isNew);
 
-    /// <summary>The player has seen the crew screen: no member counts as new anymore.</summary>
     public void MarkCrewSeen()
     {
         if (!HasNewCrew) return;
@@ -1183,19 +960,13 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    // ----- Advertising -----
-
-    /// <summary>Whether the player has bought "No ads": no banner and no ads between battles (rewarded videos stay).</summary>
     public bool AdsRemoved => Current != null && Current.adsRemoved;
 
-    /// <summary>Marks "No ads" as bought (or takes it back) and saves — call it from the purchase code.</summary>
     public void SetAdsRemoved(bool removed)
     {
         Current.adsRemoved = removed;
         Save();
     }
-
-    // ----- Shop -----
 
     [Header("Shop")]
     [Tooltip("How many times the premium multiplies the credits and experience of every battle.")]
@@ -1204,21 +975,15 @@ public class GameDataManager : MonoBehaviour
     public AudioClip shopPurchaseSound;
     [Range(0f, 1f)] public float shopPurchaseVolume = 1f;
 
-    /// <summary>Fired after a shop purchase was given out (or a bought-once product restored) — shop buttons refresh on this.</summary>
     public event Action OnShopChanged;
 
-    /// <summary>The player has the premium: no ads, battle credits and experience x Premium Reward Multiplier.</summary>
     public bool IsPremium => Current != null && Current.premium;
 
-    /// <summary>The multiplier of battle credits and experience: Premium Reward Multiplier with the premium, otherwise 1.</summary>
     public float PremiumRewardMultiplier => IsPremium ? premiumRewardMultiplier : 1f;
 
-    /// <summary>A bought-once product (premium...) that the player already has.</summary>
     public bool IsShopProductOwned(ShopProduct product)
         => product != null && product.IsOneTime && Current != null && Current.ownedShopProducts.Contains(product.id);
 
-    /// <summary>Buys a coin-priced product: spends its price and gives it out. False (nothing spent) if not enough coins — that also fires
-    /// OnInsufficientCoins — or the product is real-money / already owned.</summary>
     public bool TryBuyWithCoins(ShopProduct product)
     {
         if (product == null || product.IsRealMoney || IsShopProductOwned(product)) return false;
@@ -1228,7 +993,6 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Gives out a bought product: its rewards, the premium if it has it, and marks a bought-once product owned. Saves.</summary>
     public void GrantShopProduct(ShopProduct product)
     {
         if (product == null) return;
@@ -1240,8 +1004,6 @@ public class GameDataManager : MonoBehaviour
         OnShopChanged?.Invoke();
     }
 
-    /// <summary>A bought-once product the store says the player owns (after reinstalling, on another phone): gives back what it keeps —
-    /// the premium, the "bought" state — but NOT its one-time rewards again.</summary>
     public void RestoreShopProduct(ShopProduct product)
     {
         if (product == null || !product.IsOneTime || IsShopProductOwned(product)) return;
@@ -1262,11 +1024,9 @@ public class GameDataManager : MonoBehaviour
         if (product.IsOneTime && !Current.ownedShopProducts.Contains(product.id)) Current.ownedShopProducts.Add(product.id);
     }
 
-    /// <summary>Whether this store transaction has already been given out.</summary>
     public bool IsOrderProcessed(string transactionId)
         => !string.IsNullOrEmpty(transactionId) && Current != null && Current.processedOrders.Contains(transactionId);
 
-    /// <summary>Remembers a store transaction as given out, and saves. Keeps the last 200.</summary>
     public void MarkOrderProcessed(string transactionId)
     {
         if (string.IsNullOrEmpty(transactionId) || IsOrderProcessed(transactionId)) return;
@@ -1276,9 +1036,6 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    // ----- Tutorial -----
-
-    /// <summary>The player switched the tutorial off for good.</summary>
     public bool TutorialOff => Current != null && Current.tutorialOff;
 
     public void SetTutorialOff(bool off)
@@ -1287,7 +1044,6 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    /// <summary>Testing: the tutorial starts over (in Play mode, from this component's ⋮ menu).</summary>
     [ContextMenu("Reset tutorial")]
     public void ResetTutorial()
     {
@@ -1306,18 +1062,12 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    // ----- Perks -----
-
-    /// <summary>The coefficient (1 = no change) for one kind of ordinary perk, from every member standing
-    /// in a slot whose unlocked perks include it — bonuses from different members add together. For a
-    /// CHANCE perk use GetCrewChance instead.</summary>
     public float GetCrewPerkMultiplier(CrewPerkType type)
     {
         int index = (int)type;
         return index > 0 && index < perkBonus.Length ? 1f + perkBonus[index] : 1f;
     }
 
-    /// <summary>The probability (0..Crew Chance Cap) of a CHANCE perk, summed over the crew in the slots.</summary>
     public float GetCrewChance(CrewPerkType type)
     {
         int index = (int)type;
@@ -1325,7 +1075,6 @@ public class GameDataManager : MonoBehaviour
         return Mathf.Clamp(chance, 0f, crewChanceCap);
     }
 
-    /// <summary>Rolls a CHANCE perk once: true with the perk's probability.</summary>
     public bool RollCrewChance(CrewPerkType type)
     {
         float chance = GetCrewChance(type);
@@ -1343,7 +1092,6 @@ public class GameDataManager : MonoBehaviour
             var definition = GetCrewDefinition(member);
             if (member == null || definition == null) continue;
 
-            // The Nth perk in the list belongs to rank N: a rank-2 member has the first two.
             int unlocked = Mathf.Min(member.rank, definition.perks.Length);
             for (int i = 0; i < unlocked; i++)
             {
@@ -1363,8 +1111,6 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    /// <summary>Hands out CrewDatabase.starterCrew once per save. Skipped (and retried next launch) while
-    /// no database is assigned, so forgetting to assign it never burns the one-time grant.</summary>
     private void GrantStarterCrewIfNeeded()
     {
         if (Current.crewStarterGranted || crewDatabase == null) return;
@@ -1375,8 +1121,6 @@ public class GameDataManager : MonoBehaviour
 
         Save();
     }
-
-    // ---------- Resources (generic key/value, e.g. "scrap", "alloy", "energy_cores") ----------
 
     public int GetResource(string id) => Current.resources.FirstOrDefault(r => r.id == id)?.amount ?? 0;
 
@@ -1393,7 +1137,6 @@ public class GameDataManager : MonoBehaviour
         Save();
     }
 
-    /// <summary>Returns false (and spends nothing) if there isn't enough of that resource.</summary>
     public bool SpendResource(string id, int amount)
     {
         var entry = Current.resources.FirstOrDefault(r => r.id == id);

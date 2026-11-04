@@ -1,11 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Registry of every CrewMemberDefinition — saved crew copies point at their definition by id, and this
-/// is what resolves that id back to the asset (same pattern as BlockDatabase). Assign it on
-/// GameDataManager.
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Crew Database", fileName = "CrewDatabase")]
 public class CrewDatabase : ScriptableObject
 {
@@ -18,8 +13,6 @@ public class CrewDatabase : ScriptableObject
 
     private Dictionary<string, CrewMemberDefinition> lookup;
 
-    // Same stale-cache fix as BlockDatabase/TechDatabase: Editor-only, drops the cached lookup whenever
-    // the list is edited so a freshly added definition is found without restarting.
     private void OnValidate() => lookup = null;
 
     public CrewMemberDefinition GetById(string id)

@@ -2,19 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One crew member shown as a card: portrait (of its current rank), name, level, rank and its 3 skills
-/// with their coefficients. Used for the cards in the crew collection (the scroll view), and for the
-/// "base" and "fodder" windows of the merge popup. Draggable (see CrewDragHandle, added automatically) —
-/// unless Draggable is off.
-///
-/// Bind(member) fills it; Bind(null) puts it in its empty look (portrait back to whatever sprite the Image
-/// had in the scene, Empty Root shown, Filled Root hidden).
-///
-/// SETUP (collection card prefab): the card's root Image is the Avatar Image; assign Name Label, the three
-/// SkillItems (each with a CrewPerkView) as Perk Views, and optionally Level Label / Rank Label / Rank Up
-/// Button. Make it a prefab and give it to CrewCollectionView.
-/// </summary>
 public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHandler
 {
     [Header("UI (assign whichever exist)")]
@@ -49,7 +36,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
     public Image PortraitImage => avatarImage;
     public bool CanDrag => draggable;
 
-    /// <summary>The popup the Rank Up Button opens. Set by whoever creates/owns the card.</summary>
     public CrewMergePopup MergePopup { get; set; }
 
     private Sprite emptySprite;
@@ -57,8 +43,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
 
     private void Awake() => Init();
 
-    // Idempotent — Bind can run before Awake does (a card cloned from an inactive template is bound
-    // before it's switched on).
     private void Init()
     {
         if (initialized) return;
@@ -69,7 +53,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
         if (!TryGetComponent<CrewDragHandle>(out _)) gameObject.AddComponent<CrewDragHandle>();
     }
 
-    /// <summary>Shows `member`. `count` = how many identical copies this card represents (1 = just this one).</summary>
     public void Bind(CrewMemberData member, int count = 1)
     {
         Init();
@@ -88,7 +71,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
             avatarImage.sprite = sprite != null ? sprite : emptySprite;
         }
 
-        // An empty card shows nothing but its portrait icon (whatever sprite the Avatar Image has in the editor).
         SetLabel(nameLabel, filled, filled ? definition.displayName : "");
         SetLabel(levelLabel, filled, filled ? $"{member.level} LV" : "");
         SetLabel(rankLabel, filled, filled ? string.Format(rankFormat, member.rank) : "");
@@ -105,9 +87,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
             rankUpButton.gameObject.SetActive(filled && MergePopup != null && data.CanRankUpCrew(member));
     }
 
-    /// <summary>What happens when this card is dragged and released over nothing (away from itself). Set by
-    /// whoever owns the card — the merge popup's windows use it to empty themselves. Left unset, the member
-    /// is taken off its crew slot if it stands in one, and nothing happens otherwise.</summary>
     public System.Action<CrewMemberData> ReleasedOutside { get; set; }
 
     public void OnReleasedOutside(CrewMemberData member)
@@ -129,9 +108,6 @@ public class CrewCardView : MonoBehaviour, ICrewMemberProvider, ICrewReleaseHand
         if (visible) label.text = text;
     }
 
-    // Empty Root / Filled Root are switched on and off, so they must never be this card's own object or one
-    // of its parents — that would switch the card itself off (and it could never come back). Such a
-    // misassignment is ignored, with a one-time warning.
     private bool warnedBadRoot;
     private bool UsableRoot(GameObject root)
     {

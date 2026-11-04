@@ -1,29 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Breaks a sprite into flying, fading fragments — shared by everything that shatters (meteors,
-/// projectiles). Fragments are either hand-drawn chunks the caller supplies or the body's own sprite
-/// automatically cut into a grid; see Spawn.
-/// </summary>
 public static class SpriteBreakup
 {
-    /// <summary>How the fragments move — bundled so meteors and projectiles can each expose their own values.</summary>
     public struct Motion
     {
-        public float speedMin, speedMax;   // outward speed, world units per second
-        public float inheritVelocity;      // 0..1 share of the source's own velocity they keep
-        public float spinMax;              // degrees per second, either direction
-        public float delay;                // seconds they hold still before flying
-        public float fadeSeconds;          // seconds spent drifting and fading after the delay
+        public float speedMin, speedMax;
+        public float inheritVelocity;
+        public float spinMax;
+        public float delay;
+        public float fadeSeconds;
     }
 
-    /// <summary>
-    /// Spawns the fragments of `body`'s sprite at its current position. With customSprites, one fragment
-    /// per sprite starts at the body's center and flies off in a random direction. Without, the body's own
-    /// sprite is cut into columns x rows chunks; each starts exactly where it sat in the whole and flies
-    /// straight away from the center, so it reads as the thing cracking apart.
-    /// </summary>
     public static void Spawn(SpriteRenderer body, Sprite[] customSprites, int columns, int rows,
                              Vector2 sourceVelocity, Motion motion)
     {
@@ -69,13 +57,8 @@ public static class SpriteBreakup
         obj.AddComponent<MeteorDebris>().Begin(sr, inherited + outward * speedOut, spin, motion.delay, motion.fadeSeconds);
     }
 
-    // Cutting a sprite into pieces is done once per sprite/grid and reused — Sprite.Create makes a new
-    // asset-like object each call that Unity never frees on its own.
     private static readonly Dictionary<(Sprite, int, int), (Sprite sprite, Vector2 localOffset)[]> sliceCache = new();
 
-    /// <summary>Cuts a sprite's texture rectangle into columns x rows chunks. localOffset is where each
-    /// chunk's center sits relative to the ORIGINAL sprite's pivot, in that sprite's local units, so the
-    /// pieces can be laid back exactly over the whole before flying apart.</summary>
     private static (Sprite sprite, Vector2 localOffset)[] GetSlices(Sprite source, int columns, int rows)
     {
         var key = (source, columns, rows);
@@ -91,7 +74,6 @@ public static class SpriteBreakup
             for (int c = 0; c < columns; c++)
             {
                 var pieceRect = new Rect(rect.x + c * pieceW, rect.y + r * pieceH, pieceW, pieceH);
-                // FullRect: the default Tight mesh would need a readable texture just to trace its outline.
                 var piece = Sprite.Create(source.texture, pieceRect, new Vector2(0.5f, 0.5f),
                                           source.pixelsPerUnit, 0, SpriteMeshType.FullRect);
 

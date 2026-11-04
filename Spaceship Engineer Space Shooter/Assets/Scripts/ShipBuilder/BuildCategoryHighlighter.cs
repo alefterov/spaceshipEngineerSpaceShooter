@@ -3,21 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Highlights the active category buttons of the ship builder the same way the ship-settings window of the battle does: the icon of
-/// the active button is fully opaque, the others are dimmed, and the change fades smoothly. Three groups, each on its own:
-///  - Tabs (BuilderLeftPanel): Cockpit / Generators / Engines / Repair / Armor / Weapons — the active tab.
-///  - Armor sub-tabs (ArmorButtonsRow): Physical armor / Shields — the one showing.
-///  - Weapon sub-tabs (WeaponButtonsRow): one per weapon family — the one showing; while the Weapons tab lists EVERY weapon (right
-///    after opening it), all of them count as active.
-///
-/// Unlike the battle window it switches nothing itself: the buttons keep calling BuildModeController as before, and this component
-/// only follows BuildModeController's state (CurrentMode, ArmorSubTab, WeaponFilter), so the highlight is right however the tab changed — a button, a sub-tab
-/// that opened its parent tab, or the builder opening on Cockpit.
-///
-/// SETUP: put on any object of the main scene (the builder screen, say), assign Build Mode Controller and fill the three lists: each
-/// entry = the button's icon Image (the child Image inside the button, not the button's own background) and what it stands for.
-/// </summary>
 public class BuildCategoryHighlighter : MonoBehaviour
 {
     [Serializable]
@@ -64,10 +49,8 @@ public class BuildCategoryHighlighter : MonoBehaviour
 
     private bool snapNext;
 
-    // Opening the builder: the icons show the right state at once instead of fading from the last one.
     private void OnEnable() => snapNext = true;
 
-    // LateUpdate, so a tab pressed this very frame (the button handlers run in the EventSystem's Update) is already counted.
     private void LateUpdate()
     {
         if (buildModeController == null) return;
@@ -93,7 +76,7 @@ public class BuildCategoryHighlighter : MonoBehaviour
     private float Fade(Image icon, float current, bool active, float step)
     {
         float target = active ? activeIconAlpha : inactiveIconAlpha;
-        float next = current < 0f || snapNext ? target : Mathf.MoveTowards(current, target, step); // < 0 = never shown yet
+        float next = current < 0f || snapNext ? target : Mathf.MoveTowards(current, target, step);
 
         if (icon != null)
         {

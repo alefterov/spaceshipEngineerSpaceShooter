@@ -1,26 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>What a task asks the player to do.</summary>
 public enum TaskKind
 {
-    /// <summary>Destroy a number of enemy blocks (of one type, or of any type).</summary>
     DestroyBlocks = 0,
-    /// <summary>Complete one particular campaign level.</summary>
     CompleteCampaignLevel = 1,
-    /// <summary>Reach a certain wave in survival mode.</summary>
     SurvivalWave = 2,
 }
 
-/// <summary>
-/// One task of the rewards panel: what to do and the rewards for it (up to three, shown side by side). One asset per task; list them in the
-/// TaskDatabase. Fill in only the fields of the chosen Kind. The title is written for you if you leave it empty.
-///
-///  - Destroy Blocks: counts enemy blocks destroyed from the moment the game has this task (progress is saved). Any Block Type = every
-///    kind of block counts.
-///  - Complete Campaign Level: done as soon as the level has been completed (with any number of stars) - also if it was before.
-///  - Survival Wave: done once the player's best wave in survival mode reaches Target Wave - also if it was before.
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Task", fileName = "NewTask")]
 public class TaskDefinition : ScriptableObject
 {
@@ -47,13 +34,10 @@ public class TaskDefinition : ScriptableObject
     [Tooltip("What the player gets for the task: up to three rewards, side by side. A random crew card is one of the reward kinds.")]
     public List<RewardData> rewards = new();
 
-    // The old format: one reward. Moved into Rewards when the asset loads.
     [SerializeField, HideInInspector] private RewardData reward = new(RewardType.Credits, 100);
 
-    /// <summary>The rewards of this task.</summary>
     public IReadOnlyList<RewardData> Rewards => rewards.Count == 0 && reward.amount > 0 ? new[] { reward } : rewards;
 
-    /// <summary>The number the progress must reach: blocks to destroy / 1 for a level / the wave.</summary>
     public int TargetValue => kind switch
     {
         TaskKind.DestroyBlocks => Mathf.Max(1, targetCount),
@@ -81,7 +65,6 @@ public class TaskDefinition : ScriptableObject
         }
     }
 
-    /// <summary>The campaign a level belongs to, from its id ("campaign_2_level_10" = 2); 0 if the id does not say.</summary>
     private static int CampaignNumber(LevelDefinition level)
     {
         var match = System.Text.RegularExpressions.Regex.Match(level.id ?? "", @"campaign_(\d+)_");
@@ -106,7 +89,6 @@ public class TaskDefinition : ScriptableObject
 
         if (string.IsNullOrEmpty(id)) id = name;
 
-        // the old single reward becomes the first entry of the list
         if (rewards.Count == 0 && reward.amount > 0)
         {
             rewards.Add(reward);

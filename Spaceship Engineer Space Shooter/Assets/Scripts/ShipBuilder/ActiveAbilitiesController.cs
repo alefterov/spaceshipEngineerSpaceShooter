@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>One button of the battle's active abilities and all its settings.</summary>
 [Serializable]
 public class AbilitySlot
 {
@@ -39,7 +38,6 @@ public class AbilitySlot
     public AudioClip activateSound;
     [Range(0f, 1f)] public float activateVolume = 1f;
 
-    // runtime
     [NonSerialized] public float activeEnd;
     [NonSerialized] public float cooldownEnd;
     [NonSerialized] public bool hasWeapons = true;
@@ -49,16 +47,6 @@ public class AbilitySlot
     public bool IsReady => !IsActive && !IsCooling;
 }
 
-/// <summary>
-/// The battle's active ability buttons: one for each kind of weapon (ballistic guns, missiles, plasma, lasers). Pressing a button
-/// switches its ability on for Duration Seconds; the moment it ends its Cooldown Seconds starts, and only after that can it be used
-/// again. Every ability has its own timers.
-///
-/// SETUP: put on any object of the BATTLE scene, add one entry to Slots per button (the four defaults appear when the component is
-/// first added) and assign each entry's Button. Everything — duration, cooldown, strength, delay, the look of the timer — is set per
-/// entry here. The buttons stand wherever you put them on the canvas. A button is pressable only while its ability is ready and the
-/// player's ship still has a weapon of that kind.
-/// </summary>
 public class ActiveAbilitiesController : MonoBehaviour
 {
     public List<AbilitySlot> slots = new();
@@ -104,7 +92,6 @@ public class ActiveAbilitiesController : MonoBehaviour
         WeaponAbilities.ClearAll();
     }
 
-    /// <summary>Presses slot `index`, if it is ready (also callable from your own UI).</summary>
     public void Activate(int index)
     {
         if (index < 0 || index >= slots.Count) return;
@@ -112,7 +99,7 @@ public class ActiveAbilitiesController : MonoBehaviour
         if (!slot.IsReady || !slot.hasWeapons) return;
 
         slot.activeEnd = Time.time + slot.durationSeconds;
-        slot.cooldownEnd = slot.activeEnd + slot.cooldownSeconds; // the cooldown starts when the ability ends
+        slot.cooldownEnd = slot.activeEnd + slot.cooldownSeconds;
         WeaponAbilities.Begin(slot.ability, slot.durationSeconds, slot.strength, slot.salvoDelaySeconds);
         AudioManager.PlaySfx(slot.activateSound, slot.activateVolume);
     }
@@ -127,9 +114,8 @@ public class ActiveAbilitiesController : MonoBehaviour
 
         foreach (var slot in slots)
         {
-            if (slot.IsActive == false && WeaponAbilities.IsActive(slot.ability)) WeaponAbilities.End(slot.ability); // safety
+            if (slot.IsActive == false && WeaponAbilities.IsActive(slot.ability)) WeaponAbilities.End(slot.ability);
 
-            // The button never disappears: it is pressable only while the ability is ready and the ship has a weapon it works on.
             if (slot.button != null) slot.button.interactable = slot.IsReady && slot.hasWeapons;
 
             if (slot.activeIndicator != null && slot.activeIndicator.activeSelf != slot.IsActive)
@@ -139,19 +125,18 @@ public class ActiveAbilitiesController : MonoBehaviour
             if (slot.IsActive)
             {
                 remaining = slot.activeEnd - Time.time;
-                fraction = remaining / Mathf.Max(0.01f, slot.durationSeconds);                    // draining
+                fraction = remaining / Mathf.Max(0.01f, slot.durationSeconds);
             }
             else if (slot.IsCooling)
             {
                 remaining = slot.cooldownEnd - Time.time;
-                fraction = 1f - remaining / Mathf.Max(0.01f, slot.cooldownSeconds);               // filling back up
+                fraction = 1f - remaining / Mathf.Max(0.01f, slot.cooldownSeconds);
             }
 
             if (slot.IsActive && !slot.drainWhileActive) fraction = 0f;
 
             if (slot.gauge != null)
             {
-                // No weapon of this kind on the ship: the ring is hidden completely (fillAmount 0, whatever Show Used says).
                 if (!slot.hasWeapons && !slot.IsActive && slot.gauge.fillImage != null) slot.gauge.fillImage.fillAmount = 0f;
                 else slot.gauge.SetValue(Mathf.Clamp01(fraction), 1f);
             }
@@ -160,7 +145,6 @@ public class ActiveAbilitiesController : MonoBehaviour
         }
     }
 
-    /// <summary>Which abilities have at least one living weapon of the player's ship to work on.</summary>
     private void ScanPlayerWeapons()
     {
         foreach (var slot in slots) slot.hasWeapons = false;

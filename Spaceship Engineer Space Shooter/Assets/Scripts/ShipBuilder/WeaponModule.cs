@@ -1,37 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Fixed = welded to the ship, fires straight along the muzzle and never rotates.
-/// Turret = the turretPivot child swings to track its target, limited by turretRotationSpeed.</summary>
 public enum WeaponAiming { Fixed, Turret }
 
-/// <summary>Automatic = fires by itself whenever a valid target is in range and the cooldown is up.
-/// Manual = on a PLAYER ship, never fires on its own — the player triggers it from a button (see
-/// ManualWeaponController). On an ENEMY ship this distinction doesn't apply: there's no one to press a
-/// button, so every weapon fires automatically regardless of this setting (see WeaponModule.Update) —
-/// Manual only matters for planning the player's own loadout.</summary>
 public enum WeaponFireControl { Automatic, Manual }
 
-/// <summary>
-/// A weapon slot on the ship. Independent axes — how it aims, who pulls the trigger, and which kinds of
-/// target it may engage (allowedTargets) — so any combination is just prefab configuration (e.g. a manual
-/// fixed cannon, a fast-spinning automatic point-defence turret that alone is allowed to shoot missiles).
-///
-/// Automatic weapons pick the nearest allowed target in range, aim AHEAD of it (leading a moving target
-/// by its velocity and the shot's speed) and fire once the barrel points at that intercept point. A
-/// turret can only swing its barrel as fast as turretRotationSpeed allows — a heavy tower gun with a low
-/// speed visibly lags behind a nimble point-defence turret with a high one, and only fires once it has
-/// actually caught up.
-///
-/// Only fires while combat is active (ShipIdentity.SetCombatActive), so weapons stay silent in the
-/// main menu preview and in the ship builder. Stops instantly once ShipModule.TakeDamage() reduces
-/// HP to zero — this is what makes shooting off a specific part actually matter.
-///
-/// Every shot costs energy from the ship's ShipEnergySystem (see EnergyCostPerShot) — a weapon simply
-/// holds fire, cooldown and all, whenever the ship can't afford the next shot, the same "can't afford
-/// it, do nothing" rule ShipMovement and ShieldModule already follow. This applies identically to
-/// player and enemy ships, so a heavy loadout genuinely has to be power-budgeted on both sides.
-/// </summary>
 public class WeaponModule : ShipModule
 {
     [Header("Weapon — behaviour")]
@@ -62,17 +35,12 @@ public class WeaponModule : ShipModule
              "the list is the priority: when the ship can't pay for every shot, the first barrels in the list fire and " +
              "the last ones wait.")]
     public List<Transform> muzzles = new();
-    // The old single "Muzzle" field. Hidden, but still read so guns set up before the list existed keep
-    // working — it is used only while Muzzles is empty. Move it into the list when convenient.
     [SerializeField, HideInInspector] private Transform muzzle;
     [Tooltip("Seconds between shots — the fire rate. 0.25 = 4 shots per second. Also what the manual-fire " +
              "button's radial cooldown ring is scaled against.")]
     public float cooldownSeconds = 0.35f;
     public float projectileDamage = 5f;
     public float projectileSpeed = 12f;
-    // Energy spent PER SHOT, per barrel — exactly the number in Energy Delta (not per second). A shot is skipped
-    // (held, not wasted) whenever the ship's ShipEnergySystem can't afford it — the same pool engines and
-    // shields draw from, so a ship's weapons, engines and shields all compete over one real energy budget. See FireIfReady.
     public virtual float EnergyCostPerShot => energyPerShot;
     [Tooltip("FIRING RANGE, in world units (1 = one grid cell). A target is engaged only within this " +
              "distance, and the shot itself disappears once it has travelled this far.")]
@@ -113,10 +81,9 @@ public class WeaponModule : ShipModule
 
     private readonly List<(SpriteRenderer renderer, int authoredOrder)> topRenderers = new();
 
-    // One entry per barrel: the barrels reload independently, so after an energy shortage they drift apart.
     protected readonly List<Transform> barrels = new();
     protected float[] barrelCooldowns = new float[1];
-    private float energyPerShot; // what ONE shot of ONE barrel costs (the prefab's Energy Delta)
+    private float energyPerShot;
     protected float EnergyPerShot => energyPerShot;
     protected ShipEnergySystem Energy => energy;
     private bool poweredOn = true;
@@ -127,22 +94,14 @@ public class WeaponModule : ShipModule
     private ShipIdentity identity;
     private ShipEnergySystem energy;
 
-    /// <summary>Sustained damage output — what the stats panel's Firepower reads (see ShipGrid.ComputeFirepower).</summary>
-    /// <summary>Seconds from one shot of a barrel to the next one of the same barrel (a beam weapon adds its beam time).</summary>
     protected virtual float ShotCycleSeconds => EffectiveCooldownSeconds;
 
-    /// <summary>Average energy per second for the stats panel: one shot's cost per barrel, over the shot cycle.</summary>
     public override float EnergyPerSecondEstimate => -EnergyCostPerShot * BarrelCount / Mathf.Max(0.01f, ShotCycleSeconds);
 
-    /// <summary>Damage per second worked out from the block's own settings only — works on a PREFAB that was never
-    /// instantiated (level difficulty uses it). Ignores crew perks.</summary>
-    /// <summary>Damage of one shot of one barrel, from the block's own settings (the block card shows it). A beam weapon
-    /// reports the whole beam.</summary>
     public virtual float NominalDamagePerShot => projectileDamage;
 
     public virtual float NominalDamagePerSecond => projectileDamage * NominalBarrels / Mathf.Max(0.01f, cooldownSeconds);
 
-    /// <summary>How many barrels the block is set up with (at least 1).</summary>
     protected int NominalBarrels
     {
         get
@@ -156,14 +115,10 @@ public class WeaponModule : ShipModule
 
     public virtual float DamagePerSecond => projectileDamage * EffectiveDamageMultiplier * BarrelCount / Mathf.Max(0.01f, EffectiveCooldownSeconds);
 
-    /// <summary>How many barrels this weapon has (1 for an ordinary gun).</summary>
     public int BarrelCount => barrels.Count > 0 ? barrels.Count : 1;
 
-    /// <summary>1 right after firing, easing to 0 as the weapon becomes ready — drives the manual-fire
-    /// button's radial cooldown ring directly.</summary>
     public float CooldownRemaining01 => Mathf.Clamp01(ShortestCooldown / Mathf.Max(0.01f, EffectiveCooldownSeconds));
 
-    /// <summary>True while at least one barrel is loaded.</summary>
     public bool IsReadyToFire => !IsDestroyed && poweredOn && ShortestCooldown <= 0f;
 
     private float ShortestCooldown
@@ -178,11 +133,8 @@ public class WeaponModule : ShipModule
 
     protected Faction OwnFaction => identity != null ? identity.faction : Faction.Player;
 
-    /// <summary>Fire rate is exactly what the prefab says — no crew perk touches it.</summary>
     protected float EffectiveCooldownSeconds => cooldownSeconds;
 
-    /// <summary>Crew damage perk for this weapon's class (ballistic / missile / laser / plasma) — player
-    /// ships only.</summary>
     protected float EffectiveDamageMultiplier
         => OwnFaction == Faction.Player && GameDataManager.Instance != null
             ? GameDataManager.Instance.GetCrewPerkMultiplier(DamagePerkFor(weaponClass))
@@ -202,22 +154,19 @@ public class WeaponModule : ShipModule
     {
         base.Awake();
         type = ModuleType.Weapon;
-        energyDelta = -Mathf.Abs(energyDelta); // weapons consume energy
+        energyDelta = -Mathf.Abs(energyDelta);
         energyPerShot = Mathf.Abs(energyDelta);
 
         BuildBarrels();
         CacheRenderers(topRoot, topRenderers);
         identity = GetComponentInParent<ShipIdentity>();
-        energy = GetComponentInParent<ShipEnergySystem>(); // absent = energy is simply never checked (see FireIfReady)
+        energy = GetComponentInParent<ShipEnergySystem>();
 
-        // Picks up the ship's existing state, so a weapon built/loaded onto an already-fighting ship
-        // isn't left inert — the reverse direction is covered by ShipIdentity.SetCombatActive.
         combatActive = identity != null && identity.CombatActive;
     }
 
-    /// <summary>Body sprites at the roof layer (base behaviour), moving parts on top of every body.</summary>
     private int topBaseCached = 40;
-    private int layerRank;      // 0 = highest on the screen among the ship's weapons; each step down puts it one layer step above
+    private int layerRank;
     private int layerStep = 10;
 
     public override void ApplySortingOrders(int roofBase, int topBase)
@@ -228,9 +177,6 @@ public class WeaponModule : ShipModule
         ApplyTopOrders();
     }
 
-    /// <summary>Sets this weapon's rank among its ship's weapons (see ShipGrid.RefreshWeaponLayers): the higher up the screen
-    /// a weapon is, the lower its layer, so a weapon further down is drawn over the ones above it. `step` is how many
-    /// sorting orders apart neighbouring ranks are — wider than the orders inside one weapon, so weapons never interleave.</summary>
     public void SetLayerRank(int rank, int step)
     {
         if (rank == layerRank && step == layerStep) return;
@@ -246,8 +192,6 @@ public class WeaponModule : ShipModule
             if (renderer != null) renderer.sortingOrder = topBaseCached + layerRank * layerStep + authoredOrder;
     }
 
-    /// <summary>Ticks every barrel's reload. Runs even out of combat, so every weapon starts a battle
-    /// ready to fire.</summary>
     protected void TickCooldowns()
     {
         float step = Time.deltaTime * FireRateMultiplier;
@@ -255,10 +199,6 @@ public class WeaponModule : ShipModule
             if (barrelCooldowns[i] > 0f) barrelCooldowns[i] -= step;
     }
 
-    // ---------- Active abilities (see ActiveAbilitiesController) ----------
-
-    /// <summary>Whether the given active ability works on this weapon: Rapid Fire — every kinetic (ballistic) weapon, guns and
-    /// turrets alike; the others — the weapons of their own kind.</summary>
     public bool SupportsAbility(WeaponAbility ability) => ability switch
     {
         WeaponAbility.RapidFire => weaponClass == WeaponClass.Ballistic,
@@ -268,11 +208,9 @@ public class WeaponModule : ShipModule
         _ => false,
     };
 
-    /// <summary>1 normally; the Rapid Fire strength while that ability is on (reloading runs that many times faster). Player only.</summary>
     protected float FireRateMultiplier
         => OwnFaction == Faction.Player && SupportsAbility(WeaponAbility.RapidFire) ? WeaponAbilities.Strength(WeaponAbility.RapidFire) : 1f;
 
-    /// <summary>The double-salvo ability of this weapon, if its kind has one and the weapon is the player's.</summary>
     private bool TryGetDoubleSalvo(out WeaponAbility ability)
     {
         ability = weaponClass == WeaponClass.Missile ? WeaponAbility.MissileDoubleSalvo : WeaponAbility.PlasmaDoubleSalvo;
@@ -300,8 +238,6 @@ public class WeaponModule : ShipModule
         if (!combatActive || IsDestroyed || !poweredOn) return;
         if (!ValidateSetup()) return;
 
-        // Tower guns of the player's ship go for the block types the player ranked in the priorities window; everything else
-        // just takes the nearest target.
         Targetable target = null;
         ShipModule focus = null;
         if (!(IsTowerGun && OwnFaction == Faction.Player && TryPickByPriority(out target, out focus))) target = FindTarget();
@@ -311,14 +247,9 @@ public class WeaponModule : ShipModule
 
         if (aiming == WeaponAiming.Turret) AimTurretAt(aimPoint);
 
-        // Manual only means anything for the player, who has a button to pull the trigger with — an
-        // enemy ship has no one to press it, so every one of its weapons fires on its own (see the
-        // WeaponFireControl enum doc comment).
         if (fireControl == WeaponFireControl.Automatic || OwnFaction == Faction.Enemy) TryFireAt(aimPoint);
     }
 
-    /// <summary>Warns ONCE about a weapon that can never fire because of missing prefab wiring — silence
-    /// here is exactly what makes "the guns don't shoot" so hard to track down otherwise.</summary>
     protected bool ValidateSetup()
     {
         bool ok = (!RequiresProjectilePrefab || projectilePrefab != null) && barrels.Count > 0 && (aiming != WeaponAiming.Turret || turretPivot != null);
@@ -333,23 +264,14 @@ public class WeaponModule : ShipModule
         return false;
     }
 
-    /// <summary>Called by ShipIdentity.SetCombatActive — weapons hold fire entirely outside battle.</summary>
     public void SetCombatActive(bool active)
     {
         combatActive = active;
         RefreshIdleAnimation();
     }
 
-    /// <summary>Called externally by the ship's PowerSystem when total energy runs out.</summary>
     public void SetPowered(bool powered) => poweredOn = powered;
 
-    /// <summary>
-    /// Fires if the cooldown is up and (when a target is given) the muzzle is pointing close enough to
-    /// where that target is heading. Public so ManualWeaponController can pull the trigger for Manual
-    /// weapons; automatic ones call it themselves. Pass no target to fire straight ahead regardless of
-    /// what's there — which is what a manually triggered weapon does when the player just wants shots
-    /// downrange. Returns whether a shot actually went out.
-    /// </summary>
     public bool TryFire(Targetable target = null)
     {
         if (target == null) return FireIfReady(null);
@@ -358,8 +280,6 @@ public class WeaponModule : ShipModule
 
     private bool TryFireAt(Vector2 aimPoint) => FireIfReady(aimPoint);
 
-    /// <summary>Collects the barrel tips in the order of the Muzzles list (empty entries skipped). A gun set up
-    /// before the list existed falls back to its old single Muzzle.</summary>
     private void BuildBarrels()
     {
         barrels.Clear();
@@ -371,21 +291,10 @@ public class WeaponModule : ShipModule
         barrelCooldowns = new float[Mathf.Max(1, barrels.Count)];
     }
 
-    /// <summary>
-    /// Fires every barrel that is loaded, one by one, each paying for its own shot. When the ship can't
-    /// afford another shot the remaining barrels simply hold (their reload doesn't start) and try again next
-    /// frame — so a triple gun on a starved ship fires one or two barrels and the barrels fall out of step.
-    /// Returns whether at least one shot went out.
-    /// </summary>
-    /// <summary>Seconds between one barrel firing and the next one being allowed to — 0 = every loaded barrel fires
-    /// in the same volley. A subclass sets it to stagger its barrels one after another.</summary>
     protected virtual float SalvoDelay => 0f;
 
-    /// <summary>Whether a Projectile Prefab is needed to fire (false for a weapon that fires a beam).</summary>
     protected virtual bool RequiresProjectilePrefab => true;
 
-    /// <summary>How long a barrel stays unloaded after it fires. A beam weapon counts the cooldown from the end of
-    /// the beam, so it adds the beam time.</summary>
     protected virtual float ReloadAfterShot => EffectiveCooldownSeconds;
     private float nextShotTime;
 
@@ -393,7 +302,6 @@ public class WeaponModule : ShipModule
     {
         if (IsDestroyed || !poweredOn || (RequiresProjectilePrefab && projectilePrefab == null) || barrels.Count == 0) return false;
 
-        // An enemy ship attacks only once it is completely on the screen — the same condition under which it can be hurt.
         if (OwnFaction == Faction.Enemy && identity != null && !identity.IsFullyInView()) return false;
 
         if (SalvoDelay > 0f && Time.time < nextShotTime) return false;
@@ -405,7 +313,6 @@ public class WeaponModule : ShipModule
         {
             if (barrels[i] == null || barrelCooldowns[i] > 0f) continue;
 
-            // Not enough power for this shot (every barrel costs the same, so no later one is affordable).
             if (energy != null && !energy.TrySpend(EnergyCostPerShot, ShipEnergySystem.EnergyPriorityGroup.Weapons)) break;
 
             Spawn(barrels[i]);
@@ -414,7 +321,6 @@ public class WeaponModule : ShipModule
             fired = true;
             firedBarrels.Add(barrels[i]);
 
-            // One barrel at a time when the weapon staggers its shots: the next one has to wait.
             if (SalvoDelay > 0f)
             {
                 nextShotTime = Time.time + SalvoDelay;
@@ -422,22 +328,17 @@ public class WeaponModule : ShipModule
             }
         }
 
-        // Double-salvo ability: the same barrels fire once more a moment later, at no extra energy or reload.
         if (fired && TryGetDoubleSalvo(out var salvo))
             StartCoroutine(RepeatShots(new List<Transform>(firedBarrels), WeaponAbilities.Delay(salvo)));
 
         return fired;
     }
 
-    /// <summary>The point the barrel swings around (turret pivot) or points away from (fixed mount) — the
-    /// shot direction is measured from here to the middle of the barrel tips. Falls back to the block's own root.</summary>
     private Vector2 BarrelOrigin
         => turretPivot != null ? (Vector2)turretPivot.position
          : topRoot != null ? (Vector2)topRoot.position
          : (Vector2)transform.position;
 
-    /// <summary>The middle of all barrel tips — the single point the whole weapon aims and measures from
-    /// (for a one-barrel gun, simply the muzzle).</summary>
     protected Vector2 MuzzleCenter
     {
         get
@@ -454,11 +355,6 @@ public class WeaponModule : ShipModule
         }
     }
 
-    /// <summary>The direction the barrel points, as a world direction: from the barrel's origin toward
-    /// the middle of the muzzles. Deliberately geometric rather than muzzle.up — so shots always leave through
-    /// the tip of the barrel however the art happens to be rotated or flipped in the prefab (a 180° pivot, a
-    /// mirrored sprite, a Muzzle turned around the wrong axis...). Only if the muzzles sit exactly on
-    /// the origin does it fall back to the first Muzzle's own +Y.</summary>
     private Vector2 BarrelDirection
     {
         get
@@ -469,12 +365,6 @@ public class WeaponModule : ShipModule
         }
     }
 
-    /// <summary>The direction this weapon actually shoots in.
-    ///  - FIXED mount: strictly along the block's own facing (its Visual Root's +Y — straight up the ship for an unrotated
-    ///    block, so straight down the screen on an enemy ship, which EnemyShip turns round at spawn). Never at an angle, however
-    ///    the muzzles happen to sit relative to the pivot / Top Root in the prefab (an enemy gun with a Turret Pivot set used to
-    ///    shoot slanted because of that).
-    ///  - TURRET: BarrelDirection — wherever the swinging barrel points.</summary>
     protected Vector2 MuzzleForward
         => aiming == WeaponAiming.Fixed ? (Vector2)(visualRoot != null ? visualRoot.up : transform.up) : BarrelDirection;
 
@@ -487,15 +377,12 @@ public class WeaponModule : ShipModule
         {
             p.damage = projectileDamage * EffectiveDamageMultiplier;
             p.speed = projectileSpeed;
-            p.lifeTime = (range + 1f) / Mathf.Max(0.01f, projectileSpeed); // the shot ends where the weapon's range ends (+1 unit of slack)
+            p.lifeTime = (range + 1f) / Mathf.Max(0.01f, projectileSpeed);
             p.owner = OwnFaction == Faction.Enemy ? ProjectileOwner.Enemy : ProjectileOwner.Player;
             p.weaponClass = weaponClass;
         }
     }
 
-    /// <summary>Whether the barrel points at the aim point closely enough to shoot. A FIXED weapon uses its firing arc; a
-    /// TURRET waits until it has finished aiming — it must be within Turret Aim Tolerance of the target, so it never fires
-    /// while still traversing toward it.</summary>
     private bool InFiringArc(Vector2 aimPoint)
     {
         Vector2 toAim = aimPoint - MuzzleCenter;
@@ -503,22 +390,12 @@ public class WeaponModule : ShipModule
         return Vector2.Angle(MuzzleForward, toAim) <= allowed;
     }
 
-    /// <summary>
-    /// Where to point so a shot fired now meets the target: solves for the time t at which the target
-    /// (moving at constant velocity) is exactly as far from the weapon as a shot of projectileSpeed
-    /// has travelled, i.e. |d + v·t| = s·t. Works for ANY target — meteors, torpedoes, ships — since it only
-    /// needs the target's position (Targetable.AimPoint) and velocity (Targetable.Velocity). Falls back to
-    /// the target's current position when leading is off or no interception is possible (target faster than
-    /// the shot and moving away). The turret's turn speed is not involved here — it only decides how fast the
-    /// barrel can follow this point.
-    /// </summary>
     private Vector2 PredictAimPoint(Targetable target, ShipModule focus = null)
     {
         Vector2 origin = aiming == WeaponAiming.Turret && turretPivot != null
             ? (Vector2)turretPivot.position
             : barrels.Count > 0 ? MuzzleCenter : (Vector2)transform.position;
 
-        // `focus` is the exact block the priority list picked; otherwise the target's nearest block.
         Vector2 position = focus != null ? (Vector2)focus.transform.position : target.AimPointFrom(origin);
         if (!leadTarget || projectileSpeed <= 0.01f) return position;
         Vector2 d = position - origin;
@@ -532,7 +409,6 @@ public class WeaponModule : ShipModule
         float time;
         if (Mathf.Abs(a) < 0.0001f)
         {
-            // Target exactly as fast as the shot — the equation degrades to linear.
             if (Mathf.Abs(b) < 0.0001f) return position;
             time = -c / b;
         }
@@ -545,27 +421,21 @@ public class WeaponModule : ShipModule
             float t1 = (-b - root) / (2f * a);
             float t2 = (-b + root) / (2f * a);
 
-            // The earliest interception that's actually in the future.
             time = t1 > 0f && t2 > 0f ? Mathf.Min(t1, t2) : Mathf.Max(t1, t2);
         }
 
         return time > 0f ? position + v * time : position;
     }
 
-    /// <summary>Swings the barrel toward the aim point, but never faster than turretRotationSpeed.</summary>
     private void AimTurretAt(Vector2 aimPoint)
     {
         if (turretPivot == null) return;
 
-        // An idle animation that keys the turret's rotation would overwrite what we set here after every Update.
         if (idleAnimator != null && idleAnimator.enabled) idleAnimator.enabled = false;
 
         Vector2 toAim = aimPoint - (Vector2)turretPivot.position;
         if (toAim.sqrMagnitude < 0.0001f) return;
 
-        // Plain angles in the world plane: where the barrel points now (pivot -> muzzles, see BarrelDirection) against
-        // where it has to point. The turn is limited to Turret Rotation Speed degrees per second — never faster,
-        // however far off the target is.
         Vector2 barrel = BarrelDirection;
         float current = Mathf.Atan2(barrel.y, barrel.x) * Mathf.Rad2Deg;
         float wanted = Mathf.Atan2(toAim.y, toAim.x) * Mathf.Rad2Deg;
@@ -577,10 +447,6 @@ public class WeaponModule : ShipModule
         turretPivot.Rotate(0f, 0f, step, Space.World);
     }
 
-    /// <summary>Nearest engageable target within range, or null. A FIXED weapon can't turn, so it prefers the
-    /// nearest target it can actually shoot right now (inside its firing arc) over a nearer one off to the side
-    /// — otherwise one enemy parked beside the gun would keep it silent while others pass right in front of
-    /// it. Turrets swing around, so for them simply the nearest.</summary>
     private Targetable FindTarget()
     {
         Targetable nearest = null;
@@ -612,11 +478,6 @@ public class WeaponModule : ShipModule
         return nearestInArc != null ? nearestInArc : nearest;
     }
 
-    // ---------- Tower guns: target priority ----------
-
-    /// <summary>A tower gun — the KineticTurretGun blocks (1x1 and 2x2): a ballistic gun that swings round on a turret and is not a
-    /// point-defence turret (the point-defence ones can shoot missiles, a tower gun cannot). Its targets follow the tower-gun priority
-    /// list (BalistickPriorityController); no other weapon uses that list.</summary>
     public bool IsTowerGun
         => weaponClass == WeaponClass.Ballistic && aiming == WeaponAiming.Turret && !allowedTargets.Contains(TargetKind.Missile);
 
@@ -625,8 +486,6 @@ public class WeaponModule : ShipModule
     private static readonly ShipModule[] bestBlock = new ShipModule[9];
     private static readonly Targetable[] bestTarget = new Targetable[9];
 
-    /// <summary>Goes down the tower-gun priority list and takes the nearest thing (within Range) of the first category that has
-    /// one: a living block in the battle zone of that type, or a meteor. False if nothing in range is on the list at all.</summary>
     private bool TryPickByPriority(out Targetable target, out ShipModule block)
     {
         target = null;
@@ -678,7 +537,7 @@ public class WeaponModule : ShipModule
             if (k <= 0 || k >= bestSqr.Length || bestTarget[k] == null) continue;
 
             target = bestTarget[k];
-            block = bestBlock[k]; // null for a meteor
+            block = bestBlock[k];
             return true;
         }
 
@@ -689,16 +548,12 @@ public class WeaponModule : ShipModule
     {
         if (!allowedTargets.Contains(candidate.kind)) return false;
 
-        // A ship with no block in the battle zone yet can't be hurt — no point firing at it.
         if (candidate.kind == TargetKind.Ship && candidate.faction == Faction.Enemy && !candidate.HasBlockInZone) return false;
 
-        // Meteors threaten everyone; everything else is only a target if it belongs to the other side.
         return candidate.kind == TargetKind.Meteor || candidate.faction != OwnFaction;
     }
 
     protected override void OnModuleDestroyed()
     {
-        // Weapon simply stops firing — Update() already checks IsDestroyed,
-        // but this hook is here for VFX (sparks, smoke) or sound triggers.
     }
 }

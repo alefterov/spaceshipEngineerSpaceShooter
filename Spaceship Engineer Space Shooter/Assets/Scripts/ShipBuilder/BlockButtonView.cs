@@ -2,12 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Put this on the BlockButton prefab (the one BuildPaletteUI instantiates per block).
-/// Exposes explicit references instead of guessing via GetComponentInChildren, since a
-/// button has multiple Image components (background, icon, highlight frame) that are
-/// easy to mix up automatically.
-/// </summary>
 public class BlockButtonView : MonoBehaviour
 {
     [Tooltip("The block's icon sprite. Its RectTransform is rotated to show the block's current orientation.")]
@@ -23,15 +17,12 @@ public class BlockButtonView : MonoBehaviour
 
     public RectTransform IconTransform => icon != null ? icon.rectTransform : null;
 
-    /// <summary>The block this button builds (set by BuildPaletteUI) — the tutorial finds the button by it.</summary>
     public BlockDefinition Block { get; set; }
 
-    /// <summary>Writes the build price on the button (rounded for display only, like all prices).</summary>
     public void SetPrice(int credits)
     {
         if (costLabel != null) costLabel.text = NumberFormat.Compact(credits);
     }
-
 
     public void SetSelected(bool selected)
     {

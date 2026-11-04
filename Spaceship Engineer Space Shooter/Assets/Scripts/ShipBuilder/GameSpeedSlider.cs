@@ -2,13 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The battle speed setting: a slider that steps through Speeds (0.5x, 1x, 2x by default) and saves the choice (GameSpeed). The battle
-/// then runs at that speed; the menus always run normally.
-///
-/// SETUP: put on the slider (TimeSlider) or anywhere and assign it. Its range is set by itself: whole numbers from 0 to the number of
-/// Speeds - 1, one step per speed. Optional Value Label shows the chosen speed ("x2").
-/// </summary>
 public class GameSpeedSlider : MonoBehaviour
 {
     [Tooltip("The slider. Empty = the Slider on this object.")]

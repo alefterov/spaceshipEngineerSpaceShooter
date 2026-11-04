@@ -2,18 +2,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The save button of the ship builder. Three looks:
-///  - OFF (still shown, greyed) while the ship cannot be saved: no cockpit, or some blocks are not joined to the rest (they would break off
-///    in battle).
-///  - HIGHLIGHTED while the ship can be saved and differs from the saved one — placed, removed or rotated a block since the last save — so the
-///    player sees there is something to save. The highlight tints the button and its icon (and pulses, if Pulse Speed is above 0) and can
-///    switch on an extra object (a glow, a dot).
-///  - NORMAL when there is nothing new to save.
-///
-/// SETUP: put on the save button itself (the object with the Button that calls MainMenuFlowController.OnSaveShipPressed). Everything else is
-/// found by itself: the ship grid from the MainMenuFlowController, the icon as the button's first child Image.
-/// </summary>
 public class SaveShipButtonController : MonoBehaviour
 {
     [Tooltip("The save button. Empty = the Button on this object (or the nearest parent Button that has an On Click).")]
@@ -51,7 +39,6 @@ public class SaveShipButtonController : MonoBehaviour
 
         if (button.image != null) backgroundColor = button.image.color;
 
-        // A Button left on the icon (or another child) catches the taps on it, and they never reach the save button: switch those off.
         foreach (var inner in button.GetComponentsInChildren<Button>(true))
         {
             if (inner == button || inner.onClick.GetPersistentEventCount() > 0) continue;
@@ -71,7 +58,6 @@ public class SaveShipButtonController : MonoBehaviour
 
         if (icon != null) iconColor = icon.color;
 
-        // Switching off the button, its icon or this object would hide the button itself instead of a glow.
         if (unsavedHighlight != null && (button.transform.IsChildOf(unsavedHighlight.transform) || transform.IsChildOf(unsavedHighlight.transform)
                                          || (icon != null && icon.gameObject == unsavedHighlight)))
         {
@@ -80,7 +66,6 @@ public class SaveShipButtonController : MonoBehaviour
         }
     }
 
-    /// <summary>The Button here; if this sits on a child of the real save button (its icon), the parent Button that actually saves.</summary>
     private Button FindButton()
     {
         var buttons = GetComponentsInParent<Button>(true);
@@ -115,7 +100,6 @@ public class SaveShipButtonController : MonoBehaviour
 
     private void MarkDirty() => dirty = true;
 
-    // The press itself saves (MainMenuFlowController); look again afterwards.
     private void OnPressed() => dirty = true;
 
     private void Update()
@@ -144,7 +128,6 @@ public class SaveShipButtonController : MonoBehaviour
         if (icon != null) icon.color = !canSave ? disabledIconColor : Color.Lerp(iconColor, unsavedColor, t);
     }
 
-    /// <summary>Whether the ship on the grid is not the one in the save: a block was added, removed, moved or rotated.</summary>
     private bool DiffersFromSaved()
     {
         var data = GameDataManager.Instance;

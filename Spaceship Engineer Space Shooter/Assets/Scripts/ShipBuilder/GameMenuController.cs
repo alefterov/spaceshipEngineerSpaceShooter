@@ -3,22 +3,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>
-/// The game menu — the same component in the main scene and in the battle scene. A button opens the menu panel, a
-/// button closes it, and from the panel the player can quit the game or (in a battle only) leave to the main scene.
-/// The settings sliders (AudioSettingsPanel) can sit inside this panel.
-///
-///  - Open / Close: Open Button shows the Menu Panel, Close Button hides it (the Escape key — the Back button on
-///    Android — toggles it too, if Toggle On Escape is on). In a battle the game is PAUSED while the menu is open
-///    (Pause In Battle), and the previous speed is restored when it closes.
-///  - Exit Button: quits the game (stops Play mode in the editor).
-///  - Home Button: back to the main scene. It exists only in the battle scene — in any other scene the button is
-///    hidden. Leaving a battle this way pays no rewards.
-///
-/// SETUP: put on any always-active object of the scene (e.g. the canvas), assign the Menu Panel and whichever buttons
-/// the scene has (leave the others empty — the main scene has no Home button, say). The buttons are wired in code;
-/// Open()/Close()/Toggle()/ExitGame()/GoHome() are also public if you prefer wiring OnClick by hand.
-/// </summary>
 public class GameMenuController : MonoBehaviour
 {
     [Header("Panel")]
@@ -43,7 +27,6 @@ public class GameMenuController : MonoBehaviour
 
     private bool paused;
 
-    /// <summary>Whether this is the battle scene (the one PendingBattle loads).</summary>
     private static bool InBattleScene => SceneManager.GetActiveScene().name == PendingBattle.BattleSceneName;
 
     public bool IsOpen => menuPanel != null && menuPanel.activeSelf;
@@ -52,7 +35,6 @@ public class GameMenuController : MonoBehaviour
     {
         if (menuPanel != null) menuPanel.SetActive(false);
 
-        // The Home button only makes sense in a battle.
         if (homeButton != null) homeButton.gameObject.SetActive(InBattleScene);
     }
 
@@ -71,7 +53,7 @@ public class GameMenuController : MonoBehaviour
         if (exitButton != null) exitButton.onClick.RemoveListener(ExitGame);
         if (homeButton != null) homeButton.onClick.RemoveListener(GoHome);
 
-        Resume(); // never leave the game paused behind a menu that no longer exists
+        Resume();
     }
 
     private void Update()
@@ -85,7 +67,7 @@ public class GameMenuController : MonoBehaviour
 
         menuPanel.SetActive(true);
 
-        if (pauseInBattle && InBattleScene && !paused && Time.timeScale > 0f) // already paused by another window: leave that one in charge
+        if (pauseInBattle && InBattleScene && !paused && Time.timeScale > 0f)
         {
             Time.timeScale = 0f;
             paused = true;
@@ -104,7 +86,6 @@ public class GameMenuController : MonoBehaviour
         else Open();
     }
 
-    /// <summary>Quits the game (in the editor: stops Play mode).</summary>
     public void ExitGame()
     {
         Resume();
@@ -116,19 +97,18 @@ public class GameMenuController : MonoBehaviour
 #endif
     }
 
-    /// <summary>Leaves the battle for the main scene.</summary>
     public void GoHome()
     {
         Resume();
         PendingBattle.Level = null;
-        SceneManager.LoadScene(homeSceneName);
+        SceneLoader.Load(homeSceneName);
     }
 
     private void Resume()
     {
         if (!paused) return;
 
-        Time.timeScale = GameSpeed.SceneScale; // the chosen battle speed, even if it was changed while paused
+        Time.timeScale = GameSpeed.SceneScale;
         paused = false;
     }
 }

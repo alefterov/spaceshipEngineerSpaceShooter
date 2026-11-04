@@ -1,15 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Slides a UI panel horizontally in/out of view. Position it hidden (off-screen to the side, as
-/// you already have) in the editor — that's captured as the "hidden" X in Awake. "Shown" is that
-/// same position plus Show Distance.
-///
-/// Generic on purpose — wire Show()/Hide() to whatever should open/close it (e.g.
-/// MainMenuFlowController calls Show() entering the builder and Hide() leaving it), and hook a
-/// dedicated button's OnClick to Toggle() so the panel can also be opened/closed manually at any time.
-/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class SlideOutPanel : MonoBehaviour
 {
@@ -32,7 +23,6 @@ public class SlideOutPanel : MonoBehaviour
 
     private void Awake() => Init();
 
-    // Idempotent: also called before Awake has run (a panel that was never active can still be told to hide).
     private void Init()
     {
         if (initialized) return;
@@ -45,8 +35,6 @@ public class SlideOutPanel : MonoBehaviour
         shownX = hiddenX + showDistance;
     }
 
-    /// <summary>Puts the panel back at its hidden position AT ONCE, with no slide (e.g. when the whole screen it belongs
-    /// to is being closed). Safe on a panel that is switched off.</summary>
     public void HideImmediate()
     {
         Init();

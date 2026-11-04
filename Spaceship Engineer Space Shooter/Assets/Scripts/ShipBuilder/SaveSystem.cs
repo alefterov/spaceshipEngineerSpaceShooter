@@ -1,10 +1,6 @@
 using System.IO;
 using UnityEngine;
 
-/// <summary>
-/// Raw JSON read/write for GameData. No game logic here — GameDataManager
-/// is the one that decides when to call these.
-/// </summary>
 public static class SaveSystem
 {
     private const string FileName = "gamedata.json";
@@ -17,7 +13,6 @@ public static class SaveSystem
         File.WriteAllText(SavePath, json);
     }
 
-    /// <summary>Returns null if no save file exists yet (fresh install / first launch).</summary>
     public static GameData Load()
     {
         if (!File.Exists(SavePath)) return null;

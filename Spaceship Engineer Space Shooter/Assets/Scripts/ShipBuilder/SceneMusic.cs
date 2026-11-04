@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// The music of a scene: put one in the main menu scene and one in the battle scene, each with its own track. When the
-/// scene starts, the music cross-fades to this track (if it is already the one playing, it just carries on). The
-/// loudness is the player's Music Volume from the settings, times Volume here.
-/// </summary>
 public class SceneMusic : MonoBehaviour
 {
     public AudioClip music;

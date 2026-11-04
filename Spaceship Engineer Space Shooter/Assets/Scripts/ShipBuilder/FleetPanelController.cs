@@ -3,25 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The fleet panel: the player's ships (up to GameData.fleetCapacity, 3 by default) as slides, one at a time, turned with the Left / Right
-/// buttons (the button at an end is off). After the ships comes one more slide — buy a new hangar — while the fleet is not full.
-///
-/// A SHIP slide: the ship (Ship Preview — the ship of the main scene, which the panel switches to this ship, drawn into a RawImage), its
-/// name (Name Input — editable), the ship stats window (shown while a ship slide is on), the hangar upgrades of THIS ship (its own sizes
-/// and prices), and:
-///  - the ship that goes into battle: only the Build button (Selected Mark shown);
-///  - another ship: the Select button (it goes into battle from now on) and the Build button.
-/// Build opens the builder on this ship; once it is saved there it becomes the ship that goes into battle.
-/// The BUY slide: the Buy button with the price; the new ship is the starter ship on a fresh 5 x 5 grid.
-///
-/// OPENING: wire the main menu's fleet button to Open() (or Toggle()); the close button goes into Close Button (or calls Close()).
-///
-/// SETUP: put on the FleetPanel. Assign the Scroll View's Content (the slides are laid out in it; the Scroll View itself no longer
-/// scrolls by finger), Buy Slide (e.g. NewShipContainer, moved into the last slide), the buttons and labels. Optional: Ship Slide Template
-/// (put into every ship slide), Ship Preview (a RawImage over the slides), Ship Only / Buy Only objects (shown on that kind of slide only —
-/// e.g. the hangar upgrades and the grid size on ship slides).
-/// </summary>
 public class FleetPanelController : MonoBehaviour
 {
     [Header("Slides")]
@@ -83,7 +64,7 @@ public class FleetPanelController : MonoBehaviour
     public string notEnoughMessage = "Not enough resources";
 
     private readonly List<RectTransform> slides = new();
-    private readonly List<RawImage> slidePictures = new(); // one per ship slide (when Ship Preview is empty)
+    private readonly List<RawImage> slidePictures = new();
     private int index;
     private bool enteringBuilder;
     private Camera previewCamera;
@@ -92,10 +73,8 @@ public class FleetPanelController : MonoBehaviour
     private bool previewDirty = true;
     private readonly Dictionary<GameObject, int> originalLayers = new();
 
-    /// <summary>Opens the fleet panel (wire the main menu's fleet button here).</summary>
     public void Open() => gameObject.SetActive(true);
 
-    /// <summary>Closes the fleet panel; the main menu shows the ship that goes into battle again.</summary>
     public void Close() => gameObject.SetActive(false);
 
     public void Toggle() => gameObject.SetActive(!gameObject.activeSelf);
@@ -116,7 +95,7 @@ public class FleetPanelController : MonoBehaviour
             if (scroll != null)
             {
                 viewport = scroll.viewport != null ? scroll.viewport : (RectTransform)scroll.transform;
-                scroll.enabled = false; // the buttons turn the slides, not the finger
+                scroll.enabled = false;
             }
         }
 
@@ -158,11 +137,11 @@ public class FleetPanelController : MonoBehaviour
         RestoreLayers();
         if (previewShip != null) previewShip.OnShipChanged -= MarkPreviewDirty;
         previewShip = null;
-        if (enteringBuilder) return; // the builder works on the ship shown, and puts things back itself when it closes
+        if (enteringBuilder) return;
 
         if (statsPanel != null) statsPanel.Hide();
-        if (flow != null && Data.FocusedShipIndex != Data.SelectedShipIndex) flow.ShowFleetShip(Data.SelectedShipIndex); // the menu shows the ship for battle
-        else if (flow != null && flow.playerShip != null) flow.playerShip.SetViewMode(ShipViewMode.Preview); // its animations and effects back
+        if (flow != null && Data.FocusedShipIndex != Data.SelectedShipIndex) flow.ShowFleetShip(Data.SelectedShipIndex);
+        else if (flow != null && flow.playerShip != null) flow.playerShip.SetViewMode(ShipViewMode.Preview);
         Data.ResetFocus();
     }
 
@@ -171,8 +150,6 @@ public class FleetPanelController : MonoBehaviour
         if (previewCamera != null) Destroy(previewCamera.gameObject);
         if (previewTexture != null) previewTexture.Release();
     }
-
-    // ---------- actions ----------
 
     private void Turn(int direction)
     {
@@ -223,8 +200,6 @@ public class FleetPanelController : MonoBehaviour
         Data.RenameShip(index, newName);
     }
 
-    // ---------- view ----------
-
     private void Refresh()
     {
         if (Data == null || !isActiveAndEnabled) return;
@@ -248,7 +223,7 @@ public class FleetPanelController : MonoBehaviour
             gridSizeLabel.text = $"{flow.playerShip.GridWidth}x{flow.playerShip.GridHeight}";
 
         if (buyButton != null) buyButton.gameObject.SetActive(buy);
-        if (buyPriceLabel != null) buyPriceLabel.text = Data.NextFleetShipCost.ToString(); // the full price, not shortened like other prices
+        if (buyPriceLabel != null) buyPriceLabel.text = Data.NextFleetShipCost.ToString();
 
         foreach (var go in shipOnly) if (go != null) go.SetActive(!buy);
         foreach (var go in buyOnly) if (go != null) go.SetActive(buy);
@@ -260,12 +235,10 @@ public class FleetPanelController : MonoBehaviour
         }
     }
 
-    /// <summary>One slide per ship, then the buy slide while the fleet is not full.</summary>
     private void BuildSlides()
     {
         if (content == null) return;
 
-        // The buy slide's content is kept: take it out before the old slides go.
         if (buySlide != null) buySlide.transform.SetParent(content, false);
         foreach (var slide in slides)
             if (slide != null) Destroy(slide.gameObject);
@@ -281,7 +254,7 @@ public class FleetPanelController : MonoBehaviour
                 var copy = Instantiate(shipSlideTemplate, slide);
                 copy.SetActive(true);
                 var copyRect = (RectTransform)copy.transform;
-                copyRect.anchorMin = Vector2.zero; // the template fills its slide
+                copyRect.anchorMin = Vector2.zero;
                 copyRect.anchorMax = Vector2.one;
                 copyRect.offsetMin = copyRect.offsetMax = Vector2.zero;
                 picture = copy.GetComponentInChildren<RawImage>(true);
@@ -302,11 +275,10 @@ public class FleetPanelController : MonoBehaviour
         }
         else if (buySlide != null) buySlide.SetActive(false);
 
-        if (shipSlideTemplate != null && shipSlideTemplate.scene.IsValid()) shipSlideTemplate.SetActive(false); // a template in the scene is not a slide
+        if (shipSlideTemplate != null && shipSlideTemplate.scene.IsValid()) shipSlideTemplate.SetActive(false);
         index = Mathf.Clamp(index, 0, slides.Count - 1);
     }
 
-    /// <summary>A RawImage filling the slide (minus Preview Margin), for the ship's picture.</summary>
     private RawImage NewPicture(RectTransform slide)
     {
         var go = new GameObject("ShipPicture", typeof(RectTransform), typeof(RawImage)) { layer = slide.gameObject.layer };
@@ -319,7 +291,7 @@ public class FleetPanelController : MonoBehaviour
 
         var image = go.GetComponent<RawImage>();
         image.raycastTarget = false;
-        image.enabled = false; // until it shows the ship
+        image.enabled = false;
         return image;
     }
 
@@ -372,14 +344,10 @@ public class FleetPanelController : MonoBehaviour
         x = Mathf.MoveTowards(x, target, Mathf.Max(step, Mathf.Abs(target - x) * 10f * Time.unscaledDeltaTime));
         content.anchoredPosition = new Vector2(x, 0f);
 
-        // The preview shows the ship of the slide in the middle, fading out while the slides move.
         float settled = width > 0f ? 1f - Mathf.Clamp01(Mathf.Abs(target - x) / width) : 1f;
         UpdatePreview(!OnBuySlide, settled);
     }
 
-    // ---------- ship preview ----------
-
-    /// <summary>The ship's still look while the panel is open: no idle animations, no engine flames (the builder's look).</summary>
     private void StillLook()
     {
         if (flow == null || flow.playerShip == null) return;
@@ -388,7 +356,7 @@ public class FleetPanelController : MonoBehaviour
         {
             if (previewShip != null) previewShip.OnShipChanged -= MarkPreviewDirty;
             previewShip = flow.playerShip;
-            previewShip.OnShipChanged += MarkPreviewDirty; // another ship shown = new blocks: put them on the layer too
+            previewShip.OnShipChanged += MarkPreviewDirty;
         }
 
         previewShip.SetViewMode(ShipViewMode.Building);
@@ -397,8 +365,6 @@ public class FleetPanelController : MonoBehaviour
 
     private void MarkPreviewDirty() => previewDirty = true;
 
-    /// <summary>Puts the block sprites of the ship on Preview Layer (remembering where they were). Particles, lines, trails and a shield's
-    /// circle stay where they are, so the picture's camera does not see them.</summary>
     private void PutBlocksOnPreviewLayer()
     {
         previewDirty = false;
@@ -416,9 +382,6 @@ public class FleetPanelController : MonoBehaviour
             go.layer = previewLayer;
         }
 
-        // The sprites are lit by the scene's 2D lights, and a camera only uses the lights on layers it sees: without them the blocks come
-        // out black. The lights go on the layer too (the main camera sees every layer, so for it nothing changes) — only lights that are
-        // objects of their own, so no background sprite comes along.
         foreach (var light in FindObjectsByType<UnityEngine.Rendering.Universal.Light2D>())
         {
             var go = light.gameObject;
@@ -437,7 +400,6 @@ public class FleetPanelController : MonoBehaviour
 
     private void UpdatePreview(bool visible, float alpha)
     {
-        // Only the slide being shown has the ship (the picture is of the ship on the grid, i.e. the focused one).
         var picture = shipPreview;
         for (int i = 0; i < slidePictures.Count; i++)
         {
@@ -461,7 +423,6 @@ public class FleetPanelController : MonoBehaviour
         previewCamera.enabled = true;
         if (picture.texture != previewTexture) picture.texture = previewTexture;
 
-        // A slide picture moves with its slide: no fading needed, it is fully shown.
         if (picture != shipPreview) alpha = 1f;
 
         var grid = flow.playerShip;
@@ -490,7 +451,7 @@ public class FleetPanelController : MonoBehaviour
         }
 
         var rect = picture.rectTransform.rect;
-        if (rect.width < 1f || rect.height < 1f) return false; // not laid out yet: next frame
+        if (rect.width < 1f || rect.height < 1f) return false;
         var canvas = picture.canvas;
         float scale = canvas != null ? canvas.scaleFactor : 1f;
         int width = Mathf.Clamp(Mathf.RoundToInt(rect.width * scale), 128, 2048);
@@ -502,8 +463,8 @@ public class FleetPanelController : MonoBehaviour
         previewCamera.CopyFrom(main);
         previewCamera.orthographic = true;
         previewCamera.clearFlags = CameraClearFlags.SolidColor;
-        previewCamera.backgroundColor = new Color(0f, 0f, 0f, 0f); // transparent: the panel shows through around the ship
-        previewCamera.cullingMask = 1 << previewLayer;               // the ship's blocks only
+        previewCamera.backgroundColor = new Color(0f, 0f, 0f, 0f);
+        previewCamera.cullingMask = 1 << previewLayer;
         previewCamera.targetTexture = previewTexture;
         cameraObject.transform.position = main.transform.position;
         return true;

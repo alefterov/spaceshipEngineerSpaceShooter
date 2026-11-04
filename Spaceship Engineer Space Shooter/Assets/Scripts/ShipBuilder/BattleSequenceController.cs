@@ -3,13 +3,6 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// Opens a battle: shows this level's background, flies the player's (already-built) ship in from
-/// off-screen, counts down 3-2-1, then hands off to whatever spawns enemies (e.g. EnemySpawner).
-///
-/// Reads which level is being played from PendingBattle, set right before the battle scene loads —
-/// see LevelButtonView.OnClicked.
-/// </summary>
 public class BattleSequenceController : MonoBehaviour
 {
     [Header("Background")]
@@ -56,8 +49,6 @@ public class BattleSequenceController : MonoBehaviour
     [Tooltip("Same timing as Battle Outcome — snapshots the HUD gauges' starting HP/armor/shield here too.")]
     public BattleHudGauges hudGauges;
 
-    /// <summary>Fired at the same moment EnemySpawner starts, for anything else that also needs to
-    /// know the intro just finished (e.g. a HUD element revealing itself).</summary>
     public event Action OnBattleStart;
 
     private void Start()
@@ -66,7 +57,6 @@ public class BattleSequenceController : MonoBehaviour
         {
             background.sprite = PendingBattle.Level.background;
 
-            // The level's backdrop goes onto THIS renderer — if it is switched off, the backdrop seen is some other object's.
             if (!background.enabled || !background.gameObject.activeInHierarchy)
                 Debug.LogWarning($"Battle background: '{background.name}' is disabled, so the level's background can't be seen. " +
                                  "Assign the SpriteRenderer that actually draws the backdrop to Background.", this);
@@ -76,9 +66,6 @@ public class BattleSequenceController : MonoBehaviour
         {
             if (GameDataManager.Instance == null)
             {
-                // Most likely cause: Play was pressed directly on this scene instead of from Bootstrap/
-                // the main menu, so GameDataManager's own Awake (DontDestroyOnLoad) never ran at all —
-                // see GameDataManager's class doc comment.
                 Debug.LogError("GameDataManager.Instance is null — the battle scene needs it to already " +
                                 "exist (DontDestroyOnLoad from the Bootstrap scene). Press Play from " +
                                 "Bootstrap/the main menu instead of directly on this scene, or load " +
@@ -87,7 +74,7 @@ public class BattleSequenceController : MonoBehaviour
             else
             {
                 GameDataManager.Instance.LoadShip(playerShipGrid, database);
-                playerShipGrid.SetViewMode(ShipViewMode.Preview); // closed look for battle, same as the menu preview
+                playerShipGrid.SetViewMode(ShipViewMode.Preview);
                 FitCameraToShip();
             }
         }
@@ -97,16 +84,13 @@ public class BattleSequenceController : MonoBehaviour
 
     private Camera GetBattleCamera() => battleCamera != null ? battleCamera : Camera.main;
 
-    /// <summary>Zooms the battle camera out — never in — just enough that the ship's actual built size
-    /// fits inside it with padding. A small, hand-built ship never touches the camera's own default
-    /// size; a big, hangar-upgraded one won't get clipped off the edges.</summary>
     private void FitCameraToShip()
     {
         var cam = GetBattleCamera();
         if (cam == null || !cam.orthographic) return;
 
         Vector2 size = playerShipGrid.GetShipWorldSize();
-        if (size == Vector2.zero) return; // nothing built yet — nothing to fit
+        if (size == Vector2.zero) return;
 
         float sizeForHeight = size.y * 0.5f + shipFramePadding;
         float sizeForWidth = (size.x * 0.5f + shipFramePadding) / Mathf.Max(0.01f, cam.aspect);
@@ -115,9 +99,6 @@ public class BattleSequenceController : MonoBehaviour
         if (required > cam.orthographicSize) cam.orthographicSize = required;
     }
 
-    /// <summary>Where the ship's ROOT transform needs to end up so that its own built-ship CENTER (not
-    /// the root itself) lands exactly on shipArrivalPoint — see ShipGrid.GetShipWorldCenter for why
-    /// those two points usually aren't the same.</summary>
     private Vector3 ComputeShipEndPosition()
     {
         if (playerShipGrid == null) return playerShip != null ? playerShip.position : Vector3.zero;
@@ -127,7 +108,7 @@ public class BattleSequenceController : MonoBehaviour
         Vector3 targetCenter = shipArrivalPoint != null ? shipArrivalPoint.position
             : GetBattleCamera() != null ? GetBattleCamera().transform.position
             : playerShip.position;
-        targetCenter.z = playerShip.position.z; // never touch the ship's own depth
+        targetCenter.z = playerShip.position.z;
 
         return targetCenter - rootToShipCenter;
     }
@@ -137,8 +118,8 @@ public class BattleSequenceController : MonoBehaviour
         yield return StartCoroutine(FlyShipIn());
         yield return StartCoroutine(RunCountdown());
 
-        if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(true); // weapons stay silent until this fires
-        if (battleOutcome != null) battleOutcome.BeginTracking(); // must start before enemies do, so the starting-HP snapshot is undamaged
+        if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(true);
+        if (battleOutcome != null) battleOutcome.BeginTracking();
         if (hudGauges != null) hudGauges.BeginTracking();
         if (enemySpawner != null) enemySpawner.StartWaves();
         OnBattleStart?.Invoke();

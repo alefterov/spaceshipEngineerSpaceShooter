@@ -2,15 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One product block of the shop: the product's picture and a button with its price on it. Pressing the button buys the product (through
-/// the ShopPanel it sits in). A coin price is shown as a number with the coin icon; a real-money price is the store's own text ("$0.99",
-/// "39,99 ₴"). A product bought once (premium) shows Owned Text and its button is off.
-///
-/// SETUP: put on the product block, assign its Product (a ShopProduct asset), the Buy Button and its Price Label. Everything else is
-/// optional: Icon (filled from the product's Icon if it has one — leave empty if the picture is already drawn), Coin Icon (shown only for
-/// coin prices), Title Label, Rewards (a RewardRowView showing what the product gives), Owned Mark.
-/// </summary>
 public class ShopItemView : MonoBehaviour
 {
     public ShopProduct product;

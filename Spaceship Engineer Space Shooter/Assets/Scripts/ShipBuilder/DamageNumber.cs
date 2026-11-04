@@ -3,14 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One floating damage number (the prefab DamageNumbers spawns). It appears in the middle of the block that was hit, hops up
-/// and sideways — randomly to the right or to the left — then falls under gravity while fading out, and removes itself.
-///
-/// PREFAB: any object with this component and a text on it or on a child: TextMeshPro (3D, or inside a world-space canvas)
-/// — or a legacy UI Text / TextMesh. The text's colour is set by DamageNumbers (white / red), so its own colour does not
-/// matter; its size, font and outline are yours. All the motion below is tuned here.
-/// </summary>
 public class DamageNumber : MonoBehaviour
 {
     [Header("Motion")]
@@ -35,7 +27,6 @@ public class DamageNumber : MonoBehaviour
     [Tooltip("Drawing order, so the number is above ships and effects.")]
     public int sortingOrder = 200;
 
-    /// <summary>Called when the number is gone (used to count how many are on screen).</summary>
     public event Action OnFinished;
 
     private TMP_Text tmp;

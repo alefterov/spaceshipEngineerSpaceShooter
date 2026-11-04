@@ -1,17 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// A plasma thrower. Each shot launches Balls Per Shot plasma balls at once (PlasmaBall), side by side and all flying
-/// the same way — along the barrel, straight ahead. The balls pass over enemy ships; what hurts is the lightning their
-/// field throws at the blocks beneath (see PlasmaBall).
-///
-/// It is an ordinary weapon block (WeaponModule), so aiming (Fixed / Turret), Range, Cooldown Seconds, Muzzles,
-/// Energy Delta (energy per shot), Allowed Targets and the crew's Plasma Damage perk all work as for a gun.
-///
-/// SETUP: Projectile Prefab = the plasma ball prefab (with a PlasmaBall component); Projectile Damage = the damage of
-/// ONE lightning strike; Projectile Speed = how fast the balls fly; Range = how far they fly (and when the weapon
-/// opens fire); Weapon Class = Plasma.
-/// </summary>
 public class PlasmaWeapon : WeaponModule
 {
     [Header("Plasma")]
@@ -34,7 +22,7 @@ public class PlasmaWeapon : WeaponModule
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, forward);
 
         int count = Mathf.Max(1, ballsPerShot);
-        float lifetime = (range + 1f) / Mathf.Max(0.01f, projectileSpeed); // the balls end where the weapon's range ends
+        float lifetime = (range + 1f) / Mathf.Max(0.01f, projectileSpeed);
 
         for (int i = 0; i < count; i++)
         {

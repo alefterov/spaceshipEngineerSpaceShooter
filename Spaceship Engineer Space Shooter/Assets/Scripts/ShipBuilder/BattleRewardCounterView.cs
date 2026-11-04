@@ -1,16 +1,6 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// Live HUD counter of credits earned from kills so far THIS battle (BattleRewards.Credits) — separate
-/// from the player's account Credits shown in the ship builder (CurrencyDisplay). Whenever a kill adds
-/// to the total, the displayed number doesn't jump: it counts up smoothly to the new total over Count
-/// Duration seconds, so a burst of several kills in a row reads as one continuous climb rather than a
-/// snap. If another kill lands mid-count, the animation just re-targets from wherever it currently is.
-///
-/// SETUP: put on the battle HUD's "coins earned" label; assign Label. Shows 0 for the whole intro
-/// (BattleRewards is reset by BattleOutcomeController.BeginTracking, called once the intro ends).
-/// </summary>
 public class BattleRewardCounterView : MonoBehaviour
 {
     public TMP_Text label;

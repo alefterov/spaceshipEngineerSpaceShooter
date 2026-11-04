@@ -1,21 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Shows a block's wear as a dark "damage mask" laid over its body: small geometric marks (shards,
-/// slivers, triangles) in a dark color that pile up as HP drops — the more damage, the more of them.
-/// Marks are added as damage is taken and never move; they're clipped to the block's own silhouette
-/// (a SpriteMask cut from the body sprite), so nothing spills past a triangle's hypotenuse or a
-/// block's edge. Optional sparks/fire objects still switch on at low HP.
-///
-/// Listens to the ShipModule it belongs to (same GameObject or a parent), so it reacts to ANY damage —
-/// meteor, projectile, whatever. ShipModule adds this component automatically to any block prefab that
-/// doesn't already have one, with the defaults below; add it by hand only to tune a specific block.
-/// A disabled instance (checkbox off) does nothing.
-///
-/// The marks are made from small generated shapes by default; assign Mark Sprites to use your own
-/// (white/gray shapes work best — they get tinted by Mark Color).
-/// </summary>
 public class BlockDamageVisual : MonoBehaviour
 {
     [Header("Body")]
@@ -87,9 +72,6 @@ public class BlockDamageVisual : MonoBehaviour
         if (healed.maxHP > 0f) SetHealthRatio(healed.CurrentHP / healed.maxHP);
     }
 
-    /// <summary>0 = destroyed, 1 = untouched. Adds marks as HP drops and removes them as it recovers
-    /// (e.g. a RepairModule healing it mid-fight) — either way it always settles on the count that
-    /// matches the CURRENT ratio. Public so anything can drive it.</summary>
     public void SetHealthRatio(float ratio01)
     {
         ratio01 = Mathf.Clamp01(ratio01);
@@ -118,7 +100,7 @@ public class BlockDamageVisual : MonoBehaviour
 
         var rootObj = new GameObject("DamageMarks");
         marksRoot = rootObj.transform;
-        marksRoot.SetParent(body.transform, false); // follows the block's own rotation and scale
+        marksRoot.SetParent(body.transform, false);
 
         if (!clipToBlock) return;
 
@@ -129,8 +111,6 @@ public class BlockDamageVisual : MonoBehaviour
         mask.alphaCutoff = 0.2f;
     }
 
-    /// <summary>Removes the most-recently-added mark — repairing wears off the newest scars first, which
-    /// reads fine either way since marks are randomly placed/shaped and interchangeable.</summary>
     private void RemoveMark()
     {
         int last = marks.Count - 1;
@@ -143,7 +123,7 @@ public class BlockDamageVisual : MonoBehaviour
     private void AddMark()
     {
         var body = ResolveBody();
-        if (body == null || body.sprite == null) { marks.Add(null); return; } // nothing to draw on — still counts, so this can't loop forever
+        if (body == null || body.sprite == null) { marks.Add(null); return; }
 
         EnsureMarksRoot(body);
 
@@ -160,7 +140,6 @@ public class BlockDamageVisual : MonoBehaviour
         }
         else
         {
-            // Generated shapes come in 1-unit sprites: a right triangle, or a thin sliver of a rectangle.
             bool triangle = Random.value < 0.5f;
             sr.sprite = triangle ? GeneratedSprites.Triangle : GeneratedSprites.Square;
             float s = Random.Range(markSize.x, markSize.y);
@@ -172,8 +151,6 @@ public class BlockDamageVisual : MonoBehaviour
         obj.transform.localScale = scale;
         obj.transform.localRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
 
-        // Kept fully inside the body's bounds (with room for its own size at any rotation), so a mark can
-        // never overlap a neighboring block — the silhouette mask then trims what's left over.
         Bounds b = body.sprite.bounds;
         float half = 0.5f * Mathf.Max(scale.x, scale.y);
         float x = b.size.x > 2f * half ? Random.Range(b.min.x + half, b.max.x - half) : b.center.x;
@@ -182,13 +159,12 @@ public class BlockDamageVisual : MonoBehaviour
 
         sr.color = markColor;
         sr.sortingLayerID = body.sortingLayerID;
-        sr.sortingOrder = body.sortingOrder + 1; // just above the body it sits on, still below a weapon's moving parts
+        sr.sortingOrder = body.sortingOrder + 1;
         if (clipToBlock) sr.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
 
         marks.Add(obj);
     }
 
-    /// <summary>Embers cooling down: yellow, then orange, red, black — and gone.</summary>
     private static Gradient CoolingEmbers()
     {
         var gradient = new Gradient();
@@ -209,9 +185,6 @@ public class BlockDamageVisual : MonoBehaviour
         return gradient;
     }
 
-    /// <summary>The block's death: a burst of shards, in the shapes of its damage marks, thrown out from its middle. They
-    /// are not tied to the block (which disappears at once), spin as they go and fade out. Called by ShipModule when
-    /// the block is destroyed.</summary>
     public void SpawnShatter()
     {
         var body = ResolveBody();
@@ -243,7 +216,6 @@ public class BlockDamageVisual : MonoBehaviour
                     : new Vector3(s, s * Random.Range(0.12f, 0.4f), 1f);
             }
 
-            // Starts somewhere inside the block's body, then flies straight away from its middle.
             Vector3 local = new(Random.Range(b.min.x, b.max.x), Random.Range(b.min.y, b.max.y), 0f);
             Vector3 world = body.transform.TransformPoint(local);
             Vector2 outward = (Vector2)(world - center);
@@ -261,7 +233,6 @@ public class BlockDamageVisual : MonoBehaviour
         }
     }
 
-    /// <summary>The default mark shapes, generated once and shared by every block.</summary>
     private static class GeneratedSprites
     {
         private static Sprite square, triangle;

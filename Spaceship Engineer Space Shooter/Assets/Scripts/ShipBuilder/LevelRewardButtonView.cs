@@ -4,13 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One stop of the player-level bar in the rewards panel: the level number, the reward for reaching it and a button to take it. Three
-/// states: not reached yet (button off, dimmed), reached and waiting to be taken (button on), already taken (button off, check mark).
-///
-/// PREFAB: Button (also holds the background), Level Label, a RewardRowView, and optionally Claimed Mark (an object shown once taken).
-/// RewardsPanel creates one per level and drives them.
-/// </summary>
 public class LevelRewardButtonView : MonoBehaviour
 {
     public Button button;
@@ -57,7 +50,6 @@ public class LevelRewardButtonView : MonoBehaviour
         if (rewards != null) rewards.Show(data, icons);
     }
 
-    /// <summary>reached = the player's level is at least this one; claimed = the reward has been taken.</summary>
     public void Refresh(bool reached, bool claimed)
     {
         if (group == null) EnsureGroup();

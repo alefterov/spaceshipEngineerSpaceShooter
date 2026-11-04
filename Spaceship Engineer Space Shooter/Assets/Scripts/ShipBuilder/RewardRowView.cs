@@ -1,13 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// A row of up to three rewards (RewardView slots) on a level button or a task. The slots the reward list does not need are switched off, so
-/// the visible ones sit side by side (give the row a Horizontal Layout Group to keep them centred).
-/// </summary>
 public class RewardRowView : MonoBehaviour
 {
-    /// <summary>The most rewards one block can show.</summary>
     public const int MaxRewards = 3;
 
     [Tooltip("The three reward slots, left to right.")]

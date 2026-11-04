@@ -1,16 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-/// <summary>
-/// Glow for a projectile prefab: tints and gently pulses whichever of these you add — a URP 2D point
-/// light (real light cast on the scene), a halo sprite (a soft round sprite behind the shot), and a
-/// trail. All parts are optional; use any combination. One Color drives all of them, so a shot's
-/// glow is retuned in a single place.
-///
-/// SETUP: put on the projectile prefab root. For the light, add a Light2D child (Light Type = Point) and
-/// assign it. For the halo, add a child SpriteRenderer with a soft radial-gradient sprite, drawn behind
-/// the shot's own sprite (lower Order in Layer), ideally with an Additive/unlit material.
-/// </summary>
 public class ProjectileGlow : MonoBehaviour
 {
     public Color color = new(1f, 0.75f, 0.3f, 1f);
@@ -37,7 +27,7 @@ public class ProjectileGlow : MonoBehaviour
 
     private void Awake()
     {
-        phase = Random.value * Mathf.PI * 2f; // shots fired together shouldn't pulse in lockstep
+        phase = Random.value * Mathf.PI * 2f;
 
         if (trail != null)
         {

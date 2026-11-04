@@ -1,19 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// The damage counter of the battle scene: whenever a block is hurt, a number pops up in the middle of it (see DamageNumber
-/// for how it moves). White for an ordinary hit, red for a critical one. The player can switch it off with a checkbox in the
-/// main menu (DamageNumbersToggle); the choice is saved on the device.
-///
-/// Hits that come in very quick succession on the same block (a laser beam ticking every frame, a burst of bullets) are
-/// added into ONE number per Merge Seconds, so the screen is not flooded. The number shows the health the block really lost.
-///
-/// SETUP: put one DamageNumbers on any object of the BATTLE scene and assign Number Prefab — your prefab with a DamageNumber
-/// component and a text on it. Without this component in the scene nothing is shown.
-///
-/// CRITS: a hit rolled as critical (see CriticalHit) comes in through ShipModule.TakeDamage(amount, true) and the number turns red.
-/// </summary>
 public class DamageNumbers : MonoBehaviour
 {
     private const string EnabledKey = "ui.damageNumbers";
@@ -45,7 +32,6 @@ public class DamageNumbers : MonoBehaviour
     private readonly List<ShipModule> due = new();
     private int alive;
 
-    /// <summary>Whether the counter is shown. Saved on the device; on by default.</summary>
     public static bool Enabled
     {
         get
@@ -76,7 +62,6 @@ public class DamageNumbers : MonoBehaviour
         pending.Clear();
     }
 
-    /// <summary>Called by a block when it has lost health. `amount` is the health really lost.</summary>
     public static void Report(ShipModule block, float amount, bool crit)
     {
         if (instance == null || block == null || amount <= 0f || !Enabled) return;
@@ -119,8 +104,6 @@ public class DamageNumbers : MonoBehaviour
 
     private Transform canvasRoot;
 
-    /// <summary>The world-space canvas that UI-text numbers live in. It is only a holder: one canvas unit is Canvas Unit Size
-    /// world units, so a UI text of font size 20 comes out about a third of a world unit tall.</summary>
     private Transform GetCanvasRoot()
     {
         if (canvasRoot != null) return canvasRoot;
@@ -145,14 +128,12 @@ public class DamageNumbers : MonoBehaviour
 
         int shown = Mathf.Max(1, Mathf.RoundToInt(entry.amount));
 
-        // A UI text (TextMeshProUGUI) only draws inside a Canvas, so it is spawned into a world-space one made here.
-        // A 3D text, or a prefab that brings its own Canvas, is spawned on its own.
         bool needsCanvas = numberPrefab.GetComponent<RectTransform>() != null && numberPrefab.GetComponentInChildren<Canvas>(true) == null;
         DamageNumber number;
         if (needsCanvas)
         {
             number = Instantiate(numberPrefab, entry.position, Quaternion.identity, GetCanvasRoot());
-            number.gameObject.layer = canvasRoot.gameObject.layer; // the prefab sits on the UI layer, which the battle camera may not draw
+            number.gameObject.layer = canvasRoot.gameObject.layer;
         }
         else
         {

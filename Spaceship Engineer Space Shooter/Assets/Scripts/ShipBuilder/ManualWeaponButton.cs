@@ -2,13 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One manual-fire button, bound to a ManualWeaponGroup. Fires the whole group on click and shows the
-/// shared cooldown as a radial ring around itself.
-///
-/// PREFAB SETUP: the cooldown ring Image must have Image Type = Filled, Fill Method = Radial 360 —
-/// this only drives its fillAmount.
-/// </summary>
 public class ManualWeaponButton : MonoBehaviour
 {
     [Header("UI (assign whichever exist on this prefab)")]
@@ -22,7 +15,6 @@ public class ManualWeaponButton : MonoBehaviour
 
     private ManualWeaponGroup group;
 
-    /// <summary>Called by ManualWeaponBar right after instantiating this button.</summary>
     public void Bind(ManualWeaponGroup weaponGroup, Sprite iconSprite)
     {
         group = weaponGroup;
@@ -50,8 +42,6 @@ public class ManualWeaponButton : MonoBehaviour
     {
         if (group == null) return;
 
-        // Polled rather than event-driven: a cooldown is a continuously changing value, so there's no
-        // discrete moment to fire an event on.
         if (cooldownRing != null) cooldownRing.fillAmount = group.CooldownRemaining01;
         if (button != null) button.interactable = group.IsReady;
     }

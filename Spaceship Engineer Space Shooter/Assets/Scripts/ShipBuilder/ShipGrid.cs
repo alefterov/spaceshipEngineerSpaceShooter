@@ -4,19 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-/// <summary>Which palette tab is active in the builder, in tab order. Armor also covers Shields and
-/// Weapons covers every weapon family via sub-tabs. Purely a palette filter — every block, whatever its
-/// tab, is placed on the same grid with the same rules (see ShipGrid.CanPlace).</summary>
 public enum BuildMode { Cockpit, Generators, Engines, Repair, Armor, Weapons }
 
-/// <summary>
-/// Grid the ship is built on. ONE layer: every block (armor, weapon, engine, generator, shield,
-/// cockpit) occupies its own cells, owns its own HP, and is destroyed on its own — there is no hull
-/// underneath anything and no cascade when a neighbor dies. The only structural rule is contact: a new
-/// block must touch an existing one through solid sides (the first block can go anywhere).
-/// Cockpit is a block like any other here — the only thing special about it is ShipGrid.HasCockpit,
-/// checked by MainMenuFlowController before allowing a save.
-/// </summary>
 [RequireComponent(typeof(ShipIdentity))]
 public class ShipGrid : MonoBehaviour
 {
@@ -36,7 +25,6 @@ public class ShipGrid : MonoBehaviour
 
     public int HangarColumns => hangarColumns;
     public int HangarRows => hangarRows;
-    /// <summary>Actual buildable size including hangar upgrades — e.g. for a "5x5" UI label.</summary>
     public int GridWidth => width + hangarColumns;
     public int GridHeight => height + hangarRows;
 
@@ -71,26 +59,14 @@ public class ShipGrid : MonoBehaviour
 
     private readonly Dictionary<Vector2Int, ShipModule> cells = new();
 
-    /// <summary>Fires on ANY change to the ship — a block placed, removed, destroyed, or the whole grid
-    /// cleared/reloaded. ShipStatsPanel listens to this to stay live while building.</summary>
     public event Action OnShipChanged;
 
-    /// <summary>Read-only view of every occupied cell — for systems that only need the ship's footprint
-    /// without depending on ShipGrid's placement API.</summary>
     public IEnumerable<Vector2Int> OccupiedCellPositions => cells.Keys;
 
-    /// <summary>Every distinct block currently on the grid (multi-cell blocks appear once).</summary>
-    /// <summary>Every distinct block currently on the grid (multi-cell blocks appear once) — e.g. for a
-    /// RepairModule scanning for the most damaged one.</summary>
     public IEnumerable<ShipModule> Blocks => cells.Values.Distinct();
 
-    /// <summary>Whether the ship has at least one non-destroyed Cockpit placed. A ship without one is
-    /// not allowed to be saved — see MainMenuFlowController.OnSaveShipPressed.</summary>
     public bool HasCockpit => Blocks.Any(m => m.type == ModuleType.Cockpit && !m.IsDestroyed);
 
-    /// <summary>Whether every block is joined to the others by touching (cell edge to cell edge) — the same rule that tears a ship into
-    /// fragments in battle (ShipSplitter). A ship that is not in one piece cannot be saved: it would fall apart when the battle starts.
-    /// With a cockpit present, this means every block is connected to the cockpit. An empty ship counts as connected.</summary>
     public bool AreAllBlocksConnected()
     {
         var all = Blocks.Where(b => b != null && !b.IsDestroyed).ToList();
@@ -117,29 +93,17 @@ public class ShipGrid : MonoBehaviour
         return visited.Count == all.Count;
     }
 
-    /// <summary>The ship can be saved: it has a cockpit and all its blocks are in one piece.</summary>
     public bool CanBeSaved => HasCockpit && AreAllBlocksConnected();
 
-    /// <summary>Preview = main menu / battle look (idle animations play), Building = editor (they don't).
-    /// Applied to every block immediately on placement.</summary>
     public ShipViewMode CurrentViewMode { get; private set; } = ShipViewMode.Building;
 
-    /// <summary>Fired whenever SetViewMode runs — for anything that should only exist while building.</summary>
     public event Action OnViewModeChanged;
 
     private ShipIdentity identity;
     private void Awake() => identity = GetComponent<ShipIdentity>();
 
-    // ---------- Coordinate helpers ----------
-
     public bool InBounds(Vector2Int cell) => cell.x >= 0 && cell.x < GridWidth && cell.y >= 0 && cell.y < GridHeight;
 
-    /// <summary>Applies the hangar size directly — call once on load/start (GameDataManager.HangarColumns /
-    /// HangarRows) and again whenever an upgrade changes it. Since AnchorToWorld centers on the current
-    /// effective size, growing it shifts where every anchor cell maps to in world space by a uniform
-    /// amount — repositions every already-placed block to match, so the whole ship translates
-    /// together and stays centered on the (now bigger) grid instead of drifting to one corner of it.
-    /// Also redraws the grid overlay if it's currently shown.</summary>
     public void SetHangarSize(int columns, int rows)
     {
         if (hangarColumns == columns && hangarRows == rows) return;
@@ -160,11 +124,6 @@ public class ShipGrid : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    /// <summary>
-    /// World position of a SINGLE grid cell's center — this is where a block's root transform
-    /// is placed (the anchor/pivot cell). Centers on the CURRENT effective grid size (base size plus
-    /// any hangar upgrades), so the whole grid stays centered as it grows — see SetHangarSize.
-    /// </summary>
     public Vector3 AnchorToWorld(Vector2Int anchor)
     {
         float x = (anchor.x - GridWidth * 0.5f + 0.5f) * cellSize;
@@ -172,11 +131,6 @@ public class ShipGrid : MonoBehaviour
         return transform.TransformPoint(new Vector3(x, y, 0f));
     }
 
-    /// <summary>
-    /// World position of a grid CORNER — e.g. corner (x,y) is the bottom-left corner of cell (x,y).
-    /// Used to trace cell corners (e.g. ship bounds), as opposed to AnchorToWorld
-    /// which gives a cell's center.
-    /// </summary>
     public Vector3 CornerToWorld(Vector2Int corner)
     {
         float x = (corner.x - GridWidth * 0.5f) * cellSize;
@@ -184,9 +138,6 @@ public class ShipGrid : MonoBehaviour
         return transform.TransformPoint(new Vector3(x, y, 0f));
     }
 
-    /// <summary>Min/max cell coordinates actually built (corner space, max exclusive) — the ship's
-    /// real footprint, independent of the grid's own (possibly much bigger, after hangar upgrades)
-    /// size. False if nothing's been built yet.</summary>
     public bool TryGetShipCellBounds(out Vector2Int min, out Vector2Int maxExclusive)
     {
         if (cells.Count == 0) { min = maxExclusive = default; return false; }
@@ -196,17 +147,11 @@ public class ShipGrid : MonoBehaviour
         return true;
     }
 
-    /// <summary>World-space center of the ship's actual built footprint — NOT this transform's own
-    /// position, and not the grid's own center either, since a smaller ship built off to one side of a
-    /// (possibly hangar-upgraded) grid has a visual middle that's neither. Falls back to this object's
-    /// own position if nothing is built yet.</summary>
     public Vector3 GetShipWorldCenter()
         => TryGetShipCellBounds(out var min, out var maxExclusive)
             ? (CornerToWorld(min) + CornerToWorld(maxExclusive)) * 0.5f
             : transform.position;
 
-    /// <summary>World-space (width, height) of the ship's actual built footprint. Zero if nothing's
-    /// been built yet.</summary>
     public Vector2 GetShipWorldSize()
     {
         if (!TryGetShipCellBounds(out var min, out var maxExclusive)) return Vector2.zero;
@@ -215,12 +160,6 @@ public class ShipGrid : MonoBehaviour
         return new Vector2(Mathf.Abs(b.x - a.x), Mathf.Abs(b.y - a.y));
     }
 
-    /// <summary>
-    /// Centroid (in local cell units, relative to the anchor) and cell-count size of a shape.
-    /// Used to position/size the block's visual child and its collider — completely separate
-    /// from `occupiedCells`, which is pure grid-cell bookkeeping. Keeping these two calculations
-    /// independent is what prevents rotated/reloaded blocks from visually drifting or overlapping.
-    /// </summary>
     public static (Vector2 centroidCells, Vector2Int sizeCells) ComputeLocalFootprint(List<Vector2Int> localShape)
     {
         var b = ShapeBounds(localShape);
@@ -243,26 +182,11 @@ public class ShipGrid : MonoBehaviour
     private static List<Vector2Int> Offset(Vector2Int anchor, List<Vector2Int> local)
         => local.Select(c => anchor + c).ToList();
 
-    /// <summary>Absolute grid cells a shape would occupy at the given anchor — used by GhostBlockController
-    /// to know which cells to highlight, independent of whether the placement is actually valid.</summary>
     public List<Vector2Int> GetOccupiedCells(Vector2Int anchor, List<Vector2Int> localShape) => Offset(anchor, localShape);
 
-    // ---------- Validation ----------
-
-    /// <summary>
-    /// The single placement rule for every block: cells must be free and in bounds, and (unless the
-    /// ship is still empty) at least one cell must touch an existing block through a genuine
-    /// solid-to-solid edge — a triangular cell's hypotenuse side never counts, on either side of the
-    /// join (see BlockDefinition.CellShape / GetSolidSides).
-    ///
-    /// Extra category rules: only one Cockpit per ship (see HasCockpit); an Engine's exhaust renders down
-    /// its whole column, so nothing may already sit anywhere below an engine being placed, and nothing
-    /// may ever be placed anywhere below an existing engine (see IsEngineInColumnAbove /
-    /// IsColumnBelowOccupied).
-    /// </summary>
     public bool CanPlace(Vector2Int anchor, List<BlockCell> rotatedCells, BlockCategory category)
     {
-        if (category == BlockCategory.Cockpit && HasCockpit) return false; // only one cockpit per ship
+        if (category == BlockCategory.Cockpit && HasCockpit) return false;
 
         var targets = Offset(anchor, BlockDefinition.Offsets(rotatedCells));
 
@@ -270,14 +194,14 @@ public class ShipGrid : MonoBehaviour
         {
             if (!InBounds(cell)) return false;
             if (cells.ContainsKey(cell)) return false;
-            if (IsEngineInColumnAbove(cell)) return false; // can't sit anywhere below an existing engine
+            if (IsEngineInColumnAbove(cell)) return false;
         }
 
         if (category == BlockCategory.Engine)
             foreach (var cell in targets)
-                if (IsColumnBelowOccupied(cell)) return false; // this engine's own exhaust column must stay entirely clear
+                if (IsColumnBelowOccupied(cell)) return false;
 
-        if (cells.Count == 0) return true; // first block can go anywhere
+        if (cells.Count == 0) return true;
 
         for (int i = 0; i < targets.Count; i++)
         {
@@ -285,25 +209,21 @@ public class ShipGrid : MonoBehaviour
 
             foreach (var (offset, mySide, neighborSide) in AdjacencyDirections)
             {
-                if (!mySolidSides.HasFlag(mySide)) continue; // this side is a hypotenuse — nothing can attach through it
+                if (!mySolidSides.HasFlag(mySide)) continue;
 
                 if (!cells.TryGetValue(targets[i] + offset, out var neighbor)) continue;
 
                 var neighborSolidSides = BlockDefinition.GetSolidSides(neighbor.GetCellShape(targets[i] + offset));
-                if (neighborSolidSides.HasFlag(neighborSide)) return true; // genuine solid-to-solid contact
+                if (neighborSolidSides.HasFlag(neighborSide)) return true;
             }
         }
 
         return false;
     }
 
-    /// <summary>Whether a non-destroyed Engine currently occupies this absolute cell.</summary>
     private bool IsEngineAt(Vector2Int cell)
         => cells.TryGetValue(cell, out var m) && m.type == ModuleType.Engine && !m.IsDestroyed;
 
-    /// <summary>Whether an Engine occupies ANY cell directly above this one in the same column, all the
-    /// way to the top of the grid — an engine's exhaust renders down its entire column, not just the
-    /// one cell right below it.</summary>
     private bool IsEngineInColumnAbove(Vector2Int cell)
     {
         for (int y = cell.y + 1; y < GridHeight; y++)
@@ -311,8 +231,6 @@ public class ShipGrid : MonoBehaviour
         return false;
     }
 
-    /// <summary>Whether anything occupies ANY cell below this one in the same column, all the way to
-    /// the bottom of the grid.</summary>
     private bool IsColumnBelowOccupied(Vector2Int cell)
     {
         for (int y = cell.y - 1; y >= 0; y--)
@@ -320,9 +238,6 @@ public class ShipGrid : MonoBehaviour
         return false;
     }
 
-    /// <summary>The 4 grid directions, each paired with which CellSides flag they touch on the
-    /// departing cell and on the neighboring cell — e.g. moving Up leaves via that cell's Top side
-    /// and arrives at the neighbor's Bottom side. Used by CanPlace's per-side adjacency check.</summary>
     private static readonly (Vector2Int offset, CellSides mySide, CellSides neighborSide)[] AdjacencyDirections =
     {
         (Vector2Int.up,    CellSides.Top,    CellSides.Bottom),
@@ -331,14 +246,8 @@ public class ShipGrid : MonoBehaviour
         (Vector2Int.right, CellSides.Right,  CellSides.Left),
     };
 
-    // ---------- Placement ----------
-    // The middle of a block (its visual root sits on its footprint's centre; a 2x2 block's own root is only its anchor cell).
     private static float CenterY(ShipModule block) => (block.visualRoot != null ? block.visualRoot.position : block.transform.position).y;
 
-
-    /// <summary>Orders the moving parts of the ship's weapons by their place on the SCREEN: the higher a weapon is (world Y),
-    /// the lower its layer. Weapons in the same row share a layer. Done after blocks are placed, and again when the ship is
-    /// turned (an enemy ship faces down, which reverses what "higher" means).</summary>
     public void RefreshWeaponLayers()
     {
         var weapons = Blocks.OfType<WeaponModule>().Where(w => w != null && !w.IsDestroyed)
@@ -349,7 +258,7 @@ public class ShipGrid : MonoBehaviour
         foreach (var weapon in weapons)
         {
             float y = CenterY(weapon);
-            if (lastY - y > cellSize * 0.25f || rank < 0) rank++; // a new row down the screen
+            if (lastY - y > cellSize * 0.25f || rank < 0) rank++;
             lastY = y;
             weapon.SetLayerRank(rank, weaponLayerStep);
         }
@@ -361,7 +270,6 @@ public class ShipGrid : MonoBehaviour
         var targets = Offset(anchor, localShape);
         Vector3 rootWorldPos = AnchorToWorld(anchor);
 
-        // Root is instantiated at the anchor cell with IDENTITY rotation — it never moves or spins.
         var instance = Instantiate(definition.prefab, rootWorldPos, Quaternion.identity, transform);
         instance.tag = identity.faction == Faction.Player ? "PlayerShip" : "EnemyShip";
 
@@ -373,42 +281,28 @@ public class ShipGrid : MonoBehaviour
             return null;
         }
 
-        // Always sourced from the BlockDefinition, never trusted from whatever the prefab's own
-        // moduleId field happens to say — a hand-edited prefab drifting out of sync with the
-        // BlockDefinition it belongs to is exactly what broke save/load for some blocks once already.
         module.moduleId = definition.id;
         module.buildCost = definition.buildCost;
-        module.occupiedCells = targets;     // pure grid bookkeeping — independent of any transform
-        module.cellShapes = BlockDefinition.Shapes(rotatedCells); // same index order as occupiedCells
+        module.occupiedCells = targets;
+        module.cellShapes = BlockDefinition.Shapes(rotatedCells);
         module.anchorCell = anchor;
         module.rotationSteps = rotationSteps;
         module.ApplyViewMode(CurrentViewMode);
         module.ApplySortingOrders(roofSortingOrder, topSortingOrder);
         if (module.explosionEffectPrefab == null) module.explosionEffectPrefab = fallbackExplosionEffect;
 
-        // The weapon's class comes from the BlockDefinition (like moduleId above), so crew damage perks and
-        // evasion know what kind of shots it fires.
         if (module is WeaponModule weapon) weapon.weaponClass = definition.weaponClass;
 
-        // Crew ArmorEfficiency perk — armor blocks of the player's ship only, applied once here so it's baked
-        // into a freshly placed block's maxHP/CurrentHP rather than recomputed live.
         if (module.type == ModuleType.Armor && identity.faction == Faction.Player && GameDataManager.Instance != null)
             module.ApplyMaxHpMultiplier(GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ArmorEfficiency));
 
-        // Only the VISUAL child rotates/repositions — around its own point, computed fresh from
-        // the already-rotated local shape, so it always lines up with occupiedCells exactly.
         var (centroidCells, sizeCells) = ComputeLocalFootprint(localShape);
-        // Never the block's own root — the root stays exactly on its anchor cell (AnchorToWorld above),
-        // so a prefab whose Visual Root is unassigned/destroyed (Awake then falls back to the root itself)
-        // must not have this offset applied to it, or the block would jump to the ship's origin.
         if (module.visualRoot != null && module.visualRoot != instance.transform)
         {
             module.visualRoot.localPosition = new Vector3(centroidCells.x * cellSize, centroidCells.y * cellSize, 0f);
             module.visualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
         }
 
-        // Resize the (root) collider to cover the whole footprint's bounding box.
-        // 90°-multiple rotations keep the box axis-aligned, so no collider rotation is needed.
         if (instance.TryGetComponent<BoxCollider2D>(out var box))
         {
             box.offset = new Vector2(centroidCells.x * cellSize, centroidCells.y * cellSize);
@@ -417,19 +311,14 @@ public class ShipGrid : MonoBehaviour
 
         foreach (var cell in targets) cells[cell] = module;
 
-        // Identity first, grid second: when the LAST block dies, the identity must already know the
-        // ship is destroyed by the time HandleBlockDestroyed runs, so CheckShipDisabled can't also
-        // report the same ship as merely "disabled".
         identity.RegisterBlock(module);
         module.OnDestroyed += HandleBlockDestroyed;
 
-        RefreshWeaponLayers(); // a new weapon changes who is above whom
+        RefreshWeaponLayers();
         OnShipChanged?.Invoke();
         return module;
     }
 
-    /// <summary>A block died in combat (HP hit zero): frees its cells and re-checks whether the ship can
-    /// still function. Nothing else is affected — neighbors are independent blocks with their own HP.</summary>
     private void HandleBlockDestroyed(ShipModule module)
     {
         FreeCells(module);
@@ -439,8 +328,6 @@ public class ShipGrid : MonoBehaviour
             CheckShipDisabled();
     }
 
-    /// <summary>Losing the last Cockpit or last power-generating block leaves a ship unable to function
-    /// even with most of its blocks intact — see ShipIdentity.NotifyDisabled/OnShipDisabled.</summary>
     private void CheckShipDisabled()
     {
         bool hasGenerator = Blocks.Any(m => m.type == ModuleType.Generator && !m.IsDestroyed);
@@ -453,10 +340,6 @@ public class ShipGrid : MonoBehaviour
             if (cells.TryGetValue(cell, out var occupant) && occupant == module) cells.Remove(cell);
     }
 
-    /// <summary>
-    /// Removes a block cleanly (editor deletion, not combat destruction — no explosion, no
-    /// TakeDamage/OnDestroyed event).
-    /// </summary>
     public void RemoveBlock(ShipModule module)
     {
         if (module == null) return;
@@ -469,9 +352,6 @@ public class ShipGrid : MonoBehaviour
         OnShipChanged?.Invoke();
     }
 
-    /// <summary>Takes a living block OUT of this ship without destroying it — it frees its cells and leaves this
-    /// ship's identity, and the caller carries it off (ShipSplitter hands it to a new fragment). Call
-    /// NotifyBlocksReleased once after releasing a batch.</summary>
     public void ReleaseBlock(ShipModule module)
     {
         if (module == null) return;
@@ -481,31 +361,18 @@ public class ShipGrid : MonoBehaviour
         FreeCells(module);
     }
 
-    /// <summary>Tells the ship it lost blocks through ReleaseBlock: stats refresh, and it is re-checked for having
-    /// lost its last cockpit / generator.</summary>
     public void NotifyBlocksReleased()
     {
         OnShipChanged?.Invoke();
         CheckShipDisabled();
     }
 
-    /// <summary>The block occupying a given grid cell, or null if it's empty.</summary>
     public ShipModule GetBlockAt(Vector2Int cell) => cells.GetValueOrDefault(cell);
 
-    /// <summary>
-    /// Finds whatever block sits at a world position WITHOUT deleting it. Used by the editor's Delete
-    /// mode to know what a confirmation popup would be deleting before the player commits to it.
-    /// Returns null if the cell is empty.
-    /// </summary>
     public ShipModule FindDeletableAt(Vector3 worldPosition) => GetBlockAt(WorldToGrid(worldPosition));
 
-    /// <summary>Deletes a specific block found via FindDeletableAt.</summary>
     public void DeleteBlock(ShipModule target) => RemoveBlock(target);
 
-    /// <summary>Convenience one-shot: finds and immediately deletes whatever is at a world position,
-    /// no confirmation. Prefer FindDeletableAt + a confirm popup + DeleteBlock for player-facing
-    /// deletion (see GhostBlockController) — this is for callers that don't need to ask first.
-    /// Returns true if something was actually removed.</summary>
     public bool TryDeleteAt(Vector3 worldPosition)
     {
         var target = FindDeletableAt(worldPosition);
@@ -514,29 +381,20 @@ public class ShipGrid : MonoBehaviour
         return true;
     }
 
-    // ---------- View mode (menu preview vs builder) ----------
-
-    /// <summary>Switches every currently placed block between the closed preview look and the exposed builder look.</summary>
     public void SetViewMode(ShipViewMode mode)
     {
         CurrentViewMode = mode;
 
         foreach (var m in Blocks) m.ApplyViewMode(mode);
 
-        // Safety net only: the grid overlay may not survive a trip back to the menu preview. Showing
-        // it while building is owned by BuildModeController.
         if (mode != ShipViewMode.Building) HideGeneralGrid();
 
         OnViewModeChanged?.Invoke();
     }
 
-    // ---------- Placement preview (per-cell valid/invalid highlight under a dragged block) ----------
-
-    /// <summary>Highlights exactly the given cells in the given color (typically GhostBlockController's
-    /// valid/invalid color) — pooled, so dragging a block around doesn't spam Instantiate/Destroy.</summary>
     public void ShowPlacementPreview(List<Vector2Int> cells, Color color)
     {
-        if (cellVisualPrefab == null) return; // no placeholder art assigned yet — skip silently
+        if (cellVisualPrefab == null) return;
 
         EnsurePreviewPool(cells.Count);
 
@@ -569,9 +427,6 @@ public class ShipGrid : MonoBehaviour
             previewPool.Add(Instantiate(cellVisualPrefab, previewRoot));
     }
 
-    // ---------- Build grid (whole board) ----------
-
-    /// <summary>Call when entering the builder or switching palette tab.</summary>
     public void ShowGeneralGrid()
     {
         HideGeneralGrid();
@@ -592,69 +447,44 @@ public class ShipGrid : MonoBehaviour
         }
     }
 
-    /// <summary>Call when leaving the builder.</summary>
     public void HideGeneralGrid()
     {
         if (generalGridRoot != null) Destroy(generalGridRoot.gameObject);
         generalGridRoot = null;
     }
 
-    // ---------- Aggregate stats ----------
-
     public float ComputeTotalMass() => Blocks.Sum(m => m.mass);
 
-    /// <summary>Total HP capacity across every placed block (unlike ComputeTotalArmor/
-    /// ComputeShieldStrength, which are per-category).</summary>
     public float ComputeTotalHP() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.maxHP);
 
-    /// <summary>Sum of CURRENT (not max) HP across every surviving block. Unlike ComputeTotalHP (a
-    /// capacity stat for the builder's stats panel), this reflects actual damage taken — e.g. for
-    /// star-rating a battle by how much HP survived it, see BattleOutcomeController.</summary>
     public float ComputeCurrentTotalHP() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.CurrentHP);
 
-    /// <summary>Net energy — positive means surplus, negative means the ship is over budget.</summary>
     public float ComputeEnergyBalance() => Blocks.Where(m => !m.IsDestroyed).Sum(m => m.EnergyPerSecondEstimate);
 
-    /// <summary>Total armor HP capacity — Armor-category blocks only.</summary>
     public float ComputeTotalArmor()
         => Blocks.Where(m => m.type == ModuleType.Armor && !m.IsDestroyed).Sum(m => m.maxHP);
 
-    /// <summary>Total shield capacity — the sum of every surviving shield's own Capacity (how much damage
-    /// they can absorb from full), not the shield blocks' own HP.</summary>
     public float ComputeShieldStrength()
         => Blocks.OfType<ShieldModule>().Where(s => !s.IsDestroyed).Sum(s => s.capacity);
 
-    /// <summary>Current (not max) HP across surviving Armor blocks — e.g. for a battle HUD gauge
-    /// showing remaining armor rather than total armor capacity.</summary>
     public float ComputeCurrentArmorHP()
         => Blocks.Where(m => m.type == ModuleType.Armor && !m.IsDestroyed).Sum(m => m.CurrentHP);
 
-    /// <summary>Damage all surviving shields can still absorb right now — the live counterpart of
-    /// ComputeShieldStrength, for the HUD's shield gauge.</summary>
     public float ComputeShieldReserve()
         => Blocks.OfType<ShieldModule>().Where(s => !s.IsDestroyed).Sum(s => s.Reserve);
 
-    /// <summary>Total damage-per-second across every non-destroyed weapon.</summary>
     public float ComputeFirepower()
         => Blocks.OfType<WeaponModule>().Where(w => !w.IsDestroyed).Sum(w => w.DamagePerSecond);
 
-    /// <summary>Total thrust from every non-destroyed engine (EngineModule.GetThrust() already returns 0 when destroyed).</summary>
     public float ComputeEnginePower() => Blocks.OfType<EngineModule>().Sum(e => e.GetThrust());
 
-    /// <summary>Total energy output from generators — the positive half of ComputeEnergyBalance, split out.</summary>
     public float ComputeEnergyGeneration()
         => Blocks.Where(m => !m.IsDestroyed && m.EnergyPerSecondEstimate > 0f).Sum(m => m.EnergyPerSecondEstimate);
 
-    /// <summary>Total energy draw from weapons/engines/shields, as a positive number — the negative
-    /// half of ComputeEnergyBalance, split out and sign-flipped so it reads as a plain "cost".</summary>
     public float ComputeEnergyConsumption()
         => Blocks.Where(m => !m.IsDestroyed && m.EnergyPerSecondEstimate < 0f).Sum(m => -m.EnergyPerSecondEstimate);
-    /// <summary>Energy per second the ship burns while moving at full thrust: the sum of its living engines'
-    /// Energy Delta. 0 if no engine has one set (then the mover's own fallback value is used).</summary>
     public float ComputeMoveEnergyPerSecond()
         => Blocks.OfType<EngineModule>().Where(e => !e.IsDestroyed).Sum(e => Mathf.Abs(e.energyDelta));
-
-    // ---------- Save / load / procedural spawn (shared by player editor & enemy spawner) ----------
 
     public ShipLayout ExportLayout()
     {
@@ -664,7 +494,6 @@ public class ShipGrid : MonoBehaviour
         return layout;
     }
 
-    /// <summary>Destroys every placed block and resets the grid — call before loading a saved layout.</summary>
     public void Clear()
     {
         foreach (var m in Blocks.ToList())
@@ -679,8 +508,6 @@ public class ShipGrid : MonoBehaviour
         OnShipChanged?.Invoke();
     }
 
-    /// <summary>Builds a full ship from a saved layout with no player input — used for restoring a saved
-    /// player ship. Placement rules are NOT re-checked: a saved layout is trusted.</summary>
     public void BuildFromLayout(ShipLayout layout, BlockDatabase db, Faction faction)
     {
         Clear();
@@ -690,8 +517,6 @@ public class ShipGrid : MonoBehaviour
 
         if (layout == null) return;
 
-        // Legacy saves kept hull/armor and modules in two separate lists; both simply load as plain
-        // blocks now (hull block ids no longer exist and are skipped with a warning).
         foreach (var entry in layout.hull.Concat(layout.modules).Concat(layout.blocks))
         {
             var def = db.GetById(entry.blockId);
@@ -700,10 +525,6 @@ public class ShipGrid : MonoBehaviour
         }
     }
 
-    /// <summary>Builds a full ship with each block's BlockDefinition given DIRECTLY rather than looked up
-    /// by id — used for enemy ships (see EnemyShip), whose blocks don't need to
-    /// be registered in any BlockDatabase at all. Placement rules are NOT re-checked, same as
-    /// BuildFromLayout: a hand-authored ship is trusted. Entries with no block assigned are skipped.</summary>
     public void BuildFromDefinitions(IEnumerable<(BlockDefinition block, Vector2Int anchor, int rotationSteps)> placements, Faction faction)
     {
         Clear();
@@ -738,11 +559,8 @@ public class ShipLayout
         public int rotationSteps;
     }
 
-    /// <summary>Every block of the ship.</summary>
     public List<Entry> blocks = new();
 
-    // Legacy: saves and enemy templates made before hull was removed stored structure and modules in
-    // two separate lists. Still READ by ShipGrid.BuildFromLayout, never written anymore.
     public List<Entry> hull = new();
     public List<Entry> modules = new();
 

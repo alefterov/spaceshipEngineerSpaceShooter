@@ -1,25 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Shield generator. Projects a protected circular area around itself: any hostile hazard
-/// (IShieldBlockable — meteors, enemy projectiles) that enters it is stopped before it can touch a
-/// block. Each absorbed hit flashes a crescent on the side it came from, which then fades out slowly.
-///
-/// The shield has its own reserve, Capacity, in energy units. Every absorbed hit drains it by exactly
-/// the damage the hazard would have dealt (1:1). The reserve refills at Recharge Per Second, and that
-/// refill is paid for out of the ship's energy pool (ShipEnergySystem), also 1:1 — so the ship ends up
-/// spending as much energy as the enemy dealt damage, just a little later. A ship with no
-/// ShipEnergySystem (an enemy ship) refills for free.
-///
-/// When the reserve can't cover a hit the shield collapses: the area goes fully transparent, that hit and
-/// every following one are ignored (they fly through and damage blocks as if there were no shield). The
-/// reserve then does not refill at all for Collapse Cooldown seconds, and the shield only comes back once the
-/// reserve has refilled to Reactivate Fraction of Capacity.
-///
-/// The protected area's trigger collider is generated in Awake — the prefab only needs the optional
-/// sprites below. The area is centered on the block's own visual center and works for any block shape.
-/// The block's own maxHP is separate from all of this: destroying the block switches the field off.
-/// </summary>
 public class ShieldModule : ShipModule
 {
     [Header("Shield field")]
@@ -66,37 +46,31 @@ public class ShieldModule : ShipModule
     private Transform zoneRoot;
     private Collider2D zoneCollider;
     private bool shieldUp = true;
-    private float rechargeResumeTime; // Time.time before which the reserve does not refill (the cooldown after a collapse)
+    private float rechargeResumeTime;
     private int topBase = 40;
     private int zoneAuthoredOrder;
 
     private Faction OwnFaction => identity != null ? identity.faction : Faction.Player;
 
-    /// <summary>Whether the field is currently protecting — false while collapsed for lack of reserve.</summary>
     public bool IsUp => shieldUp && !IsDestroyed;
 
-    /// <summary>The shield only spends energy when it takes a hit (Energy Delta per hit, see HandleIncoming) and
-    /// to refill its reserve — so there is no steady per-second draw to show in the stats.</summary>
     public override float EnergyPerSecondEstimate => 0f;
 
-    /// <summary>Damage the shield can still absorb right now.</summary>
     public float Reserve { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
         type = ModuleType.Shield;
-        energyDelta = -Mathf.Abs(energyDelta); // shields draw power: Energy Delta is what ONE absorbed hit costs
+        energyDelta = -Mathf.Abs(energyDelta);
 
         energy = GetComponentInParent<ShipEnergySystem>();
         identity = GetComponentInParent<ShipIdentity>();
 
-        // Crew ShieldEfficiency perk — player ships only, baked into Capacity itself so every other place that
-        // reads it (ShipGrid.ComputeShieldStrength, Recharge/reactivateFraction math below) sees it too.
         if (OwnFaction == Faction.Player && GameDataManager.Instance != null)
             capacity *= GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ShieldEfficiency);
 
-        Reserve = capacity; // starts full
+        Reserve = capacity;
 
         BuildZone();
 
@@ -109,19 +83,14 @@ public class ShieldModule : ShipModule
         ApplyRadius();
     }
 
-    /// <summary>Pushes Radius into the collider and the circle sprite. Runs on Awake, whenever the value
-    /// changes in the Inspector, and can be called at runtime after changing radius from code (e.g. a
-    /// shield upgrade). Impact crescents pick up the new radius when they spawn.</summary>
     public void ApplyRadius()
     {
         if (zoneCollider is CircleCollider2D circle && zoneRoot != null && zoneRoot.parent != null)
-            circle.radius = radius / Mathf.Max(0.0001f, zoneRoot.parent.lossyScale.x); // collider radius is in local units
+            circle.radius = radius / Mathf.Max(0.0001f, zoneRoot.parent.lossyScale.x);
 
         if (zoneRenderer != null) FitToRadius(zoneRenderer.transform, zoneRenderer.sprite);
     }
 
-    // Live preview while editing: resizes the circle sprite as Radius is dragged, and draws the real
-    // radius as a gizmo so it can be judged even with no sprite assigned.
     private void OnValidate() => ApplyRadius();
 
     private void OnDrawGizmosSelected()
@@ -131,8 +100,6 @@ public class ShieldModule : ShipModule
         Gizmos.DrawWireSphere(center, radius);
     }
 
-    /// <summary>Creates the trigger child that detects incoming hazards. Parented under the visual root so
-    /// it always sits on the block's own center, whatever its footprint or rotation.</summary>
     private void BuildZone()
     {
         var parent = visualRoot != null ? visualRoot : transform;
@@ -143,7 +110,7 @@ public class ShieldModule : ShipModule
 
         var circle = zoneObj.AddComponent<CircleCollider2D>();
         circle.isTrigger = true;
-        zoneCollider = circle; // radius is set by ApplyRadius, right after this in Awake
+        zoneCollider = circle;
 
         zoneObj.AddComponent<ShieldZoneRelay>().owner = this;
     }
@@ -165,8 +132,6 @@ public class ShieldModule : ShipModule
         }
     }
 
-    /// <summary>Refills the reserve, paying for it from the ship's energy — 1:1, and never more than the
-    /// ship actually has.</summary>
     private void Recharge()
     {
         float missing = capacity - Reserve;
@@ -182,10 +147,9 @@ public class ShieldModule : ShipModule
         Reserve += wanted;
     }
 
-    /// <summary>Called by ShieldZoneRelay for anything entering the protected area.</summary>
     public void HandleIncoming(Collider2D other)
     {
-        if (!IsUp) return; // collapsed or destroyed — the hazard flies through untouched
+        if (!IsUp) return;
 
         var hazard = other.GetComponentInParent<IShieldBlockable>();
         if (hazard == null || hazard.IsConsumed || !hazard.IsHostileTo(OwnFaction)) return;
@@ -193,17 +157,15 @@ public class ShieldModule : ShipModule
         float damage = hazard.ImpactDamage;
         if (Reserve < damage)
         {
-            Collapse(); // not enough reserve — the field collapses and this hit goes through
+            Collapse();
             return;
         }
 
-        // Every absorbed hit also costs Energy Delta from the ship's energy pool. If the ship can't pay for it, the
-        // hit is not absorbed — it flies through to the blocks (the shield itself stays up).
         float hitCost = Mathf.Abs(energyDelta);
         if (energy != null && hitCost > 0f && !energy.TrySpend(hitCost, ShipEnergySystem.EnergyPriorityGroup.Defense)) return;
 
         Reserve -= damage;
-        if (Reserve <= 0.01f) Collapse(); // drained to nothing by this very hit
+        if (Reserve <= 0.01f) Collapse();
 
         Vector2 center = zoneRoot.position;
         Vector2 impactDirection = (Vector2)other.transform.position - center;
@@ -213,7 +175,6 @@ public class ShieldModule : ShipModule
         SpawnImpactArc(impactDirection);
     }
 
-    /// <summary>The field goes down, and the reserve stays as it is for Collapse Cooldown seconds.</summary>
     private void Collapse()
     {
         shieldUp = false;
@@ -227,8 +188,6 @@ public class ShieldModule : ShipModule
         var arc = Instantiate(impactArcPrefab, zoneRoot);
         arc.transform.localPosition = Vector3.zero;
 
-        // World rotation, not local — the block's visual root rotates with its build orientation, but
-        // the crescent has to face wherever the hit actually came from. Drawn facing up (+Y).
         float angle = Mathf.Atan2(towardImpact.y, towardImpact.x) * Mathf.Rad2Deg - 90f;
         arc.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
@@ -242,7 +201,6 @@ public class ShieldModule : ShipModule
         arc.AddComponent<ShieldImpactFade>().Begin(arcFadeSeconds);
     }
 
-    /// <summary>Scales a transform so the given sprite's full width spans the shield's diameter.</summary>
     private void FitToRadius(Transform target, Sprite sprite)
     {
         if (sprite == null || target.parent == null) return;
@@ -259,7 +217,6 @@ public class ShieldModule : ShipModule
         zoneRenderer.color = c;
     }
 
-    /// <summary>The field draws above every block body — same layer as a weapon's moving parts.</summary>
     public override void ApplySortingOrders(int roofBase, int topBase)
     {
         base.ApplySortingOrders(roofBase, topBase);
@@ -267,7 +224,6 @@ public class ShieldModule : ShipModule
         if (zoneRenderer != null) zoneRenderer.sortingOrder = topBase + zoneAuthoredOrder;
     }
 
-    /// <summary>The build ghost shouldn't drag a big translucent circle around with it.</summary>
     public override void PrepareAsGhost()
     {
         if (zoneRenderer != null) zoneRenderer.gameObject.SetActive(false);

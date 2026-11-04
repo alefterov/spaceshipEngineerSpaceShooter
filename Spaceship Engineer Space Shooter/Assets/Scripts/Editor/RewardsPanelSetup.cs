@@ -9,18 +9,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>
-/// One-shot generator for the rewards panel of the main menu (Tools → Ship Builder → Create Rewards Panel):
-///  - the panel itself under the Canvas of SampleScene, closed at start: the player-level bar on top (a horizontal scroll with one sample
-///    reward button) and the task list below (a vertical scroll with one sample task);
-///  - the two prefabs the panel fills the scrolls from (LevelRewardButton, TaskItem) in Assets/Prefabs/UI;
-///  - the data: PlayerLevelRewards (100 levels, up to three rewards each), a TaskDatabase with a few sample tasks, in Assets/Scripts/ScriptableObject/Rewards —
-///    assigned to the GameDataManager of the scene;
-///  - the main menu's RewardButton opens the panel.
-/// The look follows the existing screens (TechPanelBg, button1Background, the experience bar sprites, the DaysOne font, the light-cyan text).
-/// Existing assets are kept; if a RewardsPanel is already in the scene you are asked before it is replaced. A second menu item, "Upgrade Rewards Panel Prefabs
-/// (3 rewards)", changes the prefabs of an already created panel to show up to three rewards in a row without touching anything else.
-/// </summary>
 public static class RewardsPanelSetup
 {
     private const string ScenePath = "Assets/Scenes/SampleScene.unity";
@@ -28,7 +16,7 @@ public static class RewardsPanelSetup
     private const string DataFolder = "Assets/Scripts/ScriptableObject/Rewards";
     private const string LevelsFolder = "Assets/Scripts/ScriptableObject/PlayMode";
 
-    private static readonly Color Light = new(0.7294118f, 0.9490196f, 0.9843137f, 1f); // the light cyan of the game's texts and bars
+    private static readonly Color Light = new(0.7294118f, 0.9490196f, 0.9843137f, 1f);
     private static TMP_FontAsset font;
 
     [MenuItem("Tools/Ship Builder/Create Rewards Panel")]
@@ -57,7 +45,6 @@ public static class RewardsPanelSetup
             researchPoints = LoadSprite("researchIcon"),
         };
 
-        // ---------- data ----------
         EnsureFolder(DataFolder);
         var levelRewards = CreateData<PlayerLevelRewards>($"{DataFolder}/PlayerLevelRewards.asset", r => r.FillWithDefaults());
         var taskDatabase = CreateTasks();
@@ -75,15 +62,12 @@ public static class RewardsPanelSetup
             Debug.LogWarning("RewardsPanelSetup: no GameDataManager in the scene — assign Player Level Rewards and Task Database on it by hand.");
         }
 
-        // ---------- prefabs ----------
         var levelPrefab = BuildLevelRewardPrefab();
         var taskPrefab = BuildTaskItemPrefab();
 
-        // ---------- the panel ----------
         var panelRect = NewUI("RewardsPanel", canvas.transform);
         Undo.RegisterCreatedObjectUndo(panelRect.gameObject, "Create rewards panel");
 
-        // same place and size as the technology screen
         panelRect.anchorMin = Vector2.zero;
         panelRect.anchorMax = Vector2.one;
         panelRect.pivot = new Vector2(0.5f, 0.5f);
@@ -94,7 +78,6 @@ public static class RewardsPanelSetup
         var tech = canvas.transform.Find("TechnologyPanel");
         if (tech != null) panelRect.SetSiblingIndex(tech.GetSiblingIndex() + 1);
 
-        // title and close button
         var title = NewUI("Title", panelRect);
         Place(title, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(700f, 80f));
         AddText(title, "Награды", 48, Light, TextAlignmentOptions.Center, FontStyles.Bold);
@@ -108,7 +91,6 @@ public static class RewardsPanelSetup
         Place(closeIcon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(80f, 80f));
         AddImage(closeIcon, LoadSprite("exitButtonIcon"), Color.white, raycast: false);
 
-        // ----- player level bar (top) -----
         var levelArea = NewUI("LevelProgress", panelRect);
         Place(levelArea, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -130f), new Vector2(-80f, 330f));
 
@@ -121,7 +103,7 @@ public static class RewardsPanelSetup
         levelScrollRect.anchorMax = Vector2.one;
         levelScrollRect.offsetMin = Vector2.zero;
         levelScrollRect.offsetMax = new Vector2(0f, -70f);
-        AddImage(levelScrollRect, null, new Color(0f, 0f, 0f, 0.001f)); // invisible, but it takes the drag
+        AddImage(levelScrollRect, null, new Color(0f, 0f, 0f, 0.001f));
 
         var levelViewport = NewUI("Viewport", levelScrollRect);
         Stretch(levelViewport);
@@ -143,7 +125,6 @@ public static class RewardsPanelSetup
         row.childForceExpandHeight = false;
         levelContent.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // the bar behind the buttons: the empty line and the filled part (both ignore the layout)
         var barSprite = LoadSprite("ExpirienceBar");
         var trackRect = NewUI("BarTrack", levelContent);
         Place(trackRect, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(0f, 16f));
@@ -155,7 +136,6 @@ public static class RewardsPanelSetup
         AddImage(fillRect, barSprite, Light, raycast: false);
         fillRect.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
 
-        // one sample button, so the layout can be seen
         var sampleLevel = (GameObject)PrefabUtility.InstantiatePrefab(levelPrefab.gameObject, levelContent);
 
         var levelScroll = levelScrollRect.gameObject.AddComponent<ScrollRect>();
@@ -166,7 +146,6 @@ public static class RewardsPanelSetup
         levelScroll.movementType = ScrollRect.MovementType.Elastic;
         levelScroll.scrollSensitivity = 30f;
 
-        // ----- tasks (bottom) -----
         var taskScrollRect = NewUI("TaskScrollView", panelRect);
         taskScrollRect.anchorMin = Vector2.zero;
         taskScrollRect.anchorMax = Vector2.one;
@@ -204,7 +183,6 @@ public static class RewardsPanelSetup
         taskScroll.movementType = ScrollRect.MovementType.Elastic;
         taskScroll.scrollSensitivity = 30f;
 
-        // ----- the component -----
         var panel = panelRect.gameObject.AddComponent<RewardsPanel>();
         panel.closeButton = closeButton;
         panel.levelScroll = levelScroll;
@@ -219,13 +197,11 @@ public static class RewardsPanelSetup
         panel.icons = icons;
         EditorUtility.SetDirty(panel);
 
-        // the sample items show real pictures in the editor too
         ShowSampleReward(sampleLevel, icons.credits);
         ShowSampleReward(sampleTask, icons.experience);
 
         panelRect.gameObject.SetActive(false);
 
-        // the main menu's reward button opens it
         var rewardButtonObject = FindDeep(canvas.transform, "RewardButton");
         if (rewardButtonObject != null && rewardButtonObject.TryGetComponent<Button>(out var rewardButton))
         {
@@ -242,17 +218,8 @@ public static class RewardsPanelSetup
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
         Selection.activeGameObject = panelRect.gameObject;
-
-        Debug.Log("RewardsPanelSetup: the rewards panel is created, closed at start. Assign the claim sound on GameDataManager (Rewards and tasks → Reward Claim Sound). " +
-                  "Edit the rewards in PlayerLevelRewards and the tasks in Assets/Scripts/ScriptableObject/Rewards.");
     }
 
-    // =====================================================================================================
-    //  The window for received crew cards
-    // =====================================================================================================
-
-    /// <summary>Builds the window that shows the crew cards the player receives as a reward (CrewCardRewardPopup): a dark background (a tap
-    /// closes it), a title, a row for the cards, an Animator for your animation. Closed at start; it closes by itself after 10 seconds.</summary>
     [MenuItem("Tools/Ship Builder/Create Crew Card Popup")]
     public static void CreateCrewCardPopup()
     {
@@ -274,19 +241,18 @@ public static class RewardsPanelSetup
         var cardPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabFolder}/CrewMemberCard.prefab")?.GetComponent<CrewCardView>();
         if (cardPrefab == null) Debug.LogWarning("RewardsPanelSetup: Assets/Prefabs/UI/CrewMemberCard.prefab has no CrewCardView - assign the Card Prefab by hand.");
 
-        // the component sits on a plain always-active object, the window is its child
         var holder = NewUI("CrewCardRewardPopup", canvas.transform);
         Undo.RegisterCreatedObjectUndo(holder.gameObject, "Create crew card popup");
         Stretch(holder);
-        holder.SetAsLastSibling(); // above every other panel
+        holder.SetAsLastSibling();
 
         var panelRect = NewUI("Window", holder);
         Stretch(panelRect);
-        var dim = AddImage(panelRect, null, new Color(0f, 0f, 0f, 0.7f)); // dark and it takes the touches
+        var dim = AddImage(panelRect, null, new Color(0f, 0f, 0f, 0.7f));
         var close = panelRect.gameObject.AddComponent<Button>();
         close.transition = Selectable.Transition.None;
         close.targetGraphic = dim;
-        var animator = panelRect.gameObject.AddComponent<Animator>(); // add your Animator Controller to it
+        var animator = panelRect.gameObject.AddComponent<Animator>();
 
         var title = NewUI("Title", panelRect);
         Place(title, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 420f), new Vector2(900f, 100f));
@@ -315,13 +281,7 @@ public static class RewardsPanelSetup
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Selection.activeGameObject = holder.gameObject;
-        Debug.Log("RewardsPanelSetup: the crew card window is created (Canvas / CrewCardRewardPopup, closed at start). Add your Animator Controller to its Window " +
-                  "(triggers \"Show\" and \"Hide\"); the visible time is set on the component.");
     }
-
-    // =====================================================================================================
-    //  Prefabs
-    // =====================================================================================================
 
     private static LevelRewardButtonView BuildLevelRewardPrefab()
     {
@@ -366,14 +326,13 @@ public static class RewardsPanelSetup
         title.anchorMin = new Vector2(0f, 1f);
         title.anchorMax = new Vector2(1f, 1f);
         title.pivot = new Vector2(0f, 1f);
-        title.offsetMin = new Vector2(30f, -85f);   // left, bottom (= top - height)
-        title.offsetMax = new Vector2(-480f, -15f); // right, top
+        title.offsetMin = new Vector2(30f, -85f);
+        title.offsetMax = new Vector2(-480f, -15f);
         var titleText = AddText(title, "Уничтожьте 50 блоков оружия", 32, Light, TextAlignmentOptions.TopLeft, FontStyles.Normal);
         titleText.enableAutoSizing = true;
         titleText.fontSizeMin = 22f;
         titleText.fontSizeMax = 32f;
 
-        // the progress bar, like the experience bar: the fill and the border
         var barRect = NewUI("ProgressBar", root);
         Place(barRect, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0.5f), new Vector2(30f, 78f), new Vector2(TaskBarWidth, 20f));
         var fill = AddImage(barRect, LoadSprite("ExpirienceBar"), Light, raycast: false);
@@ -413,13 +372,11 @@ public static class RewardsPanelSetup
         return SavePrefab(root.gameObject, $"{PrefabFolder}/TaskItem.prefab").GetComponent<TaskItemView>();
     }
 
-    // sizes of the reward blocks: three slots side by side
     private const float LevelNodeWidth = 250f;
-    private const float LevelRowWidth = 240f;   // 3 x 76 + 2 x 6
-    private const float TaskRowWidth = 268f;    // 3 x 84 + 2 x 8
+    private const float LevelRowWidth = 240f;
+    private const float TaskRowWidth = 268f;
     private const float TaskBarWidth = 480f;
 
-    /// <summary>Turns the given object into a row of three reward slots (icon over amount), side by side, centred.</summary>
     private static RewardRowView BuildRewardRow(RectTransform parent, float slotWidth, float spacing, float iconSize, int textSize)
     {
         var group = parent.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -459,12 +416,6 @@ public static class RewardsPanelSetup
         return view;
     }
 
-    // =====================================================================================================
-    //  Upgrading prefabs that already exist (several rewards in a row)
-    // =====================================================================================================
-
-    /// <summary>For prefabs made by the first version of this tool: replaces the single reward block of the level button and of the task by a
-    /// row of three reward slots. Everything else in the prefabs (your colours, sizes, sprites) is kept. Does nothing to a prefab that already has the row.</summary>
     [MenuItem("Tools/Ship Builder/Upgrade Rewards Panel Prefabs (3 rewards)")]
     public static void UpgradePrefabs()
     {
@@ -492,7 +443,6 @@ public static class RewardsPanelSetup
             if (row == null) return false;
             view.rewards = row;
 
-            // make room for the wider reward row: the title and the bar get shorter, the claim button narrower
             if (root.transform.Find("TitleText") is RectTransform title) title.offsetMax = new Vector2(-480f, title.offsetMax.y);
             if (root.transform.Find("ProgressBar") is RectTransform bar)
             {
@@ -506,7 +456,6 @@ public static class RewardsPanelSetup
         });
 
         AssetDatabase.SaveAssets();
-        Debug.Log("RewardsPanelSetup: the level button and task prefabs now show up to three rewards in a row. Assign the crew-card icon on the RewardsPanel (Icons -> Crew Card).");
     }
 
     private static void UpgradePrefab(string path, System.Func<GameObject, bool> change)
@@ -517,7 +466,6 @@ public static class RewardsPanelSetup
         try
         {
             if (change(root)) PrefabUtility.SaveAsPrefabAsset(root, path);
-            else Debug.Log($"RewardsPanelSetup: {Path.GetFileName(path)} is already upgraded - skipped.");
         }
         finally
         {
@@ -529,7 +477,6 @@ public static class RewardsPanelSetup
     {
         if (!(root.Find("Reward") is RectTransform reward)) return null;
 
-        // the old single reward: its RewardView and its Icon / Amount children
         var oldView = reward.GetComponent<RewardView>();
         if (oldView != null) Object.DestroyImmediate(oldView);
         for (int i = reward.childCount - 1; i >= 0; i--) Object.DestroyImmediate(reward.GetChild(i).gameObject);
@@ -554,10 +501,6 @@ public static class RewardsPanelSetup
         Object.DestroyImmediate(root);
         return prefab;
     }
-
-    // =====================================================================================================
-    //  Data
-    // =====================================================================================================
 
     private static TaskDatabase CreateTasks()
     {
@@ -611,10 +554,6 @@ public static class RewardsPanelSetup
         AssetDatabase.CreateAsset(asset, path);
         return asset;
     }
-
-    // =====================================================================================================
-    //  Small helpers
-    // =====================================================================================================
 
     private static RectTransform NewUI(string name, Transform parent)
     {

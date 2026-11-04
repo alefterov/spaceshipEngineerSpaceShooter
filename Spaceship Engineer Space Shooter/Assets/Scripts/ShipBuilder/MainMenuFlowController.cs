@@ -1,11 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Owns the first scene's two screens: Main Menu (closed ship preview + Play/Build buttons)
-/// and Ship Builder (exposed-internals view + block palette). Both live in this one scene —
-/// only the battle itself is a separate scene, loaded later once that flow exists.
-/// </summary>
 public class MainMenuFlowController : MonoBehaviour
 {
     [Header("Ship")]
@@ -13,8 +8,8 @@ public class MainMenuFlowController : MonoBehaviour
     public BlockDatabase database;
 
     [Header("Screens (enable/disable whole panels)")]
-    public GameObject mainMenuScreen;   // Play / Build Ship / Settings buttons, ship preview camera framing
-    public GameObject builderScreen;    // palette, mode tabs, rotate button — the existing build UI
+    public GameObject mainMenuScreen;
+    public GameObject builderScreen;
 
     [Header("Build screen internals")]
     public BuildModeController buildModeController;
@@ -44,62 +39,47 @@ public class MainMenuFlowController : MonoBehaviour
 
     private void Start()
     {
-        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit();
 
-        // GameDataManager already loaded the save file in its own Awake (runs before this Start,
-        // as long as it lives in the same scene or a bootstrap scene loaded earlier).
-        GameDataManager.Instance.ResetFocus(); // the main menu shows the ship that goes into battle
-        playerShip.SetHangarSize(GameDataManager.Instance.HangarColumns, GameDataManager.Instance.HangarRows); // restore any hangar upgrades bought previously
+        GameDataManager.Instance.ResetFocus();
+        playerShip.SetHangarSize(GameDataManager.Instance.HangarColumns, GameDataManager.Instance.HangarRows);
         GameDataManager.Instance.LoadShip(playerShip, database);
-        GameDataManager.Instance.BeginBuildSession(); // baseline for RevertCredits, in case Build is entered before any Save
+        GameDataManager.Instance.BeginBuildSession();
         ShowMainMenu();
     }
 
-    /// <summary>Wire to the main menu's "Play" button — opens the game-mode selection popup
-    /// (Campaign/Survival/...) instead of jumping straight into a battle.</summary>
     public void OnPlayPressed() => gameModePopup.Open();
 
-    /// <summary>Wire to the "Campaign" button inside the game-mode popup — swaps it for the level-select map.</summary>
     public void OnCampaignPressed()
     {
         gameModePopup.Close();
         levelSelectPopup.Open();
     }
 
-    /// <summary>Wire to the "Survival" button inside the game-mode popup. The actual starting level
-    /// for survival is GameDataManager.GetSurvivalStartLevel() — BattleSequenceController (or whatever
-    /// survival-specific setup comes later) should read that once it's in the battle scene.</summary>
     public void OnSurvivalPressed()
     {
-        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit();
 
         gameModePopup.Close();
-        PendingBattle.Level = null; // survival doesn't pick a campaign level — clears any stale one from an earlier attempt
-        SceneManager.LoadScene(PendingBattle.BattleSceneName);
+        PendingBattle.Level = null;
+        SceneLoader.Load(PendingBattle.BattleSceneName);
     }
 
-    /// <summary>Wire to a "Build Ship" / "Ангар" button on the main menu.</summary>
     public void OnBuildShipPressed()
     {
-        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit();
 
         mainMenuScreen.SetActive(false);
         builderScreen.SetActive(true);
 
-        // The input catcher (GhostBlockController's full-screen UI Image) may live outside the
-        // builderScreen hierarchy — explicitly (re)activate it and reset build state here rather
-        // than relying only on SetActive(builderScreen), or taps would keep working after exit.
         buildModeController.ghost.gameObject.SetActive(true);
-        buildModeController.SetCockpitBuildMode(); // fresh, predictable state every time we enter
+        buildModeController.SetCockpitBuildMode();
 
-        playerShip.SetViewMode(ShipViewMode.Building); // strip the roof so the grid/internals read clearly
-        GameDataManager.Instance.BeginBuildSession(); // snapshot credits — rolled back by RevertCredits on an unsaved exit
+        playerShip.SetViewMode(ShipViewMode.Building);
+        GameDataManager.Instance.BeginBuildSession();
         if (statsPanel != null) statsPanel.Show();
     }
 
-    /// <summary>Wire to a dedicated "Save" button inside the builder screen. Saving is a separate,
-    /// explicit action from exiting — leaving the builder no longer saves on its own. Refuses to
-    /// save (and shows a message instead) if the ship has no cockpit — a cockpit is mandatory.</summary>
     public void OnSaveShipPressed()
     {
         if (!playerShip.HasCockpit)
@@ -117,31 +97,24 @@ public class MainMenuFlowController : MonoBehaviour
         GameDataManager.Instance.SaveShip(playerShip);
     }
 
-    /// <summary>Wire to the "Exit" button inside the builder screen. Does NOT save — instead it
-    /// discards everything placed/deleted this session by reverting to the last saved layout (see
-    /// OnSaveShipPressed to keep changes instead of losing them).</summary>
     public void OnExitBuilderPressed()
     {
         GameDataManager.Instance.RevertShip(playerShip, database);
         GameDataManager.Instance.RevertCredits();
 
-        // Bug fix: without this, the input catcher stayed active and taps in the main menu
-        // would still place/delete blocks. Clear all transient state AND disable the catcher.
         buildModeController.ResetForExit();
         buildModeController.ghost.gameObject.SetActive(false);
 
         ShowMainMenu();
     }
 
-    /// <summary>Shows a ship of the fleet in the main scene (its grid and blocks) and makes it the one the builder and the hangar upgrades
-    /// work on — the fleet panel calls this for every slide.</summary>
     public void ShowFleetShip(int index)
     {
         var data = GameDataManager.Instance;
         if (data == null) return;
 
         index = Mathf.Clamp(index, 0, data.Fleet.Count - 1);
-        data.ShowFleetShip(playerShip, database, index); // the grid first: the focus change below refreshes what shows its size
+        data.ShowFleetShip(playerShip, database, index);
         data.FocusShip(index);
         playerShip.SetViewMode(ShipViewMode.Preview);
         if (cameraController != null) cameraController.FrameShip();
@@ -149,7 +122,6 @@ public class MainMenuFlowController : MonoBehaviour
 
     private void ShowMainMenu()
     {
-        // Back from building another ship of the fleet without saving it: the menu shows the ship that goes into battle again.
         var data = GameDataManager.Instance;
         if (data != null && data.FocusedShipIndex != data.SelectedShipIndex)
         {
@@ -157,14 +129,14 @@ public class MainMenuFlowController : MonoBehaviour
             data.ResetFocus();
         }
 
-        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit(); // the block card goes away with the builder
+        if (buildModeController != null && buildModeController.palette != null) buildModeController.palette.ResetForExit();
 
         builderScreen.SetActive(false);
         mainMenuScreen.SetActive(true);
-        buildModeController.ghost.gameObject.SetActive(false); // safety: never listen for taps outside the builder
+        buildModeController.ghost.gameObject.SetActive(false);
 
-        playerShip.SetViewMode(ShipViewMode.Preview); // put the roof back on for the menu preview
-        if (cameraController != null) cameraController.FrameShip(); // center + fit — whatever pan/zoom was left from building is discarded
-        if (statsPanel != null) statsPanel.Hide(); // back to its default hidden state — the manual toggle button can still reopen it here
+        playerShip.SetViewMode(ShipViewMode.Preview);
+        if (cameraController != null) cameraController.FrameShip();
+        if (statsPanel != null) statsPanel.Hide();
     }
 }

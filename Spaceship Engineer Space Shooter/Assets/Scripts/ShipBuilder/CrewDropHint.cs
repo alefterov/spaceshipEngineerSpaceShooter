@@ -1,19 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// An icon (any UI object) that fades in while a crew card is being dragged and fades out the moment the
-/// finger lifts. Put it on the hint icon you place inside a crew slot or a merge window; it hides itself
-/// at start (alpha 0) and never blocks touches.
-///
-/// By default it shows only where the dragged card can actually be dropped — it looks for the slot / merge
-/// window it sits in (the nearest ICrewDropTarget among its parents) and asks it. Turn Only When Accepted
-/// off to show it on every slot during any drag.
-///
-/// SETUP: add as a CHILD of the slot (CrewMemberView) or merge window (CrewMergeSlot), on the icon itself or
-/// on a parent of the icons. The object must stay active in the scene (it fades with alpha, it is not
-/// switched off). A CanvasGroup is added automatically.
-/// </summary>
 public class CrewDropHint : MonoBehaviour
 {
     [Tooltip("Seconds to fade in when a drag starts.")]
@@ -31,7 +18,7 @@ public class CrewDropHint : MonoBehaviour
     {
         if (!TryGetComponent(out group)) group = gameObject.AddComponent<CanvasGroup>();
         group.alpha = 0f;
-        group.blocksRaycasts = false; // never steals the drop from the slot underneath
+        group.blocksRaycasts = false;
         group.interactable = false;
     }
 

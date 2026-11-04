@@ -2,12 +2,6 @@ using UnityEngine;
 
 public enum ProjectileOwner { Player, Enemy }
 
-/// <summary>
-/// Simple projectile that damages exactly the module collider it hits —
-/// this is the core piece that makes "точечный урон по модулям" work.
-/// Requires each module's Collider2D to be on its own GameObject (not a shared
-/// composite collider) so OnTriggerEnter2D resolves to the specific part hit.
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class Projectile : MonoBehaviour, IShieldBlockable
 {
@@ -59,7 +53,6 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     private bool evasionRolled;
     private bool evaded;
 
-    // ---------- IShieldBlockable — a shield stops shots fired by the OTHER side; its own side's pass through ----------
     public float ImpactDamage => damage;
     public bool IsConsumed => consumed;
     public bool IsHostileTo(Faction shieldFaction)
@@ -67,7 +60,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     public void AbsorbedByShield()
     {
         consumed = true;
-        Break(playSound: false); // a shield stopped it: the shield makes the sound
+        Break(playSound: false);
     }
 
     private void Awake()
@@ -75,14 +68,10 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         rb = GetComponent<Rigidbody2D>();
         SetUpTrail();
 
-        // The impact effect may be a child object of this very prefab rather than a separate prefab
-        // asset. It's only a template to copy at the moment of the hit — left running it would play at launch.
         if (impactEffectPrefab != null && impactEffectPrefab.transform.IsChildOf(transform))
             impactEffectPrefab.SetActive(false);
     }
 
-    /// <summary>The shot's end when it hits something: the impact effect at the spot, and the shot is
-    /// removed. Idempotent. Running out of range just vanishes (see Start) — that isn't a hit.</summary>
     private void Break(bool playSound = true)
     {
         if (broken) return;
@@ -93,24 +82,20 @@ public class Projectile : MonoBehaviour, IShieldBlockable
 
         if (impactEffectPrefab != null)
         {
-            var fx = Instantiate(impactEffectPrefab, transform.position, Quaternion.identity); // unparented: it must outlive this shot
-            fx.SetActive(true); // the copy of an in-prefab template starts switched off (see Awake)
+            var fx = Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
+            fx.SetActive(true);
             if (impactEffectLifetime > 0f) Destroy(fx, impactEffectLifetime);
         }
 
         Despawn();
     }
 
-    // ---------- Trail ----------
-
-    /// <summary>Uses the prefab's own TrailRenderer if there is one (also the one assigned in ProjectileGlow);
-    /// otherwise creates a child trail from the Trail settings above.</summary>
     private void SetUpTrail()
     {
         if (!trailEnabled || trailTime <= 0f) return;
 
         trail = GetComponentInChildren<TrailRenderer>();
-        if (trail != null) return; // the prefab's own trail keeps its own settings
+        if (trail != null) return;
 
         var glow = GetComponent<ProjectileGlow>();
         Color color = glow != null ? glow.color : trailColor;
@@ -134,15 +119,13 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         trail.endColor = end;
     }
 
-    /// <summary>The shot's real end (hit, absorbed, or out of range). The trail is cut loose first, so it
-    /// fades away on its own where the shot was instead of vanishing with it.</summary>
     private void Despawn()
     {
         if (trail != null)
         {
             trail.transform.SetParent(null, true);
             trail.emitting = false;
-            trail.autodestruct = true; // removes itself once the last of the trail has faded
+            trail.autodestruct = true;
             trail = null;
         }
 
@@ -153,8 +136,6 @@ public class Projectile : MonoBehaviour, IShieldBlockable
     {
         rb.linearVelocity = transform.up * speed;
 
-        // Scheduled here rather than in Awake: Awake runs inside Instantiate, before the weapon that
-        // fired this shot has had a chance to set lifeTime from its range.
         Invoke(nameof(Despawn), lifeTime);
     }
 
@@ -165,8 +146,6 @@ public class Projectile : MonoBehaviour, IShieldBlockable
             Break();
     }
 
-    /// <summary>Ships: damage resolves to the SPECIFIC module collider hit, not to some abstract
-    /// whole-ship HP bar — this is what makes shooting off individual parts work.</summary>
     private bool TryHitModule(Collider2D other)
     {
         var hitModule = other.GetComponent<ShipModule>();
@@ -178,8 +157,6 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         if (owner == ProjectileOwner.Player && !isEnemyModule) return false;
         if (owner == ProjectileOwner.Enemy && !isPlayerModule) return false;
 
-        // Crew evasion perk: an enemy shot at the player's ship is rolled ONCE, on first contact. A dodged
-        // shot flies on through the whole ship, harmlessly, instead of being re-rolled on every block.
         if (isPlayerModule && owner == ProjectileOwner.Enemy && TryEvade()) return false;
 
         float dealt = CriticalHit.Roll(owner == ProjectileOwner.Player ? Faction.Player : Faction.Enemy, damage, out bool crit);
@@ -202,9 +179,6 @@ public class Projectile : MonoBehaviour, IShieldBlockable
         return evaded;
     }
 
-    /// <summary>Missiles and meteors — single-HP objects rather than module assemblies, which is what
-    /// defensive turrets are built to knock down. TargetKind.Projectile is excluded on purpose: shots
-    /// can never shoot down other shots (same rule WeaponModule.CanEngage enforces when aiming).</summary>
     private bool TryHitTargetable(Collider2D other)
     {
         var target = other.GetComponent<Targetable>();

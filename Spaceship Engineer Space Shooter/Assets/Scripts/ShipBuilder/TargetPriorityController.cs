@@ -1,11 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// What a target-priority tab of the priorities window (ShipPrioritiesWindow) does, whichever weapons it is for: keeps its rows
-/// (MissilePriorityDragItem) in the saved order when it is shown, and saves the new order whenever a row is dropped. The concrete tabs are
-/// MissilePriorityController (missiles) and BalistickPriorityController (tower guns).
-/// </summary>
 public abstract class TargetPriorityController : MonoBehaviour, IPriorityPanel
 {
     [Tooltip("The player's ship root (the object with ShipIdentity).")]
@@ -15,7 +10,6 @@ public abstract class TargetPriorityController : MonoBehaviour, IPriorityPanel
 
     private TargetPriority priority;
 
-    /// <summary>The priority list of the player's ship this tab edits (added to the ship if it has none).</summary>
     protected abstract TargetPriority GetPriority(ShipIdentity ship);
 
     private TargetPriority Priority
@@ -27,7 +21,6 @@ public abstract class TargetPriorityController : MonoBehaviour, IPriorityPanel
         }
     }
 
-    /// <summary>Shows this tab on its own (without the window) and lays its rows out. The priorities window does this itself.</summary>
     public void Open()
     {
         gameObject.SetActive(true);
@@ -36,7 +29,6 @@ public abstract class TargetPriorityController : MonoBehaviour, IPriorityPanel
 
     public void Close() => gameObject.SetActive(false);
 
-    /// <summary>Lays the rows out to match the saved order — so the tab always reflects reality.</summary>
     public void RefreshPanel()
     {
         var current = Priority;
@@ -53,7 +45,6 @@ public abstract class TargetPriorityController : MonoBehaviour, IPriorityPanel
                 item.transform.SetSiblingIndex(i);
     }
 
-    /// <summary>Called by a row once it is dropped into a new slot — reads the rows' current order and saves it.</summary>
     public void SetOrderFromSiblingOrder()
     {
         var current = Priority;

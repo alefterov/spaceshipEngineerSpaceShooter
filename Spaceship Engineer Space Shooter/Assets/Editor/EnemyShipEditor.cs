@@ -2,20 +2,6 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Shows what an enemy ship prefab looks like. An EnemyShip prefab is an empty object — it builds its blocks only when the
-/// game runs — so this gives it two editor-only views, neither of which adds anything to the prefab or the scene:
-///
-///  - INSPECTOR PREVIEW: below the component, a picture of the ship made from the real block prefabs (sprites, turrets
-///    and all), drawn in a hidden preview scene. It updates by itself when the Blocks list changes. Works with the prefab
-///    selected in the Project window, too.
-///  - SCENE VIEW OUTLINE: when the ship is selected (also in Prefab Mode), every block is outlined in a colour of its
-///    kind with its name, so the layout can be read in the Scene view: armor grey, weapon red, engine orange, generator
-///    yellow, shield blue, cockpit green, repair lime. The arrow marks the ship's front (the side that fires).
-///
-/// The ship is built facing UP (like the player's); in the game it turns to face down. "Show as in battle" in the
-/// preview turns the picture the same way.
-/// </summary>
 [CustomEditor(typeof(EnemyShip))]
 public class EnemyShipEditor : Editor
 {
@@ -43,7 +29,7 @@ public class EnemyShipEditor : Editor
 
         var ship = (EnemyShip)target;
 
-        if (Application.isPlaying) // the block prefabs would run their game code inside the preview scene
+        if (Application.isPlaying)
         {
             EditorGUILayout.HelpBox("The ship preview is shown outside Play Mode.", MessageType.None);
             return;
@@ -81,8 +67,6 @@ public class EnemyShipEditor : Editor
         GUI.DrawTexture(rect, picture, ScaleMode.StretchToFill, false);
     }
 
-    // ---------- Building the picture ----------
-
     private static int ComputeHash(EnemyShip ship)
     {
         int hash = 17;
@@ -117,7 +101,7 @@ public class EnemyShipEditor : Editor
         preview.camera.farClipPlane = 50f;
         preview.camera.transform.rotation = Quaternion.identity;
 
-        var unlit = Shader.Find("Sprites/Default"); // the sprites normally use a lit 2D material, which is black without lights
+        var unlit = Shader.Find("Sprites/Default");
         bool any = false;
 
         foreach (var placement in ship.blocks)
@@ -138,8 +122,6 @@ public class EnemyShipEditor : Editor
             Quaternion turn = flipped ? Quaternion.Euler(0f, 0f, 180f) : Quaternion.identity;
             go.transform.SetPositionAndRotation(turn * position, turn);
 
-            // The same placement the game does: only the visual child is moved to the middle of the block's footprint
-            // and turned by the block's rotation.
             if (go.TryGetComponent<ShipModule>(out var module) && module.visualRoot != null && module.visualRoot != go.transform)
             {
                 module.visualRoot.localPosition = new Vector3(centroid.x * cell, centroid.y * cell, 0f);
@@ -176,7 +158,7 @@ public class EnemyShipEditor : Editor
             }
         }
 
-        if (first) // nothing drew anything: frame the cells instead
+        if (first)
             bounds = new Bounds(Vector3.zero, Vector3.one * 3f);
     }
 
@@ -195,8 +177,6 @@ public class EnemyShipEditor : Editor
 
         builtHash = int.MinValue;
     }
-
-    // ---------- Scene view outline ----------
 
     private void OnSceneGUI()
     {
@@ -245,7 +225,6 @@ public class EnemyShipEditor : Editor
 
         if (any)
         {
-            // An arrow out of the front (the +Y side), where the weapons point.
             Vector3 tip = new((min.x + max.x) * 0.5f, max.y + cell * 0.9f, 0f);
             Handles.color = new Color(1f, 1f, 1f, 0.9f);
             Handles.DrawLine(new Vector3(tip.x, max.y + cell * 0.1f), tip);

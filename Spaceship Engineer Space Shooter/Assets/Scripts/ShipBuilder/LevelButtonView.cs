@@ -4,12 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>
-/// One button on the campaign level-select map. Shows the level number, a lock icon + darkened
-/// button while locked, and a 3-star rating row once unlocked (empty stars if not completed yet).
-/// Lay these out and connect them with lines by hand — this component only handles one button's own
-/// state, nothing about the map layout.
-/// </summary>
 public class LevelButtonView : MonoBehaviour
 {
     [Header("Data")]
@@ -45,15 +39,12 @@ public class LevelButtonView : MonoBehaviour
     [Range(0f, 1f), Tooltip("Alpha of the path while this level has not been completed yet.")]
     public float uncompletedPathAlpha = 0.2f;
 
-    /// <summary>Fired right after the battle scene load is kicked off, for anything else that also
-    /// wants to know which level was picked (this same info is also in PendingBattle.Level by then).</summary>
     public static event Action<LevelDefinition> OnLevelSelected;
 
     private bool subscribed;
 
     private void Awake()
     {
-        // Same defensive Z-reset as TechNodeView — see that file's Awake for why this matters.
         var rt = (RectTransform)transform;
         var pos = rt.localPosition;
         if (pos.z != 0f) rt.localPosition = new Vector3(pos.x, pos.y, 0f);
@@ -65,8 +56,6 @@ public class LevelButtonView : MonoBehaviour
         TrySubscribe();
     }
 
-    // Same Start()-fallback pattern as TechNodeView/CurrencyDisplay — GameDataManager.Instance may
-    // not be set yet during this object's own OnEnable if Awake order puts it first.
     private void Start() => TrySubscribe();
 
     private void OnDisable()
@@ -95,8 +84,6 @@ public class LevelButtonView : MonoBehaviour
         if (data != null) data.OnLevelStarsChanged -= HandleLevelStarsChanged;
     }
 
-    // Refreshes on ANY level's stars changing, not just this one's — completing the PREREQUISITE is
-    // exactly what might flip this button from locked to unlocked.
     private void HandleLevelStarsChanged(string changedLevelId) => Refresh();
 
     public void Refresh()
@@ -112,21 +99,19 @@ public class LevelButtonView : MonoBehaviour
         if (lockIcon != null) lockIcon.SetActive(!unlocked);
         if (button != null)
         {
-            button.interactable = true; // a locked level can still be opened to look at it
+            button.interactable = true;
             if (button.targetGraphic != null) button.targetGraphic.color = unlocked ? Color.white : lockedTint;
         }
         if (starRow != null) starRow.SetActive(unlocked);
 
         RefreshPath(earnedStars > 0);
 
-        if (!unlocked) return; // locked — no rating to show at all
+        if (!unlocked) return;
 
         for (int i = 0; i < stars.Length; i++)
             if (stars[i] != null) stars[i].sprite = i < earnedStars ? filledStarSprite : emptyStarSprite;
     }
 
-    /// <summary>The path to the next level: shown at Completed Path Alpha once this level is done, at Uncompleted
-    /// Path Alpha before that, and not at all on the last level.</summary>
     private void RefreshPath(bool completed)
     {
         if (pathToNext == null) return;
@@ -144,16 +129,14 @@ public class LevelButtonView : MonoBehaviour
     {
         if (infoPanel == null) infoPanel = FindFirstObjectByType<LevelInfoPanel>(FindObjectsInactive.Include);
 
-        // The level starts only when Play is pressed on the info panel. No panel in the scene: start straight away.
         if (infoPanel != null) infoPanel.Open(level, GameDataManager.Instance != null && GameDataManager.Instance.IsLevelUnlocked(level));
         else if (GameDataManager.Instance != null && GameDataManager.Instance.IsLevelUnlocked(level)) StartLevel(level);
     }
 
-    /// <summary>Begins the battle for this level (called by the info panel's Play button).</summary>
     public static void StartLevel(LevelDefinition chosen)
     {
         PendingBattle.Level = chosen;
-        SceneManager.LoadScene(PendingBattle.BattleSceneName);
+        SceneLoader.Load(PendingBattle.BattleSceneName);
         OnLevelSelected?.Invoke(chosen);
     }
 }

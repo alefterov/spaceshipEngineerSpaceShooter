@@ -1,14 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Primitive hazard: flies a straight line from the top of the screen to the bottom (the line is chosen
-/// at spawn — see EnemySpawner — and never steers toward the ship), detonating on the first block it
-/// touches — that block (and only that block) takes the damage from its
-/// own HP pool. Also a Targetable (kind=Meteor), so point-defense weapons can shoot it down first — see
-/// WeaponModule.CanEngage / Projectile.TryHitTargetable.
-///
-/// Needs a Collider2D (Is Trigger = on) in addition to the required components below.
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Targetable))]
 public class Meteor : MonoBehaviour, IShieldBlockable
 {
@@ -73,32 +64,24 @@ public class Meteor : MonoBehaviour, IShieldBlockable
     private Rigidbody2D rb;
     private bool consumed;
 
-    // ---------- IShieldBlockable — a shield's protected area stops it before it reaches a block ----------
     public float ImpactDamage => damage;
     public bool IsConsumed => consumed;
-    public bool IsHostileTo(Faction shieldFaction) => shieldFaction == Faction.Player; // only ever aimed at the player's ship
+    public bool IsHostileTo(Faction shieldFaction) => shieldFaction == Faction.Player;
     public void AbsorbedByShield()
     {
         consumed = true;
-        Break(); // no reward — only being shot down awards one (see Awake)
+        Break();
     }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // The explosion may be a child object of this very prefab rather than a separate prefab asset. It's
-        // only a template to copy at the moment of destruction — left running it would play at spawn.
         if (explosionEffectPrefab != null && explosionEffectPrefab.transform.IsChildOf(transform))
             explosionEffectPrefab.SetActive(false);
 
         var targetable = GetComponent<Targetable>();
         targetable.kind = TargetKind.Meteor;
-        // Targetable.TakeDamage only flips IsDestroyed and fires an event — nothing removes the
-        // GameObject on its own, so a defensive weapon shooting this down would otherwise leave it
-        // sitting in the scene forever, still flying, just inert. This path is ALSO the only one that
-        // awards a reward — hitting the ship or flying off-screen bypass Targetable.TakeDamage entirely,
-        // so neither one reaches this handler.
         targetable.OnDestroyed += _ =>
         {
             BattleRewards.AddKill(creditReward, experienceReward);
@@ -106,13 +89,8 @@ public class Meteor : MonoBehaviour, IShieldBlockable
         };
     }
 
-    // ---------- Destruction ----------
-
     private bool broken;
 
-    /// <summary>Destroys the meteor with a show: the dust explosion appears where it was, and at the same
-    /// spot the meteor breaks into fragments that (after a short hold) drift apart, spin and fade out.
-    /// Idempotent — a shot and a shield can both land in the same frame.</summary>
     private void Break()
     {
         if (broken) return;
@@ -121,8 +99,8 @@ public class Meteor : MonoBehaviour, IShieldBlockable
 
         if (explosionEffectPrefab != null)
         {
-            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity); // unparented: it must outlive this meteor
-            fx.SetActive(true); // the copy of an in-prefab template starts switched off (see Awake)
+            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            fx.SetActive(true);
             if (explosionLifetime > 0f) Destroy(fx, explosionLifetime);
         }
 
@@ -156,14 +134,11 @@ public class Meteor : MonoBehaviour, IShieldBlockable
         Vector2 relative = (Vector2)transform.position - (Vector2)cam.transform.position;
 
         if (Mathf.Abs(relative.x) > halfWidth || Mathf.Abs(relative.y) > halfHeight)
-            Destroy(gameObject); // missed the ship and flew off-screen — no reward, doesn't count as a kill
+            Destroy(gameObject);
     }
 
     private Vector2 travelDirection = Vector2.down;
 
-    /// <summary>Sets the straight line this meteor flies along — call right after spawning (see
-    /// EnemySpawner, which picks a point on the top edge of the screen and one on the bottom edge). It
-    /// never steers toward the ship; whether it hits anything is down to where the ship happens to be.</summary>
     public void Launch(Vector2 direction)
     {
         travelDirection = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.down;
@@ -180,7 +155,6 @@ public class Meteor : MonoBehaviour, IShieldBlockable
 
         rb.linearVelocity = travelDirection * speed;
 
-        // Angular damping would slowly bleed the spin off over the flight — a meteor keeps its speed.
         rb.angularDamping = 0f;
         float spin = UnityEngine.Random.Range(Mathf.Min(minSpinSpeed, maxSpinSpeed), Mathf.Max(minSpinSpeed, maxSpinSpeed));
         if (randomSpinDirection && UnityEngine.Random.value < 0.5f) spin = -spin;
@@ -192,14 +166,11 @@ public class Meteor : MonoBehaviour, IShieldBlockable
         if (consumed || targetShip == null || !other.CompareTag("PlayerShip")) return;
 
         var hitModule = other.GetComponent<ShipModule>();
-        if (hitModule == null) return; // only an actual block counts as a hit
+        if (hitModule == null) return;
 
-        // The collider that fired the trigger belongs to exactly one block — no grid lookup needed
-        // (a WorldToGrid on the meteor's own center would resolve to the wrong cell anyway, since its
-        // collider is large enough to fire while its center is still outside the block it touched).
         hitModule.TakeDamage(damage);
         AudioManager.PlaySfx(impactSound, impactVolume);
         consumed = true;
-        Break(); // consumed on impact either way, lethal or not — explodes and breaks apart like any other destruction
+        Break();
     }
 }

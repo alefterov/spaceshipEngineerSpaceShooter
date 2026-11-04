@@ -4,27 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// One-finger drag pans the build camera; two-finger pinch zooms it. Both are disabled while a block
-/// is actively being dragged onto the grid (GhostBlockController.IsDragging) or delete mode is active
-/// — the camera has to stay put while the player's finger is mid-gesture on the grid itself.
-///
-/// Polls Touchscreen/Mouse directly every frame instead of using uGUI's OnBeginDrag/OnDrag/OnEndDrag
-/// — with real multi-touch, those events aren't guaranteed to fire exactly once per finger (a lost
-/// OnEndDrag leaves a phantom finger in a dictionary forever, permanently miscounting how many are
-/// down and jamming pan/pinch into the wrong mode). Polling has no persistent add/remove bookkeeping
-/// to desync: every frame re-derives "which fingers are down right now" from the input system itself.
-///
-/// SETUP: attach to the same full-screen UI Image that hosts GhostBlockController (the "input
-/// catcher" behind the palette/UI panels) — a finger only counts for camera control if it FIRST
-/// touched down on that element itself (checked once, when the finger appears): inside its rect AND with no other UI on top of it at
-/// that point. So a swipe starting on the builder panel, the palette, buttons etc. never moves the ship — only one starting on the
-/// open area where the ship is.
-///
-/// Panning is clamped so the camera can wander at most PanMarginCells past the ship's own
-/// footprint (ShipGrid.OccupiedCellPositions — the same cells the outline traces), not the full
-/// static grid, so the framing always tracks the ship you actually built rather than the board size.
-/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class BuildCameraController : MonoBehaviour
 {
@@ -51,10 +30,7 @@ public class BuildCameraController : MonoBehaviour
 
     private RectTransform rectTransform;
 
-    // Ground truth, rebuilt from scratch every frame: id (touchId, or -1 for mouse) -> current
-    // screen position, for every pointer currently down that qualifies for camera control.
     private readonly Dictionary<int, Vector2> tracked = new();
-    // Fingers that went down on some other UI (a panel, a button): ignored until lifted, even if they slide onto the ship's area.
     private readonly HashSet<int> rejected = new();
     private readonly List<RaycastResult> uiHits = new();
     private PointerEventData pointerData;
@@ -93,10 +69,9 @@ public class BuildCameraController : MonoBehaviour
             }
             else
             {
-                // Fingers spreading apart (distance grows) -> zoom IN -> smaller orthographic size.
                 float newSize = pinchStartOrthoSize - (distance - pinchStartDistance) * pinchZoomSpeed;
                 targetCamera.orthographicSize = Mathf.Clamp(newSize, minOrthographicSize, maxOrthographicSize);
-                MoveCameraClamped(targetCamera.transform.position); // re-clamp: zoom can push the center out of bounds
+                MoveCameraClamped(targetCamera.transform.position);
             }
         }
         else
@@ -111,9 +86,6 @@ public class BuildCameraController : MonoBehaviour
         SyncTracked(current);
     }
 
-    /// <summary>Every pointer currently pressed, restricted to ones that either (a) already qualified
-    /// last frame (so an in-progress gesture keeps being tracked even once the finger drifts outside
-    /// the rect), or (b) just appeared this frame and started inside our rect.</summary>
     private Dictionary<int, Vector2> GatherQualifyingPointers()
     {
         var result = new Dictionary<int, Vector2>();
@@ -139,7 +111,7 @@ public class BuildCameraController : MonoBehaviour
             if (Qualifies(mouseId, pos)) result[mouseId] = pos;
         }
 
-        rejected.RemoveWhere(id => !pressed.Contains(id)); // lifted: the next touch with that id is judged afresh
+        rejected.RemoveWhere(id => !pressed.Contains(id));
         return result;
     }
 
@@ -154,8 +126,6 @@ public class BuildCameraController : MonoBehaviour
         return false;
     }
 
-    /// <summary>Whether the topmost UI element under this screen point is something other than this input catcher (or its children) —
-    /// a panel, a button, the palette.</summary>
     private bool IsOtherUIOnTop(Vector2 screenPos)
     {
         var events = EventSystem.current;
@@ -164,7 +134,7 @@ public class BuildCameraController : MonoBehaviour
         pointerData ??= new PointerEventData(events);
         pointerData.position = screenPos;
         uiHits.Clear();
-        events.RaycastAll(pointerData, uiHits); // sorted topmost first
+        events.RaycastAll(pointerData, uiHits);
 
         return uiHits.Count > 0 && !uiHits[0].gameObject.transform.IsChildOf(transform);
     }
@@ -188,13 +158,11 @@ public class BuildCameraController : MonoBehaviour
 
         desired.x = min.x <= max.x ? Mathf.Clamp(desired.x, min.x, max.x) : (min.x + max.x) * 0.5f;
         desired.y = min.y <= max.y ? Mathf.Clamp(desired.y, min.y, max.y) : (min.y + max.y) * 0.5f;
-        desired.z = targetCamera.transform.position.z; // never touch camera depth
+        desired.z = targetCamera.transform.position.z;
 
         targetCamera.transform.position = desired;
     }
 
-    /// <summary>Min/max occupied-cell coordinates (corner space, max exclusive) — the ship's own footprint,
-    /// with no padding. Falls back to a single cell at the board's center if nothing is built yet.</summary>
     private (Vector2Int min, Vector2Int maxExclusive) GetShipCellBounds()
     {
         if (grid.TryGetShipCellBounds(out var min, out var maxExclusive)) return (min, maxExclusive);
@@ -203,8 +171,6 @@ public class BuildCameraController : MonoBehaviour
         return (center, center + Vector2Int.one);
     }
 
-    /// <summary>World-space min/max the camera's center is allowed to sit at — the ship's
-    /// bounding box, expanded by panMarginCells on every side.</summary>
     private (Vector3 min, Vector3 max) GetPanBounds()
     {
         var (minCell, maxCellExclusive) = GetShipCellBounds();
@@ -215,10 +181,6 @@ public class BuildCameraController : MonoBehaviour
         return (worldMin, worldMax);
     }
 
-    /// <summary>Centers the camera on the ship and zooms to fit the whole ship on screen (plus
-    /// framePaddingCells of breathing room). Call whenever entering the menu preview — including right
-    /// after leaving the builder, since exiting always routes through that same preview transition
-    /// (MainMenuFlowController.ShowMainMenu).</summary>
     public void FrameShip()
     {
         var (minCell, maxCellExclusive) = GetShipCellBounds();
@@ -226,7 +188,7 @@ public class BuildCameraController : MonoBehaviour
         Vector3 worldMax = grid.CornerToWorld(maxCellExclusive);
 
         Vector3 center = (worldMin + worldMax) * 0.5f;
-        center.z = targetCamera.transform.position.z; // never touch camera depth
+        center.z = targetCamera.transform.position.z;
         targetCamera.transform.position = center;
 
         float padding = framePaddingCells * 2f * grid.cellSize;

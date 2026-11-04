@@ -1,19 +1,6 @@
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// The scroll view full of crew cards: every crew member the player owns who is NOT standing in a slot,
-/// kept together by kind. Only completely identical copies (same kind, rank AND level) share one card, with
-/// a count ("x3"); every other copy has a card of its own, laid out left to right from the highest rank and
-/// level to the lowest.
-/// Rebuilds itself whenever crew changes. Also a drop target — dragging a member from a slot onto the
-/// scroll view takes it off the slot.
-///
-/// SETUP: put on the "Scroll View" object (not on Content — drops are detected walking UP from whatever
-/// is under the finger, and the scroll view's Image/Viewport must be a raycast target). Assign Content (the
-/// ScrollRect's content) and Card Prefab. The card prefab may be either a prefab asset or the template card
-/// sitting in Content in the scene — a scene template is switched off and used as the model, never destroyed.
-/// </summary>
 public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
 {
     [Tooltip("The ScrollRect's Content — cards are created inside it.")]
@@ -26,7 +13,6 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
 
     private void Awake()
     {
-        // A card placed in the scene as a template must not show up as a real card.
         if (cardPrefab != null && cardPrefab.gameObject.scene.IsValid()) cardPrefab.gameObject.SetActive(false);
     }
 
@@ -68,11 +54,10 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
         for (int i = content.childCount - 1; i >= 0; i--)
         {
             var child = content.GetChild(i).gameObject;
-            if (child == cardPrefab.gameObject) continue; // the scene template stays
+            if (child == cardPrefab.gameObject) continue;
             Destroy(child);
         }
 
-        // Identical copies (same kind, rank AND level) share one card ("x3"); anything else gets its own card.
         var groups = data.CrewMembers
             .Where(m => !data.IsCrewAssigned(m.instanceId))
             .Select(m => (member: m, definition: data.GetCrewDefinition(m)))
@@ -91,8 +76,6 @@ public class CrewCollectionView : MonoBehaviour, ICrewDropTarget
             card.gameObject.SetActive(true);
         }
     }
-
-    // ---------- Drop target: only a member standing in a slot can be dropped here ----------
 
     public bool CanAccept(CrewMemberData member)
         => GameDataManager.Instance != null && GameDataManager.Instance.IsCrewAssigned(member.instanceId);

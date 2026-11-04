@@ -2,16 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Checkmark/cross popup shown once a dragged block is released over a valid cell
-/// (GhostBlockController.EndGridDrag), and for a delete confirmation. The player must explicitly
-/// confirm before the block is actually placed — releasing over an invalid cell never shows this,
-/// the ghost is just discarded instead. The panel stays exactly where it is in the scene: it is
-/// switched on, and switched off again after either button.
-///
-/// SETUP: a small UI panel with two buttons (confirm/cancel), placed where you want it on the
-/// builder UI, inactive by default. Assign panel/confirmButton/cancelButton in the Inspector.
-/// </summary>
 public class PlacementConfirmPopup : MonoBehaviour
 {
     [Header("References")]
@@ -32,8 +22,6 @@ public class PlacementConfirmPopup : MonoBehaviour
         Hide();
     }
 
-    /// <summary>Shows the popup where it sits in the scene — it does not follow the drop point. It hides again after
-    /// either button.</summary>
     public void Show(Action confirm, Action cancel)
     {
         onConfirm = confirm;

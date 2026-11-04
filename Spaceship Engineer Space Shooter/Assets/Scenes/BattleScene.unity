@@ -10742,13 +10742,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 4913254233746452980, guid: 23e4650df0d3ed9449f4562c36c3fbec, type: 3}
-  m_Type: 0
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
   m_FillClockwise: 1
-  m_FillOrigin: 0
+  m_FillOrigin: 2
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!222 &606243755
@@ -16228,6 +16228,7 @@ MonoBehaviour:
   waveLabel: {fileID: 1029943027}
   waveFormat: Waves - {0}
   campaignWaveFormat: '{0}'
+  campaignGauge: 0
   coinsLabel: {fileID: 0}
 --- !u!1 &650938086
 GameObject:
@@ -21172,7 +21173,6 @@ GameObject:
   - component: {fileID: 1029943026}
   - component: {fileID: 1029943028}
   - component: {fileID: 1029943027}
-  - component: {fileID: 1029943029}
   m_Layer: 5
   m_Name: ScoresText
   m_TagString: Untagged
@@ -21299,20 +21299,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029943025}
   m_CullTransparentMesh: 1
---- !u!114 &1029943029
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029943025}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee0edc81860d8aa4f86ebe30adc8b0b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BattleRewardCounterView
-  label: {fileID: 1029943027}
-  countDuration: 1
 --- !u!1 &1032518419
 GameObject:
   m_ObjectHideFlags: 0

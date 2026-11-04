@@ -1,16 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// The "something is waiting for you" marks (yellow dots) in the corner of the main panel's buttons:
-///  - Rewards: a reached player level's reward or a finished task can be taken.
-///  - Technology: some technology can be researched right now (its prerequisite is done and there are enough points).
-///  - Crew: a crew member was received and not looked at yet — goes out once the crew screen has been opened.
-/// Each dot is shown while its reason is there and hidden otherwise. Checks a few times a second, so it follows every change by itself
-/// (a task finished in battle, research points earned, a card received).
-///
-/// SETUP: put on MainPanel. Make each dot picture a child of its button (RewardButton, TechnologyButton, CrewButton), anchored to the
-/// top-right corner, and drag the dots into the fields. Drag the crew screen (CrewPanel) into Crew Screen. A field left empty is simply skipped.
-/// </summary>
 public class MainPanelBadges : MonoBehaviour
 {
     [Header("Dots")]

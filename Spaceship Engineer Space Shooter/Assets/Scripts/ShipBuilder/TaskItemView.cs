@@ -3,13 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One task in the list of the rewards panel: the task text, a progress bar (like the experience bar) with "12 / 50", a block showing the
-/// reward, and the button that takes it — pressable only once the task is done. After it is taken the button is off and the item dimmed.
-///
-/// PREFAB: Title Label, Fill Image (Image Type = Filled, Fill Method = Horizontal), Progress Label, a RewardRowView, the Claim Button and
-/// optionally Claimed Mark. RewardsPanel creates one per task and drives them.
-/// </summary>
 public class TaskItemView : MonoBehaviour
 {
     public TMP_Text titleLabel;

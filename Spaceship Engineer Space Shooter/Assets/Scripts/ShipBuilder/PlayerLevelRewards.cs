@@ -2,38 +2,26 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>The rewards for one player level: up to three (they are shown side by side).</summary>
 [Serializable]
 public class LevelRewardSet
 {
     public List<RewardData> rewards = new();
 }
 
-/// <summary>
-/// The rewards for reaching each player level (1 to 100): element 0 is level 1, element 1 is level 2, and so on. Every level can give up to
-/// three rewards (credits, coins, experience, research points, random crew cards). The player takes them from the level bar of the rewards
-/// panel once the level is reached. Levels without an entry give nothing.
-///
-/// "Fill With Default Rewards" in this asset's menu (the three dots) writes a starting set: credits on odd levels, experience on even ones,
-/// coins every 10th level, research points every 25th - and a random crew card every 5th (two every 20th).
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Player Level Rewards", fileName = "PlayerLevelRewards")]
 public class PlayerLevelRewards : ScriptableObject
 {
     public List<LevelRewardSet> levels = new();
 
-    // The old format: one reward per level. Moved into Levels when the asset loads.
     [SerializeField, HideInInspector] private List<RewardData> rewards = new();
 
     public int Count => levels.Count > 0 ? levels.Count : rewards.Count;
 
-    /// <summary>The rewards for a level (1-based); an empty list if there are none.</summary>
     public IReadOnlyList<RewardData> GetRewards(int level)
     {
         if (levels.Count > 0)
             return level >= 1 && level <= levels.Count && levels[level - 1] != null ? levels[level - 1].rewards : Array.Empty<RewardData>();
 
-        // not converted yet: the old one-reward-per-level list
         return level >= 1 && level <= rewards.Count ? new[] { rewards[level - 1] } : Array.Empty<RewardData>();
     }
 

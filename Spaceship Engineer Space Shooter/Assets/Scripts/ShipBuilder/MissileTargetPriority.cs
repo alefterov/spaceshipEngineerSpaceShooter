@@ -2,11 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Which kind of block a ship's missiles go for first (see TargetPriority for how the order works). On the PLAYER'S ship the order is
-/// remembered between battles (GameData.missileTargetPriority) and edited in the priorities window. Added to a ship automatically by
-/// its first missile launcher.
-/// </summary>
 public class MissileTargetPriority : TargetPriority
 {
     protected override IReadOnlyList<int> LoadSaved() => GameDataManager.Instance.SavedMissilePriority;
@@ -16,21 +11,13 @@ public class MissileTargetPriority : TargetPriority
     public static MissileTargetPriority GetOrAdd(Component fromShipPart) => GetOrAdd<MissileTargetPriority>(fromShipPart);
 }
 
-/// <summary>Finding blocks for missiles to aim at.</summary>
 public static class MissileTargeting
 {
     private static readonly List<ShipModule> scratch = new();
 
-    /// <summary>What a missile of `owner` should chase from `from`. Goes through `order` top to bottom: a block
-    /// category picks the NEAREST living block of that type on the other side (only if ships are among the
-    /// allowed targets), the Meteor category the nearest hostile meteor (only if meteors are allowed). The first
-    /// category with something to hit wins. If none has, the nearest block of any type, else the nearest
-    /// allowed object. Exactly one of the outputs is set (or neither, when there is nothing at all).</summary>
     public static void PickTarget(Faction owner, IReadOnlyList<ModuleType> order, IReadOnlyList<TargetKind> allowed,
         Vector2 from, out ShipModule block, out Targetable obj)
     {
-        // The battle zone first: only what is inside it is considered. Only when the zone holds nothing to hit at all does the
-        // missile look further afield (a ship still beyond the top edge, a meteor not yet in view).
         PickTarget(owner, order, allowed, from, true, out block, out obj);
         if (block == null && obj == null) PickTarget(owner, order, allowed, from, false, out block, out obj);
     }
@@ -79,8 +66,6 @@ public static class MissileTargeting
             }
         }
 
-        // Nothing in the list applies (or no category matched a block that exists): the nearest block, else the
-        // nearest object of an allowed kind.
         if (scratch.Count > 0)
         {
             block = scratch.OrderBy(b => ((Vector2)b.transform.position - from).sqrMagnitude).First();
@@ -117,7 +102,6 @@ public static class MissileTargeting
         return best;
     }
 
-    /// <summary>Whether any living block of the other side that is in the battle zone is within `range` of `from`.</summary>
     public static bool AnyHostileWithin(Faction owner, Vector2 from, float range)
     {
         float rangeSqr = range * range;
@@ -146,9 +130,6 @@ public static class MissileTargeting
         }
     }
 
-    /// <summary>Whether a missile of `owner` that may engage `allowed` kinds may hit / chase this object: not a
-    /// ship (ships are hit block by block), not already destroyed, of an allowed kind, and hostile — meteors are
-    /// hostile to everyone, everything else only when it belongs to the other side.</summary>
     public static bool IsValidObjectTarget(Targetable candidate, Faction owner, IReadOnlyList<TargetKind> allowed)
     {
         if (candidate == null || candidate.IsDestroyed || candidate.kind == TargetKind.Ship) return false;
@@ -160,7 +141,6 @@ public static class MissileTargeting
         return candidate.kind == TargetKind.Meteor || candidate.faction != owner;
     }
 
-    /// <summary>The nearest meteor / torpedo / etc. (never a ship) a missile of `owner` may engage within `range`.</summary>
     public static Targetable NearestTargetable(Faction owner, IReadOnlyList<TargetKind> allowed, Vector2 from, float range, bool zoneOnly = false)
     {
         Targetable best = null;
@@ -181,8 +161,6 @@ public static class MissileTargeting
         return best;
     }
 
-    /// <summary>The living blocks touching `block` (sharing a cell edge) on its ship or fragment, not counting the
-    /// block itself. Works from the blocks' own cells, so it needs no grid — a broken-off fragment has none.</summary>
     public static List<ShipModule> GetNeighbours(ShipModule block)
     {
         var result = new List<ShipModule>();

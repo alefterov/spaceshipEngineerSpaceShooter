@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>One flying chunk of a destroyed meteor: holds still for a moment (so the dust explosion covers
-/// the break-up), then drifts outward while spinning, shrinking slightly and fading to nothing, then
-/// removes itself. Added by Meteor at spawn time; never attach by hand. Pure transform motion — no
-/// physics, no collider, so it can't hit anything.</summary>
 public class MeteorDebris : MonoBehaviour
 {
     private SpriteRenderer sr;
@@ -14,10 +10,8 @@ public class MeteorDebris : MonoBehaviour
     private float elapsed;
     private Color startColor;
     private Vector3 startScale;
-    private Gradient colorOverLife; // optional: replaces the plain fade — colour AND alpha over the debris' life
+    private Gradient colorOverLife;
 
-    /// <summary>Same as Begin, but the debris takes its colour (and opacity) from `gradient` over its life, 0 = just thrown,
-    /// 1 = gone — e.g. glowing embers that cool from yellow to black and vanish.</summary>
     public void BeginCooling(SpriteRenderer renderer, Vector2 velocity, float spinDegreesPerSecond, float delay, float fadeSeconds, Gradient gradient)
     {
         Begin(renderer, velocity, spinDegreesPerSecond, delay, fadeSeconds);

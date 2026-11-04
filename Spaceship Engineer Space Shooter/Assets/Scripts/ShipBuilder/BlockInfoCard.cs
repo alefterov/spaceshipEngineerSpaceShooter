@@ -2,26 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The "block card": a separate UI panel in the build screen describing the block selected in the palette. At the top
-/// the block's NAME and its SPRITE; below them, in a vertical layout group, one ROW per parameter the block has — each
-/// row is a prefab (BlockInfoRow) with an ICON and a number, so a parameter is told by its picture, not by a word.
-///
-/// Parameters (a row appears only when the block has it):
-///   health        — every block; armor uses its own icon
-///   damage        — weapons: damage of one shot (a laser: the whole beam)
-///   fire rate     — weapons: seconds between shots
-///   energy use    — blocks that spend energy; the ICON says when: per shot (weapons), per hit (shields), per second
-///                   (engines, repair blocks)
-///   energy made   — generators, per second
-///   engine power  — engines: thrust
-///   repair rate   — repair blocks: health restored per second
-/// Numbers are read from the block's prefab, so nothing is entered twice.
-///
-/// SETUP: assign Name Label, Sprite Image, Rows Parent (an object with a Vertical Layout Group) and Row Prefab (a prefab
-/// with BlockInfoRow). Assign the icons below for the parameters you want shown — a parameter with no icon assigned is
-/// still shown, just without a picture. BuildPaletteUI shows the card on selection (its Info Card field).
-/// </summary>
 public class BlockInfoCard : MonoBehaviour
 {
     [Header("Slide")]
@@ -68,8 +48,6 @@ public class BlockInfoCard : MonoBehaviour
         if (slidePanel == null) slidePanel = GetComponentInParent<SlideOutPanel>();
     }
 
-    /// <summary>No block selected: the panel slides away (keeping what it shows while it goes). With no sliding panel
-    /// the card stays where it is and only its contents are emptied.</summary>
     public void Hide()
     {
         if (slidePanel != null && slidePanel.isActiveAndEnabled)
@@ -87,7 +65,6 @@ public class BlockInfoCard : MonoBehaviour
         ClearRows();
     }
 
-    /// <summary>Hides the panel right away, no sliding, and empties the card — used when the build screen is closed.</summary>
     public void HideImmediate()
     {
         if (slidePanel == null) slidePanel = GetComponentInParent<SlideOutPanel>();
@@ -102,7 +79,6 @@ public class BlockInfoCard : MonoBehaviour
         ClearRows();
     }
 
-    /// <summary>Shows the card for this block.</summary>
     public void Show(BlockDefinition block)
     {
         if (block == null)
@@ -111,7 +87,7 @@ public class BlockInfoCard : MonoBehaviour
             return;
         }
 
-        gameObject.SetActive(true); // normally already on — it is never switched off
+        gameObject.SetActive(true);
         if (slidePanel != null && slidePanel.isActiveAndEnabled) slidePanel.Show();
 
         if (nameLabel != null) nameLabel.text = block.displayName;
@@ -146,13 +122,10 @@ public class BlockInfoCard : MonoBehaviour
         if (module is RepairModule repair) AddRow(repairRateIcon, Format(repair.repairPerSecond));
     }
 
-    /// <summary>Turns the picture with the block (the palette calls this when it is rotated).</summary>
     public void SetSpriteRotation(float degrees)
     {
         if (spriteImage != null) spriteImage.transform.localRotation = Quaternion.Euler(0f, 0f, degrees);
     }
-
-    // ---------- Rows ----------
 
     private void AddEnergyRows(ShipModule module)
     {
@@ -170,7 +143,7 @@ public class BlockInfoCard : MonoBehaviour
             case RepairModule repair:
                 AddEnergyUse(energyPerSecondIcon, Mathf.Abs(repair.repairPerSecond * repair.energyPerHp));
                 break;
-            default: // engines and anything else: what the block says, per second
+            default:
                 if (module.energyDelta < 0f) AddEnergyUse(energyPerSecondIcon, -module.energyDelta);
                 else if (module.energyDelta > 0f) AddRow(energyMadeIcon, Format(module.energyDelta));
                 break;
@@ -197,7 +170,7 @@ public class BlockInfoCard : MonoBehaviour
         for (int i = rowsParent.childCount - 1; i >= 0; i--)
         {
             var child = rowsParent.GetChild(i).gameObject;
-            child.SetActive(false); // Destroy is deferred — the layout must stop counting the old row right now
+            child.SetActive(false);
             Destroy(child);
         }
     }

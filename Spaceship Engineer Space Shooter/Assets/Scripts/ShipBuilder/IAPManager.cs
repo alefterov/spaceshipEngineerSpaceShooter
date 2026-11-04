@@ -6,20 +6,6 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 #endif
 
-/// <summary>
-/// Purchases for real money through the platform store (Google Play), with Unity In-App Purchasing 5. Registers every real-money product of
-/// the Shop Catalog with the store, shows the store's own prices, buys, and gives the purchase out (GameDataManager.GrantShopProduct).
-///
-/// How a purchase goes (the store's rule): the store reports it as pending -> the game gives it out and SAVES -> only then the game
-/// confirms it to the store. If the game is closed in between, the store sends the purchase again at the next start, and it is given then.
-/// Every transaction given out is remembered (GameData.processedOrders), so the same purchase is never given twice. Bought-once products
-/// (the premium) are taken back from the store at every start — after reinstalling, on another phone — and "Restore Purchases" asks again.
-///
-/// WITHOUT THE STORE — before the In App Purchasing package is installed (the scripting symbol IAP_SDK is set by IapDefineSetter as soon as
-/// it is), and in the Editor while Simulate In Editor is on — a purchase succeeds at once, for testing.
-///
-/// SETUP: one object in the first scene (it survives scene changes, like AdsManager). Assign the Shop Catalog.
-/// </summary>
 public class IAPManager : MonoBehaviour
 {
     public static IAPManager Instance { get; private set; }
@@ -29,21 +15,14 @@ public class IAPManager : MonoBehaviour
     [Tooltip("In the Editor, and while the In App Purchasing package is not installed: real-money purchases succeed at once (for testing).")]
     public bool simulateInEditor = true;
 
-    /// <summary>Prices arrived from the store (or the store went away) — price labels refresh on this.</summary>
     public event Action OnProductsLoaded;
-    /// <summary>A real-money purchase was given out.</summary>
     public event Action<ShopProduct> OnPurchaseSucceeded;
-    /// <summary>A real-money purchase did not happen. The text is the reason; null if the player simply cancelled.</summary>
     public event Action<ShopProduct, string> OnPurchaseFailed;
-    /// <summary>A real-money purchase waits for approval (a parent, a slow payment) — it is given out when the store approves it.</summary>
     public event Action<ShopProduct> OnPurchaseDeferred;
-    /// <summary>"Restore Purchases" finished: true if the store answered.</summary>
     public event Action<bool> OnRestoreFinished;
 
-    /// <summary>The store is connected and its products are loaded — purchases can start.</summary>
     public bool IsReady { get; private set; }
 
-    /// <summary>A purchase is in progress (between pressing Buy and the store's answer).</summary>
     public bool IsBusy { get; private set; }
 
     private bool Simulated
@@ -75,7 +54,6 @@ public class IAPManager : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    // Start, not Awake: the store may hand over a purchase from the last session at once, and GameDataManager must exist by then.
     private void Start()
     {
         if (Simulated)
@@ -88,16 +66,10 @@ public class IAPManager : MonoBehaviour
 #if IAP_SDK
         ConnectStore();
 #else
-        Debug.Log("IAPManager: the In App Purchasing package is not installed - real-money purchases are off.");
+
 #endif
     }
 
-    // =====================================================================================================
-    //  Public API
-    // =====================================================================================================
-
-    /// <summary>The price to show on a real-money product's button: the store's own (in the player's currency) once loaded, else the
-    /// product's Fallback Price Text.</summary>
     public string GetPriceText(ShopProduct product)
     {
         if (product == null) return "";
@@ -114,7 +86,6 @@ public class IAPManager : MonoBehaviour
         return product.fallbackPriceText;
     }
 
-    /// <summary>Whether this real-money product can be bought now (the store is ready and knows it).</summary>
     public bool IsAvailable(ShopProduct product)
     {
         if (product == null || !product.IsRealMoney || !IsReady) return false;
@@ -128,7 +99,6 @@ public class IAPManager : MonoBehaviour
 #endif
     }
 
-    /// <summary>Starts buying a real-money product. The answer comes through OnPurchaseSucceeded / OnPurchaseFailed / OnPurchaseDeferred.</summary>
     public void Buy(ShopProduct product)
     {
         if (product == null || !product.IsRealMoney) return;
@@ -147,7 +117,6 @@ public class IAPManager : MonoBehaviour
 
         if (Simulated)
         {
-            Debug.Log($"IAPManager: simulated purchase of {product.storeProductId}.");
             GameDataManager.Instance.GrantShopProduct(product);
             OnPurchaseSucceeded?.Invoke(product);
             return;
@@ -160,7 +129,6 @@ public class IAPManager : MonoBehaviour
 #endif
     }
 
-    /// <summary>Asks the store again for the bought-once products (the premium). For a "Restore Purchases" button — required on iOS.</summary>
     public void RestorePurchases()
     {
         if (Simulated)
@@ -189,9 +157,6 @@ public class IAPManager : MonoBehaviour
     private ShopProduct FindProduct(string storeProductId) => catalog != null ? catalog.GetByStoreId(storeProductId) : null;
 
 #if IAP_SDK
-    // =====================================================================================================
-    //  Unity IAP 5
-    // =====================================================================================================
 
     private StoreController store;
     private ShopProduct pendingProduct;
@@ -206,7 +171,6 @@ public class IAPManager : MonoBehaviour
 
         store = UnityIAPServices.StoreController();
 
-        // Every event BEFORE Connect: a purchase left unfinished last time may arrive at once.
         store.OnStoreConnected += HandleStoreConnected;
         store.OnStoreDisconnected += HandleStoreDisconnected;
         store.OnProductsFetched += HandleProductsFetched;
@@ -257,7 +221,7 @@ public class IAPManager : MonoBehaviour
     {
         IsReady = true;
         OnProductsLoaded?.Invoke();
-        store.FetchPurchases(); // bought-once products the player already owns (reinstall, another phone)
+        store.FetchPurchases();
     }
 
     private void HandleProductsFetchFailed(ProductFetchFailed failure)
@@ -290,7 +254,6 @@ public class IAPManager : MonoBehaviour
         var item = order.CartOrdered.Items().FirstOrDefault();
         var product = FindProduct(item?.Product?.definition.id);
 
-        // Not confirmed on purpose: the store sends it again at the next start, when it can be given out.
         if (data == null || product == null)
         {
             Debug.LogWarning($"IAPManager: a purchase of '{item?.Product?.definition.id}' could not be given out now (no GameDataManager, or not in the Shop Catalog).");
@@ -302,11 +265,11 @@ public class IAPManager : MonoBehaviour
 
         if (!alreadyGiven)
         {
-            data.GrantShopProduct(product); // saves
-            data.MarkOrderProcessed(transactionId); // saves
+            data.GrantShopProduct(product);
+            data.MarkOrderProcessed(transactionId);
         }
 
-        store.ConfirmPurchase(order); // only after the save
+        store.ConfirmPurchase(order);
 
         IsBusy = false;
         pendingProduct = null;

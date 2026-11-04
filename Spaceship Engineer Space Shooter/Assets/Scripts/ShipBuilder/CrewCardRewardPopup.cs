@@ -3,25 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The window that appears when the player receives crew cards (a reward, the shop): it shows the card(s) that were received and goes away
-/// by itself after Visible Seconds (10 by default), or earlier when the player taps the Close Button. If more cards arrive while it is open
-/// they are added and the time starts over.
-///
-/// THE CARDS: one card stands in the middle. Several are spread in a row like a fan — each overlapping the one before it, slightly turned
-/// and lowered towards the edges — and squeezed together (overlapping by at most Max Overlap of a card's width) to fit the width of the
-/// Cards Container; only if even that is not enough are they made smaller. Each card flies smoothly from the middle to its place, one after
-/// another, and when cards are added the others glide aside to make room. Every card appears pure white and the white fades away over
-/// Flash Seconds — fast at first, then slower (Flash Curve).
-///
-/// THE WINDOW ANIMATION IS YOURS: give the Panel an Animator. When the window opens the Show Trigger is set; Hide Trigger is set when it
-/// starts to close, and the panel is switched off Hide Seconds later (the length of your hide animation; 0 = at once). Without an Animator
-/// it simply appears and disappears.
-///
-/// SETUP: the Create Crew Card Popup menu builds the window. By hand: put this on an object that is always active (the Canvas, say), NOT
-/// on the window itself; assign the Panel (the window's root, hidden at start), the Cards Container (the area the cards are spread across),
-/// the card prefab (the crew collection's card) and optionally the Close Button.
-/// </summary>
 public class CrewCardRewardPopup : MonoBehaviour
 {
     [Header("Window")]
@@ -84,16 +65,14 @@ public class CrewCardRewardPopup : MonoBehaviour
 
     public bool IsOpen => panel != null && panel.activeSelf;
 
-    // An Animator with no controller yet (before you add your animation) is simply ignored.
     private bool HasAnimation => animator != null && animator.runtimeAnimatorController != null;
 
-    /// <summary>One shown card: the slot that moves, and the white over it.</summary>
     private class ShownCard
     {
         public RectTransform slot;
         public CanvasGroup group;
         public Image flash;
-        public float appearTime;     // when it starts flying and its white starts fading
+        public float appearTime;
         public Vector2 targetPosition;
         public float targetAngle;
     }
@@ -130,15 +109,12 @@ public class CrewCardRewardPopup : MonoBehaviour
         }
     }
 
-    /// <summary>Shows the received cards (called when the player gets crew cards), for Visible Seconds.</summary>
     public void Show(IReadOnlyList<CrewMemberData> members) => ShowCards(members, visibleSeconds);
 
-    /// <summary>Shows the cards for the given number of seconds instead of Visible Seconds.</summary>
     public void ShowCards(IReadOnlyList<CrewMemberData> members, float seconds)
     {
         if (panel == null || cardsContainer == null || cardPrefab == null || members == null || members.Count == 0) return;
 
-        // New cards while the window is fading away: start it over instead of letting the old close wipe the new cards.
         if (closing && routine != null)
         {
             StopCoroutine(routine);
@@ -150,10 +126,9 @@ public class CrewCardRewardPopup : MonoBehaviour
         {
             ClearCards();
             closing = false;
-            panel.SetActive(true); // first, so the container has its real size for the layout below
+            panel.SetActive(true);
         }
 
-        // The new cards fly out one after another — after the ones still waiting their turn.
         float nextAppear = Time.unscaledTime;
         foreach (var shown in cards) nextAppear = Mathf.Max(nextAppear, shown.appearTime + appearInterval);
 
@@ -185,11 +160,10 @@ public class CrewCardRewardPopup : MonoBehaviour
         if (routine == null) routine = StartCoroutine(AutoClose());
     }
 
-    /// <summary>Closes the window now (with the hide animation).</summary>
     public void Close()
     {
         if (!IsOpen || closing) return;
-        closeTime = 0f; // the timer loop sees this and starts closing
+        closeTime = 0f;
     }
 
     private IEnumerator AutoClose()
@@ -208,7 +182,6 @@ public class CrewCardRewardPopup : MonoBehaviour
 
     private ShownCard CreateCard(CrewMemberData member)
     {
-        // The slot is what moves and turns; the card inside it is only scaled. Ignored by any layout group on the container.
         var slotObject = new GameObject("CardSlot", typeof(RectTransform), typeof(CanvasGroup), typeof(LayoutElement)) { layer = cardsContainer.gameObject.layer };
         slotObject.GetComponent<LayoutElement>().ignoreLayout = true;
         var slot = (RectTransform)slotObject.transform;
@@ -217,7 +190,7 @@ public class CrewCardRewardPopup : MonoBehaviour
         slot.anchoredPosition = Vector2.zero;
 
         var group = slotObject.GetComponent<CanvasGroup>();
-        group.alpha = 0f; // hidden until its turn
+        group.alpha = 0f;
         group.blocksRaycasts = false;
 
         var card = Instantiate(cardPrefab, slot);
@@ -225,17 +198,16 @@ public class CrewCardRewardPopup : MonoBehaviour
         var cardRect = (RectTransform)card.transform;
         cardRect.anchorMin = cardRect.anchorMax = cardRect.pivot = new Vector2(0.5f, 0.5f);
         cardRect.anchoredPosition = Vector2.zero;
-        card.draggable = false; // these are for looking at; the cards are in the collection already
+        card.draggable = false;
         card.Bind(member);
 
         return new ShownCard { slot = slot, group = group, flash = CreateFlash(cardRect) };
     }
 
-    /// <summary>The white over a card, in the shape of the card's own background picture (if it has one).</summary>
     private static Image CreateFlash(RectTransform card)
     {
         var flashObject = new GameObject("WhiteFlash", typeof(RectTransform), typeof(Image), typeof(LayoutElement)) { layer = card.gameObject.layer };
-        flashObject.GetComponent<LayoutElement>().ignoreLayout = true; // the card has a layout group of its own
+        flashObject.GetComponent<LayoutElement>().ignoreLayout = true;
         var rect = (RectTransform)flashObject.transform;
         rect.SetParent(card, false);
         rect.anchorMin = Vector2.zero;
@@ -257,8 +229,6 @@ public class CrewCardRewardPopup : MonoBehaviour
         return flash;
     }
 
-    /// <summary>Works out where every card goes: the fan, squeezed to fit the container's width. snapNew puts the cards that have not
-    /// appeared yet straight into the middle, small and straight, so they fly out from there.</summary>
     private void Layout(bool snapNew)
     {
         int count = cards.Count;
@@ -268,7 +238,6 @@ public class CrewCardRewardPopup : MonoBehaviour
         Rect area = cardsContainer.rect;
         float width = Mathf.Max(1f, area.width - edgePadding * 2f);
 
-        // Biggest scale at which the row fits with the most allowed overlap (and the cards fit the height).
         float rowUnits = 1f + (count - 1) * (1f - maxOverlap);
         float scale = Mathf.Min(cardScale, width / (size.x * rowUnits), area.height / Mathf.Max(1f, size.y));
         scale = Mathf.Max(0.05f, scale);
@@ -289,12 +258,12 @@ public class CrewCardRewardPopup : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             var shown = cards[i];
-            float offset = i - half;               // -half .. +half, 0 in the middle
-            float edge = half > 0f ? offset / half : 0f; // -1 .. +1
+            float offset = i - half;
+            float edge = half > 0f ? offset / half : 0f;
 
-            shown.targetPosition = new Vector2(offset * step, -arcDrop * edge * edge); // from the container's middle
-            shown.targetAngle = -offset * angleStep;  // left cards lean left, right cards lean right
-            shown.slot.SetSiblingIndex(i);             // each card lies over the one before it
+            shown.targetPosition = new Vector2(offset * step, -arcDrop * edge * edge);
+            shown.targetAngle = -offset * angleStep;
+            shown.slot.SetSiblingIndex(i);
 
             var card = shown.slot.childCount > 0 ? shown.slot.GetChild(0) : null;
             if (card != null) card.localScale = Vector3.one * scale;
@@ -319,7 +288,7 @@ public class CrewCardRewardPopup : MonoBehaviour
         foreach (var shown in cards)
         {
             if (shown.slot == null) continue;
-            if (now < shown.appearTime) continue; // still waiting its turn, hidden in the middle
+            if (now < shown.appearTime) continue;
 
             shown.group.alpha = 1f;
             shown.slot.anchoredPosition = Vector2.Lerp(shown.slot.anchoredPosition, shown.targetPosition, blend);

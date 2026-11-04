@@ -2,17 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One button driving a single progression upgrade — a hangar column or a hangar row (two separate buttons,
-/// each with its own price), battle credits multiplier, or
-/// survival mode starting level. All three share the same research-point economy and linear
-/// cost-scaling pattern in GameDataManager; this just picks which one via UpgradeType and shows its
-/// current value + next level's cost, mirroring CurrencyDisplay's Currency enum switch.
-/// </summary>
 public class UpgradeButtonView : MonoBehaviour
 {
-    // Explicit values keep already-serialized buttons on the same entry: the old single "Hangar" button (0)
-    // is now the column button. Add a second button set to HangarRows for rows.
     public enum UpgradeType { HangarColumns = 0, BattleCreditsMultiplier = 1, SurvivalStartLevel = 2, HangarRows = 3 }
 
     [Header("Upgrade")]
@@ -34,7 +25,6 @@ public class UpgradeButtonView : MonoBehaviour
 
     private void Awake()
     {
-        // Same defensive Z-reset as TechNodeView — see that file's Awake for why this matters.
         var rt = (RectTransform)transform;
         var pos = rt.localPosition;
         if (pos.z != 0f) rt.localPosition = new Vector3(pos.x, pos.y, 0f);
@@ -46,8 +36,6 @@ public class UpgradeButtonView : MonoBehaviour
         TrySubscribe();
     }
 
-    // Same Start()-fallback pattern as TechNodeView/CurrencyDisplay — GameDataManager.Instance may
-    // not be set yet during this object's own OnEnable if Awake order puts it first.
     private void Start() => TrySubscribe();
 
     private void OnDisable()
@@ -114,13 +102,13 @@ public class UpgradeButtonView : MonoBehaviour
                 break;
             case UpgradeType.BattleCreditsMultiplier:
                 level = data.CreditsMultiplierLevel;
-                value = $"x{data.GetCreditsMultiplier():0.0}"; // fixed one decimal — x1.0, x1.1, x1.2...
+                value = $"x{data.GetCreditsMultiplier():0.0}";
                 cost = data.GetCreditsMultiplierUpgradeCost();
                 canUpgrade = data.CanUpgradeCreditsMultiplier();
                 break;
-            default: // SurvivalStartLevel
+            default:
                 level = data.SurvivalStartLevelUpgrades;
-                value = $"{data.GetSurvivalStartLevel()} WV"; // e.g. "1 WV", "2 WV" — starting wave/level
+                value = $"{data.GetSurvivalStartLevel()} WV";
                 cost = data.GetSurvivalStartLevelUpgradeCost();
                 canUpgrade = data.CanUpgradeSurvivalStartLevel();
                 break;

@@ -2,23 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Floating joystick: press ANYWHERE on this UI element and drag — the ship moves toward wherever the
-/// stick points (see ShipMovement.SetInput), at a strength proportional to how far the drag has gone
-/// (capped at Max Handle Distance, 0..1). The joystick has no fixed screen position — wherever the
-/// pointer goes down becomes its center for that gesture.
-///
-/// Driven by uGUI's own pointer events (OnPointerDown/OnDrag/OnPointerUp) rather than raw
-/// Touchscreen/Mouse polling — this means it only reacts to presses that actually raycast-hit THIS
-/// element, so a button rendered on top of it (a later sibling) correctly steals its own tap instead
-/// of also starting the joystick underneath it. Put this on the movement zone's own Image (can be
-/// full-screen or smaller), with other HUD buttons as LATER siblings so they render — and raycast —
-/// above it.
-///
-/// SETUP: put on a UI Image covering the movement zone, Raycast Target ON. Joystick Base/Handle are
-/// optional — assign them for a visible stick that appears at the touch point; movement works even
-/// without them.
-/// </summary>
 public class ShipJoystickController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     public ShipMovement shipMovement;
@@ -30,8 +13,6 @@ public class ShipJoystickController : MonoBehaviour, IPointerDownHandler, IDragH
     public RectTransform joystickHandle;
     public float maxHandleDistance = 100f;
 
-    // int.MinValue (not a real pointer id) means "not tracking a gesture" — PointerEventData.pointerId
-    // is -1 for the mouse and a small non-negative index per touch, so this never collides with either.
     private int activePointerId = int.MinValue;
     private Vector2 centerScreenPos;
     private Canvas canvas;
@@ -44,7 +25,7 @@ public class ShipJoystickController : MonoBehaviour, IPointerDownHandler, IDragH
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (activePointerId != int.MinValue) return; // already tracking a different finger — ignore a second one
+        if (activePointerId != int.MinValue) return;
 
         activePointerId = eventData.pointerId;
         centerScreenPos = eventData.position;
@@ -69,11 +50,6 @@ public class ShipJoystickController : MonoBehaviour, IPointerDownHandler, IDragH
 
     private void Update()
     {
-        // Safety net: uGUI's OnPointerUp isn't 100% guaranteed to fire for every release — this
-        // project already hit exactly that class of bug once before (see BlockButtonDragHandle's own
-        // doc comment). If nothing is pressed at all anymore but we still think we're tracking a
-        // gesture, something went wrong — release rather than leave the ship thrusting forever in
-        // whatever direction the stick was last pointing.
         if (activePointerId != int.MinValue && !AnyPointerPressed()) ForceRelease();
     }
 
@@ -95,10 +71,6 @@ public class ShipJoystickController : MonoBehaviour, IPointerDownHandler, IDragH
         if (shipMovement != null) shipMovement.SetInput(strengthAndDirection);
     }
 
-    /// <summary>Moves a UI element to a screen-space point CORRECTLY regardless of the Canvas's own
-    /// Render Mode. Assigning RectTransform.position directly (screen pixels straight into a WORLD
-    /// position) only happens to work under Screen Space - Overlay — under Camera/World Space it sends
-    /// the element to a wildly wrong world coordinate instead, appearing to just vanish.</summary>
     private void PlaceAtScreenPoint(RectTransform target, Vector2 screenPos)
     {
         if (target == null) return;

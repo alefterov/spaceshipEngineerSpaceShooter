@@ -1,22 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// A laser. Instead of a shot it fires a BEAM: a glowing line from the muzzle straight along the barrel (for a
-/// fixed gun "straight up" the ship's way; for a turret wherever the turret points), Beam Length long. For
-/// Beam Duration seconds it deals Damage Per Second to EVERY enemy block under it (it pierces), and to
-/// meteors and the like among the Allowed Targets. When the time is up the damage stops and the beam fades away
-/// gradually over Fade Out Seconds. The Cooldown starts once the beam has ended.
-///
-/// Blocks with Laser Resistance (energy armor) take only the remaining share of the damage. Against the player,
-/// the Navigator's laser/plasma evasion perk can make a whole beam miss (rolled once per beam).
-///
-/// SETUP (a normal weapon block prefab): same as a gun — Aiming = Fixed or Turret (with Turret Pivot and its
-/// rotation speed — a laser TURRET aims the beam), Muzzles = beam origin(s), Allowed Targets, Range (when it
-/// starts firing), Cooldown Seconds, Energy Delta (= the energy one beam costs, paid when it fires). No Projectile Prefab needed. Weapon Class = Laser. Set the
-/// beam's damage, duration, length, width, colour and fade here. Each Muzzle fires its own beam, in the order of
-/// the list, with its own cooldown.
-/// </summary>
 public class LaserWeapon : WeaponModule
 {
     [Header("Laser beam")]
@@ -62,17 +46,14 @@ public class LaserWeapon : WeaponModule
 
     protected override bool RequiresProjectilePrefab => false;
 
-    /// <summary>The beam time of a beam fired NOW: Beam Duration, times the Long Laser ability's strength while that is on
-    /// (player ships only).</summary>
     private float CurrentBeamDuration
         => OwnFaction == Faction.Player && SupportsAbility(WeaponAbility.LongLaser)
             ? beamDuration * WeaponAbilities.Strength(WeaponAbility.LongLaser)
             : beamDuration;
 
-    protected override float ReloadAfterShot => EffectiveCooldownSeconds + CurrentBeamDuration; // the cooldown runs from the beam's end
+    protected override float ReloadAfterShot => EffectiveCooldownSeconds + CurrentBeamDuration;
     protected override float ShotCycleSeconds => EffectiveCooldownSeconds + beamDuration;
 
-    /// <summary>Sustained damage output for the stats panel: the damage of one beam spread over beam time + cooldown.</summary>
     public override float NominalDamagePerShot => beamDamagePerSecond * beamDuration;
 
     public override float NominalDamagePerSecond
@@ -89,13 +70,13 @@ public class LaserWeapon : WeaponModule
         public LineRenderer core;
         public LineRenderer halo;
         public readonly List<LineRenderer> capsules = new();
-        public float phase;        // how far the capsules have travelled (0..1 of the beam length, wraps)
+        public float phase;
         public float alpha = 1f;
-        public float activeLeft;   // seconds of damage still to come
-        public float fadeLeft;     // seconds of fading still to come (after the damage)
+        public float activeLeft;
+        public float fadeLeft;
         public float tickTimer;
-        public bool evaded;        // dodged by the player's perk — draws, but deals nothing
-        public bool crit;          // this whole beam is a critical hit (rolled once per shot)
+        public bool evaded;
+        public bool crit;
         public Transform tip;
         public bool Visible => activeLeft > 0f || fadeLeft > 0f;
     }
@@ -114,13 +95,10 @@ public class LaserWeapon : WeaponModule
 
     protected override void Update()
     {
-        base.Update(); // targeting, aiming the turret, firing (which starts a beam through Spawn)
+        base.Update();
         UpdateBeams();
     }
 
-    // ---------- Firing ----------
-
-    /// <summary>Called by the weapon when a barrel fires: switches that barrel's beam on.</summary>
     protected override void Spawn(Transform tip)
     {
         int index = barrels.IndexOf(tip);
@@ -129,19 +107,16 @@ public class LaserWeapon : WeaponModule
         var beam = beams[index];
         beam.activeLeft = CurrentBeamDuration;
         beam.fadeLeft = 0f;
-        beam.tickTimer = damageTickSeconds; // full: the first pulse of damage comes on the very next frame
+        beam.tickTimer = damageTickSeconds;
 
-        // The Navigator's laser/plasma evasion perk: one roll per beam fired at the player.
         var data = GameDataManager.Instance;
         beam.evaded = OwnFaction == Faction.Enemy && data != null && data.RollCrewChance(CrewPerkType.EvadeEnergyWeapons);
-        beam.crit = CriticalHit.Roll(OwnFaction); // the Captain's crit perk: one roll per beam, the whole beam hits harder
+        beam.crit = CriticalHit.Roll(OwnFaction);
 
         SetBeamVisible(beam, true);
         SetAlpha(beam, 1f);
         UpdateBeamShape(beam);
     }
-
-    // ---------- Beams ----------
 
     private void UpdateBeams()
     {
@@ -154,8 +129,6 @@ public class LaserWeapon : WeaponModule
             {
                 UpdateBeamShape(beam);
 
-                // One pulse of damage to every block under the beam each Damage Tick Seconds — the first right as it fires
-                // (the timer starts full). A pulse covers the next step; the last one only the time that is left.
                 beam.tickTimer += Time.deltaTime;
                 if (beam.tickTimer >= damageTickSeconds)
                 {
@@ -166,11 +139,10 @@ public class LaserWeapon : WeaponModule
 
                 beam.activeLeft -= Time.deltaTime;
 
-                if (beam.activeLeft <= 0f) beam.fadeLeft = Mathf.Max(0.0001f, fadeOutSeconds); // damage over — start fading
+                if (beam.activeLeft <= 0f) beam.fadeLeft = Mathf.Max(0.0001f, fadeOutSeconds);
             }
             else
             {
-                // Fading out: it keeps following the barrel, losing opacity, and deals nothing.
                 UpdateBeamShape(beam);
                 beam.fadeLeft -= Time.deltaTime;
 
@@ -189,7 +161,7 @@ public class LaserWeapon : WeaponModule
         Vector2 direction = MuzzleForward;
         float radius = Mathf.Max(0.01f, beamWidth * 0.5f);
 
-        Physics2D.SyncTransforms(); // ships move by setting their transform
+        Physics2D.SyncTransforms();
         var hits = Physics2D.CircleCastAll(origin, radius, direction, Length);
 
         hitModules.Clear();
@@ -222,8 +194,6 @@ public class LaserWeapon : WeaponModule
         foreach (var thing in hitObjects)
             if (thing != null) thing.TakeDamage(damage);
     }
-
-    // ---------- Drawing ----------
 
     private static Material fallbackMaterial;
     private static Material FallbackMaterial
@@ -278,7 +248,6 @@ public class LaserWeapon : WeaponModule
             line.SetPosition(1, end);
         }
 
-        // Shimmer: the glow swells and the core flickers, each on its own beat so it never looks regular.
         float t = Time.time * shimmerSpeed;
         float haloBeat = 1f + shimmerAmount * Mathf.Sin(t + beam.phase * 6f);
         float coreBeat = 1f + shimmerAmount * 0.5f * Mathf.Sin(t * 1.7f + 1.3f);
@@ -288,8 +257,6 @@ public class LaserWeapon : WeaponModule
         AnimateCapsules(beam, start, forward, length);
     }
 
-    /// <summary>The capsules of light run from the muzzle to the end of the beam and start over; each fades in and out
-    /// at the two ends so they seem to come out of the gun and melt into the distance.</summary>
     private void AnimateCapsules(Beam beam, Vector3 start, Vector3 forward, float length)
     {
         if (beam.capsules.Count == 0 || length <= 0.01f) return;
@@ -302,7 +269,7 @@ public class LaserWeapon : WeaponModule
         for (int i = 0; i < beam.capsules.Count; i++)
         {
             var capsule = beam.capsules[i];
-            float t = Mathf.Repeat(beam.phase + i / (float)beam.capsules.Count, 1f); // 0..1 along the beam
+            float t = Mathf.Repeat(beam.phase + i / (float)beam.capsules.Count, 1f);
             float centre = t * length;
             float from = Mathf.Max(0f, centre - capsuleLength * 0.5f);
             float to = Mathf.Min(length, centre + capsuleLength * 0.5f);
@@ -311,7 +278,7 @@ public class LaserWeapon : WeaponModule
             capsule.SetPosition(1, start + forward * to);
             capsule.startWidth = capsule.endWidth = width;
 
-            float ends = Mathf.Sin(t * Mathf.PI); // 0 at both ends of the beam, 1 in the middle
+            float ends = Mathf.Sin(t * Mathf.PI);
             Color color = bright;
             color.a = beam.alpha * Mathf.Clamp01(ends * 1.6f);
             capsule.startColor = capsule.endColor = color;
@@ -321,7 +288,7 @@ public class LaserWeapon : WeaponModule
     private void SetAlpha(Beam beam, float alpha)
     {
         beam.alpha = alpha;
-        Color core = Color.Lerp(beamColor, Color.white, 0.6f); // a hot, brighter centre
+        Color core = Color.Lerp(beamColor, Color.white, 0.6f);
         core.a = alpha;
         beam.core.startColor = beam.core.endColor = core;
 
@@ -341,7 +308,6 @@ public class LaserWeapon : WeaponModule
     {
         base.OnModuleDestroyed();
 
-        // A destroyed laser stops at once — no more damage, and the beam is let go (it fades with the wreck).
         foreach (var beam in beams)
         {
             beam.activeLeft = 0f;

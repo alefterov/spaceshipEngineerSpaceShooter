@@ -4,17 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The single panel shown at battle-end — same GameObject for both win and loss, just with different
-/// content: animated star reveal (win) or empty stars (loss), a result message, the Next Level button's
-/// enabled state, and the rewards earned this battle (see BattleOutcomeController for how those are
-/// computed). BattleOutcomeController decides win/loss and calls ShowResult(...) — this component only
-/// knows how to DISPLAY that outcome, not how to reach it.
-///
-/// SETUP: put on the panel's root (starts inactive in the scene). Wire the three buttons' own OnClick
-/// directly to BattleOutcomeController.RetryLevel / GoHome / NextLevel — this component doesn't own
-/// button routing, just Stars / Result Label / Next Level Button's interactable state / rewards.
-/// </summary>
 public class BattleResultPanel : MonoBehaviour
 {
     [Header("Stars")]
@@ -78,8 +67,6 @@ public class BattleResultPanel : MonoBehaviour
     private bool doubled;
     private bool waitingForAd;
 
-    /// <summary>experienceSteps drives the level-up bar — see GameDataManager.AddExperience. Always has
-    /// at least one entry (a zero-length one if nothing was earned), so the bar is safe to always play.</summary>
     public void ShowResult(bool won, int earnedStars, bool hasNextLevel, int creditsEarned, List<GameDataManager.ExperienceGainStep> experienceSteps)
     {
         gameObject.SetActive(true);
@@ -110,8 +97,6 @@ public class BattleResultPanel : MonoBehaviour
             experienceBar.PlaySteps(experienceSteps);
     }
 
-    /// <summary>The end of a survival battle: the wave reached instead of win/loss, empty stars, no Next Level, the credits and experience
-    /// of the kills, and the coins of the waves.</summary>
     public void ShowSurvivalResult(int waveReached, int coinsEarned, int creditsEarned, List<GameDataManager.ExperienceGainStep> experienceSteps)
     {
         ShowResult(won: false, earnedStars: 0, hasNextLevel: false, creditsEarned, experienceSteps);
@@ -119,7 +104,7 @@ public class BattleResultPanel : MonoBehaviour
         if (resultLabel != null) resultLabel.text = string.Format(survivalMessageFormat, waveReached);
         if (coinsEarnedLabel != null) coinsEarnedLabel.text = NumberFormat.Compact(coinsEarned);
         if (survivalOnly != null) survivalOnly.SetActive(true);
-        SetStarsVisible(false); // survival has no stars
+        SetStarsVisible(false);
     }
 
     private void SetStarsVisible(bool visible)
@@ -166,7 +151,6 @@ public class BattleResultPanel : MonoBehaviour
                 waitingForAd = false;
                 doubled = true;
 
-                // The battle's credits were already paid once: this is the second payment, so the total shown is twice as much.
                 GameDataManager.Instance?.AddCredits(creditsShown);
                 creditsShown *= 2;
                 if (creditsEarnedLabel != null)

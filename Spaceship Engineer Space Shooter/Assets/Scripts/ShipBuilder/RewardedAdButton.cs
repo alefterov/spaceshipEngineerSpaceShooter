@@ -2,13 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// A button that offers a rewarded video: press it, watch the video, get Reward Credits. It is pressable only while a video is ready,
-/// and (optionally) limited to Max Uses Per Session. Use it anywhere you want a "watch an ad for credits" button; the "double the
-/// reward" button of the battle result is a separate part of BattleResultPanel.
-///
-/// SETUP: put on the button object (or anywhere) and assign Button; Label is optional (shows "+amount").
-/// </summary>
 public class RewardedAdButton : MonoBehaviour
 {
     public Button button;
@@ -35,7 +28,7 @@ public class RewardedAdButton : MonoBehaviour
         if (AdsManager.Instance != null) AdsManager.Instance.OnRewardedReadyChanged -= Refresh;
     }
 
-    private void Update() => Refresh(); // the ad may become ready at any moment, and a callback can come from a stale instance
+    private void Update() => Refresh();
 
     private void Refresh()
     {

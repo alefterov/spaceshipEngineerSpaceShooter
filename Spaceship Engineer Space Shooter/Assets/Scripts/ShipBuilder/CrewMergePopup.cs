@@ -3,22 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The rank-up ("crossing") popup. Opens from a crew SLOT's Rank Up Button (Open) for the member standing
-/// there — shown in Base Card. Its own scroll view lists ONLY the cards that can be used: spare copies of the
-/// exact same kind at the exact same rank. Drag two of them into the two windows (CrewMergeSlot) and confirm:
-/// both are consumed and the merge price is paid in credits (shown on the Confirm Button), the member goes up one rank, its level resets to 1, its next skill unlocks and its
-/// picture changes to the new rank's. The member STAYS in its slot, and the popup closes (the slot already
-/// shows the new card behind it).
-///
-/// Lay the popup out so the slot being ranked up stays visible if you like — it is not needed for the
-/// dragging, which happens entirely inside the popup. Closes itself if the member can no longer be ranked
-/// up (taken off its slot, or already at the top rank).
-///
-/// SETUP: put on the popup's root (it starts INACTIVE). Assign Base Card, the two Slots, Confirm Button, and
-/// the fodder scroll view's Fodder Content + Fodder Card Prefab; Hint Label is optional. Wire whatever close
-/// button you have to Close().
-/// </summary>
 public class CrewMergePopup : MonoBehaviour
 {
     [Header("Windows")]
@@ -54,7 +38,7 @@ public class CrewMergePopup : MonoBehaviour
 
     private void Awake()
     {
-        if (baseCard != null) baseCard.draggable = false; // the member being ranked up stays put
+        if (baseCard != null) baseCard.draggable = false;
         if (fodderCardPrefab != null && fodderCardPrefab.gameObject.scene.IsValid()) fodderCardPrefab.gameObject.SetActive(false);
     }
 
@@ -66,7 +50,7 @@ public class CrewMergePopup : MonoBehaviour
         if (data != null)
         {
             data.OnCrewChanged += Refresh;
-            data.OnCreditsChanged += Refresh; // affordability of the Confirm Button depends on it
+            data.OnCreditsChanged += Refresh;
         }
     }
 
@@ -82,7 +66,6 @@ public class CrewMergePopup : MonoBehaviour
         }
     }
 
-    /// <summary>Opens the popup to rank up this member (who must be standing in a slot).</summary>
     public void Open(string instanceId)
     {
         baseId = instanceId;
@@ -99,8 +82,6 @@ public class CrewMergePopup : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    /// <summary>Whether `member` may be dropped into `slot`: a valid partner for the base member, and not
-    /// already chosen in the other window.</summary>
     public bool CanUseAsFodder(CrewMemberData member, CrewMergeSlot slot)
     {
         var data = GameDataManager.Instance;
@@ -111,7 +92,6 @@ public class CrewMergePopup : MonoBehaviour
         return other == null || other.Selected == null || other.Selected.instanceId != member.instanceId;
     }
 
-    /// <summary>Called by a window after its selection changed.</summary>
     public void NotifySelectionChanged()
     {
         Refresh();
@@ -132,11 +112,10 @@ public class CrewMergePopup : MonoBehaviour
         var baseMember = data != null ? data.GetCrewMember(baseId) : null;
         if (baseMember == null || !data.CanRankUpCrew(baseMember) || !data.IsCrewAssigned(baseId))
         {
-            Close(); // gone, off its slot, or already at the top rank — nothing left to do here
+            Close();
             return;
         }
 
-        // A selection that stopped being valid (the member vanished, or the base changed rank) is dropped.
         DropStaleSelection(slotA, data, baseMember);
         DropStaleSelection(slotB, data, baseMember);
 
@@ -152,8 +131,6 @@ public class CrewMergePopup : MonoBehaviour
         if (confirmButton != null) confirmButton.interactable = BothSelected && data.CanAffordCrewMerge(baseMember);
     }
 
-    /// <summary>The popup's own scroll view: one card per usable spare copy, minus the ones already sitting in
-    /// a window. Nothing else is shown.</summary>
     private void RebuildFodderList(GameDataManager data, CrewMemberData baseMember)
     {
         if (fodderContent == null || fodderCardPrefab == null) return;
@@ -161,7 +138,7 @@ public class CrewMergePopup : MonoBehaviour
         for (int i = fodderContent.childCount - 1; i >= 0; i--)
         {
             var child = fodderContent.GetChild(i).gameObject;
-            if (child == fodderCardPrefab.gameObject) continue; // the scene template stays
+            if (child == fodderCardPrefab.gameObject) continue;
             Destroy(child);
         }
 

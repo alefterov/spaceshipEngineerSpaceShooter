@@ -1,14 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// One perk (skill) as a reusable asset: what it improves, its icon and how strongly. Created once and then
-/// dropped into the Perks list of as many crew members as needed (CrewMemberDefinition) — change the numbers
-/// here and every character using it follows.
-///
-/// Every perk scales with the owner's single level: bonus = Base Bonus + Bonus Per Level x (level - 1). For
-/// an ordinary perk the coefficient shown (and applied) is 1 + bonus; for a CHANCE perk the bonus IS the
-/// chance (see CrewPerkType).
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Crew Perk", fileName = "NewCrewPerk")]
 public class CrewPerkDefinition : ScriptableObject
 {

@@ -1,17 +1,10 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// The waves part of the battle HUD.
-///  - SURVIVAL: a RadialGauge counting down the time until the next enemy ship (between the ships of a wave, and the pause before the
-///    next wave), the wave number, and optionally the seconds left and the coins earned so far.
-///  - CAMPAIGN: only the Wave Label, showing how many waves are left (Campaign Wave Format); the gauge, seconds and coins are hidden.
-///
-/// SETUP: put on the battle HUD. Assign the Enemy Spawner, the Gauge (a RadialGaugeView — its fill is full when a wait starts and runs
-/// out as it ends; tick Show Used on it for the other way round) and the Wave Label. Root (the object holding these parts) is optional.
-/// </summary>
 public class SurvivalHud : MonoBehaviour
 {
+    public enum CampaignGauge { NextEnemyCountdown = 0, WavesProgress = 1, Hidden = 2 }
+
     public EnemySpawner enemySpawner;
     [Tooltip("Optional: holds these HUD parts; switched off only if the scene has no EnemySpawner.")]
     public GameObject root;
@@ -25,6 +18,8 @@ public class SurvivalHud : MonoBehaviour
     public string waveFormat = "Волна {0}";
     [Tooltip("Campaign: {0} = waves left (the current one included), {1} = the current wave, {2} = all the waves of the level.")]
     public string campaignWaveFormat = "Осталось волн: {0}";
+    [Tooltip("Campaign: what the gauge shows — the time until the next enemy, how many of the level's waves have started, or nothing.")]
+    public CampaignGauge campaignGauge = CampaignGauge.NextEnemyCountdown;
     [Tooltip("Optional: the coins paid for waves this battle.")]
     public TMP_Text coinsLabel;
 
@@ -40,9 +35,8 @@ public class SurvivalHud : MonoBehaviour
             return;
         }
 
-        // A campaign level shows only the waves left.
         survival = enemySpawner.IsSurvival;
-        if (gauge != null) gauge.gameObject.SetActive(survival);
+        if (gauge != null) gauge.gameObject.SetActive(survival || campaignGauge != CampaignGauge.Hidden);
         if (secondsLabel != null) secondsLabel.gameObject.SetActive(survival);
         if (coinsLabel != null) coinsLabel.gameObject.SetActive(survival);
     }
@@ -51,6 +45,12 @@ public class SurvivalHud : MonoBehaviour
     {
         if (!survival)
         {
+            if (gauge != null)
+            {
+                if (campaignGauge == CampaignGauge.NextEnemyCountdown) gauge.SetValue(enemySpawner.WaitRemaining, enemySpawner.WaitDuration);
+                else if (campaignGauge == CampaignGauge.WavesProgress) gauge.SetValue(enemySpawner.CurrentWave, enemySpawner.TotalWaves);
+            }
+
             if (waveLabel != null)
                 waveLabel.text = enemySpawner.TotalWaves > 0
                     ? string.Format(campaignWaveFormat, enemySpawner.WavesLeft, enemySpawner.CurrentWave, enemySpawner.TotalWaves)

@@ -3,20 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The info panel of the level map. It is part of the map screen: visible exactly while the map of levels is visible
-/// (LevelSelectPopup switches it together with the map — or put it inside the popup), and never on its own. It shows
-/// ONE level at a time: the number, how many waves it has and how hard it is for the player's current ship (see
-/// LevelDifficulty), and the battle begins only when Play is pressed.
-///
-/// WHICH LEVEL: when the map opens the panel shows the level the player should play next — the first level (by number)
-/// that has not been completed yet, or, once every level is completed, the last one. Pressing another level on the map
-/// (LevelButtonView) shows that one instead. A LOCKED level can be looked at too, but its Play button is disabled.
-///
-/// SETUP: put on the panel's root and assign Play Button; everything else is optional. Level buttons find the panel
-/// by themselves (or assign it in their Info Panel field). Give the map's LevelSelectPopup the panel in its Info Panel
-/// field so the two show and hide together. Each label keeps its text format in a field here ({0} is the value).
-/// </summary>
 public class LevelInfoPanel : MonoBehaviour
 {
     [Header("UI (assign whichever exist)")]
@@ -57,7 +43,6 @@ public class LevelInfoPanel : MonoBehaviour
              "controller if left empty.")]
     public BlockDatabase blockDatabase;
 
-
     private LevelDefinition level;
     private bool canPlay;
     private bool shown;
@@ -66,14 +51,12 @@ public class LevelInfoPanel : MonoBehaviour
     {
         if (playButton != null) playButton.onClick.AddListener(OnPlayClicked);
 
-        // Every time the map opens: back to the level the player should play next.
         shown = false;
         ShowDefaultLevel();
     }
 
     private void Start()
     {
-        // GameDataManager may not have existed yet during OnEnable.
         if (!shown) ShowDefaultLevel();
     }
 
@@ -82,7 +65,6 @@ public class LevelInfoPanel : MonoBehaviour
         if (playButton != null) playButton.onClick.RemoveListener(OnPlayClicked);
     }
 
-    /// <summary>The first level (by number) not completed yet; once all are completed, the last one.</summary>
     private void ShowDefaultLevel()
     {
         var data = GameDataManager.Instance;
@@ -100,7 +82,6 @@ public class LevelInfoPanel : MonoBehaviour
         Open(pick, data.IsLevelUnlocked(pick));
     }
 
-    /// <summary>Shows this level on the panel. `unlocked` = false still shows everything, but Play is disabled.</summary>
     public void Open(LevelDefinition levelToShow, bool unlocked)
     {
         level = levelToShow;
@@ -121,8 +102,6 @@ public class LevelInfoPanel : MonoBehaviour
         if (level == null || !canPlay) return;
         LevelButtonView.StartLevel(level);
     }
-
-    // ---------- Difficulty ----------
 
     private void ShowDifficulty()
     {
@@ -167,8 +146,6 @@ public class LevelInfoPanel : MonoBehaviour
         }
     }
 
-    /// <summary>The blocks of the player's ship: the ship on screen in the main menu if there is one, otherwise the
-    /// saved layout (blocks taken from their prefabs).</summary>
     private System.Collections.Generic.IEnumerable<ShipModule> GetPlayerBlocks()
     {
         var menu = FindFirstObjectByType<MainMenuFlowController>(FindObjectsInactive.Include);

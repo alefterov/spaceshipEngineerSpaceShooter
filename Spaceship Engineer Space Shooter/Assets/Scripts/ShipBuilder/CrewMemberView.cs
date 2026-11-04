@@ -2,21 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One of the 4 SLOTS (places) on the crew screen — Captain, Engineer, Gunner, Navigator. Drag a crew card
-/// onto the slot of its own specialty to put that member to work; a member of a different specialty is
-/// refused. Whoever stood there goes back to the collection. To take a member off its slot, drag it out and
-/// release it away from the slots (anywhere that is not another drop target, or onto the collection).
-///
-/// Only a member standing here can be levelled up (Upgrade Button, paid in credits — the price is on the
-/// button; it's disabled while you can't afford it) and only a member standing here lends its skills to the
-/// ship. The slot shows the member's portrait, name, level, and its 3 skills with their current coefficients.
-///
-/// SETUP: one per slot, on the slot's root (the old per-role CrewMemberView on your four slots became this
-/// — Role, Role Display Name, Avatar Image, Name Label, Level Label, Cost Label and Upgrade Button keep
-/// their values). Set Role to the slot's specialty, and assign the three SkillItems as Perk Views. The root
-/// Image needs Raycast Target on (the default) so drops land on it. Optional: Rank Up Button + Merge Popup.
-/// </summary>
 public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarget, ICrewReleaseHandler
 {
     [Header("Which slot")]
@@ -67,8 +52,6 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         TrySubscribe();
     }
 
-    // Start()-fallback, same reasoning as UpgradeButtonView/TechNodeView: GameDataManager.Instance may
-    // not be set yet during this object's own OnEnable if Awake order puts it first.
     private void Start() => TrySubscribe();
 
     private void OnDisable()
@@ -85,7 +68,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         if (data == null) return;
 
         data.OnCrewChanged += Refresh;
-        data.OnCreditsChanged += Refresh; // affordability of the level-up button depends on this too
+        data.OnCreditsChanged += Refresh;
 
         subscribed = true;
         Refresh();
@@ -138,7 +121,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         if (upgradeButton != null)
         {
             upgradeButton.gameObject.SetActive(filled);
-            if (filled) upgradeButton.interactable = data.CanAffordCrewLevelUp(member); // the credits check
+            if (filled) upgradeButton.interactable = data.CanAffordCrewLevelUp(member);
         }
 
         if (costLabel != null && filled) costLabel.text = NumberFormat.Compact(data.GetCrewLevelUpCost(member));
@@ -146,7 +129,7 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         if (rankUpButton != null)
         {
             rankUpButton.gameObject.SetActive(filled && mergePopup != null && data.CanRankUpCrew(member));
-            if (filled) rankUpButton.interactable = data.CanMergeCrew(member); // needs 2 spare identical cards
+            if (filled) rankUpButton.interactable = data.CanMergeCrew(member);
         }
     }
 
@@ -160,8 +143,6 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
         if (Member != null && mergePopup != null) mergePopup.Open(Member.instanceId);
     }
 
-    // ---------- Drop target: a card of this slot's specialty goes here ----------
-
     public bool CanAccept(CrewMemberData member)
     {
         var data = GameDataManager.Instance;
@@ -171,6 +152,5 @@ public class CrewMemberView : MonoBehaviour, ICrewMemberProvider, ICrewDropTarge
 
     public void Drop(CrewMemberData member) => GameDataManager.Instance.TryAssignToSlot(member.instanceId, role);
 
-    // Dragged out of the slot and released over nothing: the member leaves the slot (back to the collection).
     public void OnReleasedOutside(CrewMemberData member) => GameDataManager.Instance.UnassignCrew(member.instanceId);
 }

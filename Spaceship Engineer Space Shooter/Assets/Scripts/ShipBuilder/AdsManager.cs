@@ -7,32 +7,10 @@ using GoogleMobileAds.Api;
 using GoogleMobileAds.Ump.Api;
 #endif
 
-/// <summary>
-/// All the game's advertising in one place (Google AdMob): a banner, an interstitial between battles and a rewarded video.
-///
-///  - BANNER: shown at the bottom (or top) of the screen, but ONLY while at least one BannerSlot is active in the scene — put a BannerSlot
-///    on the panels that may carry a banner (main menu, level map) and nowhere else (the builder and the battle need the whole screen).
-///  - INTERSTITIAL: a full-screen ad shown when the next scene opens after a battle (the result panel's Retry / Next / Home). It is
-///    rationed: not before Skip First Battles battles have been played, then every Every N Battles battles, and never closer together than
-///    Min Seconds Between Ads.
-///  - REWARDED: the player chooses to watch a video for a reward — ShowRewarded(onRewarded) from a button (see RewardedAdButton, and the
-///    "double the reward" button of BattleResultPanel). The reward is given only if the video was watched to the end.
-///  - A player who bought "No ads" (GameDataManager.AdsRemoved) sees no banner and no interstitial; rewarded videos stay available.
-///  - CONSENT: in the EEA / UK a consent form (Google's UMP) is shown first; configure its text in AdMob → Privacy & messaging.
-///
-/// IN THE EDITOR (and in Development Builds without the SDK) nothing real is shown: the log says what would happen and a rewarded video
-/// "plays" for a second and pays. A RELEASE build without the SDK shows no ads and pays nothing.
-///
-/// SETUP: install the Google Mobile Ads Unity plugin and enter the Android App ID (Assets → Google Mobile Ads → Settings) — the
-/// ADMOB_SDK symbol is then added by itself (see AdsDefineSetter). Put ONE AdsManager on the bootstrap object of the first scene (next to
-/// GameDataManager): it survives scene changes. Keep Use Test Ads ON until the very last build, then paste the real ad unit IDs and turn it
-/// off — clicking your own live ads can get the AdMob account banned.
-/// </summary>
 public class AdsManager : MonoBehaviour
 {
     public static AdsManager Instance { get; private set; }
 
-    // Google's own sample ad units: always safe to show and click.
     private const string TestBanner = "ca-app-pub-3940256099942544/6300978111";
     private const string TestInterstitial = "ca-app-pub-3940256099942544/1033173712";
     private const string TestRewarded = "ca-app-pub-3940256099942544/5224354917";
@@ -63,7 +41,6 @@ public class AdsManager : MonoBehaviour
     [Header("Rewarded")]
     public bool rewardedEnabled = true;
 
-    /// <summary>Fired when a rewarded video becomes ready or stops being ready — buttons refresh on this.</summary>
     public event Action OnRewardedReadyChanged;
 
     private readonly System.Collections.Generic.List<BannerSlot> bannerSlots = new();
@@ -105,11 +82,6 @@ public class AdsManager : MonoBehaviour
 
     private void Start() => StartAds();
 
-    // =====================================================================================================
-    //  Public API
-    // =====================================================================================================
-
-    /// <summary>Whether a rewarded video can be shown right now.</summary>
     public bool IsRewardedReady
     {
         get
@@ -118,14 +90,13 @@ public class AdsManager : MonoBehaviour
 #if ADMOB_SDK && !UNITY_EDITOR
             return rewardedAd != null && rewardedAd.CanShowAd();
 #elif UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true; // pretend
+            return true;
 #else
             return false;
 #endif
         }
     }
 
-    /// <summary>Shows a rewarded video. onRewarded runs only if it was watched to the end; onFailed if it could not be shown or was skipped.</summary>
     public void ShowRewarded(Action onRewarded, Action onFailed = null)
     {
         if (!IsRewardedReady)
@@ -141,21 +112,18 @@ public class AdsManager : MonoBehaviour
 #endif
     }
 
-    /// <summary>A BannerSlot became active: the banner may be shown, over that slot.</summary>
     public void AddBannerSlot(BannerSlot slot)
     {
         if (!bannerSlots.Contains(slot)) bannerSlots.Add(slot);
         RefreshBanner();
     }
 
-    /// <summary>A BannerSlot went away: with none left the banner is hidden.</summary>
     public void RemoveBannerSlot(BannerSlot slot)
     {
         bannerSlots.Remove(slot);
         RefreshBanner();
     }
 
-    /// <summary>Called by BattleOutcomeController when a battle ends (won or lost): the interstitial is shown when the next scene opens.</summary>
     public void NotifyBattleFinished()
     {
         battlesFinished++;
@@ -167,7 +135,6 @@ public class AdsManager : MonoBehaviour
             && Time.realtimeSinceStartup - lastFullScreenAdTime >= minSecondsBetweenAds;
     }
 
-    /// <summary>Whether the player must be offered a "Privacy settings" button (the EEA / UK rule). Wire the button to ShowPrivacyOptions().</summary>
     public bool PrivacyOptionsRequired
     {
         get
@@ -180,7 +147,6 @@ public class AdsManager : MonoBehaviour
         }
     }
 
-    /// <summary>Opens the consent settings form, where the player can change their choice.</summary>
     public void ShowPrivacyOptions()
     {
 #if ADMOB_SDK && !UNITY_EDITOR
@@ -191,20 +157,16 @@ public class AdsManager : MonoBehaviour
 #endif
     }
 
-    // =====================================================================================================
-    //  Scenes and the banner
-    // =====================================================================================================
-
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        RefreshBanner(); // the slots keep their own count: a closed scene's slots have already left (OnDisable), the new ones have joined
+        RefreshBanner();
 
         if (interstitialPending) StartCoroutine(ShowInterstitialSoon());
     }
 
     private IEnumerator ShowInterstitialSoon()
     {
-        yield return null; // let the new scene finish loading, then cover it
+        yield return null;
         if (!interstitialPending) yield break;
         interstitialPending = false;
 
@@ -229,16 +191,12 @@ public class AdsManager : MonoBehaviour
         }
 #else
         if (show != bannerShownLog)
-            Debug.Log(show ? $"[Ads] (fake) banner shown over '{bannerSlots[bannerSlots.Count - 1].name}' at {bannerSlots[bannerSlots.Count - 1].GetScreenRect()}" : "[Ads] (fake) banner hidden");
+
         bannerShownLog = show;
 #endif
     }
 
     private bool bannerShownLog;
-
-    // =====================================================================================================
-    //  Pausing the game while a full-screen ad is up
-    // =====================================================================================================
 
     private void PauseForAd()
     {
@@ -258,38 +216,27 @@ public class AdsManager : MonoBehaviour
         lastFullScreenAdTime = Time.realtimeSinceStartup;
     }
 
-    // =====================================================================================================
-    //  Editor / development stand-ins
-    // =====================================================================================================
-
 #if !(ADMOB_SDK && !UNITY_EDITOR)
     private void StartAds()
     {
         initialized = true;
-        Debug.Log("[Ads] (fake) AdMob is not active here — ads are only logged. Real ads: install the plugin and build for Android.");
     }
 
     private void ShowInterstitial()
     {
-        Debug.Log("[Ads] (fake) interstitial");
         battlesSinceInterstitial = 0;
         lastFullScreenAdTime = Time.realtimeSinceStartup;
     }
 
     private IEnumerator FakeRewarded(Action onRewarded)
     {
-        Debug.Log("[Ads] (fake) rewarded video playing for 1 second...");
         PauseForAd();
         yield return new WaitForSecondsRealtime(1f);
         ResumeAfterAd();
-        Debug.Log("[Ads] (fake) rewarded video finished — reward given");
+
         onRewarded?.Invoke();
     }
 #endif
-
-    // =====================================================================================================
-    //  The real thing (Android, with the SDK)
-    // =====================================================================================================
 
 #if ADMOB_SDK && !UNITY_EDITOR
     private BannerView bannerView;
@@ -298,7 +245,7 @@ public class AdsManager : MonoBehaviour
 
     private void StartAds()
     {
-        MobileAds.RaiseAdEventsOnUnityMainThread = true; // the ad callbacks come back on Unity's main thread
+        MobileAds.RaiseAdEventsOnUnityMainThread = true;
 
         if (!useConsentForm)
         {
@@ -306,7 +253,6 @@ public class AdsManager : MonoBehaviour
             return;
         }
 
-        // Ask for consent where the law requires it, then start the SDK (Google's standard order).
         ConsentInformation.Update(new ConsentRequestParameters(), (FormError updateError) =>
         {
             if (updateError != null) Debug.LogWarning($"[Ads] Consent update: {updateError.Message}");
@@ -318,7 +264,7 @@ public class AdsManager : MonoBehaviour
             });
         });
 
-        if (ConsentInformation.CanRequestAds()) InitializeSdk(); // consent from an earlier session
+        if (ConsentInformation.CanRequestAds()) InitializeSdk();
     }
 
     private void InitializeSdk()
@@ -326,30 +272,23 @@ public class AdsManager : MonoBehaviour
         if (initialized) return;
         initialized = true;
 
-        Debug.Log("[Ads] Initialising AdMob...");
         MobileAds.Initialize((InitializationStatus status) =>
         {
-            Debug.Log($"[Ads] AdMob initialised; banner slots waiting: {bannerSlots.Count}");
             LoadInterstitial();
             LoadRewarded();
             RefreshBanner();
         });
     }
 
-    // ----- banner -----
-
     private int bannerWidthDp;
     private int bannerHeightDp;
     private float nextBannerCheck;
 
-    // Pixels of the screen -> the density-independent units the banner is placed in.
     private static float Density => Screen.dpi > 0f ? Screen.dpi / 160f : 2.5f;
 
     private static int WidthDpOf(BannerSlot slot)
         => Mathf.Max(32, Mathf.RoundToInt(Mathf.Min(slot.GetScreenRect().width, Screen.width) / Density));
 
-    /// <summary>The banner is a native view floating over the game, not part of the canvas: it takes the width of the slot's rectangle and sits
-    /// in the middle of it.</summary>
     private void CreateBanner(BannerSlot slot)
     {
         bannerWidthDp = WidthDpOf(slot);
@@ -357,10 +296,10 @@ public class AdsManager : MonoBehaviour
         bannerHeightDp = size.Height > 0 ? size.Height : 60;
 
         bannerView = new BannerView(BannerId, size, 0, 0);
-        bannerView.OnBannerAdLoaded += () => Debug.Log($"[Ads] Banner loaded ({bannerWidthDp}x{bannerHeightDp} dp)");
+
         bannerView.OnBannerAdLoadFailed += (LoadAdError error) => Debug.LogWarning($"[Ads] Banner failed to load: {error}");
         PlaceBanner(slot);
-        Debug.Log($"[Ads] Banner requested: {bannerWidthDp}x{bannerHeightDp} dp over slot '{slot.name}', ad unit {BannerId}");
+
         bannerView.LoadAd(new AdRequest());
     }
 
@@ -370,19 +309,19 @@ public class AdsManager : MonoBehaviour
 
         Rect rect = slot.GetScreenRect();
         float left = rect.center.x / Density - bannerWidthDp * 0.5f;
-        float top = (Screen.height - rect.center.y) / Density - bannerHeightDp * 0.5f; // the screen's y grows upward, the banner's grows downward
+        float top = (Screen.height - rect.center.y) / Density - bannerHeightDp * 0.5f;
         bannerView.SetPosition(Mathf.RoundToInt(left), Mathf.RoundToInt(top));
     }
 
     private void Update()
     {
         if (bannerView == null || bannerSlots.Count == 0 || Time.unscaledTime < nextBannerCheck) return;
-        nextBannerCheck = Time.unscaledTime + 0.5f; // the slot may move or change size (rotation, layout)
+        nextBannerCheck = Time.unscaledTime + 0.5f;
 
         var slot = bannerSlots[bannerSlots.Count - 1];
         if (Mathf.Abs(WidthDpOf(slot) - bannerWidthDp) > 4)
         {
-            bannerView.Destroy(); // the slot got wider or narrower: a banner of the right width is needed
+            bannerView.Destroy();
             bannerView = null;
             RefreshBanner();
         }
@@ -391,8 +330,6 @@ public class AdsManager : MonoBehaviour
             PlaceBanner(slot);
         }
     }
-
-    // ----- interstitial -----
 
     private void LoadInterstitial()
     {
@@ -417,14 +354,12 @@ public class AdsManager : MonoBehaviour
 
     private void ShowInterstitial()
     {
-        if (interstitialAd == null || !interstitialAd.CanShowAd()) return; // not loaded in time: skipped, not delayed
+        if (interstitialAd == null || !interstitialAd.CanShowAd()) return;
 
         battlesSinceInterstitial = 0;
         PauseForAd();
         interstitialAd.Show();
     }
-
-    // ----- rewarded -----
 
     private void LoadRewarded()
     {

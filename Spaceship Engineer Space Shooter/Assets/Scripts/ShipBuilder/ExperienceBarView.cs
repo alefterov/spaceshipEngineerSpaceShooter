@@ -4,19 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The player's account-level progress bar shown on the battle result panel: a horizontal fill between
-/// two level numbers — Current Level Label on the left (the level the bar's empty end represents) and
-/// Next Level Label on the right (Current + 1) — filling to show progress toward the next level.
-///
-/// Animates through however many GameDataManager.ExperienceGainStep entries a gain produced (usually
-/// one; more than one if the gain leveled the player up more than once in the same battle) — each step
-/// fills from its own startXp to endXp over Seconds Per Step, then the bar resets to empty and both
-/// labels increment by one before the next step plays, the same "roll over" most RPGs use for a
-/// multi-level gain.
-///
-/// PREFAB SETUP: Fill Image needs Image Type = Filled, Fill Method = Horizontal.
-/// </summary>
 public class ExperienceBarView : MonoBehaviour
 {
     public Image fillImage;
@@ -27,15 +14,12 @@ public class ExperienceBarView : MonoBehaviour
 
     private Coroutine routine;
 
-    /// <summary>Sets the bar to a fixed position with no animation — e.g. the player's standing before
-    /// any gain plays, or when there's nothing to animate.</summary>
     public void SetImmediate(int level, int currentXp, int requiredXp)
     {
         SetLabels(level);
         SetFill(requiredXp > 0 ? (float)currentXp / requiredXp : 0f);
     }
 
-    /// <summary>Plays the level-up animation for a gain — see GameDataManager.AddExperience.</summary>
     public void PlaySteps(List<GameDataManager.ExperienceGainStep> steps)
     {
         if (routine != null) StopCoroutine(routine);

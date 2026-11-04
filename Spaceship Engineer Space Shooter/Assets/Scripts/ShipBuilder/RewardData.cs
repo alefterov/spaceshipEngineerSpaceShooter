@@ -1,18 +1,15 @@
 using System;
 using UnityEngine;
 
-/// <summary>What a reward gives.</summary>
 public enum RewardType
 {
     Credits = 0,
     Coins = 1,
     Experience = 2,
     ResearchPoints = 3,
-    /// <summary>Random crew member cards (rank 1, level 1); the amount is how many cards.</summary>
     RandomCrewCard = 4,
 }
 
-/// <summary>One reward: a kind and an amount. Used by the player-level rewards and by the tasks.</summary>
 [Serializable]
 public struct RewardData
 {
@@ -21,7 +18,6 @@ public struct RewardData
     [Tooltip("Random Crew Card only: the rank of the cards given (1-3). 0 counts as 1.")]
     [Range(0, CrewMemberDefinition.MaxRank)] public int crewRank;
 
-    /// <summary>The rank of the crew cards this reward gives: Crew Rank, at least 1.</summary>
     public int CrewRank => Mathf.Clamp(crewRank, 1, CrewMemberDefinition.MaxRank);
 
     public RewardData(RewardType type, int amount, int crewRank = 1)
@@ -32,8 +28,6 @@ public struct RewardData
     }
 }
 
-/// <summary>The picture for each kind of reward (credits, coins, experience, research points, crew card) — the rewards panel hands it to every
-/// reward block it shows.</summary>
 [Serializable]
 public class RewardIcons
 {

@@ -2,15 +2,6 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// Binds a TextMeshPro label to one of the player's currencies (credits or coins), keeping it in
-/// sync with GameDataManager. Plays a brief "can't afford it" pulse — grows, tints red, eases back
-/// over PulseDuration seconds — when a spend attempt for that specific currency fails
-/// (GameDataManager.OnInsufficientCredits / OnInsufficientCoins).
-///
-/// SETUP: put one of these on each currency's TextMeshPro label (e.g. "CreditsText" and "CoinsText"),
-/// set Currency accordingly, and assign Label to the TMP_Text on the same object.
-/// </summary>
 public class CurrencyDisplay : MonoBehaviour
 {
     public enum Currency { Credits, Coins, ResearchPoints }
@@ -38,10 +29,6 @@ public class CurrencyDisplay : MonoBehaviour
         normalScale = label.transform.localScale;
     }
 
-    // Subscribing needs GameDataManager.Instance to already be set (its own Awake). Unity doesn't
-    // guarantee Awake order BETWEEN objects, so OnEnable alone could run before GameDataManager's
-    // Awake if this object happens to sit earlier in the scene — Start() is used as a fallback since
-    // every object's Awake is guaranteed to finish before any object's Start runs.
     private void OnEnable() => TrySubscribe();
     private void Start() => TrySubscribe();
     private void OnDisable() => Unsubscribe();
@@ -109,8 +96,6 @@ public class CurrencyDisplay : MonoBehaviour
         label.text = NumberFormat.Compact(amount);
     }
 
-    /// <summary>Briefly grows and tints the text red, then eases back. Also callable directly if
-    /// something wants to flash this display outside the normal insufficient-funds event.</summary>
     public void Pulse()
     {
         if (label == null) return;

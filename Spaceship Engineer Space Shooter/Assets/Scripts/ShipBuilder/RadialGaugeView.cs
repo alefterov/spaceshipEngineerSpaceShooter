@@ -1,17 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Drives one radial-fill UI gauge from a live current/max pair. Generic — one instance per stat
-/// (energy, HP, shield, armor), each fed by BattleHudGauges.
-///
-/// LOOK: a ring (outline) that fills around the icon in its center. Fill Image is the ring sprite that
-/// fills; the icon is just a separate Image in the middle of the gauge and needs no code. An optional
-/// dim copy of the ring behind it (a separate Image, not touched here) shows the empty part.
-///
-/// PREFAB SETUP: Fill Image needs Image Type = Filled, Fill Method = Radial 360 — this only ever
-/// touches its fillAmount.
-/// </summary>
 public class RadialGaugeView : MonoBehaviour
 {
     public Image fillImage;

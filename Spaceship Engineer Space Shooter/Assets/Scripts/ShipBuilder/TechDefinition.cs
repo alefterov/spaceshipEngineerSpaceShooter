@@ -1,13 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// One node in a technology tree — one asset per tech. Belongs to a TechCategory (its own
-/// independent linear chain) and optionally points at the tech that must be researched before it
-/// (Prerequisite) — leave that empty for the first tech in a category's chain, which is
-/// researchable from the start. Researching it grants access to every block in UnlockedBlocks in the
-/// build palette (see BuildPaletteUI / GameDataManager.IsBlockUnlocked).
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Tech Definition", fileName = "NewTech")]
 public class TechDefinition : ScriptableObject
 {
@@ -32,10 +25,6 @@ public class TechDefinition : ScriptableObject
     public List<BlockDefinition> unlockedBlocks = new();
 }
 
-/// <summary>One independent linear research chain per value — a weapon TYPE, not the generic
-/// BlockCategory.Weapon, since Ballistic/Laser/Missile/Plasma each need their own progression. New
-/// values are added at the END, never inserted between existing ones — already-saved TechDefinition
-/// assets store this as a plain index, so reordering would silently repoint them at the wrong category.</summary>
 public enum TechCategory
 {
     Hull,

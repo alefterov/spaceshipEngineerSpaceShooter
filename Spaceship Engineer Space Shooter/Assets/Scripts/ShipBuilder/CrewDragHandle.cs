@@ -3,17 +3,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// Drag-and-drop for crew cards. Put on anything that also has an ICrewMemberProvider (CrewCardView,
-/// CrewMemberView) — they add it themselves if it's missing. Dragging spawns a semi-transparent copy of the
-/// portrait that follows the finger on top of everything; on release it's dropped on the topmost
-/// ICrewDropTarget under the finger (a slot member released over no target at all is taken off its slot). The original never moves, so a refused drop needs no "snap back".
-///
-/// INSIDE A SCROLL VIEW: a drag ALONG the scroll's axis scrolls the list as usual; a drag across it
-/// (up/down for a horizontal list) pulls the card out. So a horizontal collection works with slots placed
-/// above or below it; a vertical one with slots to its side. (A scroll view that scrolls both ways always
-/// scrolls — it can't tell the two gestures apart.)
-/// </summary>
 public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Tooltip("The drag ghost is shrunk to fit this many UI units on its longer side.")]
@@ -25,11 +14,10 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
     private bool forwardingToScroll;
     private RectTransform ghost;
     private Canvas rootCanvas;
-    /// <summary>Raised when a crew-card drag really starts / ends (the finger lifts). CrewDropHint listens.</summary>
     public static event System.Action<CrewMemberData> DragStarted;
     public static event System.Action DragEnded;
 
-    private CrewMemberData draggedMember; // who is being dragged; null = no card drag of our own is in progress
+    private CrewMemberData draggedMember;
 
     private ICrewMemberProvider Provider => provider ??= GetComponent<ICrewMemberProvider>();
 
@@ -48,14 +36,14 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
         bool canDragCard = Provider != null && Provider.Member != null && Provider.CanDrag;
         if (!canDragCard || (scroll != null && IsAlongScrollAxis(eventData)))
         {
-            if (scroll == null) return; // nothing to scroll and nothing to drag — ignore the gesture
+            if (scroll == null) return;
 
             forwardingToScroll = true;
             ExecuteEvents.Execute(scroll.gameObject, eventData, ExecuteEvents.beginDragHandler);
             return;
         }
 
-        draggedMember = Provider.Member; // fixed now — the card may be rebuilt before the drag ends
+        draggedMember = Provider.Member;
         DragStarted?.Invoke(draggedMember);
         CreateGhost(eventData);
     }
@@ -75,13 +63,10 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
             return;
         }
 
-        // Only a drag that really started here (OnBeginDrag got as far as picking a member up) may drop
-        // anything. Without this, a gesture that was refused at its start — a card that can't be dragged —
-        // still ran the drop logic when released, and could e.g. take a member off its slot.
         var member = draggedMember;
         draggedMember = null;
-        DestroyGhost(); // first — so the ghost can never be what gets hit, and never outlives a data rebuild
-        if (member != null) DragEnded?.Invoke(); // hints start fading out the instant the finger lifts
+        DestroyGhost();
+        if (member != null) DragEnded?.Invoke();
 
         if (member != null) DropOnTarget(eventData, member);
     }
@@ -90,7 +75,6 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
     {
         DestroyGhost();
 
-        // Disabled/destroyed in the middle of a drag (the card was rebuilt): OnEndDrag will never come.
         if (draggedMember != null)
         {
             draggedMember = null;
@@ -107,15 +91,10 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
         return true;
     }
 
-    // The drop is decided by what is TOPMOST under the finger. If that thing belongs to a drop target, that
-    // target accepts or refuses. If it belongs to none (empty panel, another card, a popup's background...)
-    // the card was released "outside" — nothing underneath may react to it. (Looking past such an object for
-    // a target hidden beneath it made releases silently fail whenever a slot or the collection happened to
-    // lie behind the popup.)
     private void DropOnTarget(PointerEventData eventData, CrewMemberData member)
     {
         var hits = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, hits); // sorted topmost first
+        EventSystem.current.RaycastAll(eventData, hits);
 
         if (hits.Count > 0)
         {
@@ -127,7 +106,7 @@ public class CrewDragHandle : MonoBehaviour, IInitializePotentialDragHandler, IB
                 return;
             }
 
-            if (topmost.transform.IsChildOf(transform)) return; // dropped back on the dragged object itself
+            if (topmost.transform.IsChildOf(transform)) return;
         }
 
         GetComponent<ICrewReleaseHandler>()?.OnReleasedOutside(member);

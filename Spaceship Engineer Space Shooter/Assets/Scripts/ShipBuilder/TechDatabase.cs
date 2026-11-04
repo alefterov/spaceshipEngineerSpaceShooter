@@ -2,11 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Registry of all TechDefinitions in the game — mirrors BlockDatabase. Used by tech-tree UI to
-/// list/order each category's chain, and by BuildPaletteUI to look up whether a block is gated
-/// behind an unresearched technology.
-/// </summary>
 [CreateAssetMenu(menuName = "ShipBuilder/Tech Database", fileName = "TechDatabase")]
 public class TechDatabase : ScriptableObject
 {
@@ -14,7 +9,6 @@ public class TechDatabase : ScriptableObject
 
     private Dictionary<string, TechDefinition> lookup;
 
-    // See BlockDatabase.OnValidate — same staleness trap, same fix.
     private void OnValidate() => lookup = null;
 
     private void EnsureLookup()
@@ -35,14 +29,11 @@ public class TechDatabase : ScriptableObject
         return lookup.GetValueOrDefault(id);
     }
 
-    /// <summary>A category's chain, ordered from the first tech (no prerequisite) to the last.</summary>
     public List<TechDefinition> GetByCategory(TechCategory category)
         => allTechs.Where(t => t != null && t.category == category)
                    .OrderBy(ChainDepth)
                    .ToList();
 
-    /// <summary>Position in its category's chain — 0 for the first tech (no prerequisite), 1 for the
-    /// one after it, etc. Used to order a chain for display without a separate explicit index field.</summary>
     public int ChainDepth(TechDefinition tech)
     {
         int depth = 0;
@@ -60,7 +51,6 @@ public class TechDatabase : ScriptableObject
         return depth;
     }
 
-    /// <summary>Finds which tech (if any) unlocks the given block — used to gate the build palette.</summary>
     public TechDefinition GetTechForBlock(BlockDefinition block)
         => block == null ? null : allTechs.FirstOrDefault(t => t != null && t.unlockedBlocks.Contains(block));
 }

@@ -2,11 +2,6 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// Generic short-lived text message — shows a string, auto-hides after Display Duration seconds.
-/// Reusable for any validation/error feedback (e.g. "cockpit required to save"), not tied to one
-/// specific case — call Show(string) from wherever a message needs to reach the player.
-/// </summary>
 public class MessageToast : MonoBehaviour
 {
     public TMP_Text label;

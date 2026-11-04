@@ -4,25 +4,13 @@ using UnityEngine;
 
 public enum DifficultyTier { Easy, Medium, Hard }
 
-/// <summary>
-/// Estimates how hard a level is for the player's current ship, from the data alone (no battle is run).
-///
-/// POWER of a ship = (average max HP of its blocks) x (total damage per second of all its weapons).
-/// ENEMY POWER = the average of that over every enemy ship the level's waves will spawn (a prefab listed with Count 3
-/// counts three times; meteors and anything that is not a ship are ignored).
-/// RATIO = enemy power / the player's ship power.
-///   from 0 up to Medium From  -> Easy,   from Medium From up to Hard From -> Medium,   Hard From and above -> Hard
-/// (1 and 2 by default).
-///
-/// A player ship with no weapons at all has no power: against any armed enemy the level counts as Hard.
-/// </summary>
 public static class LevelDifficulty
 {
     public struct Result
     {
         public float ratio;
         public DifficultyTier tier;
-        public float enemyPower;   // average per enemy ship
+        public float enemyPower;
         public float playerPower;
         public int enemyShips;
     }
@@ -54,8 +42,8 @@ public static class LevelDifficulty
 
         result.enemyPower = result.enemyShips > 0 ? total / result.enemyShips : 0f;
 
-        if (result.enemyPower <= 0f) result.ratio = 0f;                       // nothing armed to fight
-        else if (result.playerPower <= 0f) result.ratio = float.PositiveInfinity; // we cannot hurt anybody
+        if (result.enemyPower <= 0f) result.ratio = 0f;
+        else if (result.playerPower <= 0f) result.ratio = float.PositiveInfinity;
         else result.ratio = result.enemyPower / result.playerPower;
 
         result.tier = result.ratio >= hardFrom ? DifficultyTier.Hard
@@ -64,7 +52,6 @@ public static class LevelDifficulty
         return result;
     }
 
-    /// <summary>(average max HP of the blocks) x (damage per second of all the weapons).</summary>
     private static float Power(IEnumerable<ShipModule> blocks)
     {
         if (blocks == null) return 0f;

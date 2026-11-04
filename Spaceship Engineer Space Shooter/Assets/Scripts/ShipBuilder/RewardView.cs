@@ -2,10 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// One reward shown as a picture and an amount: credits, coins, experience, research points, or crew cards. Numbers are shortened like
-/// every number of the game (1000 = 1k); cards show "x2".
-/// </summary>
 public class RewardView : MonoBehaviour
 {
     public Image icon;

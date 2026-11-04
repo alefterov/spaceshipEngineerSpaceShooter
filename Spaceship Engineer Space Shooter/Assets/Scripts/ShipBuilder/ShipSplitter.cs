@@ -2,15 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Breaks an enemy ship apart when destroyed blocks cut it in two. After blocks are lost, the remaining blocks
-/// are sorted into groups that touch each other (cell edge to cell edge); the group with the cockpit stays the
-/// ship (with no cockpit left, the biggest group does), and every other group tears loose as its own object — a
-/// ShipFragment: a lifeless chunk that drifts toward the player's ship and slowly spins, can be shot piece by
-/// piece (it counts as an enemy ship's blocks), rams the player's ship on contact and does not shoot.
-///
-/// Added to every EnemyShip by it (Splits Into Fragments); settings (drift speed, spin) live on EnemyShip.
-/// </summary>
 public class ShipSplitter : MonoBehaviour
 {
     private ShipGrid grid;
@@ -23,8 +14,6 @@ public class ShipSplitter : MonoBehaviour
         enemy = GetComponent<EnemyShip>();
     }
 
-    // Subscribed only after the ship has been built (EnemyShip builds it in Awake) — a ship that was DESIGNED in
-    // separate pieces would otherwise fall apart the moment it spawns.
     private void Start()
     {
         if (grid != null) grid.OnShipChanged += MarkDirty;
@@ -37,8 +26,6 @@ public class ShipSplitter : MonoBehaviour
 
     private void MarkDirty() => dirty = true;
 
-    // Checked once per frame, after everything that destroyed blocks this frame has finished — not from inside
-    // the destruction callbacks themselves.
     private void LateUpdate()
     {
         if (!dirty) return;
@@ -52,7 +39,6 @@ public class ShipSplitter : MonoBehaviour
         var groups = FindGroups();
         if (groups.Count <= 1) return;
 
-        // The ship keeps the group with the cockpit, else the biggest one.
         var main = groups.FirstOrDefault(g => g.Any(b => b.type == ModuleType.Cockpit)) ?? groups.OrderByDescending(g => g.Count).First();
 
         var unpowered = groups
@@ -70,12 +56,10 @@ public class ShipSplitter : MonoBehaviour
 
         grid.NotifyBlocksReleased();
 
-        // A cockpit cut off from every generator cannot work: it blows up (and the blast spreads to its neighbours).
         foreach (var cockpit in unpowered)
             if (cockpit != null && !cockpit.IsDestroyed) cockpit.TakeDamage(float.MaxValue);
     }
 
-    /// <summary>Living blocks grouped by touching.</summary>
     private List<List<ShipModule>> FindGroups()
     {
         var alive = grid.Blocks.Where(b => b != null && !b.IsDestroyed).ToList();
@@ -116,7 +100,6 @@ public class ShipSplitter : MonoBehaviour
 
     private void CreateFragment(List<ShipModule> blocks)
     {
-        // The root sits in the middle of its blocks, so it turns around them and aiming at it makes sense.
         Vector3 center = Vector3.zero;
         foreach (var block in blocks) center += block.transform.position;
         center /= blocks.Count;
@@ -124,20 +107,19 @@ public class ShipSplitter : MonoBehaviour
         var go = new GameObject("EnemyFragment");
         go.transform.SetPositionAndRotation(center, transform.rotation);
 
-        // Every broken-off piece is drawn on the one shared fragment layer, under all the ships.
         go.AddComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder = EnemyShip.FragmentSortingOrder;
 
         var identity = go.AddComponent<ShipIdentity>();
         identity.faction = Faction.Enemy;
-        identity.ApplyTagToRoot(); // Awake already ran as Player when the component was added — set the real side
+        identity.ApplyTagToRoot();
 
         foreach (var block in blocks)
         {
-            block.transform.SetParent(go.transform, true); // stays exactly where it is in the world
+            block.transform.SetParent(go.transform, true);
             identity.RegisterBlock(block);
         }
 
-        identity.SetCombatActive(false); // no crew: its weapons stay silent
+        identity.SetCombatActive(false);
         foreach (var engine in blocks.OfType<EngineModule>()) engine.SetEffectRunning(false);
 
         var fragment = go.AddComponent<ShipFragment>();

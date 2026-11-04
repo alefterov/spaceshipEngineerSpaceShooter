@@ -1,14 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The shop window. Holds the product blocks (ShopItemView, anywhere inside it) and does the buying: a coin product is paid at once
-/// (GameDataManager.TryBuyWithCoins), a real-money one goes to the store (IAPManager). Tells the player how it went through the Message
-/// Toast (bought / not enough coins / waiting for approval / failed).
-///
-/// SETUP: put on the shop window. Wire the shop button of the main panel to Open() (or Toggle()) and the window's close button to Close()
-/// (or assign it to Close Button). Optional: Restore Button (asks the store again for the premium — wire it if the game goes to iOS).
-/// </summary>
 public class ShopPanel : MonoBehaviour
 {
     [Tooltip("Optional: closes the window.")]
@@ -64,7 +56,6 @@ public class ShopPanel : MonoBehaviour
         iap.OnRestoreFinished -= HandleRestored;
     }
 
-    /// <summary>Buys a product — ShopItemView calls this when its button is pressed.</summary>
     public void Buy(ShopProduct product)
     {
         var data = GameDataManager.Instance;
@@ -81,7 +72,6 @@ public class ShopPanel : MonoBehaviour
         else if (data.Coins < product.coinPrice) Toast(notEnoughCoinsMessage);
     }
 
-    /// <summary>Asks the store again for the bought-once products (premium).</summary>
     public void RestorePurchases()
     {
         if (IAPManager.Instance != null) IAPManager.Instance.RestorePurchases();
@@ -90,7 +80,6 @@ public class ShopPanel : MonoBehaviour
 
     private void HandleSucceeded(ShopProduct product) => Toast(purchasedMessage);
 
-    // A null reason = the player cancelled the store window: nothing to say.
     private void HandleFailed(ShopProduct product, string reason)
     {
         if (reason == null || reason == "busy") return;

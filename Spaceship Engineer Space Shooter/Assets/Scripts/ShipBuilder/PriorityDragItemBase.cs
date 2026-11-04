@@ -2,14 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// The dragging behaviour shared by every row of every priority list (energy, missiles, tower guns). The row follows the pointer; an
-/// empty place the size of the row (a placeholder) marks where it will land, and the OTHER rows glide aside to make room for it as you
-/// move over them (see PriorityListMotion). On release the row glides into the place. The container must be a layout group, e.g. a
-/// Vertical Layout Group; the order of the rows is simply their order inside it.
-///
-/// A CanvasGroup and a LayoutElement are required on the same object (added automatically if missing).
-/// </summary>
 [RequireComponent(typeof(CanvasGroup))]
 [RequireComponent(typeof(LayoutElement))]
 public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -23,7 +15,6 @@ public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, I
     private Vector2 grabOffset;
     private bool dragging;
 
-    /// <summary>Called once the row has been dropped in its new place: save / apply the new order.</summary>
     protected abstract void OnOrderChanged();
 
     protected virtual void Awake()
@@ -41,12 +32,11 @@ public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, I
         motion = PriorityListMotion.For(parentRect);
         motion.Release(rect);
         dragging = true;
-        canvasGroup.blocksRaycasts = false; // the pointer should see what is under the row
+        canvasGroup.blocksRaycasts = false;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, eventData.position, eventData.pressEventCamera, out var pointer);
         grabOffset = (Vector2)rect.localPosition - pointer;
 
-        // An empty place the same size takes the row's slot in the list; the row itself steps out of the layout and rides on top.
         motion.Rearrange(() =>
         {
             var go = new GameObject(name + " (place)", typeof(RectTransform), typeof(LayoutElement));
@@ -72,8 +62,6 @@ public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, I
         Vector2 position = pointer + grabOffset;
         rect.localPosition = new Vector3(position.x, position.y, rect.localPosition.z);
 
-        // Over another row (judged by where that row is HEADED, not where it is gliding through): the empty place moves there and the
-        // row makes way.
         for (int i = 0; i < parentRect.childCount; i++)
         {
             var other = parentRect.GetChild(i) as RectTransform;
@@ -95,7 +83,7 @@ public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, I
 
     private void OnDisable()
     {
-        if (dragging) Drop(); // the window was closed in the middle of a drag
+        if (dragging) Drop();
     }
 
     private void Drop()
@@ -109,7 +97,7 @@ public abstract class PriorityDragItemBase : MonoBehaviour, IBeginDragHandler, I
             motion.Rearrange(() =>
             {
                 layoutElement.ignoreLayout = false;
-                rect.SetSiblingIndex(placeholder.GetSiblingIndex()); // the row takes the place of the empty slot
+                rect.SetSiblingIndex(placeholder.GetSiblingIndex());
                 placeholder.gameObject.SetActive(false);
                 Destroy(placeholder.gameObject);
             });

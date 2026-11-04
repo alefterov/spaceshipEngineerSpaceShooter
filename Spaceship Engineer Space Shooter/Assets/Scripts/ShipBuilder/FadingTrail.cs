@@ -1,18 +1,9 @@
 using UnityEngine;
 
-/// <summary>
-/// A short fading trail behind a moving object that, when the object ends, is cut loose and fades away where it
-/// was instead of vanishing with it. Not set up by hand: Missile adds it and feeds it the Trail settings from
-/// its own Inspector (Setup). Uses the object's own TrailRenderer if it has one (child or same object);
-/// otherwise creates one from those settings (color taken from a ProjectileGlow on the same object, if any).
-/// Call Detach() when the object is destroyed.
-/// </summary>
 public class FadingTrail : MonoBehaviour
 {
     private TrailRenderer trail;
 
-    /// <summary>Creates the trail from the given settings, unless the object already has a TrailRenderer of its
-    /// own — that one is used as it is.</summary>
     public void Setup(float time, float startWidth, float endWidth, Color color, Material material, int sortingOrder)
     {
         trail = GetComponentInChildren<TrailRenderer>();
@@ -40,7 +31,6 @@ public class FadingTrail : MonoBehaviour
         trail.endColor = end;
     }
 
-    /// <summary>Cuts the trail loose; it removes itself once it has faded out.</summary>
     public void Detach()
     {
         if (trail == null) return;
