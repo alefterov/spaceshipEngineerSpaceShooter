@@ -9,6 +9,8 @@ public class MainPanelBadges : MonoBehaviour
     public GameObject technologyBadge;
     [Tooltip("The dot on the crew button (CrewButton).")]
     public GameObject crewBadge;
+    [Tooltip("The dot on the daily gifts button.")]
+    public GameObject dailyRewardsBadge;
 
     [Header("Sources")]
     [Tooltip("The technologies to check. Empty = the Tech Database of the builder's BuildPaletteUI.")]
@@ -30,7 +32,7 @@ public class MainPanelBadges : MonoBehaviour
 
     private void Awake()
     {
-        badges = new[] { rewardsBadge, technologyBadge, crewBadge };
+        badges = new[] { rewardsBadge, technologyBadge, crewBadge, dailyRewardsBadge };
         baseScales = new Vector3[badges.Length];
         for (int i = 0; i < badges.Length; i++)
         {
@@ -67,6 +69,7 @@ public class MainPanelBadges : MonoBehaviour
         Show(rewardsBadge, ready && data.HasClaimableRewards());
         Show(technologyBadge, ready && data.CanResearchAny(techDatabase));
         Show(crewBadge, ready && data.HasNewCrew);
+        Show(dailyRewardsBadge, ready && data.HasClaimableDailyReward());
     }
 
     private static void Show(GameObject badge, bool value)

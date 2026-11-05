@@ -89,6 +89,13 @@ public class GameData
     [Tooltip("The best wave reached in survival mode so far (for the survival tasks).")]
     public int survivalBestWave;
 
+    [Tooltip("Daily gifts: the day of the current series of daily visits (1-30), 0 = none yet.")]
+    public int dailyDay;
+    [Tooltip("Daily gifts: the date of the last visit counted, yyyy-MM-dd (local time).")]
+    public string dailyLastVisit = "";
+    [Tooltip("Daily gifts: the days of the current series whose gift has been taken.")]
+    public List<int> dailyClaimedDays = new();
+
     [Tooltip("OLD SAVES ONLY: the single ship before the fleet existed. Moved into Fleet (as its first ship) when loaded.")]
     public ShipLayout playerShip = new();
 

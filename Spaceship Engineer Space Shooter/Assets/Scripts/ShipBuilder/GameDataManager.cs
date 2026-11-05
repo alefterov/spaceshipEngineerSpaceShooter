@@ -65,6 +65,8 @@ public class GameDataManager : MonoBehaviour
         EnsureFleet();
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
+        dailyCheckedDate = null;
+        UpdateDailyVisit();
         OnDataLoaded?.Invoke();
     }
 
@@ -848,6 +850,87 @@ public class GameDataManager : MonoBehaviour
         Save();
         OnRewardsChanged?.Invoke();
         return true;
+    }
+
+    [Header("Daily gifts")]
+    [Tooltip("The gifts of the 30 days of daily visits. A missed day starts the series again from day 1, and so does the day after the last one.")]
+    public DailyRewards dailyRewards;
+
+    private string dailyCheckedDate;
+
+    public int DailyDay => Current != null ? Current.dailyDay : 0;
+    public int DailyDaysCount => dailyRewards != null ? dailyRewards.Count : 0;
+
+    public IReadOnlyList<RewardData> GetDailyRewards(int day)
+        => dailyRewards != null ? dailyRewards.GetRewards(day) : System.Array.Empty<RewardData>();
+
+    public void UpdateDailyVisit()
+    {
+        if (Current == null || DailyDaysCount == 0) return;
+
+        var today = DateTime.Now.Date;
+        string key = today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        if (key == dailyCheckedDate) return;
+        dailyCheckedDate = key;
+        if (Current.dailyLastVisit == key) return;
+
+        bool hasLast = DateTime.TryParseExact(Current.dailyLastVisit, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.None, out var last);
+        if (hasLast && last > today) return;
+
+        bool nextDay = hasLast && (today - last).Days == 1;
+        if (nextDay && Current.dailyDay >= 1 && Current.dailyDay < DailyDaysCount)
+        {
+            Current.dailyDay++;
+        }
+        else
+        {
+            Current.dailyDay = 1;
+            Current.dailyClaimedDays.Clear();
+        }
+
+        Current.dailyLastVisit = key;
+        Save();
+        OnRewardsChanged?.Invoke();
+    }
+
+    public void RecheckDailyVisit()
+    {
+        dailyCheckedDate = null;
+        UpdateDailyVisit();
+    }
+
+    public bool IsDailyRewardClaimed(int day) => Current != null && Current.dailyClaimedDays.Contains(day);
+
+    public bool IsDailyRewardReached(int day) => Current != null && day >= 1 && day <= Current.dailyDay;
+
+    public bool CanClaimDailyReward(int day)
+        => IsDailyRewardReached(day) && !IsDailyRewardClaimed(day) && GetDailyRewards(day).Any(r => r.amount > 0);
+
+    public bool TryClaimDailyReward(int day)
+    {
+        UpdateDailyVisit();
+        if (!CanClaimDailyReward(day)) return false;
+
+        Current.dailyClaimedDays.Add(day);
+        GrantRewards(GetDailyRewards(day));
+        AudioManager.PlaySfx(rewardClaimSound, rewardClaimVolume);
+        Save();
+        OnRewardsChanged?.Invoke();
+        return true;
+    }
+
+    public bool HasClaimableDailyReward()
+    {
+        if (Current == null) return false;
+        UpdateDailyVisit();
+
+        for (int day = 1; day <= Mathf.Min(Current.dailyDay, DailyDaysCount); day++)
+        {
+            if (CanClaimDailyReward(day)) return true;
+        }
+
+        return false;
     }
 
     private TaskStateEntry GetTaskState(string id, bool create)
