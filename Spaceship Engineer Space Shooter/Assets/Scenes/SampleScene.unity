@@ -16454,6 +16454,7 @@ MonoBehaviour:
   fleetShipCurrency: 0
   fleetShipCost: 10000
   fleetShipNameFormat: Ship {0}
+  maxFleetShips: 5
   researchSound: {fileID: 8300000, guid: cf38ecb4643ff3845aee14d6b1e5233a, type: 3}
   researchVolume: 0.325
   hangarColumnBaseCost: 5

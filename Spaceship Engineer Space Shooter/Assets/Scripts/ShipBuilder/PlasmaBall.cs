@@ -176,7 +176,7 @@ public class PlasmaBall : MonoBehaviour, IShieldBlockable
 
         if (explosionEffectPrefab != null)
         {
-            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            var fx = EffectSorting.Apply(Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity));
             fx.SetActive(true);
             if (explosionEffectLifetime > 0f) Destroy(fx, explosionEffectLifetime);
         }

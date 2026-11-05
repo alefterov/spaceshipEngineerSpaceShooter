@@ -118,7 +118,14 @@ public class ShipModule : MonoBehaviour
         var ownShip = GetComponentInParent<ShipIdentity>();
         if (ownShip != null) inCombat = ownShip.CombatActive;
 
-        if (visualRoot == null) visualRoot = transform;
+        if (visualRoot == null || visualRoot == transform)
+        {
+            var pivot = new GameObject("Pivot").transform;
+            pivot.SetParent(transform, false);
+            visualRoot = pivot;
+        }
+
+        poseParts = CapturePoseParts();
 
         CacheRenderers(roofRoot, roofRenderers);
 
@@ -137,6 +144,65 @@ public class ShipModule : MonoBehaviour
 
         foreach (var renderer in root.GetComponentsInChildren<SpriteRenderer>(true))
             into.Add((renderer, renderer.sortingOrder));
+    }
+
+    public struct PosePart
+    {
+        public Transform part;
+        public Vector3 position;
+        public Quaternion rotation;
+    }
+
+    private System.Collections.Generic.List<PosePart> poseParts;
+
+    protected virtual System.Collections.Generic.IEnumerable<Transform> VisualParts
+    {
+        get { if (roofRoot != null) yield return roofRoot; }
+    }
+
+    public System.Collections.Generic.List<PosePart> CapturePoseParts()
+    {
+        var list = new System.Collections.Generic.List<PosePart>();
+        var parts = new System.Collections.Generic.List<Transform>();
+        foreach (var part in VisualParts)
+            if (part != null && part != transform && !parts.Contains(part)) parts.Add(part);
+
+        foreach (var part in parts)
+        {
+            if (visualRoot != null && visualRoot != transform && part.IsChildOf(visualRoot)) continue;
+            bool insideAnother = false;
+            foreach (var other in parts)
+                if (other != part && part.IsChildOf(other)) insideAnother = true;
+            if (insideAnother) continue;
+
+            list.Add(new PosePart { part = part, position = part.localPosition, rotation = part.localRotation });
+        }
+
+        return list;
+    }
+
+    public static void PoseParts(System.Collections.Generic.List<PosePart> parts, Vector3 center, Vector3 unrotatedCenter, int rotationSteps)
+    {
+        if (parts == null) return;
+
+        var rotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
+        foreach (var p in parts)
+        {
+            if (p.part == null) continue;
+            p.part.localPosition = center + rotation * (p.position - unrotatedCenter);
+            p.part.localRotation = rotation * p.rotation;
+        }
+    }
+
+    public void ApplyGridPose(Vector3 center, Vector3 unrotatedCenter, int steps)
+    {
+        if (visualRoot != null && visualRoot != transform)
+        {
+            visualRoot.localPosition = center;
+            visualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * steps);
+        }
+
+        PoseParts(poseParts, center, unrotatedCenter, steps);
     }
 
     public virtual void ApplyViewMode(ShipViewMode mode)
@@ -266,7 +332,7 @@ public class ShipModule : MonoBehaviour
     {
         if (explosionEffectPrefab != null)
         {
-            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            var fx = EffectSorting.Apply(Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity));
             if (explosionLifetime > 0f) UnityEngine.Object.Destroy(fx, explosionLifetime);
         }
 

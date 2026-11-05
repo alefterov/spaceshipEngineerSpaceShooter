@@ -165,6 +165,16 @@ public class WeaponModule : ShipModule
         combatActive = identity != null && identity.CombatActive;
     }
 
+    protected override System.Collections.Generic.IEnumerable<Transform> VisualParts
+    {
+        get
+        {
+            foreach (var part in base.VisualParts) yield return part;
+            if (topRoot != null) yield return topRoot;
+            if (turretPivot != null) yield return turretPivot;
+        }
+    }
+
     private int topBaseCached = 40;
     private int layerRank;
     private int layerStep = 10;

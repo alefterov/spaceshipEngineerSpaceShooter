@@ -35,7 +35,7 @@ public class ExperienceBarView : MonoBehaviour
             float to = step.xpRequired > 0 ? (float)step.endXp / step.xpRequired : 0f;
             SetFill(from);
 
-            for (float t = 0f; t < secondsPerStep; t += Time.deltaTime)
+            for (float t = 0f; t < secondsPerStep; t += Time.unscaledDeltaTime)
             {
                 SetFill(Mathf.Lerp(from, to, t / secondsPerStep));
                 yield return null;

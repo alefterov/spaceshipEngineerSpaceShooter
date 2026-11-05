@@ -33,6 +33,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
 
     private GameObject ghostInstance;
     private Transform ghostVisualRoot;
+    private List<ShipModule.PosePart> ghostParts;
     private readonly List<SpriteRenderer> ghostRenderers = new();
     private BlockDefinition currentBlock;
     private int rotationSteps;
@@ -189,6 +190,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
             moduleComp.PrepareAsGhost();
 
             moduleComp.ApplySortingOrders(grid.roofSortingOrder, grid.topSortingOrder);
+            ghostParts = moduleComp.CapturePoseParts();
         }
 
         foreach (var mb in ghostInstance.GetComponentsInChildren<MonoBehaviour>())
@@ -205,6 +207,7 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
     {
         if (ghostInstance != null) Destroy(ghostInstance);
         ghostInstance = null;
+        ghostParts = null;
         ghostVisualRoot = null;
     }
 
@@ -226,11 +229,15 @@ public class GhostBlockController : MonoBehaviour, IPointerClickHandler
         ghostInstance.transform.rotation = Quaternion.identity;
 
         var (centroidCells, _) = ShipGrid.ComputeLocalFootprint(localOffsets);
+        var center = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
         if (ghostVisualRoot != ghostInstance.transform)
         {
-            ghostVisualRoot.localPosition = new Vector3(centroidCells.x * grid.cellSize, centroidCells.y * grid.cellSize, 0f);
+            ghostVisualRoot.localPosition = center;
             ghostVisualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
         }
+
+        var (unrotated, _) = ShipGrid.ComputeLocalFootprint(BlockDefinition.Offsets(BlockDefinition.RotateCells(currentBlock.cells, 0)));
+        ShipModule.PoseParts(ghostParts, center, new Vector3(unrotated.x * grid.cellSize, unrotated.y * grid.cellSize, 0f), rotationSteps);
 
         var absoluteCells = grid.GetOccupiedCells(anchor, localOffsets);
         grid.ShowPlacementPreview(absoluteCells, valid ? validColor : invalidColor);

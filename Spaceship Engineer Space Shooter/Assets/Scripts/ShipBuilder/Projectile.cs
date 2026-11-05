@@ -82,7 +82,7 @@ public class Projectile : MonoBehaviour, IShieldBlockable
 
         if (impactEffectPrefab != null)
         {
-            var fx = Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
+            var fx = EffectSorting.Apply(Instantiate(impactEffectPrefab, transform.position, Quaternion.identity));
             fx.SetActive(true);
             if (impactEffectLifetime > 0f) Destroy(fx, impactEffectLifetime);
         }

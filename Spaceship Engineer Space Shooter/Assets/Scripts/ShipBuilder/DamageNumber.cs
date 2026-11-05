@@ -51,10 +51,12 @@ public class DamageNumber : MonoBehaviour
         {
             canvas.overrideSorting = true;
             canvas.sortingOrder = sortingOrder;
+            EffectSorting.ApplyToCanvas(canvas);
         }
         else
         {
             foreach (var r in GetComponentsInChildren<Renderer>(true)) r.sortingOrder = sortingOrder;
+            EffectSorting.Apply(gameObject);
         }
     }
 

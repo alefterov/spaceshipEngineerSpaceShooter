@@ -31,7 +31,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8312644339215851625}
   - {fileID: 4579919626324089469}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -105,7 +104,7 @@ MonoBehaviour:
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
   isCore: 0
-  visualRoot: {fileID: 8312644339215851625}
+  visualRoot: {fileID: 0}
   roofRoot: {fileID: 4579919626324089469}
   idleAnimator: {fileID: 0}
   explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
@@ -213,37 +212,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
---- !u!1 &4686026492015295954
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8312644339215851625}
-  m_Layer: 0
-  m_Name: Interior
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8312644339215851625
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4686026492015295954}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 711142012868884709}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4757314536906432153
 GameObject:
   m_ObjectHideFlags: 0

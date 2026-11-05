@@ -99,7 +99,7 @@ public class Meteor : MonoBehaviour, IShieldBlockable
 
         if (explosionEffectPrefab != null)
         {
-            var fx = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            var fx = EffectSorting.Apply(Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity));
             fx.SetActive(true);
             if (explosionLifetime > 0f) Destroy(fx, explosionLifetime);
         }

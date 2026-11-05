@@ -117,6 +117,7 @@ public class DamageNumbers : MonoBehaviour
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.overrideSorting = true;
         canvas.sortingOrder = numberPrefab != null ? numberPrefab.sortingOrder : 200;
+        EffectSorting.ApplyToCanvas(canvas);
 
         canvasRoot = go.transform;
         return canvasRoot;

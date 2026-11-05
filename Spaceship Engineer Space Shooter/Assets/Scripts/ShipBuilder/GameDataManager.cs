@@ -207,11 +207,13 @@ public class GameDataManager : MonoBehaviour
     [Min(0)] public int fleetShipCost = 10000;
     [Tooltip("Name of a new ship; {0} = its number in the fleet.")]
     public string fleetShipNameFormat = "Ship {0}";
+    [Tooltip("How many ships the fleet can hold (the starting ship included). Older saves with a smaller limit get this one.")]
+    [Min(1)] public int maxFleetShips = 5;
 
     public event Action OnFleetChanged;
 
     public IReadOnlyList<FleetShipData> Fleet => Current.fleet;
-    public int FleetCapacity => Mathf.Max(1, Current.fleetCapacity);
+    public int FleetCapacity => Mathf.Max(1, Mathf.Max(Current.fleetCapacity, maxFleetShips));
     public bool CanAddFleetShip => Current.fleet.Count < FleetCapacity;
 
     public int SelectedShipIndex => Mathf.Clamp(Current.selectedShip, 0, Mathf.Max(0, Current.fleet.Count - 1));

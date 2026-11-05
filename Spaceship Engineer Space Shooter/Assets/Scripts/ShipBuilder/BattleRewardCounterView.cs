@@ -35,7 +35,7 @@ public class BattleRewardCounterView : MonoBehaviour
     {
         if (!animating) return;
 
-        animElapsed += Time.deltaTime;
+        animElapsed += Time.unscaledDeltaTime;
         float t = Mathf.Clamp01(animElapsed / Mathf.Max(0.01f, countDuration));
         displayed = Mathf.Lerp(animFrom, animTarget, t);
         Refresh();

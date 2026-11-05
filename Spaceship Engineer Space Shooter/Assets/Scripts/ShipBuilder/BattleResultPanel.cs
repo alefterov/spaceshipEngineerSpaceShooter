@@ -171,7 +171,7 @@ public class BattleResultPanel : MonoBehaviour
     private IEnumerator CountUpCredits(int target)
     {
         float duration = Mathf.Max(0.01f, creditsCountDuration);
-        for (float t = 0f; t < duration; t += Time.deltaTime)
+        for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
         {
             creditsEarnedLabel.text = NumberFormat.Compact(Mathf.RoundToInt(Mathf.Lerp(0, target, t / duration)));
             yield return null;
@@ -191,7 +191,7 @@ public class BattleResultPanel : MonoBehaviour
 
         for (int i = 0; i < stars.Length; i++)
         {
-            yield return new WaitForSeconds(starRevealDelay);
+            yield return new WaitForSecondsRealtime(starRevealDelay);
             if (i >= earnedStars || stars[i] == null) continue;
 
             stars[i].sprite = filledStarSprite;
@@ -212,12 +212,12 @@ public class BattleResultPanel : MonoBehaviour
         Vector3 normal = Vector3.one;
         Vector3 peak = normal * 1.3f;
 
-        for (float t = 0f; t < duration; t += Time.deltaTime)
+        for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
         {
             target.localScale = Vector3.Lerp(normal, peak, t / duration);
             yield return null;
         }
-        for (float t = 0f; t < duration; t += Time.deltaTime)
+        for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
         {
             target.localScale = Vector3.Lerp(peak, normal, t / duration);
             yield return null;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -200,6 +201,8 @@ public class FleetPanelController : MonoBehaviour
         Data.RenameShip(index, newName);
     }
 
+    private UpgradeButtonView[] hangarUpgrades;
+
     private void Refresh()
     {
         if (Data == null || !isActiveAndEnabled) return;
@@ -227,6 +230,12 @@ public class FleetPanelController : MonoBehaviour
 
         foreach (var go in shipOnly) if (go != null) go.SetActive(!buy);
         foreach (var go in buyOnly) if (go != null) go.SetActive(buy);
+
+        hangarUpgrades ??= GetComponentsInChildren<UpgradeButtonView>(true)
+            .Where(u => u.upgradeType == UpgradeButtonView.UpgradeType.HangarColumns || u.upgradeType == UpgradeButtonView.UpgradeType.HangarRows)
+            .ToArray();
+        foreach (var upgrade in hangarUpgrades)
+            if (upgrade != null && upgrade.gameObject.activeSelf == buy) upgrade.gameObject.SetActive(!buy);
 
         if (statsPanel != null)
         {

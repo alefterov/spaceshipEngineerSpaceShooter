@@ -104,7 +104,7 @@ public class GameData
     [Tooltip("Index in Fleet of the ship that goes into battle.")]
     public int selectedShip;
     [Tooltip("How many ships the fleet can hold.")]
-    public int fleetCapacity = 3;
+    public int fleetCapacity = 5;
 }
 
 [System.Serializable]

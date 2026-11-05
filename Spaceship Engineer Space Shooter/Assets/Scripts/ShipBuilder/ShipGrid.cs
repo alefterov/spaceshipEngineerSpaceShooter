@@ -297,11 +297,9 @@ public class ShipGrid : MonoBehaviour
             module.ApplyMaxHpMultiplier(GameDataManager.Instance.GetCrewPerkMultiplier(CrewPerkType.ArmorEfficiency));
 
         var (centroidCells, sizeCells) = ComputeLocalFootprint(localShape);
-        if (module.visualRoot != null && module.visualRoot != instance.transform)
-        {
-            module.visualRoot.localPosition = new Vector3(centroidCells.x * cellSize, centroidCells.y * cellSize, 0f);
-            module.visualRoot.localRotation = Quaternion.Euler(0f, 0f, 90f * rotationSteps);
-        }
+        var (unrotatedCentroid, _) = ComputeLocalFootprint(BlockDefinition.Offsets(BlockDefinition.RotateCells(definition.cells, 0)));
+        module.ApplyGridPose(new Vector3(centroidCells.x * cellSize, centroidCells.y * cellSize, 0f),
+            new Vector3(unrotatedCentroid.x * cellSize, unrotatedCentroid.y * cellSize, 0f), rotationSteps);
 
         if (instance.TryGetComponent<BoxCollider2D>(out var box))
         {

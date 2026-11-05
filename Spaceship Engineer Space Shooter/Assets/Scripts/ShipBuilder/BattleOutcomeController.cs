@@ -33,6 +33,9 @@ public class BattleOutcomeController : MonoBehaviour
     [Tooltip("Scene loaded by the 'Home' button.")]
     public string homeSceneName = "SampleScene";
 
+    [Tooltip("The battle stops (time scale 0) the moment the result panel comes up. The panel itself runs on unscaled time.")]
+    public bool stopBattleOnResult = true;
+
     private float startingHP;
     private bool outcomeDecided;
 
@@ -64,6 +67,7 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (outcomeDecided) return;
         outcomeDecided = true;
+        StopBattle();
         if (AdsManager.Instance != null) AdsManager.Instance.NotifyBattleFinished();
 
         if (enemySpawner != null) enemySpawner.StopWaves();
@@ -90,6 +94,7 @@ public class BattleOutcomeController : MonoBehaviour
     {
         if (outcomeDecided) return;
         outcomeDecided = true;
+        StopBattle();
         if (AdsManager.Instance != null) AdsManager.Instance.NotifyBattleFinished();
 
         float currentHP = playerShipGrid != null ? playerShipGrid.ComputeCurrentTotalHP() : 0f;
@@ -116,6 +121,11 @@ public class BattleOutcomeController : MonoBehaviour
 
         bool hasNextLevel = PendingBattle.Level != null && PendingBattle.Level.nextLevel != null;
         if (resultPanel != null) resultPanel.ShowResult(won: true, earnedStars: stars, hasNextLevel: hasNextLevel, credits, xpSteps);
+    }
+
+    private void StopBattle()
+    {
+        if (stopBattleOnResult) Time.timeScale = 0f;
     }
 
     private static int Half(int amount) => Mathf.RoundToInt(amount * 0.5f);
