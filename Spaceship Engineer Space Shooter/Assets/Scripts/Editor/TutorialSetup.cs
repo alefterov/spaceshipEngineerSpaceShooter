@@ -48,6 +48,8 @@ public static class TutorialSetup
         var selector = Object.FindAnyObjectByType<CampaignSelector>(FindObjectsInactive.Include);
         var firstCampaign = selector != null && selector.campaigns.Count > 0 ? selector.campaigns[0] : null;
         var info = Object.FindAnyObjectByType<LevelInfoPanel>(FindObjectsInactive.Include);
+        var confirm = Object.FindAnyObjectByType<PlacementConfirmPopup>(FindObjectsInactive.Include);
+        var confirmPanel = confirm != null ? (confirm.panel != null ? confirm.panel.gameObject : confirm.gameObject) : null;
         var rewards = Object.FindAnyObjectByType<RewardsPanel>(FindObjectsInactive.Include);
         var techPopup = Object.FindAnyObjectByType<TechTreePopup>(FindObjectsInactive.Include);
         var techPanel = techPopup != null ? techPopup.gameObject : Named("TechnologyPanel")?.gameObject;
@@ -67,8 +69,13 @@ public static class TutorialSetup
                     completeWhen = TutorialComplete.TargetTapped,
                     text = "Blocks are sorted into categories. Tap Weapons." },
             new() { id = "place_gun", targetKind = TutorialTargetKind.PaletteBlock, blockId = GunId, requireActive = builder,
-                    completeWhen = TutorialComplete.BlockAdded, finger = TutorialFingerMotion.Drag, blockOthers = false,
-                    text = "Drag the gun onto the free spot of your ship, then tap the check mark to confirm." },
+                    completeWhen = confirmPanel != null ? TutorialComplete.ObjectActive : TutorialComplete.BlockAdded, watchObject = confirmPanel,
+                    finger = TutorialFingerMotion.Drag, blockOthers = false,
+                    text = "Drag the gun onto the free spot of your ship." },
+            new() { id = "confirm_build", target = confirm != null && confirm.confirmButton != null ? (RectTransform)confirm.confirmButton.transform : null,
+                    targetKind = TutorialTargetKind.Object, requireActive = confirmPanel,
+                    completeWhen = TutorialComplete.BlockAdded,
+                    text = "Tap the check mark to confirm the build." },
             new() { id = "save_ship", target = ButtonWithMethod("OnSaveShipPressed"), targetKind = TutorialTargetKind.Object, requireActive = builder,
                     completeWhen = TutorialComplete.TargetTapped,
                     text = "Well done! Tap Save to keep your new ship." },

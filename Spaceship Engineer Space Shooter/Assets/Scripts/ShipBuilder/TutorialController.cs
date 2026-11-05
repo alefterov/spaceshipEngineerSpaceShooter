@@ -28,7 +28,12 @@ public class TutorialController : MonoBehaviour
     [Header("Scene (found by themselves if empty)")]
     [Tooltip("Main scene: the player's ship, for Block Added.")]
     public ShipGrid playerShip;
+    [Tooltip("Main scene: the camera that shows the ship being built (a Palette Block drag ends on a free spot of the ship). Empty = the builder's.")]
+    public Camera worldCamera;
 
+    private Vector2Int? dropCell;
+    private int dropBlockCount = -1;
+    private float nextDropSearch;
     private TutorialStep current;
     private RectTransform currentTarget;
     private bool windowHidden;
@@ -54,6 +59,12 @@ public class TutorialController : MonoBehaviour
         {
             var flow = FindAnyObjectByType<MainMenuFlowController>(FindObjectsInactive.Include);
             if (flow != null) playerShip = flow.playerShip;
+        }
+
+        if (worldCamera == null)
+        {
+            var ghost = FindAnyObjectByType<GhostBlockController>(FindObjectsInactive.Include);
+            worldCamera = ghost != null && ghost.worldCamera != null ? ghost.worldCamera : Camera.main;
         }
 
         var battle = FindAnyObjectByType<BattleSequenceController>();
@@ -89,6 +100,12 @@ public class TutorialController : MonoBehaviour
         {
             HideAll();
             return;
+        }
+
+        if (current != null && current.completeWhen == TutorialComplete.BlockAdded && IsComplete(current))
+        {
+            Data.MarkTutorialStepDone(current.id);
+            BeginStep(null);
         }
 
         var step = ResolveStep();
@@ -178,6 +195,8 @@ public class TutorialController : MonoBehaviour
         pressStartedOnTarget = false;
         heldSeconds = 0f;
         nextTargetSearch = 0f;
+        dropCell = null;
+        dropBlockCount = -1;
         blockCountAtStart = playerShip != null ? playerShip.Blocks.Count() : 0;
         if (textLabel != null && step != null) textLabel.text = step.text;
         if (dontShowToggle != null) dontShowToggle.SetIsOnWithoutNotify(false);
@@ -330,7 +349,9 @@ public class TutorialController : MonoBehaviour
             if (!hasTarget || current.finger == TutorialFingerMotion.None) finger.Hide();
             else
             {
-                Vector2 end = current.dragTo != null && current.dragTo.gameObject.activeInHierarchy ? TargetRectInRoot(current.dragTo).center : area.center;
+                Vector2 end = area.center;
+                if (current.dragTo != null && current.dragTo.gameObject.activeInHierarchy) end = TargetRectInRoot(current.dragTo).center;
+                else if (current.targetKind == TutorialTargetKind.PaletteBlock && TryDropPoint(out var drop)) end = drop;
                 finger.Play(current.finger, target.center, end, Mathf.Min(target.width, target.height) * 0.35f);
             }
         }
@@ -344,6 +365,68 @@ public class TutorialController : MonoBehaviour
             SetBlocker(2, block, new Rect(area.xMin, hole.yMin, hole.xMin - area.xMin, hole.height));
             SetBlocker(3, block, new Rect(hole.xMax, hole.yMin, area.xMax - hole.xMax, hole.height));
         }
+    }
+
+    private bool TryDropPoint(out Vector2 point)
+    {
+        point = default;
+        if (playerShip == null || worldCamera == null || root == null || currentTarget == null) return false;
+
+        var view = currentTarget.GetComponent<BlockButtonView>();
+        if (view == null || view.Block == null) return false;
+
+        int count = playerShip.Blocks.Count();
+        if (count != dropBlockCount || Time.unscaledTime >= nextDropSearch)
+        {
+            dropBlockCount = count;
+            nextDropSearch = Time.unscaledTime + 0.5f;
+            dropCell = FindDropCell(view.Block);
+        }
+
+        if (dropCell == null) return false;
+
+        Vector2 screen = RectTransformUtility.WorldToScreenPoint(worldCamera, playerShip.AnchorToWorld(dropCell.Value));
+        var rootCam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? rootCanvas.worldCamera : null;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, rootCam, out var local)) return false;
+
+        point = local - root.rect.center;
+        return true;
+    }
+
+    private Vector2Int? FindDropCell(BlockDefinition block)
+    {
+        var shape = BlockDefinition.RotateCells(block.cells, 0);
+        bool hasBounds = playerShip.TryGetShipCellBounds(out var min, out var maxExclusive);
+        float centerX = hasBounds ? (min.x + maxExclusive.x - 1) * 0.5f : (playerShip.GridWidth - 1) * 0.5f;
+
+        Vector2Int? best = null;
+        float bestScore = float.MinValue;
+        for (int x = 0; x < playerShip.GridWidth; x++)
+        {
+            for (int y = 0; y < playerShip.GridHeight; y++)
+            {
+                var anchor = new Vector2Int(x, y);
+                if (!playerShip.CanPlace(anchor, shape, block.category)) continue;
+
+                float score = y - Mathf.Abs(x - centerX) * 0.5f;
+                if (hasBounds)
+                {
+                    if (x >= min.x && x < maxExclusive.x && y >= min.y && y < maxExclusive.y) score += 20f;
+
+                    int mirrorX = Mathf.RoundToInt(centerX * 2f) - x;
+                    var mirror = mirrorX != x ? playerShip.GetBlockAt(new Vector2Int(mirrorX, y)) : null;
+                    if (mirror != null) score += mirror.moduleId == block.id ? 100f : 10f;
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = anchor;
+                }
+            }
+        }
+
+        return best;
     }
 
     private void SetBlocker(int index, bool show, Rect rect)
