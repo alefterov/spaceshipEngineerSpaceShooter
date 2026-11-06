@@ -212,19 +212,19 @@ MonoBehaviour:
   weaponClass: 2
   allowedTargets: 0000000002000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 3a8461a8f72a98a4a99110f0dd15cf63, type: 3}
+  projectilePrefab: {fileID: 9034744518351449050, guid: 47561f1632cbfa041bf595a62fb0d49a, type: 3}
   muzzles:
   - {fileID: 7553389974999812753}
   muzzle: {fileID: 0}
   cooldownSeconds: 10
-  projectileDamage: 170
-  projectileSpeed: 10
+  projectileDamage: 100
+  projectileSpeed: 6
   range: 300
   fireArcDegrees: 180
   fireSound: {fileID: 8300000, guid: 52e799192127f114c8dc7e72e7424cd7, type: 3}
   fireVolume: 0.616
   enemyVolumeScale: 0.7
-  topRoot: {fileID: 0}
+  topRoot: {fileID: 9174914285220350066}
   turretPivot: {fileID: 0}
   turretRotationSpeed: 180
   turretAimToleranceDegrees: 3

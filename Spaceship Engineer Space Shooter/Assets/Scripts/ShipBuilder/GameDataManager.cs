@@ -854,6 +854,43 @@ public class GameDataManager : MonoBehaviour
         return true;
     }
 
+    [Header("Rating request")]
+    [Tooltip("Google's rating card is requested for the first time after this many battles won.")]
+    [Min(1)] public int ratingFirstAfterWins = 5;
+    [Tooltip("Days between two requests. Google shows the card at most about once a month, so a shorter gap only wastes a request.")]
+    [Min(1)] public int ratingRepeatAfterDays = 35;
+    [Tooltip("The most requests ever made. The game cannot know if the player has rated it, so it stops after this many.")]
+    [Min(1)] public int ratingMaxRequests = 3;
+
+    private bool ratingMoment;
+
+    public void RecordBattleWon()
+    {
+        Current.battlesWon++;
+        ratingMoment = true;
+        Save();
+    }
+
+    public void ClearRatingMoment() => ratingMoment = false;
+
+    public bool ShouldRequestRating()
+    {
+        if (Current == null || !ratingMoment) return false;
+        if (Current.battlesWon < ratingFirstAfterWins || Current.ratingRequests >= ratingMaxRequests) return false;
+
+        if (!DateTime.TryParseExact(Current.lastRatingRequest, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var last)) return true;
+
+        return (DateTime.Now.Date - last).Days >= ratingRepeatAfterDays;
+    }
+
+    public void MarkRatingRequested()
+    {
+        Current.ratingRequests++;
+        Current.lastRatingRequest = DateTime.Now.Date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        Save();
+    }
+
     [Header("Daily gifts")]
     [Tooltip("The gifts of the 30 days of daily visits. A missed day starts the series again from day 1, and so does the day after the last one.")]
     public DailyRewards dailyRewards;

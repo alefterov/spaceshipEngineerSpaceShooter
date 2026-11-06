@@ -117,6 +117,7 @@ public class BattleOutcomeController : MonoBehaviour
             GameDataManager.Instance.AddResearchPoints(threeStarResearchBonus);
 
         if (PendingBattle.Level != null) GameDataManager.Instance.SetLevelStars(PendingBattle.Level, stars);
+        GameDataManager.Instance.RecordBattleWon();
         if (playerShipIdentity != null) playerShipIdentity.SetCombatActive(false);
 
         bool hasNextLevel = PendingBattle.Level != null && PendingBattle.Level.nextLevel != null;

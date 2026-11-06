@@ -16480,6 +16480,9 @@ MonoBehaviour:
   taskDatabase: {fileID: 11400000, guid: 9324a426e18c24b4eae8713707d9fbc2, type: 2}
   rewardClaimSound: {fileID: 8300000, guid: cf38ecb4643ff3845aee14d6b1e5233a, type: 3}
   rewardClaimVolume: 1
+  ratingFirstAfterWins: 5
+  ratingRepeatAfterDays: 35
+  ratingMaxRequests: 3
   dailyRewards: {fileID: 11400000, guid: c47173afae146fd49971ec043a3d6a13, type: 2}
   premiumRewardMultiplier: 2
   shopPurchaseSound: {fileID: 0}

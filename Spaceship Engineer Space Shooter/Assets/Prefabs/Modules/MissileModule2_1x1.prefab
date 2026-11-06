@@ -219,7 +219,7 @@ MonoBehaviour:
   muzzle: {fileID: 0}
   cooldownSeconds: 5
   projectileDamage: 20
-  projectileSpeed: 6
+  projectileSpeed: 7
   range: 200
   fireArcDegrees: 180
   fireSound: {fileID: 8300000, guid: 52e799192127f114c8dc7e72e7424cd7, type: 3}

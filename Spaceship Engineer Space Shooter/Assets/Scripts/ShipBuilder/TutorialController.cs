@@ -44,6 +44,8 @@ public class TutorialController : MonoBehaviour
     private float nextTargetSearch;
     private Canvas rootCanvas;
 
+    public bool IsShowing => window != null && window.gameObject.activeInHierarchy;
+
     private static GameDataManager Data => GameDataManager.Instance;
 
     private static bool dismissedThisRun;

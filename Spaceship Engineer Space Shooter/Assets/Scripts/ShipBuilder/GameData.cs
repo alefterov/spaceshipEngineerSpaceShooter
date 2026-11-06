@@ -96,6 +96,13 @@ public class GameData
     [Tooltip("Daily gifts: the days of the current series whose gift has been taken.")]
     public List<int> dailyClaimedDays = new();
 
+    [Tooltip("Rating request: battles won so far.")]
+    public int battlesWon;
+    [Tooltip("Rating request: how many times Google's rating card has been requested.")]
+    public int ratingRequests;
+    [Tooltip("Rating request: the date of the last request, yyyy-MM-dd (local time).")]
+    public string lastRatingRequest = "";
+
     [Tooltip("OLD SAVES ONLY: the single ship before the fleet existed. Moved into Fleet (as its first ship) when loaded.")]
     public ShipLayout playerShip = new();
 

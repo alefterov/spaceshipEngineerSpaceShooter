@@ -124,6 +124,8 @@ public class AdsManager : MonoBehaviour
         RefreshBanner();
     }
 
+    public bool IsFullScreenAdBusy => interstitialPending || pausedForAd;
+
     public void NotifyBattleFinished()
     {
         battlesFinished++;
