@@ -19,8 +19,8 @@ public class BattleResultPanel : MonoBehaviour
     [Header("Message")]
     [Tooltip("Set these to whatever wording you want — this component just swaps between them.")]
     public TMP_Text resultLabel;
-    public string victoryMessage = "Поздравляем, победили!";
-    public string defeatMessage = "Вы проиграли";
+    public string victoryMessage = "YOU WIN!";
+    public string defeatMessage = "YOU LOSE!";
     [Tooltip("Survival mode's message. {0} = the wave reached.")]
     public string survivalMessageFormat = "Волна {0}";
 
@@ -79,7 +79,7 @@ public class BattleResultPanel : MonoBehaviour
         if (doubleRewardLabel != null) doubleRewardLabel.text = "x2";
         RefreshDoubleButton();
 
-        if (resultLabel != null) resultLabel.text = won ? victoryMessage : defeatMessage;
+        if (resultLabel != null) resultLabel.text = L10n.Tr(won ? victoryMessage : defeatMessage);
         if (won) AudioManager.PlaySfx(victorySound, victoryVolume);
         else AudioManager.PlaySfx(defeatSound, defeatVolume);
         if (nextLevelButton != null) nextLevelButton.interactable = won && hasNextLevel;

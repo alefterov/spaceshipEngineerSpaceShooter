@@ -1,0 +1,290 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_pl
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: pl
+  m_SharedData: {fileID: 11400000, guid: e1b602ca10eae4a4cbbefb6b853ba0a0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14219952128
+    m_Localized: GRAJ
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14387724288
+    m_Localized: "Wkr\xF3tce..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112896
+    m_Localized: "Wkr\xF3tce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112897
+    m_Localized: "Uk\u0142ad S\u0142oneczny"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112898
+    m_Localized: "Uk\u0142ad Proxima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112899
+    m_Localized: "Uk\u0142ad Rigel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112900
+    m_Localized: "Nie pokazuj wi\u0119cej samouczka"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112901
+    m_Localized: Odbierz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112902
+    m_Localized: Odebrano
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112903
+    m_Localized: Kupiono
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112904
+    m_Localized: "Za\u0142oga"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112905
+    m_Localized: CODZIENNE NAGRODY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112906
+    m_Localized: Flota
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112907
+    m_Localized: "Po\u0142\u0105cz"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112908
+    m_Localized: Priorytet rakiet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307200
+    m_Localized: NAGRODY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307201
+    m_Localized: SKLEP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307202
+    m_Localized: TECHNOLOGIE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307203
+    m_Localized: Nazwa statku
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307204
+    m_Localized: "Wpisz nazw\u0119"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307205
+    m_Localized: Pancerz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307206
+    m_Localized: Kokpit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307207
+    m_Localized: "Generator i reaktor j\u0105drowy"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307208
+    m_Localized: Silnik odrzutowy i jonowy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307209
+    m_Localized: "Bro\u0144 kinetyczna"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307210
+    m_Localized: "Bro\u0144 laserowa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307211
+    m_Localized: Rakiety
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307212
+    m_Localized: "Bro\u0144 plazmowa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307213
+    m_Localized: Naprawa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307214
+    m_Localized: Tarcza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307215
+    m_Localized: Obrona
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307216
+    m_Localized: Silnik
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307217
+    m_Localized: Generator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307218
+    m_Localized: Meteor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307219
+    m_Localized: Ruch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307220
+    m_Localized: "Bro\u0144"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307221
+    m_Localized: "Bro\u0144"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501504
+    m_Localized: "ZWYCI\u0118STWO!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501505
+    m_Localized: "PORA\u017BKA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501506
+    m_Localized: "\u0141adowanie..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501507
+    m_Localized: Do zapisania statku potrzebny jest kokpit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501508
+    m_Localized: "Wszystkie bloki musz\u0105 by\u0107 po\u0142\u0105czone z kokpitem"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501509
+    m_Localized: "Za ma\u0142o zasob\xF3w"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501510
+    m_Localized: "Za ma\u0142o monet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695808
+    m_Localized: Zakup oczekuje na potwierdzenie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695809
+    m_Localized: "Zakup zako\u0144czony"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695810
+    m_Localized: "Zakupy przywr\xF3cone"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695811
+    m_Localized: "Zakup nie powi\xF3d\u0142 si\u0119"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695812
+    m_Localized: "Sklep jest obecnie niedost\u0119pny"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695813
+    m_Localized: "Witaj na pok\u0142adzie, dow\xF3dco! Tw\xF3j statek jest prawie
+      gotowy do pierwszej bitwy, ale brakuje mu jeszcze jednego dzia\u0142a. Stuknij
+      \u201EBuduj\u201D, aby otworzy\u0107 konstruktor statk\xF3w."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695814
+    m_Localized: "Bloki s\u0105 podzielone na kategorie. Stuknij \u201EBro\u0144\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695815
+    m_Localized: "Przeci\u0105gnij dzia\u0142o na wolne miejsce statku."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695816
+    m_Localized: "Stuknij znacznik wyboru, aby potwierdzi\u0107 budow\u0119."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695817
+    m_Localized: "\u015Awietnie! Stuknij \u201EZapisz\u201D, aby zachowa\u0107 nowy
+      statek."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695818
+    m_Localized: "Statek zapisany. Teraz wyjd\u017A z konstruktora."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695819
+    m_Localized: "Statek jest gotowy do walki. Stuknij \u201EGraj\u201D!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695820
+    m_Localized: "Wybierz \u201EKampania\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695821
+    m_Localized: "Wybierz pierwszy uk\u0142ad gwiezdny."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695822
+    m_Localized: Stuknij poziom 1.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695823
+    m_Localized: "Stuknij \u201EGraj\u201D, aby rozpocz\u0105\u0107 bitw\u0119!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695824
+    m_Localized: "Uko\u0144czono zadanie! Otw\xF3rz \u201ENagrody\u201D, aby odebra\u0107
+      nagrod\u0119."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695825
+    m_Localized: "Stuknij \u201EOdbierz\u201D, aby otrzyma\u0107 nagrod\u0119."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695826
+    m_Localized: "Masz wystarczaj\u0105co punkt\xF3w bada\u0144, aby odblokowa\u0107
+      tarcze! Otw\xF3rz \u201EBadania\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695827
+    m_Localized: "Stuknij tarcz\u0119, aby j\u0105 zbada\u0107. Tarcze zatrzymuj\u0105
+      wrogie strza\u0142y, zanim trafi\u0105 w statek."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695828
+    m_Localized: "Przesuwaj palcem po joysticku, aby sterowa\u0107 statkiem. Dzia\u0142a
+      strzelaj\u0105 same: unikaj wrogich strza\u0142\xF3w i zniszcz wszystkich wrog\xF3w!"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

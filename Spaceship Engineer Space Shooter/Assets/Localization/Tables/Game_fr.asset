@@ -1,0 +1,293 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_fr
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: fr
+  m_SharedData: {fileID: 11400000, guid: e1b602ca10eae4a4cbbefb6b853ba0a0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14219952128
+    m_Localized: JOUER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14387724288
+    m_Localized: "Bient\xF4t..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112896
+    m_Localized: "Bient\xF4t"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112897
+    m_Localized: "Syst\xE8me solaire"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112898
+    m_Localized: "Syst\xE8me Proxima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112899
+    m_Localized: "Syst\xE8me Rigel"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112900
+    m_Localized: Ne plus afficher le tutoriel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112901
+    m_Localized: "R\xE9cup\xE9rer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112902
+    m_Localized: "R\xE9cup\xE9r\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112903
+    m_Localized: "Achet\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112904
+    m_Localized: "\xC9quipage"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112905
+    m_Localized: "R\xC9COMPENSES QUOTIDIENNES"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112906
+    m_Localized: Flotte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112907
+    m_Localized: Fusionner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112908
+    m_Localized: "Priorit\xE9 des missiles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307200
+    m_Localized: "R\xC9COMPENSES"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307201
+    m_Localized: BOUTIQUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307202
+    m_Localized: TECHNOLOGIES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307203
+    m_Localized: Nom du vaisseau
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307204
+    m_Localized: Saisir un nom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307205
+    m_Localized: Blindage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307206
+    m_Localized: Cockpit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307207
+    m_Localized: "G\xE9n\xE9rateur et r\xE9acteur nucl\xE9aire"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307208
+    m_Localized: "Propulseur \xE0 r\xE9action et ionique"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307209
+    m_Localized: "Arme cin\xE9tique"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307210
+    m_Localized: Arme laser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307211
+    m_Localized: Missiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307212
+    m_Localized: "Arme \xE0 plasma"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307213
+    m_Localized: "R\xE9paration"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307214
+    m_Localized: Bouclier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307215
+    m_Localized: "D\xE9fense"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307216
+    m_Localized: Moteur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307217
+    m_Localized: "G\xE9n\xE9rateur"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307218
+    m_Localized: "M\xE9t\xE9ore"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307219
+    m_Localized: "D\xE9placement"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307220
+    m_Localized: Arme
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307221
+    m_Localized: Armes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501504
+    m_Localized: VICTOIRE !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501505
+    m_Localized: "D\xC9FAITE !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501506
+    m_Localized: Chargement...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501507
+    m_Localized: "Un cockpit est n\xE9cessaire pour enregistrer le vaisseau"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501508
+    m_Localized: "Tous les blocs doivent \xEAtre reli\xE9s au cockpit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501509
+    m_Localized: Ressources insuffisantes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501510
+    m_Localized: "Pas assez de pi\xE8ces"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695808
+    m_Localized: Achat en attente de confirmation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695809
+    m_Localized: "Achat effectu\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695810
+    m_Localized: "Achats restaur\xE9s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695811
+    m_Localized: "L'achat a \xE9chou\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695812
+    m_Localized: La boutique est actuellement indisponible
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695813
+    m_Localized: "Bienvenue \xE0 bord, commandant ! Votre vaisseau est presque pr\xEAt
+      pour son premier combat, mais il lui manque encore un canon. Touchez \xAB Construire
+      \xBB pour ouvrir le chantier naval."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695814
+    m_Localized: "Les blocs sont class\xE9s par cat\xE9gories. Touchez \xAB Armes
+      \xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695815
+    m_Localized: Faites glisser le canon sur l'emplacement libre de votre vaisseau.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695816
+    m_Localized: Touchez la coche pour confirmer la construction.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695817
+    m_Localized: "Bien jou\xE9 ! Touchez \xAB Enregistrer \xBB pour garder votre
+      nouveau vaisseau."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695818
+    m_Localized: "Votre vaisseau est enregistr\xE9. Quittez maintenant le chantier
+      naval."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695819
+    m_Localized: "Votre vaisseau est pr\xEAt au combat. Touchez \xAB Jouer \xBB !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695820
+    m_Localized: "Choisissez \xAB Campagne \xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695821
+    m_Localized: "S\xE9lectionnez le premier syst\xE8me stellaire."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695822
+    m_Localized: Touchez le niveau 1.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695823
+    m_Localized: "Touchez \xAB Jouer \xBB pour lancer le combat !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695824
+    m_Localized: "Vous avez accompli une t\xE2che ! Ouvrez \xAB R\xE9compenses \xBB
+      pour r\xE9cup\xE9rer votre prix."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695825
+    m_Localized: "Touchez \xAB R\xE9cup\xE9rer \xBB pour obtenir votre r\xE9compense."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695826
+    m_Localized: "Vous avez assez de points de recherche pour d\xE9bloquer les boucliers
+      ! Ouvrez \xAB Recherche \xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695827
+    m_Localized: "Touchez le bouclier pour le rechercher. Les boucliers arr\xEAtent
+      les tirs ennemis avant qu'ils ne touchent votre vaisseau."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695828
+    m_Localized: "D\xE9placez votre doigt sur le joystick pour piloter votre vaisseau.
+      Vos canons tirent tout seuls : esquivez les tirs ennemis et d\xE9truisez tous
+      les ennemis !"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

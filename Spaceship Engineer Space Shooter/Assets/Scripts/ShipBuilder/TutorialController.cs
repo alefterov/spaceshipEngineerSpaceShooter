@@ -53,6 +53,8 @@ public class TutorialController : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRun() => dismissedThisRun = false;
 
+    public static void AllowAgain() => dismissedThisRun = false;
+
     private void Start()
     {
         rootCanvas = root != null ? root.GetComponentInParent<Canvas>().rootCanvas : null;
@@ -81,6 +83,15 @@ public class TutorialController : MonoBehaviour
 
         HideAll();
     }
+
+    private void ShowStepText()
+    {
+        if (textLabel != null && current != null) textLabel.text = L10n.Tr(current.text);
+    }
+
+    private void OnEnable() => L10n.Changed += ShowStepText;
+
+    private void OnDisable() => L10n.Changed -= ShowStepText;
 
     private void OnClosePressed()
     {
@@ -200,7 +211,7 @@ public class TutorialController : MonoBehaviour
         dropCell = null;
         dropBlockCount = -1;
         blockCountAtStart = playerShip != null ? playerShip.Blocks.Count() : 0;
-        if (textLabel != null && step != null) textLabel.text = step.text;
+        ShowStepText();
         if (dontShowToggle != null) dontShowToggle.SetIsOnWithoutNotify(false);
     }
 

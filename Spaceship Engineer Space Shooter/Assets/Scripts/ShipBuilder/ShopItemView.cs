@@ -22,7 +22,7 @@ public class ShopItemView : MonoBehaviour
     public GameObject ownedMark;
 
     [Header("Texts")]
-    public string ownedText = "Куплено";
+    public string ownedText = "Purchased";
 
     private ShopPanel panel;
 
@@ -63,7 +63,7 @@ public class ShopItemView : MonoBehaviour
 
         if (priceLabel != null)
         {
-            priceLabel.text = owned ? ownedText
+            priceLabel.text = owned ? L10n.Tr(ownedText)
                 : product.IsRealMoney ? (IAPManager.Instance != null ? IAPManager.Instance.GetPriceText(product) : product.fallbackPriceText)
                 : NumberFormat.Compact(product.coinPrice);
         }

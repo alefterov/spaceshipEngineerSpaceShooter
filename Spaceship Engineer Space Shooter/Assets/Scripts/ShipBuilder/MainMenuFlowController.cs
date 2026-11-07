@@ -27,9 +27,9 @@ public class MainMenuFlowController : MonoBehaviour
     [Tooltip("Optional — shown when the player tries to save a ship with no cockpit.")]
     public MessageToast messageToast;
     [Tooltip("Text shown by messageToast when a save is blocked for missing a cockpit.")]
-    public string cockpitRequiredMessage = "Кокпит обязателен для сохранения корабля";
+    public string cockpitRequiredMessage = "Cockpit is required to save the ship";
     [Tooltip("Text shown by messageToast when a save is blocked because some blocks are not connected to the rest of the ship.")]
-    public string disconnectedBlocksMessage = "Все блоки должны быть соединены с кокпитом";
+    public string disconnectedBlocksMessage = "All blocks must be connected to the cockpit";
 
     [Header("Game mode selection")]
     [Tooltip("Popup listing game modes (Campaign, Survival, ...). Shown when Play is pressed.")]

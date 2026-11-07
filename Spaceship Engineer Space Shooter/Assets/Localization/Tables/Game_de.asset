@@ -1,0 +1,291 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: e1b602ca10eae4a4cbbefb6b853ba0a0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14219952128
+    m_Localized: SPIELEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14387724288
+    m_Localized: "Demn\xE4chst..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112896
+    m_Localized: "Demn\xE4chst"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112897
+    m_Localized: Sonnensystem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112898
+    m_Localized: Proxima-System
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112899
+    m_Localized: Rigel-System
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112900
+    m_Localized: Tutorial nicht mehr anzeigen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112901
+    m_Localized: Abholen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112902
+    m_Localized: Abgeholt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112903
+    m_Localized: Gekauft
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112904
+    m_Localized: Crew
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112905
+    m_Localized: "T\xC4GLICHE BELOHNUNGEN"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112906
+    m_Localized: Flotte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112907
+    m_Localized: "Zusammenf\xFChren"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112908
+    m_Localized: "Raketen-Priorit\xE4t"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307200
+    m_Localized: BELOHNUNGEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307201
+    m_Localized: SHOP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307202
+    m_Localized: TECHNOLOGIEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307203
+    m_Localized: Schiffsname
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307204
+    m_Localized: Namen eingeben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307205
+    m_Localized: Panzerung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307206
+    m_Localized: Cockpit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307207
+    m_Localized: Generator & Kernreaktor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307208
+    m_Localized: "D\xFCsen- & Ionentriebwerk"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307209
+    m_Localized: Kinetische Waffe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307210
+    m_Localized: Laserwaffe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307211
+    m_Localized: Raketen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307212
+    m_Localized: Plasmawaffe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307213
+    m_Localized: Reparatur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307214
+    m_Localized: Schild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307215
+    m_Localized: Verteidigung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307216
+    m_Localized: Triebwerk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307217
+    m_Localized: Generator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307218
+    m_Localized: Meteor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307219
+    m_Localized: Bewegung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307220
+    m_Localized: Waffe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307221
+    m_Localized: Waffen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501504
+    m_Localized: SIEG!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501505
+    m_Localized: NIEDERLAGE!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501506
+    m_Localized: Wird geladen...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501507
+    m_Localized: "Zum Speichern des Schiffs ist ein Cockpit n\xF6tig"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501508
+    m_Localized: "Alle Bl\xF6cke m\xFCssen mit dem Cockpit verbunden sein"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501509
+    m_Localized: Nicht genug Ressourcen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501510
+    m_Localized: "Nicht genug M\xFCnzen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695808
+    m_Localized: "Kauf wartet auf Best\xE4tigung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695809
+    m_Localized: Kauf abgeschlossen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695810
+    m_Localized: "K\xE4ufe wiederhergestellt"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695811
+    m_Localized: Kauf fehlgeschlagen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695812
+    m_Localized: "Der Shop ist derzeit nicht verf\xFCgbar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695813
+    m_Localized: "Willkommen an Bord, Commander! Dein Schiff ist fast bereit f\xFCr
+      seinen ersten Kampf, aber ein Gesch\xFCtz fehlt noch. Tippe auf \u201EBauen\u201C,
+      um die Werft zu \xF6ffnen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695814
+    m_Localized: "Bl\xF6cke sind nach Kategorien sortiert. Tippe auf \u201EWaffen\u201C."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695815
+    m_Localized: "Ziehe das Gesch\xFCtz auf den freien Platz deines Schiffs."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695816
+    m_Localized: "Tippe auf das H\xE4kchen, um den Bau zu best\xE4tigen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695817
+    m_Localized: "Gut gemacht! Tippe auf \u201ESpeichern\u201C, um dein neues Schiff
+      zu behalten."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695818
+    m_Localized: Dein Schiff ist gespeichert. Verlasse jetzt die Werft.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695819
+    m_Localized: "Dein Schiff ist kampfbereit. Tippe auf \u201ESpielen\u201C!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695820
+    m_Localized: "W\xE4hle \u201EKampagne\u201C."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695821
+    m_Localized: "W\xE4hle das erste Sternensystem."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695822
+    m_Localized: Tippe auf Level 1.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695823
+    m_Localized: "Tippe auf \u201ESpielen\u201C, um den Kampf zu starten!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695824
+    m_Localized: "Du hast eine Aufgabe erf\xFCllt! \xD6ffne \u201EBelohnungen\u201C,
+      um deinen Preis abzuholen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695825
+    m_Localized: "Tippe auf \u201EAbholen\u201C, um deine Belohnung zu erhalten."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695826
+    m_Localized: "Du hast genug Forschungspunkte, um Schilde freizuschalten! \xD6ffne
+      \u201EForschung\u201C."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695827
+    m_Localized: "Tippe auf den Schild, um ihn zu erforschen. Schilde stoppen feindliche
+      Sch\xFCsse, bevor sie dein Schiff treffen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695828
+    m_Localized: "Bewege den Finger auf dem Joystick, um dein Schiff zu steuern.
+      Deine Gesch\xFCtze feuern von selbst: Weiche feindlichen Sch\xFCssen aus und
+      vernichte alle Gegner!"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

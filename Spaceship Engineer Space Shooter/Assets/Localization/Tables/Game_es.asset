@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_es
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: e1b602ca10eae4a4cbbefb6b853ba0a0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14219952128
+    m_Localized: JUGAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14387724288
+    m_Localized: "Pr\xF3ximamente..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112896
+    m_Localized: "Pr\xF3ximamente"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112897
+    m_Localized: Sistema Solar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112898
+    m_Localized: "Sistema Pr\xF3xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112899
+    m_Localized: Sistema Rigel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112900
+    m_Localized: No volver a mostrar el tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112901
+    m_Localized: Reclamar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112902
+    m_Localized: Reclamado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112903
+    m_Localized: Comprado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112904
+    m_Localized: "Tripulaci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112905
+    m_Localized: RECOMPENSAS DIARIAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112906
+    m_Localized: Flota
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112907
+    m_Localized: Fusionar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112908
+    m_Localized: Prioridad de misiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307200
+    m_Localized: RECOMPENSAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307201
+    m_Localized: TIENDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307202
+    m_Localized: "TECNOLOG\xCDAS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307203
+    m_Localized: Nombre de la nave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307204
+    m_Localized: Introduce un nombre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307205
+    m_Localized: Blindaje
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307206
+    m_Localized: Cabina
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307207
+    m_Localized: Generador y reactor nuclear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307208
+    m_Localized: "Propulsor a reacci\xF3n e i\xF3nico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307209
+    m_Localized: "Arma cin\xE9tica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307210
+    m_Localized: "Arma l\xE1ser"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307211
+    m_Localized: Misiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307212
+    m_Localized: Arma de plasma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307213
+    m_Localized: "Reparaci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307214
+    m_Localized: Escudo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307215
+    m_Localized: Defensa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307216
+    m_Localized: Motor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307217
+    m_Localized: Generador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307218
+    m_Localized: Meteorito
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307219
+    m_Localized: Movimiento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307220
+    m_Localized: Arma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307221
+    m_Localized: Armas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501504
+    m_Localized: "\xA1VICTORIA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501505
+    m_Localized: "\xA1DERROTA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501506
+    m_Localized: Cargando...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501507
+    m_Localized: Se necesita una cabina para guardar la nave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501508
+    m_Localized: Todos los bloques deben estar conectados a la cabina
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501509
+    m_Localized: Recursos insuficientes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501510
+    m_Localized: No tienes suficientes monedas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695808
+    m_Localized: "Compra pendiente de confirmaci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695809
+    m_Localized: Compra completada
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695810
+    m_Localized: Compras restauradas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695811
+    m_Localized: La compra ha fallado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695812
+    m_Localized: "La tienda no est\xE1 disponible en este momento"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695813
+    m_Localized: "\xA1Bienvenido a bordo, comandante! Tu nave est\xE1 casi lista
+      para su primera batalla, pero a\xFAn le falta un ca\xF1\xF3n. Toca \xABConstruir\xBB
+      para abrir el astillero."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695814
+    m_Localized: "Los bloques est\xE1n ordenados por categor\xEDas. Toca \xABArmas\xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695815
+    m_Localized: "Arrastra el ca\xF1\xF3n al hueco libre de tu nave."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695816
+    m_Localized: "Toca la marca de verificaci\xF3n para confirmar la construcci\xF3n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695817
+    m_Localized: "\xA1Bien hecho! Toca \xABGuardar\xBB para conservar tu nueva nave."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695818
+    m_Localized: "Tu nave est\xE1 guardada. Ahora sal del astillero."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695819
+    m_Localized: "Tu nave est\xE1 lista para la batalla. \xA1Toca \xABJugar\xBB!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695820
+    m_Localized: "Elige \xABCampa\xF1a\xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695821
+    m_Localized: Selecciona el primer sistema estelar.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695822
+    m_Localized: Toca el nivel 1.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695823
+    m_Localized: "\xA1Toca \xABJugar\xBB para empezar la batalla!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695824
+    m_Localized: "\xA1Has completado una tarea! Abre \xABRecompensas\xBB para recoger
+      tu premio."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695825
+    m_Localized: "Toca \xABReclamar\xBB para obtener tu recompensa."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695826
+    m_Localized: "\xA1Tienes suficientes puntos de investigaci\xF3n para desbloquear
+      los escudos! Abre \xABInvestigaci\xF3n\xBB."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695827
+    m_Localized: Toca el escudo para investigarlo. Los escudos detienen los disparos
+      enemigos antes de que alcancen tu nave.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695828
+    m_Localized: "Mueve el dedo por el joystick para pilotar tu nave. Tus ca\xF1ones
+      disparan solos: \xA1esquiva los disparos enemigos y destruye a todos los enemigos!"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

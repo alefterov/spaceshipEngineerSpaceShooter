@@ -18,7 +18,7 @@ public class MessageToast : MonoBehaviour
     {
         if (label == null) return;
 
-        label.text = message;
+        label.text = L10n.Tr(message);
         label.gameObject.SetActive(true);
 
         if (hideRoutine != null) StopCoroutine(hideRoutine);

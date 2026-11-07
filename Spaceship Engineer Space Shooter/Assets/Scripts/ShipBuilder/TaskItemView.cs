@@ -62,7 +62,7 @@ public class TaskItemView : MonoBehaviour
         if (progressLabel != null) progressLabel.text = $"{NumberFormat.Compact(progress)} / {NumberFormat.Compact(target)}";
 
         if (claimButton != null) claimButton.interactable = done && !claimed;
-        if (claimLabel != null) claimLabel.text = claimed ? claimedText : claimText;
+        if (claimLabel != null) claimLabel.text = L10n.Tr(claimed ? claimedText : claimText);
         if (claimedMark != null) claimedMark.SetActive(claimed);
         group.alpha = claimed ? claimedAlpha : 1f;
     }

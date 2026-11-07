@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -16,6 +17,8 @@ public class GameMenuController : MonoBehaviour
     [Header("Leaving")]
     [Tooltip("Quits the game.")]
     public Button exitButton;
+    [Tooltip("Starts the tutorial over and closes the menu. Empty = a child named TutorialButton.")]
+    public Button tutorialButton;
     [Tooltip("Back to the main scene. Shown ONLY in the battle scene; hidden everywhere else.")]
     public Button homeButton;
     [Tooltip("The scene Home leads to.")]
@@ -36,6 +39,12 @@ public class GameMenuController : MonoBehaviour
         if (menuPanel != null) menuPanel.SetActive(false);
 
         if (homeButton != null) homeButton.gameObject.SetActive(InBattleScene);
+
+        if (tutorialButton == null && menuPanel != null)
+        {
+            var found = menuPanel.GetComponentsInChildren<Button>(true).FirstOrDefault(b => b.name == "TutorialButton");
+            if (found != null) tutorialButton = found;
+        }
     }
 
     private void OnEnable()
@@ -44,6 +53,7 @@ public class GameMenuController : MonoBehaviour
         if (closeButton != null) closeButton.onClick.AddListener(Close);
         if (exitButton != null) exitButton.onClick.AddListener(ExitGame);
         if (homeButton != null) homeButton.onClick.AddListener(GoHome);
+        if (tutorialButton != null) tutorialButton.onClick.AddListener(RestartTutorial);
     }
 
     private void OnDisable()
@@ -52,6 +62,7 @@ public class GameMenuController : MonoBehaviour
         if (closeButton != null) closeButton.onClick.RemoveListener(Close);
         if (exitButton != null) exitButton.onClick.RemoveListener(ExitGame);
         if (homeButton != null) homeButton.onClick.RemoveListener(GoHome);
+        if (tutorialButton != null) tutorialButton.onClick.RemoveListener(RestartTutorial);
 
         Resume();
     }
@@ -95,6 +106,14 @@ public class GameMenuController : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    public void RestartTutorial()
+    {
+        var data = GameDataManager.Instance;
+        if (data != null) data.ResetTutorial();
+        TutorialController.AllowAgain();
+        Close();
     }
 
     public void GoHome()

@@ -1,0 +1,616 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Game Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Game
+  m_TableCollectionNameGuidString: e1b602ca10eae4a4cbbefb6b853ba0a0
+  m_Entries:
+  - m_Id: 14219952128
+    m_Key: PLAY
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434624
+  - m_Id: 14387724288
+    m_Key: Coming soon...
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434625
+  - m_Id: 14396112896
+    m_Key: Coming Sooon
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434626
+  - m_Id: 14396112897
+    m_Key: Solar System
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434627
+  - m_Id: 14396112898
+    m_Key: Proxima System
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434628
+  - m_Id: 14396112899
+    m_Key: Rigel System
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434629
+  - m_Id: 14396112900
+    m_Key: Don't show the tutorial again
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434630
+  - m_Id: 14396112901
+    m_Key: Claim
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434631
+  - m_Id: 14396112902
+    m_Key: Claimed
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434632
+  - m_Id: 14396112903
+    m_Key: Purchased
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434633
+  - m_Id: 14396112904
+    m_Key: Crew
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434634
+  - m_Id: 14396112905
+    m_Key: DAILY REWARDS
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434635
+  - m_Id: 14396112906
+    m_Key: Fleet
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434636
+  - m_Id: 14396112907
+    m_Key: Merge
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434637
+  - m_Id: 14396112908
+    m_Key: Missile Priority
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434638
+  - m_Id: 14400307200
+    m_Key: REWARDS
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434639
+  - m_Id: 14400307201
+    m_Key: SHOP
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434640
+  - m_Id: 14400307202
+    m_Key: TECHNOLOGIES
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434641
+  - m_Id: 14400307203
+    m_Key: Ship Name
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434642
+  - m_Id: 14400307204
+    m_Key: Enter Name
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434643
+  - m_Id: 14400307205
+    m_Key: Armor
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434644
+  - m_Id: 14400307206
+    m_Key: Cockpit
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434645
+  - m_Id: 14400307207
+    m_Key: Generator & Nuclear Reactor
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434646
+  - m_Id: 14400307208
+    m_Key: Jet & Ion Thraster
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434647
+  - m_Id: 14400307209
+    m_Key: Kinetic Weapon
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434648
+  - m_Id: 14400307210
+    m_Key: Laser Weapon
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434649
+  - m_Id: 14400307211
+    m_Key: Missile
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434650
+  - m_Id: 14400307212
+    m_Key: Plasma Weapon
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434651
+  - m_Id: 14400307213
+    m_Key: Repair
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434652
+  - m_Id: 14400307214
+    m_Key: Shield
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434653
+  - m_Id: 14400307215
+    m_Key: Defense
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434654
+  - m_Id: 14400307216
+    m_Key: Engine
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434655
+  - m_Id: 14400307217
+    m_Key: Generator
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434656
+  - m_Id: 14400307218
+    m_Key: Meteor
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434657
+  - m_Id: 14400307219
+    m_Key: Movement
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434658
+  - m_Id: 14400307220
+    m_Key: Weapon
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434659
+  - m_Id: 14400307221
+    m_Key: Weapons
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434660
+  - m_Id: 14404501504
+    m_Key: YOU WIN!
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434661
+  - m_Id: 14404501505
+    m_Key: YOU LOSE!
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434662
+  - m_Id: 14404501506
+    m_Key: Loading...
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434663
+  - m_Id: 14404501507
+    m_Key: Cockpit is required to save the ship
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434664
+  - m_Id: 14404501508
+    m_Key: All blocks must be connected to the cockpit
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434665
+  - m_Id: 14404501509
+    m_Key: Not enough resources
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434666
+  - m_Id: 14404501510
+    m_Key: Not enough coins
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434667
+  - m_Id: 14408695808
+    m_Key: Purchase awaiting confirmation
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434668
+  - m_Id: 14408695809
+    m_Key: Purchase completed
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434669
+  - m_Id: 14408695810
+    m_Key: Purchases restored
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434670
+  - m_Id: 14408695811
+    m_Key: The purchase failed
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434671
+  - m_Id: 14408695812
+    m_Key: The store is currently unavailable
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434672
+  - m_Id: 14408695813
+    m_Key: Welcome aboard, Commander! Your ship is almost ready for its first battle,
+      but one gun is still missing. Tap Build to open the ship builder.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434673
+  - m_Id: 14408695814
+    m_Key: Blocks are sorted into categories. Tap Weapons.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434674
+  - m_Id: 14408695815
+    m_Key: Drag the gun onto the free spot of your ship.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434675
+  - m_Id: 14408695816
+    m_Key: Tap the check mark to confirm the build.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434676
+  - m_Id: 14408695817
+    m_Key: Well done! Tap Save to keep your new ship.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434677
+  - m_Id: 14408695818
+    m_Key: Your ship is saved. Now leave the builder.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434678
+  - m_Id: 14408695819
+    m_Key: Your ship is ready for battle. Tap Play!
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434679
+  - m_Id: 14408695820
+    m_Key: Choose Campaign.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434680
+  - m_Id: 14408695821
+    m_Key: Select the first star system.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434681
+  - m_Id: 14408695822
+    m_Key: Tap level 1.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434682
+  - m_Id: 14408695823
+    m_Key: Tap Play to launch the battle!
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434683
+  - m_Id: 14408695824
+    m_Key: You've completed a task! Open Rewards to collect your prize.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434684
+  - m_Id: 14408695825
+    m_Key: Tap Claim to get your reward.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434685
+  - m_Id: 14408695826
+    m_Key: You have enough research points to unlock shields! Open Research.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434686
+  - m_Id: 14408695827
+    m_Key: Tap the shield to research it. Shields stop enemy shots before they hit
+      your ship.
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434687
+  - m_Id: 14408695828
+    m_Key: 'Move your finger on the joystick to fly your ship. Your guns fire on
+      their own: dodge enemy shots and destroy every enemy!'
+    m_Metadata:
+      m_Items:
+      - rid: 3148367012707434688
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3148367012707434622
+  references:
+    version: 2
+    RefIds:
+    - rid: 3148367012707434622
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1794046614984
+    - rid: 3148367012707434624
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Main menu button
+    - rid: 3148367012707434625
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Locked campaign button
+    - rid: 3148367012707434626
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Locked campaign button (test object)
+    - rid: 3148367012707434627
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Campaign button: star system name'
+    - rid: 3148367012707434628
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Campaign button: star system name'
+    - rid: 3148367012707434629
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Campaign button: star system name'
+    - rid: 3148367012707434630
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial window toggle
+    - rid: 3148367012707434631
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Task button: take the reward'
+    - rid: 3148367012707434632
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Task button: reward already taken'
+    - rid: 3148367012707434633
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop item already bought
+    - rid: 3148367012707434634
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Title / button
+    - rid: 3148367012707434635
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Panel title
+    - rid: 3148367012707434636
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Panel title
+    - rid: 3148367012707434637
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Crew merge button
+    - rid: 3148367012707434638
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Battle window title
+    - rid: 3148367012707434639
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Panel title
+    - rid: 3148367012707434640
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Panel title
+    - rid: 3148367012707434641
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Panel title
+    - rid: 3148367012707434642
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Fleet: ship name caption'
+    - rid: 3148367012707434643
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Fleet: empty name field hint'
+    - rid: 3148367012707434644
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434645
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434646
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434647
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category (engines)
+    - rid: 3148367012707434648
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434649
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434650
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434651
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434652
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434653
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Block category
+    - rid: 3148367012707434654
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434655
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434656
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434657
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434658
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434659
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434660
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Target priority item
+    - rid: 3148367012707434661
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Battle result
+    - rid: 3148367012707434662
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Battle result
+    - rid: 3148367012707434663
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Loading screen
+    - rid: 3148367012707434664
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Warning: save without a cockpit'
+    - rid: 3148367012707434665
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Warning: blocks not connected'
+    - rid: 3148367012707434666
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: 'Warning: cannot afford a new ship'
+    - rid: 3148367012707434667
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434668
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434669
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434670
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434671
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434672
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Shop message
+    - rid: 3148367012707434673
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434674
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434675
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434676
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434677
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434678
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434679
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434680
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434681
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434682
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434683
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434684
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434685
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434686
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434687
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial
+    - rid: 3148367012707434688
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Tutorial (battle)

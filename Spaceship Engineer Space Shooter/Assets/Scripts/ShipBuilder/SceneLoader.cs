@@ -176,7 +176,7 @@ public class SceneLoader : MonoBehaviour
         background.color = new Color(0.02f, 0.04f, 0.07f, 1f);
 
         var label = NewChild<TextMeshProUGUI>("Label", canvasObject.transform);
-        label.text = "Loading...";
+        label.text = L10n.Tr("Loading...");
         label.fontSize = 56;
         label.alignment = TextAlignmentOptions.Center;
         label.color = new Color(0.7294f, 0.949f, 0.984f);

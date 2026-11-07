@@ -1,0 +1,1056 @@
+{
+  "languages": [
+    "en",
+    "uk",
+    "ru",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pl",
+    "zh-Hans",
+    "ko"
+  ],
+  "entries": [
+    {
+      "key": "PLAY",
+      "context": "Main menu button",
+      "values": [
+        "PLAY",
+        "ГРАТИ",
+        "ИГРАТЬ",
+        "SPIELEN",
+        "JOUER",
+        "JUGAR",
+        "GIOCA",
+        "GRAJ",
+        "开始游戏",
+        "플레이"
+      ]
+    },
+    {
+      "key": "Coming soon...",
+      "context": "Locked campaign button",
+      "values": [
+        "Coming soon...",
+        "Незабаром...",
+        "Скоро...",
+        "Demnächst...",
+        "Bientôt...",
+        "Próximamente...",
+        "Prossimamente...",
+        "Wkrótce...",
+        "敬请期待...",
+        "곧 출시..."
+      ]
+    },
+    {
+      "key": "Coming Sooon",
+      "context": "Locked campaign button (test object)",
+      "values": [
+        "Coming Sooon",
+        "Незабаром",
+        "Скоро",
+        "Demnächst",
+        "Bientôt",
+        "Próximamente",
+        "Prossimamente",
+        "Wkrótce",
+        "敬请期待",
+        "곧 출시"
+      ]
+    },
+    {
+      "key": "Solar System",
+      "context": "Campaign button: star system name",
+      "values": [
+        "Solar System",
+        "Сонячна система",
+        "Солнечная система",
+        "Sonnensystem",
+        "Système solaire",
+        "Sistema Solar",
+        "Sistema Solare",
+        "Układ Słoneczny",
+        "太阳系",
+        "태양계"
+      ]
+    },
+    {
+      "key": "Proxima System",
+      "context": "Campaign button: star system name",
+      "values": [
+        "Proxima System",
+        "Система Проксима",
+        "Система Проксима",
+        "Proxima-System",
+        "Système Proxima",
+        "Sistema Próxima",
+        "Sistema Proxima",
+        "Układ Proxima",
+        "比邻星系",
+        "프록시마 성계"
+      ]
+    },
+    {
+      "key": "Rigel System",
+      "context": "Campaign button: star system name",
+      "values": [
+        "Rigel System",
+        "Система Рігель",
+        "Система Ригель",
+        "Rigel-System",
+        "Système Rigel",
+        "Sistema Rigel",
+        "Sistema Rigel",
+        "Układ Rigel",
+        "参宿七星系",
+        "리겔 성계"
+      ]
+    },
+    {
+      "key": "Don't show the tutorial again",
+      "context": "Tutorial window toggle",
+      "values": [
+        "Don't show the tutorial again",
+        "Більше не показувати навчання",
+        "Больше не показывать обучение",
+        "Tutorial nicht mehr anzeigen",
+        "Ne plus afficher le tutoriel",
+        "No volver a mostrar el tutorial",
+        "Non mostrare più il tutorial",
+        "Nie pokazuj więcej samouczka",
+        "不再显示教程",
+        "튜토리얼 다시 보지 않기"
+      ]
+    },
+    {
+      "key": "Claim",
+      "context": "Task button: take the reward",
+      "values": [
+        "Claim",
+        "Забрати",
+        "Забрать",
+        "Abholen",
+        "Récupérer",
+        "Reclamar",
+        "Riscuoti",
+        "Odbierz",
+        "领取",
+        "받기"
+      ]
+    },
+    {
+      "key": "Claimed",
+      "context": "Task button: reward already taken",
+      "values": [
+        "Claimed",
+        "Отримано",
+        "Получено",
+        "Abgeholt",
+        "Récupéré",
+        "Reclamado",
+        "Riscosso",
+        "Odebrano",
+        "已领取",
+        "받음"
+      ]
+    },
+    {
+      "key": "Purchased",
+      "context": "Shop item already bought",
+      "values": [
+        "Purchased",
+        "Куплено",
+        "Куплено",
+        "Gekauft",
+        "Acheté",
+        "Comprado",
+        "Acquistato",
+        "Kupiono",
+        "已购买",
+        "구매함"
+      ]
+    },
+    {
+      "key": "Crew",
+      "context": "Title / button",
+      "values": [
+        "Crew",
+        "Екіпаж",
+        "Экипаж",
+        "Crew",
+        "Équipage",
+        "Tripulación",
+        "Equipaggio",
+        "Załoga",
+        "船员",
+        "승무원"
+      ]
+    },
+    {
+      "key": "DAILY REWARDS",
+      "context": "Panel title",
+      "values": [
+        "DAILY REWARDS",
+        "ЩОДЕННІ НАГОРОДИ",
+        "ЕЖЕДНЕВНЫЕ НАГРАДЫ",
+        "TÄGLICHE BELOHNUNGEN",
+        "RÉCOMPENSES QUOTIDIENNES",
+        "RECOMPENSAS DIARIAS",
+        "RICOMPENSE GIORNALIERE",
+        "CODZIENNE NAGRODY",
+        "每日奖励",
+        "일일 보상"
+      ]
+    },
+    {
+      "key": "Fleet",
+      "context": "Panel title",
+      "values": [
+        "Fleet",
+        "Флот",
+        "Флот",
+        "Flotte",
+        "Flotte",
+        "Flota",
+        "Flotta",
+        "Flota",
+        "舰队",
+        "함대"
+      ]
+    },
+    {
+      "key": "Merge",
+      "context": "Crew merge button",
+      "values": [
+        "Merge",
+        "Об'єднати",
+        "Объединить",
+        "Zusammenführen",
+        "Fusionner",
+        "Fusionar",
+        "Unisci",
+        "Połącz",
+        "合并",
+        "합치기"
+      ]
+    },
+    {
+      "key": "Missile Priority",
+      "context": "Battle window title",
+      "values": [
+        "Missile Priority",
+        "Пріоритет ракет",
+        "Приоритет ракет",
+        "Raketen-Priorität",
+        "Priorité des missiles",
+        "Prioridad de misiles",
+        "Priorità missili",
+        "Priorytet rakiet",
+        "导弹优先级",
+        "미사일 우선순위"
+      ]
+    },
+    {
+      "key": "REWARDS",
+      "context": "Panel title",
+      "values": [
+        "REWARDS",
+        "НАГОРОДИ",
+        "НАГРАДЫ",
+        "BELOHNUNGEN",
+        "RÉCOMPENSES",
+        "RECOMPENSAS",
+        "RICOMPENSE",
+        "NAGRODY",
+        "奖励",
+        "보상"
+      ]
+    },
+    {
+      "key": "SHOP",
+      "context": "Panel title",
+      "values": [
+        "SHOP",
+        "МАГАЗИН",
+        "МАГАЗИН",
+        "SHOP",
+        "BOUTIQUE",
+        "TIENDA",
+        "NEGOZIO",
+        "SKLEP",
+        "商店",
+        "상점"
+      ]
+    },
+    {
+      "key": "TECHNOLOGIES",
+      "context": "Panel title",
+      "values": [
+        "TECHNOLOGIES",
+        "ТЕХНОЛОГІЇ",
+        "ТЕХНОЛОГИИ",
+        "TECHNOLOGIEN",
+        "TECHNOLOGIES",
+        "TECNOLOGÍAS",
+        "TECNOLOGIE",
+        "TECHNOLOGIE",
+        "科技",
+        "기술"
+      ]
+    },
+    {
+      "key": "Ship Name",
+      "context": "Fleet: ship name caption",
+      "values": [
+        "Ship Name",
+        "Назва корабля",
+        "Название корабля",
+        "Schiffsname",
+        "Nom du vaisseau",
+        "Nombre de la nave",
+        "Nome della nave",
+        "Nazwa statku",
+        "舰船名称",
+        "함선 이름"
+      ]
+    },
+    {
+      "key": "Enter Name",
+      "context": "Fleet: empty name field hint",
+      "values": [
+        "Enter Name",
+        "Введіть назву",
+        "Введите название",
+        "Namen eingeben",
+        "Saisir un nom",
+        "Introduce un nombre",
+        "Inserisci un nome",
+        "Wpisz nazwę",
+        "输入名称",
+        "이름 입력"
+      ]
+    },
+    {
+      "key": "Armor",
+      "context": "Block category",
+      "values": [
+        "Armor",
+        "Броня",
+        "Броня",
+        "Panzerung",
+        "Blindage",
+        "Blindaje",
+        "Corazza",
+        "Pancerz",
+        "装甲",
+        "장갑"
+      ]
+    },
+    {
+      "key": "Cockpit",
+      "context": "Block category",
+      "values": [
+        "Cockpit",
+        "Кокпіт",
+        "Кокпит",
+        "Cockpit",
+        "Cockpit",
+        "Cabina",
+        "Cabina",
+        "Kokpit",
+        "驾驶舱",
+        "조종석"
+      ]
+    },
+    {
+      "key": "Generator & Nuclear Reactor",
+      "context": "Block category",
+      "values": [
+        "Generator & Nuclear Reactor",
+        "Генератор і ядерний реактор",
+        "Генератор и ядерный реактор",
+        "Generator & Kernreaktor",
+        "Générateur et réacteur nucléaire",
+        "Generador y reactor nuclear",
+        "Generatore e reattore nucleare",
+        "Generator i reaktor jądrowy",
+        "发电机与核反应堆",
+        "발전기 & 원자로"
+      ]
+    },
+    {
+      "key": "Jet & Ion Thraster",
+      "context": "Block category (engines)",
+      "values": [
+        "Jet & Ion Thraster",
+        "Реактивний та іонний двигун",
+        "Реактивный и ионный двигатель",
+        "Düsen- & Ionentriebwerk",
+        "Propulseur à réaction et ionique",
+        "Propulsor a reacción e iónico",
+        "Propulsore a reazione e ionico",
+        "Silnik odrzutowy i jonowy",
+        "喷气与离子推进器",
+        "제트 & 이온 추진기"
+      ]
+    },
+    {
+      "key": "Kinetic Weapon",
+      "context": "Block category",
+      "values": [
+        "Kinetic Weapon",
+        "Кінетична зброя",
+        "Кинетическое оружие",
+        "Kinetische Waffe",
+        "Arme cinétique",
+        "Arma cinética",
+        "Arma cinetica",
+        "Broń kinetyczna",
+        "动能武器",
+        "운동 에너지 무기"
+      ]
+    },
+    {
+      "key": "Laser Weapon",
+      "context": "Block category",
+      "values": [
+        "Laser Weapon",
+        "Лазерна зброя",
+        "Лазерное оружие",
+        "Laserwaffe",
+        "Arme laser",
+        "Arma láser",
+        "Arma laser",
+        "Broń laserowa",
+        "激光武器",
+        "레이저 무기"
+      ]
+    },
+    {
+      "key": "Missile",
+      "context": "Block category",
+      "values": [
+        "Missile",
+        "Ракети",
+        "Ракеты",
+        "Raketen",
+        "Missiles",
+        "Misiles",
+        "Missili",
+        "Rakiety",
+        "导弹",
+        "미사일"
+      ]
+    },
+    {
+      "key": "Plasma Weapon",
+      "context": "Block category",
+      "values": [
+        "Plasma Weapon",
+        "Плазмова зброя",
+        "Плазменное оружие",
+        "Plasmawaffe",
+        "Arme à plasma",
+        "Arma de plasma",
+        "Arma al plasma",
+        "Broń plazmowa",
+        "等离子武器",
+        "플라즈마 무기"
+      ]
+    },
+    {
+      "key": "Repair",
+      "context": "Block category",
+      "values": [
+        "Repair",
+        "Ремонт",
+        "Ремонт",
+        "Reparatur",
+        "Réparation",
+        "Reparación",
+        "Riparazione",
+        "Naprawa",
+        "维修",
+        "수리"
+      ]
+    },
+    {
+      "key": "Shield",
+      "context": "Block category",
+      "values": [
+        "Shield",
+        "Щит",
+        "Щит",
+        "Schild",
+        "Bouclier",
+        "Escudo",
+        "Scudo",
+        "Tarcza",
+        "护盾",
+        "보호막"
+      ]
+    },
+    {
+      "key": "Defense",
+      "context": "Target priority item",
+      "values": [
+        "Defense",
+        "Оборона",
+        "Оборона",
+        "Verteidigung",
+        "Défense",
+        "Defensa",
+        "Difesa",
+        "Obrona",
+        "防御",
+        "방어"
+      ]
+    },
+    {
+      "key": "Engine",
+      "context": "Target priority item",
+      "values": [
+        "Engine",
+        "Двигун",
+        "Двигатель",
+        "Triebwerk",
+        "Moteur",
+        "Motor",
+        "Motore",
+        "Silnik",
+        "引擎",
+        "엔진"
+      ]
+    },
+    {
+      "key": "Generator",
+      "context": "Target priority item",
+      "values": [
+        "Generator",
+        "Генератор",
+        "Генератор",
+        "Generator",
+        "Générateur",
+        "Generador",
+        "Generatore",
+        "Generator",
+        "发电机",
+        "발전기"
+      ]
+    },
+    {
+      "key": "Meteor",
+      "context": "Target priority item",
+      "values": [
+        "Meteor",
+        "Метеорит",
+        "Метеорит",
+        "Meteor",
+        "Météore",
+        "Meteorito",
+        "Meteora",
+        "Meteor",
+        "陨石",
+        "운석"
+      ]
+    },
+    {
+      "key": "Movement",
+      "context": "Target priority item",
+      "values": [
+        "Movement",
+        "Рух",
+        "Движение",
+        "Bewegung",
+        "Déplacement",
+        "Movimiento",
+        "Movimento",
+        "Ruch",
+        "移动",
+        "이동"
+      ]
+    },
+    {
+      "key": "Weapon",
+      "context": "Target priority item",
+      "values": [
+        "Weapon",
+        "Зброя",
+        "Оружие",
+        "Waffe",
+        "Arme",
+        "Arma",
+        "Arma",
+        "Broń",
+        "武器",
+        "무기"
+      ]
+    },
+    {
+      "key": "Weapons",
+      "context": "Target priority item",
+      "values": [
+        "Weapons",
+        "Зброя",
+        "Оружие",
+        "Waffen",
+        "Armes",
+        "Armas",
+        "Armi",
+        "Broń",
+        "武器",
+        "무기"
+      ]
+    },
+    {
+      "key": "YOU WIN!",
+      "context": "Battle result",
+      "values": [
+        "YOU WIN!",
+        "ПЕРЕМОГА!",
+        "ПОБЕДА!",
+        "SIEG!",
+        "VICTOIRE !",
+        "¡VICTORIA!",
+        "VITTORIA!",
+        "ZWYCIĘSTWO!",
+        "胜利！",
+        "승리!"
+      ]
+    },
+    {
+      "key": "YOU LOSE!",
+      "context": "Battle result",
+      "values": [
+        "YOU LOSE!",
+        "ПОРАЗКА!",
+        "ПОРАЖЕНИЕ!",
+        "NIEDERLAGE!",
+        "DÉFAITE !",
+        "¡DERROTA!",
+        "SCONFITTA!",
+        "PORAŻKA!",
+        "失败！",
+        "패배!"
+      ]
+    },
+    {
+      "key": "Loading...",
+      "context": "Loading screen",
+      "values": [
+        "Loading...",
+        "Завантаження...",
+        "Загрузка...",
+        "Wird geladen...",
+        "Chargement...",
+        "Cargando...",
+        "Caricamento...",
+        "Ładowanie...",
+        "加载中...",
+        "로딩 중..."
+      ]
+    },
+    {
+      "key": "Cockpit is required to save the ship",
+      "context": "Warning: save without a cockpit",
+      "values": [
+        "Cockpit is required to save the ship",
+        "Щоб зберегти корабель, потрібен кокпіт",
+        "Кокпит обязателен для сохранения корабля",
+        "Zum Speichern des Schiffs ist ein Cockpit nötig",
+        "Un cockpit est nécessaire pour enregistrer le vaisseau",
+        "Se necesita una cabina para guardar la nave",
+        "Serve una cabina per salvare la nave",
+        "Do zapisania statku potrzebny jest kokpit",
+        "保存舰船需要驾驶舱",
+        "함선을 저장하려면 조종석이 필요합니다"
+      ]
+    },
+    {
+      "key": "All blocks must be connected to the cockpit",
+      "context": "Warning: blocks not connected",
+      "values": [
+        "All blocks must be connected to the cockpit",
+        "Усі блоки мають бути з'єднані з кокпітом",
+        "Все блоки должны быть соединены с кокпитом",
+        "Alle Blöcke müssen mit dem Cockpit verbunden sein",
+        "Tous les blocs doivent être reliés au cockpit",
+        "Todos los bloques deben estar conectados a la cabina",
+        "Tutti i blocchi devono essere collegati alla cabina",
+        "Wszystkie bloki muszą być połączone z kokpitem",
+        "所有模块都必须与驾驶舱相连",
+        "모든 블록이 조종석과 연결되어야 합니다"
+      ]
+    },
+    {
+      "key": "Not enough resources",
+      "context": "Warning: cannot afford a new ship",
+      "values": [
+        "Not enough resources",
+        "Недостатньо ресурсів",
+        "Недостаточно ресурсов",
+        "Nicht genug Ressourcen",
+        "Ressources insuffisantes",
+        "Recursos insuficientes",
+        "Risorse insufficienti",
+        "Za mało zasobów",
+        "资源不足",
+        "자원이 부족합니다"
+      ]
+    },
+    {
+      "key": "Not enough coins",
+      "context": "Shop message",
+      "values": [
+        "Not enough coins",
+        "Недостатньо монет",
+        "Недостаточно монет",
+        "Nicht genug Münzen",
+        "Pas assez de pièces",
+        "No tienes suficientes monedas",
+        "Monete insufficienti",
+        "Za mało monet",
+        "金币不足",
+        "코인이 부족합니다"
+      ]
+    },
+    {
+      "key": "Purchase awaiting confirmation",
+      "context": "Shop message",
+      "values": [
+        "Purchase awaiting confirmation",
+        "Покупка очікує підтвердження",
+        "Покупка ожидает подтверждения",
+        "Kauf wartet auf Bestätigung",
+        "Achat en attente de confirmation",
+        "Compra pendiente de confirmación",
+        "Acquisto in attesa di conferma",
+        "Zakup oczekuje na potwierdzenie",
+        "购买待确认",
+        "구매 확인 대기 중"
+      ]
+    },
+    {
+      "key": "Purchase completed",
+      "context": "Shop message",
+      "values": [
+        "Purchase completed",
+        "Покупку виконано",
+        "Покупка выполнена",
+        "Kauf abgeschlossen",
+        "Achat effectué",
+        "Compra completada",
+        "Acquisto completato",
+        "Zakup zakończony",
+        "购买成功",
+        "구매가 완료되었습니다"
+      ]
+    },
+    {
+      "key": "Purchases restored",
+      "context": "Shop message",
+      "values": [
+        "Purchases restored",
+        "Покупки відновлено",
+        "Покупки восстановлены",
+        "Käufe wiederhergestellt",
+        "Achats restaurés",
+        "Compras restauradas",
+        "Acquisti ripristinati",
+        "Zakupy przywrócone",
+        "已恢复购买",
+        "구매 내역이 복원되었습니다"
+      ]
+    },
+    {
+      "key": "The purchase failed",
+      "context": "Shop message",
+      "values": [
+        "The purchase failed",
+        "Покупка не вдалася",
+        "Покупка не удалась",
+        "Kauf fehlgeschlagen",
+        "L'achat a échoué",
+        "La compra ha fallado",
+        "Acquisto non riuscito",
+        "Zakup nie powiódł się",
+        "购买失败",
+        "구매에 실패했습니다"
+      ]
+    },
+    {
+      "key": "The store is currently unavailable",
+      "context": "Shop message",
+      "values": [
+        "The store is currently unavailable",
+        "Магазин зараз недоступний",
+        "Магазин сейчас недоступен",
+        "Der Shop ist derzeit nicht verfügbar",
+        "La boutique est actuellement indisponible",
+        "La tienda no está disponible en este momento",
+        "Il negozio non è al momento disponibile",
+        "Sklep jest obecnie niedostępny",
+        "商店暂时无法使用",
+        "현재 상점을 이용할 수 없습니다"
+      ]
+    },
+    {
+      "key": "Welcome aboard, Commander! Your ship is almost ready for its first battle, but one gun is still missing. Tap Build to open the ship builder.",
+      "context": "Tutorial",
+      "values": [
+        "Welcome aboard, Commander! Your ship is almost ready for its first battle, but one gun is still missing. Tap Build to open the ship builder.",
+        "Ласкаво просимо на борт, командире! Ваш корабель майже готовий до першого бою, але бракує однієї гармати. Натисніть «Будувати», щоб відкрити конструктор кораблів.",
+        "Добро пожаловать на борт, командир! Ваш корабль почти готов к первому бою, но не хватает одной пушки. Нажмите «Строить», чтобы открыть конструктор кораблей.",
+        "Willkommen an Bord, Commander! Dein Schiff ist fast bereit für seinen ersten Kampf, aber ein Geschütz fehlt noch. Tippe auf „Bauen“, um die Werft zu öffnen.",
+        "Bienvenue à bord, commandant ! Votre vaisseau est presque prêt pour son premier combat, mais il lui manque encore un canon. Touchez « Construire » pour ouvrir le chantier naval.",
+        "¡Bienvenido a bordo, comandante! Tu nave está casi lista para su primera batalla, pero aún le falta un cañón. Toca «Construir» para abrir el astillero.",
+        "Benvenuto a bordo, comandante! La tua nave è quasi pronta per la prima battaglia, ma manca ancora un cannone. Tocca «Costruisci» per aprire il cantiere navale.",
+        "Witaj na pokładzie, dowódco! Twój statek jest prawie gotowy do pierwszej bitwy, ale brakuje mu jeszcze jednego działa. Stuknij „Buduj”, aby otworzyć konstruktor statków.",
+        "欢迎登舰，指挥官！你的舰船即将迎来首战，但还缺一门炮。点击“建造”打开舰船建造器。",
+        "지휘관님, 탑승을 환영합니다! 함선이 첫 전투 준비를 거의 마쳤지만 포 하나가 아직 없습니다. '건조'를 눌러 함선 건조기를 여세요."
+      ]
+    },
+    {
+      "key": "Blocks are sorted into categories. Tap Weapons.",
+      "context": "Tutorial",
+      "values": [
+        "Blocks are sorted into categories. Tap Weapons.",
+        "Блоки поділені на категорії. Натисніть «Зброя».",
+        "Блоки разделены на категории. Нажмите «Оружие».",
+        "Blöcke sind nach Kategorien sortiert. Tippe auf „Waffen“.",
+        "Les blocs sont classés par catégories. Touchez « Armes ».",
+        "Los bloques están ordenados por categorías. Toca «Armas».",
+        "I blocchi sono divisi in categorie. Tocca «Armi».",
+        "Bloki są podzielone na kategorie. Stuknij „Broń”.",
+        "模块按类别分类。点击“武器”。",
+        "블록은 카테고리별로 나뉘어 있습니다. '무기'를 누르세요."
+      ]
+    },
+    {
+      "key": "Drag the gun onto the free spot of your ship.",
+      "context": "Tutorial",
+      "values": [
+        "Drag the gun onto the free spot of your ship.",
+        "Перетягніть гармату на вільне місце корабля.",
+        "Перетащите пушку на свободное место корабля.",
+        "Ziehe das Geschütz auf den freien Platz deines Schiffs.",
+        "Faites glisser le canon sur l'emplacement libre de votre vaisseau.",
+        "Arrastra el cañón al hueco libre de tu nave.",
+        "Trascina il cannone nello spazio libero della tua nave.",
+        "Przeciągnij działo na wolne miejsce statku.",
+        "将炮拖到舰船的空位上。",
+        "포를 함선의 빈 자리로 끌어다 놓으세요."
+      ]
+    },
+    {
+      "key": "Tap the check mark to confirm the build.",
+      "context": "Tutorial",
+      "values": [
+        "Tap the check mark to confirm the build.",
+        "Натисніть галочку, щоб підтвердити будівництво.",
+        "Нажмите на галочку, чтобы подтвердить постройку.",
+        "Tippe auf das Häkchen, um den Bau zu bestätigen.",
+        "Touchez la coche pour confirmer la construction.",
+        "Toca la marca de verificación para confirmar la construcción.",
+        "Tocca il segno di spunta per confermare la costruzione.",
+        "Stuknij znacznik wyboru, aby potwierdzić budowę.",
+        "点击对勾确认建造。",
+        "체크 표시를 눌러 건조를 확정하세요."
+      ]
+    },
+    {
+      "key": "Well done! Tap Save to keep your new ship.",
+      "context": "Tutorial",
+      "values": [
+        "Well done! Tap Save to keep your new ship.",
+        "Чудово! Натисніть «Зберегти», щоб зберегти новий корабель.",
+        "Отлично! Нажмите «Сохранить», чтобы сохранить новый корабль.",
+        "Gut gemacht! Tippe auf „Speichern“, um dein neues Schiff zu behalten.",
+        "Bien joué ! Touchez « Enregistrer » pour garder votre nouveau vaisseau.",
+        "¡Bien hecho! Toca «Guardar» para conservar tu nueva nave.",
+        "Ottimo lavoro! Tocca «Salva» per tenere la tua nuova nave.",
+        "Świetnie! Stuknij „Zapisz”, aby zachować nowy statek.",
+        "干得好！点击“保存”保留你的新舰船。",
+        "잘했습니다! '저장'을 눌러 새 함선을 저장하세요."
+      ]
+    },
+    {
+      "key": "Your ship is saved. Now leave the builder.",
+      "context": "Tutorial",
+      "values": [
+        "Your ship is saved. Now leave the builder.",
+        "Корабель збережено. Тепер вийдіть із конструктора.",
+        "Корабль сохранён. Теперь выйдите из конструктора.",
+        "Dein Schiff ist gespeichert. Verlasse jetzt die Werft.",
+        "Votre vaisseau est enregistré. Quittez maintenant le chantier naval.",
+        "Tu nave está guardada. Ahora sal del astillero.",
+        "La nave è salvata. Ora esci dal cantiere navale.",
+        "Statek zapisany. Teraz wyjdź z konstruktora.",
+        "舰船已保存。现在退出建造器。",
+        "함선이 저장되었습니다. 이제 건조기를 나가세요."
+      ]
+    },
+    {
+      "key": "Your ship is ready for battle. Tap Play!",
+      "context": "Tutorial",
+      "values": [
+        "Your ship is ready for battle. Tap Play!",
+        "Корабель готовий до бою. Натисніть «Грати»!",
+        "Корабль готов к бою. Нажмите «Играть»!",
+        "Dein Schiff ist kampfbereit. Tippe auf „Spielen“!",
+        "Votre vaisseau est prêt au combat. Touchez « Jouer » !",
+        "Tu nave está lista para la batalla. ¡Toca «Jugar»!",
+        "La tua nave è pronta alla battaglia. Tocca «Gioca»!",
+        "Statek jest gotowy do walki. Stuknij „Graj”!",
+        "舰船已准备好战斗。点击“开始”！",
+        "함선이 전투 준비를 마쳤습니다. '플레이'를 누르세요!"
+      ]
+    },
+    {
+      "key": "Choose Campaign.",
+      "context": "Tutorial",
+      "values": [
+        "Choose Campaign.",
+        "Виберіть «Кампанія».",
+        "Выберите «Кампания».",
+        "Wähle „Kampagne“.",
+        "Choisissez « Campagne ».",
+        "Elige «Campaña».",
+        "Scegli «Campagna».",
+        "Wybierz „Kampania”.",
+        "选择“战役”。",
+        "'캠페인'을 선택하세요."
+      ]
+    },
+    {
+      "key": "Select the first star system.",
+      "context": "Tutorial",
+      "values": [
+        "Select the first star system.",
+        "Виберіть першу зоряну систему.",
+        "Выберите первую звёздную систему.",
+        "Wähle das erste Sternensystem.",
+        "Sélectionnez le premier système stellaire.",
+        "Selecciona el primer sistema estelar.",
+        "Seleziona il primo sistema stellare.",
+        "Wybierz pierwszy układ gwiezdny.",
+        "选择第一个星系。",
+        "첫 번째 성계를 선택하세요."
+      ]
+    },
+    {
+      "key": "Tap level 1.",
+      "context": "Tutorial",
+      "values": [
+        "Tap level 1.",
+        "Натисніть на рівень 1.",
+        "Нажмите на уровень 1.",
+        "Tippe auf Level 1.",
+        "Touchez le niveau 1.",
+        "Toca el nivel 1.",
+        "Tocca il livello 1.",
+        "Stuknij poziom 1.",
+        "点击第 1 关。",
+        "1레벨을 누르세요."
+      ]
+    },
+    {
+      "key": "Tap Play to launch the battle!",
+      "context": "Tutorial",
+      "values": [
+        "Tap Play to launch the battle!",
+        "Натисніть «Грати», щоб почати бій!",
+        "Нажмите «Играть», чтобы начать бой!",
+        "Tippe auf „Spielen“, um den Kampf zu starten!",
+        "Touchez « Jouer » pour lancer le combat !",
+        "¡Toca «Jugar» para empezar la batalla!",
+        "Tocca «Gioca» per iniziare la battaglia!",
+        "Stuknij „Graj”, aby rozpocząć bitwę!",
+        "点击“开始”进入战斗！",
+        "'플레이'를 눌러 전투를 시작하세요!"
+      ]
+    },
+    {
+      "key": "You've completed a task! Open Rewards to collect your prize.",
+      "context": "Tutorial",
+      "values": [
+        "You've completed a task! Open Rewards to collect your prize.",
+        "Ви виконали завдання! Відкрийте «Нагороди», щоб забрати приз.",
+        "Вы выполнили задание! Откройте «Награды», чтобы забрать приз.",
+        "Du hast eine Aufgabe erfüllt! Öffne „Belohnungen“, um deinen Preis abzuholen.",
+        "Vous avez accompli une tâche ! Ouvrez « Récompenses » pour récupérer votre prix.",
+        "¡Has completado una tarea! Abre «Recompensas» para recoger tu premio.",
+        "Hai completato una missione! Apri «Ricompense» per ritirare il premio.",
+        "Ukończono zadanie! Otwórz „Nagrody”, aby odebrać nagrodę.",
+        "你完成了一项任务！打开“奖励”领取奖品。",
+        "과제를 완료했습니다! '보상'을 열어 상품을 받으세요."
+      ]
+    },
+    {
+      "key": "Tap Claim to get your reward.",
+      "context": "Tutorial",
+      "values": [
+        "Tap Claim to get your reward.",
+        "Натисніть «Забрати», щоб отримати нагороду.",
+        "Нажмите «Забрать», чтобы получить награду.",
+        "Tippe auf „Abholen“, um deine Belohnung zu erhalten.",
+        "Touchez « Récupérer » pour obtenir votre récompense.",
+        "Toca «Reclamar» para obtener tu recompensa.",
+        "Tocca «Riscuoti» per ottenere la ricompensa.",
+        "Stuknij „Odbierz”, aby otrzymać nagrodę.",
+        "点击“领取”获得奖励。",
+        "'받기'를 눌러 보상을 받으세요."
+      ]
+    },
+    {
+      "key": "You have enough research points to unlock shields! Open Research.",
+      "context": "Tutorial",
+      "values": [
+        "You have enough research points to unlock shields! Open Research.",
+        "У вас достатньо очок досліджень, щоб відкрити щити! Відкрийте «Дослідження».",
+        "У вас достаточно очков исследований, чтобы открыть щиты! Откройте «Исследования».",
+        "Du hast genug Forschungspunkte, um Schilde freizuschalten! Öffne „Forschung“.",
+        "Vous avez assez de points de recherche pour débloquer les boucliers ! Ouvrez « Recherche ».",
+        "¡Tienes suficientes puntos de investigación para desbloquear los escudos! Abre «Investigación».",
+        "Hai abbastanza punti ricerca per sbloccare gli scudi! Apri «Ricerca».",
+        "Masz wystarczająco punktów badań, aby odblokować tarcze! Otwórz „Badania”.",
+        "你的研究点数足以解锁护盾！打开“研究”。",
+        "보호막을 해금할 연구 포인트가 충분합니다! '연구'를 여세요."
+      ]
+    },
+    {
+      "key": "Tap the shield to research it. Shields stop enemy shots before they hit your ship.",
+      "context": "Tutorial",
+      "values": [
+        "Tap the shield to research it. Shields stop enemy shots before they hit your ship.",
+        "Натисніть на щит, щоб дослідити його. Щити зупиняють ворожі постріли, перш ніж вони влучать у корабель.",
+        "Нажмите на щит, чтобы исследовать его. Щиты останавливают вражеские выстрелы до того, как они попадут в корабль.",
+        "Tippe auf den Schild, um ihn zu erforschen. Schilde stoppen feindliche Schüsse, bevor sie dein Schiff treffen.",
+        "Touchez le bouclier pour le rechercher. Les boucliers arrêtent les tirs ennemis avant qu'ils ne touchent votre vaisseau.",
+        "Toca el escudo para investigarlo. Los escudos detienen los disparos enemigos antes de que alcancen tu nave.",
+        "Tocca lo scudo per ricercarlo. Gli scudi fermano i colpi nemici prima che colpiscano la tua nave.",
+        "Stuknij tarczę, aby ją zbadać. Tarcze zatrzymują wrogie strzały, zanim trafią w statek.",
+        "点击护盾进行研究。护盾能在敌方炮火击中舰船前将其拦下。",
+        "보호막을 눌러 연구하세요. 보호막은 적의 공격이 함선에 닿기 전에 막아 줍니다."
+      ]
+    },
+    {
+      "key": "Move your finger on the joystick to fly your ship. Your guns fire on their own: dodge enemy shots and destroy every enemy!",
+      "context": "Tutorial (battle)",
+      "values": [
+        "Move your finger on the joystick to fly your ship. Your guns fire on their own: dodge enemy shots and destroy every enemy!",
+        "Водіть пальцем по джойстику, щоб керувати кораблем. Гармати стріляють самі: ухиляйтеся від ворожих пострілів і знищте всіх ворогів!",
+        "Водите пальцем по джойстику, чтобы управлять кораблём. Пушки стреляют сами: уклоняйтесь от вражеских выстрелов и уничтожьте всех врагов!",
+        "Bewege den Finger auf dem Joystick, um dein Schiff zu steuern. Deine Geschütze feuern von selbst: Weiche feindlichen Schüssen aus und vernichte alle Gegner!",
+        "Déplacez votre doigt sur le joystick pour piloter votre vaisseau. Vos canons tirent tout seuls : esquivez les tirs ennemis et détruisez tous les ennemis !",
+        "Mueve el dedo por el joystick para pilotar tu nave. Tus cañones disparan solos: ¡esquiva los disparos enemigos y destruye a todos los enemigos!",
+        "Muovi il dito sul joystick per pilotare la nave. I cannoni sparano da soli: schiva i colpi nemici e distruggi tutti i nemici!",
+        "Przesuwaj palcem po joysticku, aby sterować statkiem. Działa strzelają same: unikaj wrogich strzałów i zniszcz wszystkich wrogów!",
+        "在摇杆上移动手指来驾驶舰船。武器会自动开火：躲避敌方炮火，消灭所有敌人！",
+        "조이스틱 위에서 손가락을 움직여 함선을 조종하세요. 포는 자동으로 발사됩니다. 적의 공격을 피하고 모든 적을 파괴하세요!"
+      ]
+    }
+  ]
+}
