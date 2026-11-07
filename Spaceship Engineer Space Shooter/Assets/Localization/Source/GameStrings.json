@@ -9,7 +9,8 @@
     "it",
     "pl",
     "zh-Hans",
-    "ko"
+    "ko",
+    "pt"
   ],
   "entries": [
     {
@@ -25,7 +26,8 @@
         "GIOCA",
         "GRAJ",
         "开始游戏",
-        "플레이"
+        "플레이",
+        "JOGAR"
       ]
     },
     {
@@ -41,7 +43,8 @@
         "Prossimamente...",
         "Wkrótce...",
         "敬请期待...",
-        "곧 출시..."
+        "곧 출시...",
+        "Em breve..."
       ]
     },
     {
@@ -57,7 +60,8 @@
         "Prossimamente",
         "Wkrótce",
         "敬请期待",
-        "곧 출시"
+        "곧 출시",
+        "Em breve"
       ]
     },
     {
@@ -73,7 +77,8 @@
         "Sistema Solare",
         "Układ Słoneczny",
         "太阳系",
-        "태양계"
+        "태양계",
+        "Sistema Solar"
       ]
     },
     {
@@ -89,7 +94,8 @@
         "Sistema Proxima",
         "Układ Proxima",
         "比邻星系",
-        "프록시마 성계"
+        "프록시마 성계",
+        "Sistema Próxima"
       ]
     },
     {
@@ -105,7 +111,8 @@
         "Sistema Rigel",
         "Układ Rigel",
         "参宿七星系",
-        "리겔 성계"
+        "리겔 성계",
+        "Sistema Rigel"
       ]
     },
     {
@@ -121,7 +128,8 @@
         "Non mostrare più il tutorial",
         "Nie pokazuj więcej samouczka",
         "不再显示教程",
-        "튜토리얼 다시 보지 않기"
+        "튜토리얼 다시 보지 않기",
+        "Não mostrar o tutorial novamente"
       ]
     },
     {
@@ -137,7 +145,8 @@
         "Riscuoti",
         "Odbierz",
         "领取",
-        "받기"
+        "받기",
+        "Resgatar"
       ]
     },
     {
@@ -153,7 +162,8 @@
         "Riscosso",
         "Odebrano",
         "已领取",
-        "받음"
+        "받음",
+        "Resgatado"
       ]
     },
     {
@@ -169,7 +179,8 @@
         "Acquistato",
         "Kupiono",
         "已购买",
-        "구매함"
+        "구매함",
+        "Comprado"
       ]
     },
     {
@@ -185,7 +196,8 @@
         "Equipaggio",
         "Załoga",
         "船员",
-        "승무원"
+        "승무원",
+        "Tripulação"
       ]
     },
     {
@@ -201,7 +213,8 @@
         "RICOMPENSE GIORNALIERE",
         "CODZIENNE NAGRODY",
         "每日奖励",
-        "일일 보상"
+        "일일 보상",
+        "RECOMPENSAS DIÁRIAS"
       ]
     },
     {
@@ -217,7 +230,8 @@
         "Flotta",
         "Flota",
         "舰队",
-        "함대"
+        "함대",
+        "Frota"
       ]
     },
     {
@@ -233,7 +247,8 @@
         "Unisci",
         "Połącz",
         "合并",
-        "합치기"
+        "합치기",
+        "Fundir"
       ]
     },
     {
@@ -249,7 +264,8 @@
         "Priorità missili",
         "Priorytet rakiet",
         "导弹优先级",
-        "미사일 우선순위"
+        "미사일 우선순위",
+        "Prioridade de mísseis"
       ]
     },
     {
@@ -265,7 +281,8 @@
         "RICOMPENSE",
         "NAGRODY",
         "奖励",
-        "보상"
+        "보상",
+        "RECOMPENSAS"
       ]
     },
     {
@@ -281,7 +298,8 @@
         "NEGOZIO",
         "SKLEP",
         "商店",
-        "상점"
+        "상점",
+        "LOJA"
       ]
     },
     {
@@ -297,7 +315,8 @@
         "TECNOLOGIE",
         "TECHNOLOGIE",
         "科技",
-        "기술"
+        "기술",
+        "TECNOLOGIAS"
       ]
     },
     {
@@ -313,7 +332,8 @@
         "Nome della nave",
         "Nazwa statku",
         "舰船名称",
-        "함선 이름"
+        "함선 이름",
+        "Nome da nave"
       ]
     },
     {
@@ -329,7 +349,8 @@
         "Inserisci un nome",
         "Wpisz nazwę",
         "输入名称",
-        "이름 입력"
+        "이름 입력",
+        "Digite um nome"
       ]
     },
     {
@@ -345,7 +366,8 @@
         "Corazza",
         "Pancerz",
         "装甲",
-        "장갑"
+        "장갑",
+        "Blindagem"
       ]
     },
     {
@@ -361,7 +383,8 @@
         "Cabina",
         "Kokpit",
         "驾驶舱",
-        "조종석"
+        "조종석",
+        "Cabine"
       ]
     },
     {
@@ -377,7 +400,8 @@
         "Generatore e reattore nucleare",
         "Generator i reaktor jądrowy",
         "发电机与核反应堆",
-        "발전기 & 원자로"
+        "발전기 & 원자로",
+        "Gerador e reator nuclear"
       ]
     },
     {
@@ -393,7 +417,8 @@
         "Propulsore a reazione e ionico",
         "Silnik odrzutowy i jonowy",
         "喷气与离子推进器",
-        "제트 & 이온 추진기"
+        "제트 & 이온 추진기",
+        "Propulsor a jato e iônico"
       ]
     },
     {
@@ -409,7 +434,8 @@
         "Arma cinetica",
         "Broń kinetyczna",
         "动能武器",
-        "운동 에너지 무기"
+        "운동 에너지 무기",
+        "Arma cinética"
       ]
     },
     {
@@ -425,7 +451,8 @@
         "Arma laser",
         "Broń laserowa",
         "激光武器",
-        "레이저 무기"
+        "레이저 무기",
+        "Arma laser"
       ]
     },
     {
@@ -441,7 +468,8 @@
         "Missili",
         "Rakiety",
         "导弹",
-        "미사일"
+        "미사일",
+        "Mísseis"
       ]
     },
     {
@@ -457,7 +485,8 @@
         "Arma al plasma",
         "Broń plazmowa",
         "等离子武器",
-        "플라즈마 무기"
+        "플라즈마 무기",
+        "Arma de plasma"
       ]
     },
     {
@@ -473,7 +502,8 @@
         "Riparazione",
         "Naprawa",
         "维修",
-        "수리"
+        "수리",
+        "Reparo"
       ]
     },
     {
@@ -489,7 +519,8 @@
         "Scudo",
         "Tarcza",
         "护盾",
-        "보호막"
+        "보호막",
+        "Escudo"
       ]
     },
     {
@@ -505,7 +536,8 @@
         "Difesa",
         "Obrona",
         "防御",
-        "방어"
+        "방어",
+        "Defesa"
       ]
     },
     {
@@ -521,7 +553,8 @@
         "Motore",
         "Silnik",
         "引擎",
-        "엔진"
+        "엔진",
+        "Motor"
       ]
     },
     {
@@ -537,7 +570,8 @@
         "Generatore",
         "Generator",
         "发电机",
-        "발전기"
+        "발전기",
+        "Gerador"
       ]
     },
     {
@@ -553,7 +587,8 @@
         "Meteora",
         "Meteor",
         "陨石",
-        "운석"
+        "운석",
+        "Meteoro"
       ]
     },
     {
@@ -569,7 +604,8 @@
         "Movimento",
         "Ruch",
         "移动",
-        "이동"
+        "이동",
+        "Movimento"
       ]
     },
     {
@@ -585,7 +621,8 @@
         "Arma",
         "Broń",
         "武器",
-        "무기"
+        "무기",
+        "Arma"
       ]
     },
     {
@@ -601,7 +638,8 @@
         "Armi",
         "Broń",
         "武器",
-        "무기"
+        "무기",
+        "Armas"
       ]
     },
     {
@@ -617,7 +655,8 @@
         "VITTORIA!",
         "ZWYCIĘSTWO!",
         "胜利！",
-        "승리!"
+        "승리!",
+        "VITÓRIA!"
       ]
     },
     {
@@ -633,7 +672,8 @@
         "SCONFITTA!",
         "PORAŻKA!",
         "失败！",
-        "패배!"
+        "패배!",
+        "DERROTA!"
       ]
     },
     {
@@ -649,7 +689,8 @@
         "Caricamento...",
         "Ładowanie...",
         "加载中...",
-        "로딩 중..."
+        "로딩 중...",
+        "Carregando..."
       ]
     },
     {
@@ -665,7 +706,8 @@
         "Serve una cabina per salvare la nave",
         "Do zapisania statku potrzebny jest kokpit",
         "保存舰船需要驾驶舱",
-        "함선을 저장하려면 조종석이 필요합니다"
+        "함선을 저장하려면 조종석이 필요합니다",
+        "É preciso uma cabine para salvar a nave"
       ]
     },
     {
@@ -681,7 +723,8 @@
         "Tutti i blocchi devono essere collegati alla cabina",
         "Wszystkie bloki muszą być połączone z kokpitem",
         "所有模块都必须与驾驶舱相连",
-        "모든 블록이 조종석과 연결되어야 합니다"
+        "모든 블록이 조종석과 연결되어야 합니다",
+        "Todos os blocos devem estar conectados à cabine"
       ]
     },
     {
@@ -697,7 +740,8 @@
         "Risorse insufficienti",
         "Za mało zasobów",
         "资源不足",
-        "자원이 부족합니다"
+        "자원이 부족합니다",
+        "Recursos insuficientes"
       ]
     },
     {
@@ -713,7 +757,8 @@
         "Monete insufficienti",
         "Za mało monet",
         "金币不足",
-        "코인이 부족합니다"
+        "코인이 부족합니다",
+        "Moedas insuficientes"
       ]
     },
     {
@@ -729,7 +774,8 @@
         "Acquisto in attesa di conferma",
         "Zakup oczekuje na potwierdzenie",
         "购买待确认",
-        "구매 확인 대기 중"
+        "구매 확인 대기 중",
+        "Compra aguardando confirmação"
       ]
     },
     {
@@ -745,7 +791,8 @@
         "Acquisto completato",
         "Zakup zakończony",
         "购买成功",
-        "구매가 완료되었습니다"
+        "구매가 완료되었습니다",
+        "Compra concluída"
       ]
     },
     {
@@ -761,7 +808,8 @@
         "Acquisti ripristinati",
         "Zakupy przywrócone",
         "已恢复购买",
-        "구매 내역이 복원되었습니다"
+        "구매 내역이 복원되었습니다",
+        "Compras restauradas"
       ]
     },
     {
@@ -777,7 +825,8 @@
         "Acquisto non riuscito",
         "Zakup nie powiódł się",
         "购买失败",
-        "구매에 실패했습니다"
+        "구매에 실패했습니다",
+        "A compra falhou"
       ]
     },
     {
@@ -793,7 +842,8 @@
         "Il negozio non è al momento disponibile",
         "Sklep jest obecnie niedostępny",
         "商店暂时无法使用",
-        "현재 상점을 이용할 수 없습니다"
+        "현재 상점을 이용할 수 없습니다",
+        "A loja está indisponível no momento"
       ]
     },
     {
@@ -809,7 +859,8 @@
         "Benvenuto a bordo, comandante! La tua nave è quasi pronta per la prima battaglia, ma manca ancora un cannone. Tocca «Costruisci» per aprire il cantiere navale.",
         "Witaj na pokładzie, dowódco! Twój statek jest prawie gotowy do pierwszej bitwy, ale brakuje mu jeszcze jednego działa. Stuknij „Buduj”, aby otworzyć konstruktor statków.",
         "欢迎登舰，指挥官！你的舰船即将迎来首战，但还缺一门炮。点击“建造”打开舰船建造器。",
-        "지휘관님, 탑승을 환영합니다! 함선이 첫 전투 준비를 거의 마쳤지만 포 하나가 아직 없습니다. '건조'를 눌러 함선 건조기를 여세요."
+        "지휘관님, 탑승을 환영합니다! 함선이 첫 전투 준비를 거의 마쳤지만 포 하나가 아직 없습니다. '건조'를 눌러 함선 건조기를 여세요.",
+        "Bem-vindo a bordo, comandante! Sua nave está quase pronta para a primeira batalha, mas ainda falta um canhão. Toque em “Construir” para abrir o estaleiro."
       ]
     },
     {
@@ -825,7 +876,8 @@
         "I blocchi sono divisi in categorie. Tocca «Armi».",
         "Bloki są podzielone na kategorie. Stuknij „Broń”.",
         "模块按类别分类。点击“武器”。",
-        "블록은 카테고리별로 나뉘어 있습니다. '무기'를 누르세요."
+        "블록은 카테고리별로 나뉘어 있습니다. '무기'를 누르세요.",
+        "Os blocos são organizados em categorias. Toque em “Armas”."
       ]
     },
     {
@@ -841,7 +893,8 @@
         "Trascina il cannone nello spazio libero della tua nave.",
         "Przeciągnij działo na wolne miejsce statku.",
         "将炮拖到舰船的空位上。",
-        "포를 함선의 빈 자리로 끌어다 놓으세요."
+        "포를 함선의 빈 자리로 끌어다 놓으세요.",
+        "Arraste o canhão para o espaço livre da sua nave."
       ]
     },
     {
@@ -857,7 +910,8 @@
         "Tocca il segno di spunta per confermare la costruzione.",
         "Stuknij znacznik wyboru, aby potwierdzić budowę.",
         "点击对勾确认建造。",
-        "체크 표시를 눌러 건조를 확정하세요."
+        "체크 표시를 눌러 건조를 확정하세요.",
+        "Toque na marca de seleção para confirmar a construção."
       ]
     },
     {
@@ -873,7 +927,8 @@
         "Ottimo lavoro! Tocca «Salva» per tenere la tua nuova nave.",
         "Świetnie! Stuknij „Zapisz”, aby zachować nowy statek.",
         "干得好！点击“保存”保留你的新舰船。",
-        "잘했습니다! '저장'을 눌러 새 함선을 저장하세요."
+        "잘했습니다! '저장'을 눌러 새 함선을 저장하세요.",
+        "Muito bem! Toque em “Salvar” para manter sua nova nave."
       ]
     },
     {
@@ -889,7 +944,8 @@
         "La nave è salvata. Ora esci dal cantiere navale.",
         "Statek zapisany. Teraz wyjdź z konstruktora.",
         "舰船已保存。现在退出建造器。",
-        "함선이 저장되었습니다. 이제 건조기를 나가세요."
+        "함선이 저장되었습니다. 이제 건조기를 나가세요.",
+        "Sua nave foi salva. Agora saia do estaleiro."
       ]
     },
     {
@@ -905,7 +961,8 @@
         "La tua nave è pronta alla battaglia. Tocca «Gioca»!",
         "Statek jest gotowy do walki. Stuknij „Graj”!",
         "舰船已准备好战斗。点击“开始”！",
-        "함선이 전투 준비를 마쳤습니다. '플레이'를 누르세요!"
+        "함선이 전투 준비를 마쳤습니다. '플레이'를 누르세요!",
+        "Sua nave está pronta para a batalha. Toque em “Jogar”!"
       ]
     },
     {
@@ -921,7 +978,8 @@
         "Scegli «Campagna».",
         "Wybierz „Kampania”.",
         "选择“战役”。",
-        "'캠페인'을 선택하세요."
+        "'캠페인'을 선택하세요.",
+        "Escolha “Campanha”."
       ]
     },
     {
@@ -937,7 +995,8 @@
         "Seleziona il primo sistema stellare.",
         "Wybierz pierwszy układ gwiezdny.",
         "选择第一个星系。",
-        "첫 번째 성계를 선택하세요."
+        "첫 번째 성계를 선택하세요.",
+        "Selecione o primeiro sistema estelar."
       ]
     },
     {
@@ -953,7 +1012,8 @@
         "Tocca il livello 1.",
         "Stuknij poziom 1.",
         "点击第 1 关。",
-        "1레벨을 누르세요."
+        "1레벨을 누르세요.",
+        "Toque no nível 1."
       ]
     },
     {
@@ -969,7 +1029,8 @@
         "Tocca «Gioca» per iniziare la battaglia!",
         "Stuknij „Graj”, aby rozpocząć bitwę!",
         "点击“开始”进入战斗！",
-        "'플레이'를 눌러 전투를 시작하세요!"
+        "'플레이'를 눌러 전투를 시작하세요!",
+        "Toque em “Jogar” para iniciar a batalha!"
       ]
     },
     {
@@ -985,7 +1046,8 @@
         "Hai completato una missione! Apri «Ricompense» per ritirare il premio.",
         "Ukończono zadanie! Otwórz „Nagrody”, aby odebrać nagrodę.",
         "你完成了一项任务！打开“奖励”领取奖品。",
-        "과제를 완료했습니다! '보상'을 열어 상품을 받으세요."
+        "과제를 완료했습니다! '보상'을 열어 상품을 받으세요.",
+        "Você concluiu uma tarefa! Abra “Recompensas” para pegar seu prêmio."
       ]
     },
     {
@@ -1001,7 +1063,8 @@
         "Tocca «Riscuoti» per ottenere la ricompensa.",
         "Stuknij „Odbierz”, aby otrzymać nagrodę.",
         "点击“领取”获得奖励。",
-        "'받기'를 눌러 보상을 받으세요."
+        "'받기'를 눌러 보상을 받으세요.",
+        "Toque em “Resgatar” para receber sua recompensa."
       ]
     },
     {
@@ -1017,7 +1080,8 @@
         "Hai abbastanza punti ricerca per sbloccare gli scudi! Apri «Ricerca».",
         "Masz wystarczająco punktów badań, aby odblokować tarcze! Otwórz „Badania”.",
         "你的研究点数足以解锁护盾！打开“研究”。",
-        "보호막을 해금할 연구 포인트가 충분합니다! '연구'를 여세요."
+        "보호막을 해금할 연구 포인트가 충분합니다! '연구'를 여세요.",
+        "Você tem pontos de pesquisa suficientes para desbloquear os escudos! Abra “Pesquisa”."
       ]
     },
     {
@@ -1033,7 +1097,8 @@
         "Tocca lo scudo per ricercarlo. Gli scudi fermano i colpi nemici prima che colpiscano la tua nave.",
         "Stuknij tarczę, aby ją zbadać. Tarcze zatrzymują wrogie strzały, zanim trafią w statek.",
         "点击护盾进行研究。护盾能在敌方炮火击中舰船前将其拦下。",
-        "보호막을 눌러 연구하세요. 보호막은 적의 공격이 함선에 닿기 전에 막아 줍니다."
+        "보호막을 눌러 연구하세요. 보호막은 적의 공격이 함선에 닿기 전에 막아 줍니다.",
+        "Toque no escudo para pesquisá-lo. Os escudos param os tiros inimigos antes que atinjam sua nave."
       ]
     },
     {
@@ -1049,7 +1114,8 @@
         "Muovi il dito sul joystick per pilotare la nave. I cannoni sparano da soli: schiva i colpi nemici e distruggi tutti i nemici!",
         "Przesuwaj palcem po joysticku, aby sterować statkiem. Działa strzelają same: unikaj wrogich strzałów i zniszcz wszystkich wrogów!",
         "在摇杆上移动手指来驾驶舰船。武器会自动开火：躲避敌方炮火，消灭所有敌人！",
-        "조이스틱 위에서 손가락을 움직여 함선을 조종하세요. 포는 자동으로 발사됩니다. 적의 공격을 피하고 모든 적을 파괴하세요!"
+        "조이스틱 위에서 손가락을 움직여 함선을 조종하세요. 포는 자동으로 발사됩니다. 적의 공격을 피하고 모든 적을 파괴하세요!",
+        "Mova o dedo no joystick para pilotar sua nave. Seus canhões disparam sozinhos: desvie dos tiros inimigos e destrua todos os inimigos!"
       ]
     }
   ]

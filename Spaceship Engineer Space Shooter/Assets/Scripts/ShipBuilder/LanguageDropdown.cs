@@ -18,6 +18,7 @@ public class LanguageDropdown : MonoBehaviour
         { "de", "Deutsch" },
         { "fr", "Français" },
         { "es", "Español" },
+        { "pt", "Português" },
         { "it", "Italiano" },
         { "pl", "Polski" },
         { "zh-Hans", "简体中文" },
@@ -26,7 +27,7 @@ public class LanguageDropdown : MonoBehaviour
         { "ar", "العربية" },
     };
 
-    private static readonly string[] Order = { "en", "uk", "ru", "de", "fr", "es", "it", "pl", "zh-Hans", "hi", "ko", "ar" };
+    private static readonly string[] Order = { "en", "uk", "ru", "de", "fr", "es", "pt", "it", "pl", "zh-Hans", "hi", "ko", "ar" };
 
     private TMP_Dropdown dropdown;
 

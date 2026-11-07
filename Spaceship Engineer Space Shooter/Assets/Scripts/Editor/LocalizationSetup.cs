@@ -55,7 +55,16 @@ public static class LocalizationSetup
         => EditorUtility.DisplayDialog("Localization", "The Localization package is not loaded yet (no L10N_SDK symbol). Wait for Unity to finish importing and compiling, then try again.", "OK");
 #else
     [MenuItem("Tools/Ship Builder/Localization/1. Languages and Strings")]
-    public static void SetUpStrings()
+    public static void SetUpStrings() => LoadStrings(false);
+
+    [MenuItem("Tools/Ship Builder/Localization/Reload All Strings from JSON (overwrites table edits)")]
+    public static void ReloadStrings()
+    {
+        if (EditorUtility.DisplayDialog("Reload strings", "Every translation in the tables is replaced by the one in GameStrings.json. Edits made in the Unity table window are lost. Continue?", "Reload", "Cancel"))
+            LoadStrings(true);
+    }
+
+    private static void LoadStrings(bool overwrite)
     {
         if (!File.Exists(SourcePath))
         {
@@ -93,8 +102,11 @@ public static class LocalizationSetup
                 var table = collection.GetTable(new LocaleIdentifier(data.languages[i])) as StringTable;
                 if (table == null) continue;
 
-                var entry = table.GetEntry(shared.Id) ?? table.AddEntry(shared.Id, e.values[i]);
-                entry.Value = e.values[i];
+                if (string.IsNullOrEmpty(e.values[i])) continue;
+                var entry = table.GetEntry(shared.Id);
+                if (entry == null) table.AddEntry(shared.Id, e.values[i]);
+                else if (overwrite || string.IsNullOrWhiteSpace(entry.Value)) entry.Value = e.values[i];
+                else continue;
                 EditorUtility.SetDirty(table);
             }
         }

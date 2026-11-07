@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_pt
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: pt
+  m_SharedData: {fileID: 11400000, guid: e1b602ca10eae4a4cbbefb6b853ba0a0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14219952128
+    m_Localized: JOGAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14387724288
+    m_Localized: Em breve...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112896
+    m_Localized: Em breve
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112897
+    m_Localized: Sistema Solar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112898
+    m_Localized: "Sistema Pr\xF3xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112899
+    m_Localized: Sistema Rigel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112900
+    m_Localized: "N\xE3o mostrar o tutorial novamente"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112901
+    m_Localized: Resgatar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112902
+    m_Localized: Resgatado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112903
+    m_Localized: Comprado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112904
+    m_Localized: "Tripula\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112905
+    m_Localized: "RECOMPENSAS DI\xC1RIAS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112906
+    m_Localized: Frota
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112907
+    m_Localized: Fundir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14396112908
+    m_Localized: "Prioridade de m\xEDsseis"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307200
+    m_Localized: RECOMPENSAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307201
+    m_Localized: LOJA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307202
+    m_Localized: TECNOLOGIAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307203
+    m_Localized: Nome da nave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307204
+    m_Localized: Digite um nome
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307205
+    m_Localized: Blindagem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307206
+    m_Localized: Cabine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307207
+    m_Localized: Gerador e reator nuclear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307208
+    m_Localized: "Propulsor a jato e i\xF4nico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307209
+    m_Localized: "Arma cin\xE9tica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307210
+    m_Localized: Arma laser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307211
+    m_Localized: "M\xEDsseis"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307212
+    m_Localized: Arma de plasma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307213
+    m_Localized: Reparo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307214
+    m_Localized: Escudo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307215
+    m_Localized: Defesa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307216
+    m_Localized: Motor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307217
+    m_Localized: Gerador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307218
+    m_Localized: Meteoro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307219
+    m_Localized: Movimento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307220
+    m_Localized: Arma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14400307221
+    m_Localized: Armas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501504
+    m_Localized: "VIT\xD3RIA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501505
+    m_Localized: DERROTA!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501506
+    m_Localized: Carregando...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501507
+    m_Localized: "\xC9 preciso uma cabine para salvar a nave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501508
+    m_Localized: "Todos os blocos devem estar conectados \xE0 cabine"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501509
+    m_Localized: Recursos insuficientes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14404501510
+    m_Localized: Moedas insuficientes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695808
+    m_Localized: "Compra aguardando confirma\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695809
+    m_Localized: "Compra conclu\xEDda"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695810
+    m_Localized: Compras restauradas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695811
+    m_Localized: A compra falhou
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695812
+    m_Localized: "A loja est\xE1 indispon\xEDvel no momento"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695813
+    m_Localized: "Bem-vindo a bordo, comandante! Sua nave est\xE1 quase pronta para
+      a primeira batalha, mas ainda falta um canh\xE3o. Toque em \u201CConstruir\u201D
+      para abrir o estaleiro."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695814
+    m_Localized: "Os blocos s\xE3o organizados em categorias. Toque em \u201CArmas\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695815
+    m_Localized: "Arraste o canh\xE3o para o espa\xE7o livre da sua nave."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695816
+    m_Localized: "Toque na marca de sele\xE7\xE3o para confirmar a constru\xE7\xE3o."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695817
+    m_Localized: "Muito bem! Toque em \u201CSalvar\u201D para manter sua nova nave."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695818
+    m_Localized: Sua nave foi salva. Agora saia do estaleiro.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695819
+    m_Localized: "Sua nave est\xE1 pronta para a batalha. Toque em \u201CJogar\u201D!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695820
+    m_Localized: "Escolha \u201CCampanha\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695821
+    m_Localized: Selecione o primeiro sistema estelar.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695822
+    m_Localized: "Toque no n\xEDvel 1."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695823
+    m_Localized: "Toque em \u201CJogar\u201D para iniciar a batalha!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695824
+    m_Localized: "Voc\xEA concluiu uma tarefa! Abra \u201CRecompensas\u201D para
+      pegar seu pr\xEAmio."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695825
+    m_Localized: "Toque em \u201CResgatar\u201D para receber sua recompensa."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695826
+    m_Localized: "Voc\xEA tem pontos de pesquisa suficientes para desbloquear os
+      escudos! Abra \u201CPesquisa\u201D."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695827
+    m_Localized: "Toque no escudo para pesquis\xE1-lo. Os escudos param os tiros
+      inimigos antes que atinjam sua nave."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14408695828
+    m_Localized: "Mova o dedo no joystick para pilotar sua nave. Seus canh\xF5es
+      disparam sozinhos: desvie dos tiros inimigos e destrua todos os inimigos!"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
