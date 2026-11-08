@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -53,7 +54,7 @@ public class BuildPaletteUI : MonoBehaviour
         selectedButton = null;
         if (infoCard != null) infoCard.Hide();
 
-        foreach (var block in blocks)
+        foreach (var block in blocks.Where(b => b != null).OrderBy(b => b.buildCost))
             if (!block.enemyOnly && IsUnlocked(block)) CreateButton(block);
 
         FitContent();
@@ -145,6 +146,7 @@ public class BuildPaletteUI : MonoBehaviour
         view.SetSelected(false);
 
         view.SetPrice(block.buildCost);
+        view.SetSize(block);
         if (view.costLabel == null)
         {
             var legacyLabel = buttonObj.GetComponentInChildren<Text>();

@@ -323,6 +323,7 @@ MonoBehaviour:
   icon: {fileID: 4495264557439129682}
   selectionHighlight: {fileID: 3668663379181740711}
   costLabel: {fileID: 3767721074319432389}
+  sizeLabel: {fileID: 7944154327556503264}
 --- !u!114 &4211173354526186858
 MonoBehaviour:
   m_ObjectHideFlags: 0
