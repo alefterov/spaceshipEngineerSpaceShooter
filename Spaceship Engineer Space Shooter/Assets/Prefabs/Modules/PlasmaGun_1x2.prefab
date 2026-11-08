@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 556699478759294280}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 711142012868884709}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &6698408291988419977
 SpriteRenderer:
   serializedVersion: 3
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4021649558897274942, guid: fbb0a2505a1e4494d809e4c6b804c84c, type: 3}
+  m_Sprite: {fileID: 3328158835823297332, guid: 0d46bcd0806f98c4090038eebb7795c7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,10 +102,9 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 9171068947655010196}
-  - component: {fileID: 5153420831474828212}
+  - component: {fileID: -5060806051734577656}
   m_Layer: 0
-  m_Name: PlasmaGun_3x3
+  m_Name: PlasmaGun_1x2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -174,7 +173,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &9171068947655010196
+--- !u!114 &-5060806051734577656
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -183,17 +182,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 347b568066877694b8e4cd31274822d6, type: 3}
+  m_Script: {fileID: 11500000, guid: c79ccfea62186bf4e844f824d13a7eff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
+  m_EditorClassIdentifier: Assembly-CSharp::PlasmaWeapon
   type: 2
-  moduleId: plasmaGun_1x1
-  buildCost: 30
-  maxHP: 20
-  mass: 1
-  energyDelta: 3
+  moduleId: plasmaGun_1x2
+  laserResistance: 0
+  maxHP: 420
+  mass: 7
+  energyDelta: -20
   occupiedCells:
   - {x: 0, y: 0}
+  - {x: 0, y: 1}
   cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
@@ -201,41 +201,37 @@ MonoBehaviour:
   visualRoot: {fileID: 0}
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
+  explosionLifetime: 3
+  blastDamageToNeighbours: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 1
+  rewardCredits: 5
+  rewardExperience: 0
   aiming: 0
   fireControl: 0
-  allowedTargets: 000000000200000004000000
+  weaponClass: 3
+  allowedTargets: 0000000002000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
+  projectilePrefab: {fileID: 6121481436946082410, guid: 394fe6837edf2bc4ab2358910b61ea6d, type: 3}
+  muzzles:
+  - {fileID: 7553389974999812753}
+  - {fileID: 835783885715577040}
   muzzle: {fileID: 0}
-  cooldownSeconds: 0.5
-  projectileDamage: 5
-  projectileSpeed: 16
-  range: 70
-  fireArcDegrees: 30
+  cooldownSeconds: 6
+  projectileDamage: 6
+  projectileSpeed: 4
+  range: 200
+  fireArcDegrees: 180
+  fireSound: {fileID: 0}
+  fireVolume: 1
+  enemyVolumeScale: 0.7
   topRoot: {fileID: 9174914285220350066}
-  turretPivot: {fileID: 9174914285220350066}
+  turretPivot: {fileID: 0}
   turretRotationSpeed: 180
---- !u!114 &5153420831474828212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729449600381729954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbc2df6214a042343a9aac5a621628d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlockDamageVisual
-  bodyRenderer: {fileID: 0}
-  markSprites: []
-  markColor: {r: 0.04, g: 0.04, b: 0.06, a: 0.8}
-  maxMarks: 16
-  markSize: {x: 0.15, y: 0.4}
-  clipToBlock: 1
-  sparksEffect: {fileID: 0}
-  fireEffect: {fileID: 0}
+  turretAimToleranceDegrees: 3
+  ballsPerShot: 1
+  ballSpacing: 0.8
 --- !u!1 &4713065175766498228
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,13 +256,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4713065175766498228}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: -0.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9174914285220350066}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!1 &6281750645506118479
 GameObject:
   m_ObjectHideFlags: 0
@@ -293,11 +289,12 @@ Transform:
   m_GameObject: {fileID: 6281750645506118479}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: 0.1, z: -2}
+  m_LocalPosition: {x: 0, y: 0.45, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7553389974999812753}
+  - {fileID: 835783885715577040}
   m_Father: {fileID: 711142012868884709}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &4769399178634415914
@@ -347,16 +344,47 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 20
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -1422507209645278814, guid: f833e92cc6305b245a3fa2198dc7ea60, type: 3}
+  m_Sprite: {fileID: 504886415658215332, guid: 4e4875854f4bedb4f88cdaa24cb5f23f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 0.74, y: 0.93333334}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &6597412991444453186
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 835783885715577040}
+  m_Layer: 0
+  m_Name: Muzzle (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &835783885715577040
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6597412991444453186}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: -0.59, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9174914285220350066}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}

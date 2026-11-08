@@ -219,7 +219,7 @@ MonoBehaviour:
   cooldownSeconds: 5
   projectileDamage: 1
   projectileSpeed: 12
-  range: 200
+  range: 100
   fireArcDegrees: 180
   fireSound: {fileID: 8300000, guid: fb2da39af5453f149858e9e37b7d0d66, type: 3}
   fireVolume: 0.2
@@ -239,7 +239,7 @@ MonoBehaviour:
   haloAlpha: 0.35
   beamMaterial: {fileID: 0}
   beamSortingOrder: 20
-  capsuleCount: 6
+  capsuleCount: 24
   capsuleLength: 0.7
   capsuleSpeed: 14
   capsuleWidthMultiplier: 1.7
@@ -356,7 +356,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2005654371, guid: 9a6b4b90392ee964d8dac6e3f9a1b97e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

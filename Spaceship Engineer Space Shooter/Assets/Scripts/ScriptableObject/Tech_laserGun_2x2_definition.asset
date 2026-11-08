@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3f6418e59f3544c80a86cec22f192a, type: 3}
+  m_Name: Tech_laserGun_2x2_definition
+  m_EditorClassIdentifier: Assembly-CSharp::TechDefinition
+  id: laser_gun_2x2
+  displayName: Laser Gun III
+  icon: {fileID: -1883821408061854342, guid: 41ff448998c7e264f8be5a8de502139d, type: 3}
+  category: 7
+  prerequisite: {fileID: 11400000, guid: dc411bec1fa94b643b2c752f6695bbea, type: 2}
+  researchCost: 120
+  unlockedBlocks:
+  - {fileID: 11400000, guid: 4fb3b34484cc91144965913249829725, type: 2}

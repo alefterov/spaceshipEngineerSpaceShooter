@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 556699478759294280}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 711142012868884709}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &6698408291988419977
 SpriteRenderer:
   serializedVersion: 3
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4839048613277177226, guid: 30cd47f12ade7644397cb1381cb5e123, type: 3}
+  m_Sprite: {fileID: 3960438047011288678, guid: 9fe6978a920fb584fbce0ebd194a9720, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711142012868884709}
   - component: {fileID: 935714196513268400}
-  - component: {fileID: 9171068947655010196}
+  - component: {fileID: 8613866833870575355}
   m_Layer: 0
   m_Name: LaserGun_2x2
   m_TagString: Untagged
@@ -161,7 +161,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.5, y: 0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -171,9 +171,9 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2, y: 2}
   m_EdgeRadius: 0
---- !u!114 &9171068947655010196
+--- !u!114 &8613866833870575355
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -182,18 +182,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 729449600381729954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 347b568066877694b8e4cd31274822d6, type: 3}
+  m_Script: {fileID: 11500000, guid: c240657810d09c24ab19d385c0127f67, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
+  m_EditorClassIdentifier: Assembly-CSharp::LaserWeapon
   type: 2
-  moduleId: laserGun_1x1
-  buildCost: 30
+  moduleId: laserGun_2x2
   laserResistance: 0
-  maxHP: 20
-  mass: 1
-  energyDelta: 3
+  maxHP: 700
+  mass: 14
+  energyDelta: -80
   occupiedCells:
   - {x: 0, y: 0}
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  - {x: 1, y: 0}
   cellShapes: 00000000
   anchorCell: {x: 0, y: 0}
   rotationSteps: 0
@@ -201,33 +203,52 @@ MonoBehaviour:
   visualRoot: {fileID: 0}
   roofRoot: {fileID: 5397670763440138059}
   idleAnimator: {fileID: 0}
-  explosionEffectPrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 1108990521950800052, guid: 28999d7ec65a5b64998534f95b6ad6fd, type: 3}
   explosionLifetime: 3
   blastDamageToNeighbours: 1
-  destroySound: {fileID: 0}
-  destroyVolume: 1
+  destroySound: {fileID: 8300000, guid: 032d8cd91c3ae1743b33cee6fe4d8c05, type: 3}
+  destroyVolume: 0.282
   rewardCredits: 5
   rewardExperience: 0
   aiming: 0
   fireControl: 0
-  weaponClass: 0
+  weaponClass: 1
   allowedTargets: 000000000200000004000000
   leadTarget: 1
-  projectilePrefab: {fileID: 9034744518351449050, guid: 38b83b6743d92c74aa955075a1f2db9a, type: 3}
-  muzzles: []
+  projectilePrefab: {fileID: 0}
+  muzzles:
+  - {fileID: 7553389974999812753}
+  - {fileID: 7145736820013792212}
   muzzle: {fileID: 0}
-  cooldownSeconds: 0.5
+  cooldownSeconds: 11
   projectileDamage: 5
-  projectileSpeed: 16
-  range: 70
-  fireArcDegrees: 30
-  fireSound: {fileID: 0}
-  fireVolume: 1
-  enemyVolumeScale: 0.7
+  projectileSpeed: 12
+  range: 100
+  fireArcDegrees: 180
+  fireSound: {fileID: 8300000, guid: fb2da39af5453f149858e9e37b7d0d66, type: 3}
+  fireVolume: 0.2
+  enemyVolumeScale: 0.6
   topRoot: {fileID: 9174914285220350066}
-  turretPivot: {fileID: 9174914285220350066}
+  turretPivot: {fileID: 0}
   turretRotationSpeed: 180
   turretAimToleranceDegrees: 3
+  beamDamagePerSecond: 42
+  beamDuration: 2
+  beamLength: 0
+  beamWidth: 0.15
+  fadeOutSeconds: 0.6
+  damageTickSeconds: 1
+  beamColor: {r: 0.2, g: 1, b: 0.3, a: 1}
+  haloWidthMultiplier: 3.5
+  haloAlpha: 0.35
+  beamMaterial: {fileID: 0}
+  beamSortingOrder: 20
+  capsuleCount: 24
+  capsuleLength: 0.7
+  capsuleSpeed: 14
+  capsuleWidthMultiplier: 1.7
+  shimmerAmount: 0.25
+  shimmerSpeed: 16
 --- !u!1 &4713065175766498228
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,7 +274,7 @@ Transform:
   m_GameObject: {fileID: 4713065175766498228}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.25, y: -1.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -285,11 +306,12 @@ Transform:
   m_GameObject: {fileID: 6281750645506118479}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: 0.1, z: -2}
+  m_LocalPosition: {x: 0.5, y: 0.94, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7553389974999812753}
+  - {fileID: 7145736820013792212}
   m_Father: {fileID: 711142012868884709}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &4769399178634415914
@@ -339,9 +361,9 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5900883858491927032, guid: 9a6b4b90392ee964d8dac6e3f9a1b97e, type: 3}
+  m_Sprite: {fileID: -1883821408061854342, guid: d2361d041e8ab0e48bd5217390ae30f0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -352,3 +374,34 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &8927372527947062312
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7145736820013792212}
+  m_Layer: 0
+  m_Name: Muzzle (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7145736820013792212
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8927372527947062312}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.25, y: -1.04, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9174914285220350066}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Plasma Gun II
   icon: {fileID: 8273005088936768576, guid: 7f83e705a583599419aadc189684fe0b, type: 3}
   category: 9
-  prerequisite: {fileID: 11400000, guid: e0671afb85ca2fd46b09541616c6d8aa, type: 2}
-  researchCost: 70
+  prerequisite: {fileID: 11400000, guid: 5ddbfc737024af742a93de8c8fe95c69, type: 2}
+  researchCost: 130
   unlockedBlocks:
   - {fileID: 11400000, guid: 78ef95beafdf92347917dbf578142889, type: 2}
