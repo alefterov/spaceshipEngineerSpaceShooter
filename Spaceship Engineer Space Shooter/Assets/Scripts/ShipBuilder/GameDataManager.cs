@@ -63,6 +63,7 @@ public class GameDataManager : MonoBehaviour
 
         GrantStarterKitIfNeeded();
         EnsureFleet();
+        ResetShipsToDefaultIfNeeded();
         GrantStarterCrewIfNeeded();
         RebuildPerkBonuses();
         dailyCheckedDate = null;
@@ -90,6 +91,7 @@ public class GameDataManager : MonoBehaviour
     {
         if (Current.starterKitGranted) return;
         Current.starterKitGranted = true;
+        Current.defaultShipsVersion = defaultShipsVersion;
 
         foreach (var id in starterTechIds)
             if (!string.IsNullOrEmpty(id) && !Current.researchedTechIds.Contains(id)) Current.researchedTechIds.Add(id);
@@ -102,6 +104,44 @@ public class GameDataManager : MonoBehaviour
         }
 
         Save();
+    }
+
+    [Tooltip("Raise by 1 in an update to give every existing player's ships the Starter Ship again, once, on their next start. Ship names, the number " +
+             "of ships and hangar upgrades are kept; the blocks they built are replaced. New players are never affected.")]
+    [Min(0)] public int defaultShipsVersion = 1;
+
+    private void ResetShipsToDefaultIfNeeded()
+    {
+        if (Current.defaultShipsVersion >= defaultShipsVersion) return;
+        Current.defaultShipsVersion = defaultShipsVersion;
+
+        if (starterShip != null && starterShip.TotalEntries > 0)
+        {
+            foreach (var ship in Current.fleet)
+                ship.layout = CenteredStarterShip(builderBaseGridSize.x + ship.hangarColumns, builderBaseGridSize.y + ship.hangarRows);
+
+            if (Current.fleet.Count > 0) Current.playerShip = CopyLayout(Current.fleet[SelectedShipIndex].layout);
+        }
+
+        Save();
+    }
+
+    private ShipLayout CenteredStarterShip(int gridWidth, int gridHeight)
+    {
+        var layout = CopyLayout(starterShip);
+        if (layout.blocks.Count == 0) return layout;
+
+        int minX = layout.blocks.Min(b => b.anchorX), maxX = layout.blocks.Max(b => b.anchorX);
+        int minY = layout.blocks.Min(b => b.anchorY), maxY = layout.blocks.Max(b => b.anchorY);
+        int shiftX = (gridWidth - (maxX - minX + 1)) / 2 - minX;
+        int shiftY = (gridHeight - (maxY - minY + 1)) / 2 - minY;
+        foreach (var b in layout.blocks)
+        {
+            b.anchorX += shiftX;
+            b.anchorY += shiftY;
+        }
+
+        return layout;
     }
 
     private static ShipLayout CopyLayout(ShipLayout source)
@@ -121,11 +161,11 @@ public class GameDataManager : MonoBehaviour
         Add("Cockpit_1x1", 2, 1);
         Add("generator_1x1", 2, 2);
         Add("engine_jet_1x1", 3, 1);
-        Add("kinetic_static_gun1_1x1", 3, 2);
-        Add("light_armor_1x1", 2, 3);
-        Add("light_triangle_armor_1x1", 3, 3, 3);
-        Add("light_triangle_armor_1x1", 1, 3);
         Add("engine_jet_1x1", 1, 1);
+        Add("missile1_1x1", 3, 2);
+        Add("light_triangle_armor_1x1", 1, 3);
+        Add("light_triangle_armor_1x1", 3, 3, 3);
+        Add("missile1_1x1", 1, 2);
         return layout;
     }
 

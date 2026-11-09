@@ -16965,25 +16965,25 @@ MonoBehaviour:
       anchorX: 3
       anchorY: 1
       rotationSteps: 0
-    - blockId: kinetic_static_gun1_1x1
+    - blockId: engine_jet_1x1
+      anchorX: 1
+      anchorY: 1
+      rotationSteps: 0
+    - blockId: missile1_1x1
       anchorX: 3
       anchorY: 2
       rotationSteps: 0
-    - blockId: light_armor_1x1
-      anchorX: 2
+    - blockId: light_triangle_armor_1x1
+      anchorX: 1
       anchorY: 3
       rotationSteps: 0
     - blockId: light_triangle_armor_1x1
       anchorX: 3
       anchorY: 3
       rotationSteps: 3
-    - blockId: light_triangle_armor_1x1
+    - blockId: missile1_1x1
       anchorX: 1
-      anchorY: 3
-      rotationSteps: 0
-    - blockId: engine_jet_1x1
-      anchorX: 1
-      anchorY: 1
+      anchorY: 2
       rotationSteps: 0
     hull: []
     modules: []

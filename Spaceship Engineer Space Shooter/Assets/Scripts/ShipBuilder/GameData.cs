@@ -68,6 +68,8 @@ public class GameData
     public bool crewStarterGranted;
     [Tooltip("Set once the starting technologies and ship (GameDataManager, New game) have been handed out, so it happens only at the very first start.")]
     public bool starterKitGranted;
+    [Tooltip("The GameDataManager Default Ships Version this save has been brought up to (its fleet got the starter ship then).")]
+    public int defaultShipsVersion;
     [Tooltip("The \"No ads\" purchase: when true the banner and the full-screen ads between battles are never shown (AdsManager). Rewarded videos stay available.")]
     public bool adsRemoved;
     [Tooltip("The premium purchase (shop): no ads, battle credits and experience x2.")]
