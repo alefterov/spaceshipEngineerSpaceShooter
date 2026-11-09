@@ -188,7 +188,7 @@ MonoBehaviour:
   type: 2
   moduleId: laserGun_1x1
   laserResistance: 0
-  maxHP: 200
+  maxHP: 60
   mass: 4
   energyDelta: -20
   occupiedCells:

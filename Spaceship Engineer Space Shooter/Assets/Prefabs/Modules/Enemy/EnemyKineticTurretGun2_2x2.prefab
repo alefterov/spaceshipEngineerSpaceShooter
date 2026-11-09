@@ -189,7 +189,7 @@ MonoBehaviour:
   type: 2
   moduleId: kineticTurretGun2_1x1
   laserResistance: 0
-  maxHP: 1600
+  maxHP: 500
   mass: 18
   energyDelta: -4
   occupiedCells:

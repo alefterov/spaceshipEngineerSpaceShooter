@@ -188,9 +188,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: kineticTurretDefenseGun_1x1
-  buildCost: 20
   laserResistance: 0
-  maxHP: 100
+  maxHP: 70
   mass: 1
   energyDelta: -1
   occupiedCells:

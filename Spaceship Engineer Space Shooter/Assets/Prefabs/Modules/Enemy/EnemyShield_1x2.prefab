@@ -96,9 +96,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShieldModule
   type: 4
   moduleId: shield_2x2
-  buildCost: 20
   laserResistance: 0
-  maxHP: 250
+  maxHP: 170
   mass: 4
   energyDelta: 0
   occupiedCells:
@@ -122,6 +121,7 @@ MonoBehaviour:
   capacity: 500
   rechargePerSecond: 4
   reactivateFraction: 0.25
+  collapseCooldown: 5
   absorbSound: {fileID: 8300000, guid: 0f8c8ac458743f843adec31ebc59b888, type: 3}
   absorbVolume: 0.311
   zoneRenderer: {fileID: 5961069768649543108}

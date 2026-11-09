@@ -95,9 +95,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
   type: 5
   moduleId: reactorBig_3x3
-  buildCost: 170
   laserResistance: 0
-  maxHP: 750
+  maxHP: 320
   mass: 10
   energyDelta: 0
   occupiedCells:

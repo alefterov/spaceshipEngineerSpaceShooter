@@ -95,7 +95,7 @@ MonoBehaviour:
   type: 3
   moduleId: engineIon_3x3
   laserResistance: 0
-  maxHP: 400
+  maxHP: 500
   mass: 8
   energyDelta: -12
   occupiedCells:

@@ -242,9 +242,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissileLauncher
   type: 2
   moduleId: missileModule_2x2
-  buildCost: 600
   laserResistance: 0
-  maxHP: 800
+  maxHP: 320
   mass: 8
   energyDelta: 6
   occupiedCells:

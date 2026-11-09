@@ -95,9 +95,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RepairModule
   type: 7
   moduleId: repair_2x2
-  buildCost: 66
   laserResistance: 0
-  maxHP: 500
+  maxHP: 350
   mass: 4
   energyDelta: 0
   occupiedCells:

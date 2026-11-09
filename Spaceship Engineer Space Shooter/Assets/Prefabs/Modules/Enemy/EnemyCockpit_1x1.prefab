@@ -94,9 +94,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CockpitModule
   type: 6
   moduleId: Cockpit_1x1
-  buildCost: 0
   laserResistance: 0
-  maxHP: 250
+  maxHP: 100
   mass: 1
   energyDelta: 0
   occupiedCells:

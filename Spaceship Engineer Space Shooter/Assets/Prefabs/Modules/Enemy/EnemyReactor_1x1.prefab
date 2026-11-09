@@ -95,9 +95,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorModule
   type: 5
   moduleId: reactor_1x1
-  buildCost: 80
   laserResistance: 0
-  maxHP: 250
+  maxHP: 80
   mass: 2
   energyDelta: 0
   occupiedCells:

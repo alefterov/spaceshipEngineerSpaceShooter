@@ -189,7 +189,7 @@ MonoBehaviour:
   type: 2
   moduleId: enemyKineticTurretDefenseMiniGun_1x1
   laserResistance: 0
-  maxHP: 100
+  maxHP: 110
   mass: 1
   energyDelta: -1
   occupiedCells:

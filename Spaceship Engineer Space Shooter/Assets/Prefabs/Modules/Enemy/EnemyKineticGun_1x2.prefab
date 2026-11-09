@@ -188,7 +188,7 @@ MonoBehaviour:
   type: 2
   moduleId: kineticGun_1x1
   laserResistance: 0
-  maxHP: 1000
+  maxHP: 280
   mass: 10
   energyDelta: -6
   occupiedCells:

@@ -187,9 +187,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponModule
   type: 2
   moduleId: kineticGun1_1x1
-  buildCost: 50
   laserResistance: 0
-  maxHP: 250
+  maxHP: 50
   mass: 2
   energyDelta: -1
   occupiedCells:
@@ -218,7 +217,7 @@ MonoBehaviour:
   - {fileID: 3813965180775659288}
   muzzle: {fileID: 3813965180775659288}
   cooldownSeconds: 3
-  projectileDamage: 8
+  projectileDamage: 12
   projectileSpeed: 12
   range: 200
   fireArcDegrees: 30

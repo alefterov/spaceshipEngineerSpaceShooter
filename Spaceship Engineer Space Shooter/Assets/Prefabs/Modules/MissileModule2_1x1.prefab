@@ -188,7 +188,7 @@ MonoBehaviour:
   type: 2
   moduleId: missileModule2_1x1
   laserResistance: 0
-  maxHP: 250
+  maxHP: 120
   mass: 5
   energyDelta: -5
   occupiedCells:

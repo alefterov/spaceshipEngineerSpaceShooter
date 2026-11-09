@@ -221,7 +221,7 @@ MonoBehaviour:
   - {fileID: 9088350872030205532}
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 7
-  projectileDamage: 114
+  projectileDamage: 120
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30

@@ -220,7 +220,7 @@ MonoBehaviour:
   type: 2
   moduleId: kineticTurretGun3_1x1
   laserResistance: 0
-  maxHP: 400
+  maxHP: 240
   mass: 6
   energyDelta: -2
   occupiedCells:
@@ -251,7 +251,7 @@ MonoBehaviour:
   - {fileID: 7659470681181772655}
   muzzle: {fileID: 9088350872030205532}
   cooldownSeconds: 4
-  projectileDamage: 14.4
+  projectileDamage: 14
   projectileSpeed: 12
   range: 50
   fireArcDegrees: 30

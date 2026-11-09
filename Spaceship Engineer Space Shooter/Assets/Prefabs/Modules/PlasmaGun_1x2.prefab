@@ -188,7 +188,7 @@ MonoBehaviour:
   type: 2
   moduleId: plasmaGun_1x2
   laserResistance: 0
-  maxHP: 420
+  maxHP: 160
   mass: 7
   energyDelta: -20
   occupiedCells:
