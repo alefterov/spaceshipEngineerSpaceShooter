@@ -16990,6 +16990,7 @@ MonoBehaviour:
   starterHangarColumns: 0
   starterHangarRows: 0
   builderBaseGridSize: {x: 5, y: 5}
+  defaultShipsVersion: 1
   fleetShipCurrency: 0
   fleetShipCost: 10000
   fleetShipNameFormat: Ship {0}
@@ -17038,7 +17039,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff7eb08e32e38fc4da0297a75c54c008, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdsManager
-  useTestAds: 1
+  useTestAds: 0
   useConsentForm: 1
   bannerUnitId: ca-app-pub-5320271813067748/2754774319
   interstitialUnitId: ca-app-pub-5320271813067748/8922269408
@@ -78135,7 +78136,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1649257565}
   - component: {fileID: 1649257566}
-  - component: {fileID: 1649257567}
   - component: {fileID: 1649257568}
   m_Layer: 0
   m_Name: GameFlow
@@ -78183,21 +78183,6 @@ MonoBehaviour:
   disconnectedBlocksMessage: All blocks must be connected to the cockpit
   gameModePopup: {fileID: 1147344678}
   levelSelectPopup: {fileID: 2083584231}
---- !u!114 &1649257567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1649257564}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dff2f931f063b1d4da13989c16002f26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CrewRandomGrantKey
-  key: 30
-  cardsPerPress: 9
-  onlyWhileActive: {fileID: 0}
 --- !u!114 &1649257568
 MonoBehaviour:
   m_ObjectHideFlags: 0
